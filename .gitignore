@@ -1,1 +1,24 @@
 
+data/
+*.sav
+*.dta
+*.csv
+*.xlsx
+*.xls
+*.zip
+*.rar
+*.7z
+*.parquet
+*.pkl
+*.json
+*.env
+
+credentials/
+secrets/
+
+token*.pickle
+client_secret*.json
+service_account*.json
+
+.ipynb_checkpoints/
+__pycache__/
