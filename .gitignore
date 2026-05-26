@@ -13,6 +13,15 @@ data/
 *.json
 *.env
 
+# Outputs with data or private IDs
+outputs/
+05Resultados/
+*.log
+
+# OS / editor files
+.DS_Store
+.vscode/
+
 credentials/
 secrets/
 
