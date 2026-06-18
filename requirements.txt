@@ -1,8 +1,9 @@
-# Required Python Packages
-
-Las dependencias principales del proyecto son:
-
-```text
+pandas
+requests
+tqdm
+pyreadstat
+psutil
+ydata-profiling
 google-api-python-client
 google-auth
 google-auth-oauthlib
@@ -11,55 +12,3 @@ requests
 tqdm
 pyreadstat
 pandas
-```
-
-El archivo `requirements.txt` cumple con el mínimo requerido para **Stage 1**, incluyendo librerías para:
-
-- Google Drive API;
-- autenticación;
-- descarga de archivos;
-- barra de progreso;
-- lectura de archivos SPSS `.sav`;
-- manejo de datos con `pandas`.
-
----
-
-# Reproducibility Recommendation
-
-En una versión posterior del proyecto, se recomienda fijar versiones específicas de las librerías para fortalecer la reproducibilidad técnica del entorno.
-
-Ejemplo:
-
-```text
-pandas==2.2.2
-pyreadstat==1.2.7
-requests==2.32.3
-```
-
-Esto permitirá:
-
-- reproducibilidad consistente entre ejecuciones;
-- reducción de errores por incompatibilidades;
-- auditoría más estable del entorno técnico;
-- control explícito de dependencias.
-
----
-
-# Future Dependencies (Stage 2 / Stage 3)
-
-Cuando el pipeline avance hacia integración con BigQuery y procesamiento analítico, será necesario incorporar dependencias adicionales como:
-
-```text
-google-cloud-bigquery
-pandas-gbq
-db-dtypes
-pyarrow
-```
-
-Estas librerías permitirán:
-
-- carga de tablas hacia BigQuery;
-- consultas analíticas;
-- compatibilidad de tipos de datos;
-- exportación eficiente de datasets;
-- integración entre pandas y Google Cloud.
