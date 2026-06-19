@@ -129,4 +129,4 @@ Las métricas actuales siguen siendo útiles como evidencia operacional, pero de
 
 ---
 
-**Sprint 1 Status:** ✅ **Closed and ready for Stage 2.**
+**Sprint 1 Status:**  **Closed and ready for Stage 2.**
