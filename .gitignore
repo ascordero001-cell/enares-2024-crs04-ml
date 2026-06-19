@@ -12,6 +12,7 @@ data/
 *.pkl
 *.json
 *.env
+*.html
 
 # Outputs with data or private IDs
 outputs/
