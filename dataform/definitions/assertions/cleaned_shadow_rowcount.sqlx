@@ -1,0 +1,10 @@
+config {
+  type: "assertion",
+  schema: "enares2024_crs04_ops",
+  tags: ["stage03", "cleaned", "shadow"]
+}
+
+SELECT
+  COUNT(*) AS actual_rows
+FROM ${ref("cleaned_crs04_merged_adolescents_v0_5")}
+HAVING COUNT(*) != 18807
