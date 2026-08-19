@@ -16,7 +16,8 @@ Este repositorio contiene código, notebooks, documentación técnica y evidenci
 - Stage 4: ML Modelling
 - Stage 5: Evaluation & Validation
 
-Actualmente el repositorio se enfoca en **Stage 1 - Data Ingestion**.
+Stages 1 y 2 están aprobados. Stage 3 se encuentra en migración controlada
+desde notebooks V0 hacia una pipeline modular V0.5/V1 en Google Cloud.
 
 ---
 
@@ -183,20 +184,86 @@ Cada etapa debe producir:
 
 # Current Status
 
-Stage 1 se encuentra en desarrollo.
+Stages 1 and 2 están aprobados. Stage 3 se encuentra en migración controlada.
 
-Pendiente o en revisión:
+Completado:
 
-- creación/verificación de estructura en Google Drive;
-- ingesta de módulos ENARES 2024;
-- generación de manifest y logs;
-- identificación de CRS04;
-- extracción de metadata SPSS;
-- reporte de cierre Stage 1;
-- documentación de decisiones técnicas;
-- revisión supervisora semanal.
+- baseline V0 etiquetada y registrada;
+- configuración independiente del entorno;
+- entorno Python local reproducible;
+- autenticación local con Google Cloud;
+- pruebas automáticas del cargador de configuración;
+- piloto V0.5 de acceso cloud en modo read-only.
+
+En progreso:
+
+- contratos de tablas raw;
+- validación de llave y cardinalidad;
+- preparación de Dataform.
 
 ---
+
+# Stage 03 Local Setup
+
+## Environment
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements-dev.txt
+```
+
+## Google Cloud authentication
+
+For a new computer or collaborator:
+
+```powershell
+gcloud init
+gcloud auth application-default login
+gcloud auth application-default set-quota-project enares-2024-crs04
+```
+
+No service-account keys or credential files should be stored in this repository.
+
+## Tests
+
+```powershell
+python -m pytest -q
+```
+
+## V0.5 cloud pilot
+
+Run:
+
+```text
+notebooks/03_limpieza/00_ENARES_2024_STAGE03_cloud_config_pilot_v0_5.ipynb
+```
+
+using:
+
+```text
+Python (.venv ENARES CRS04)
+```
+
+The pilot performs read-only checks for the required BigQuery datasets and raw
+tables. It does not read microdata rows or modify cloud resources.
+
+## Version strategy
+
+- V0: preserved baseline tagged `stage03-v0-baseline`.
+- V0.5: modular configuration, tests and read-only cloud pilots.
+- V1: approved Dataform/BigQuery pipeline promoted by component.
+
+---
+
+# Stage 03 Local Setup
+
+## Environment
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements-dev.txt
 
 # Author
 
