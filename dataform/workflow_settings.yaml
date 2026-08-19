@@ -1,0 +1,11 @@
+dataformCoreVersion: 3.0.64
+defaultProject: enares-2024-crs04
+defaultLocation: US
+defaultDataset: enares2024_crs04_cleaned
+defaultAssertionDataset: enares2024_crs04_ops
+
+vars:
+  rawProject: enares-2024-crs04
+  rawDataset: enares2024_crs04_raw
+  cleanedDataset: enares2024_crs04_cleaned
+  analyticalDataset: enares2024_crs04_analytical
