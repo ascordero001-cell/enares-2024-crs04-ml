@@ -9,3 +9,4 @@ google-auth==2.47.0
 google-auth-httplib2==0.4.0
 google-auth-oauthlib==1.4.0
 pydata-google-auth==1.9.1
+google-cloud-bigquery==3.43.0
