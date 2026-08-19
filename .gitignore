@@ -13,6 +13,7 @@ data/
 *.json
 *.env
 *.html
+.venv/
 
 # Outputs with data or private IDs
 outputs/
