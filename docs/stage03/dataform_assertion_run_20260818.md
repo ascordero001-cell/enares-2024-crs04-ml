@@ -27,7 +27,7 @@ The assertions created validation views in
 
 ## Execution identity
 
-Git commit: `PASTE_GIT_COMMIT_HERE`
+Git commit: `98f3f64c920466a83b1de9e47b8b04aa17962190`
 
 Dataform reported successful BigQuery job execution with approximately 40 MiB
 processed for each key/match assertion and no assertion violations.
