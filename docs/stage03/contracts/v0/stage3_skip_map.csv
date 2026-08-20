@@ -1,0 +1,14 @@
+block,gateway_var,open_value,dependent_vars,recode,keep_null_when,source_module
+VP_HOGAR,C3P203,1,C3P201_1..C3P201_11,SYSMIS->0 según SPSS,C3P203 IS NULL,3.2
+VF_HOGAR,C3P207,1,C3P205_1..C3P205_7,SYSMIS->0 según SPSS,C3P207 IS NULL,3.2
+VF_HOGAR_01,C3P121,1,C3P121,SYSMIS->0 según SPSS,,3.2
+VF_HOGAR_03,C3P216A_*/C3P216C_*,1,C3P216A_1..6;C3P216C_1..5;flags C,SYSMIS->0 según SPSS,,3.2
+DESP,C3P105,!=2,VFNNTV,conservar SYSMIS,C3P105=2,3.2
+VP_ESCUELA,C3P225,1,C3P223_1..C3P223_14,SYSMIS->0 según SPSS,C3P225 IS NULL,3.3
+VF_ESCUELA,C3P229,1,C3P227_1..C3P227_10,SYSMIS->0 según SPSS,C3P229 IS NULL,3.3
+VS_12M/VS_ESCUELA,últimos 12 meses,1,C4P248_1..C4P248_16,SYSMIS->0 según SPSS,,3.4
+ayuda_hogar_*,C3P209/universo víctima hogar,1,formas de búsqueda y recepción hogar,SYSMIS->0 dentro del dominio,fuera del dominio,3.6
+ayuda_escuela_*,universo víctima escuela,1,formas de búsqueda y recepción escuela,SYSMIS->0 dentro del dominio,fuera del dominio,3.6
+ayuda_vs_*,universo víctima VS,1,"formas de búsqueda, institución y recepción VS",SYSMIS->0 dentro del dominio,fuera del dominio,3.6
+agresores_hogar,forma hogar marcada,1,grupos de agresor VP/VF hogar,SYSMIS->0 según SPSS,,3.2.1
+agresores_escuela,forma escuela marcada,1,grupos de agresor VP/VF escuela,SYSMIS->0 según SPSS,,3.3.1
