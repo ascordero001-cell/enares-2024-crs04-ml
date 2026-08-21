@@ -1,0 +1,41 @@
+config {
+  type: "assertion",
+  schema: "enares2024_crs04_ops",
+  tags: ["stage03", "analytical", "pilot_32", "parity"]
+}
+
+WITH
+reference AS (
+  SELECT
+    CAST(ID AS INT64) AS ID,
+    CAST(COLEGIAL_ID AS INT64) AS COLEGIAL_ID,
+    CAST(VP_HOGAR AS INT64) AS reference_value
+  FROM ${ref("analytical_crs04_adolescents")}
+),
+
+candidate AS (
+  SELECT
+    ID,
+    COLEGIAL_ID,
+    VP_HOGAR AS candidate_value
+  FROM ${ref("analytical_crs04_pilot_32_household_v0_5")}
+)
+
+SELECT
+  COALESCE(candidate.ID, reference.ID) AS ID,
+  COALESCE(
+    candidate.COLEGIAL_ID,
+    reference.COLEGIAL_ID
+  ) AS COLEGIAL_ID,
+  candidate.candidate_value,
+  reference.reference_value
+
+FROM candidate
+FULL OUTER JOIN reference
+  USING (ID, COLEGIAL_ID)
+
+WHERE
+  candidate.ID IS NULL
+  OR reference.ID IS NULL
+  OR candidate.candidate_value
+     IS DISTINCT FROM reference.reference_value

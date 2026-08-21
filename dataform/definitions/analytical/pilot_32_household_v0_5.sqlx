@@ -1,0 +1,311 @@
+config {
+  type: "table",
+  schema: dataform.projectConfig.vars.analyticalDataset,
+  name: "analytical_crs04_pilot_32_household_v0_5",
+  description: "Stage 03 shadow pilot for SPSS VP_HOGAR.",
+  tags: ["stage03", "analytical", "pilot_32", "shadow"]
+}
+
+WITH details AS (
+  SELECT
+    ID,
+    COLEGIAL_ID,
+    FACTOR_ALUMNOS,
+    CCDD,
+    SEXO,
+    AREA,
+    C3P203,
+    CASE
+      WHEN
+        SEXO IN (1, 2)
+        AND C3P201_1 = 1
+        AND C3P203 = 1
+        AND (
+          C3P201A_1 IN (1, 2, 3, 4, 19)
+          OR C3P201E_1 IN (1, 2, 3, 4, 19)
+          OR (
+            C3P201A_1 IS NOT NULL
+            AND C3P201A_1 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201C_1 = 1
+            AND C3P201D_1 = 1
+          )
+          OR (
+            C3P201E_1 IS NOT NULL
+            AND C3P201E_1 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201F_1 = 1
+          )
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P201_1_1`,
+    CASE
+      WHEN
+        SEXO IN (1, 2)
+        AND C3P201_2 = 1
+        AND C3P203 = 1
+        AND (
+          C3P201A_2 IN (1, 2, 3, 4, 19)
+          OR C3P201E_2 IN (1, 2, 3, 4, 19)
+          OR (
+            C3P201A_2 IS NOT NULL
+            AND C3P201A_2 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201C_2 = 1
+            AND C3P201D_2 = 1
+          )
+          OR (
+            C3P201E_2 IS NOT NULL
+            AND C3P201E_2 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201F_2 = 1
+          )
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P201_2_1`,
+    CASE
+      WHEN
+        SEXO IN (1, 2)
+        AND C3P201_3 = 1
+        AND C3P203 = 1
+        AND (
+          C3P201A_3 IN (1, 2, 3, 4, 19)
+          OR C3P201E_3 IN (1, 2, 3, 4, 19)
+          OR (
+            C3P201A_3 IS NOT NULL
+            AND C3P201A_3 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201C_3 = 1
+            AND C3P201D_3 = 1
+          )
+          OR (
+            C3P201E_3 IS NOT NULL
+            AND C3P201E_3 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201F_3 = 1
+          )
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P201_3_1`,
+    CASE
+      WHEN
+        SEXO IN (1, 2)
+        AND C3P201_4 = 1
+        AND C3P203 = 1
+        AND (
+          C3P201A_4 IN (1, 2, 3, 4, 19)
+          OR C3P201E_4 IN (1, 2, 3, 4, 19)
+          OR (
+            C3P201A_4 IS NOT NULL
+            AND C3P201A_4 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201C_4 = 1
+            AND C3P201D_4 = 1
+          )
+          OR (
+            C3P201E_4 IS NOT NULL
+            AND C3P201E_4 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201F_4 = 1
+          )
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P201_4_1`,
+    CASE
+      WHEN
+        SEXO IN (1, 2)
+        AND C3P201_5 = 1
+        AND C3P203 = 1
+        AND (
+          C3P201A_5 IN (1, 2, 3, 4, 19)
+          OR C3P201E_5 IN (1, 2, 3, 4, 19)
+          OR (
+            C3P201A_5 IS NOT NULL
+            AND C3P201A_5 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201C_5 = 1
+            AND C3P201D_5 = 1
+          )
+          OR (
+            C3P201E_5 IS NOT NULL
+            AND C3P201E_5 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201F_5 = 1
+          )
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P201_5_1`,
+    CASE
+      WHEN
+        SEXO IN (1, 2)
+        AND C3P201_6 = 1
+        AND C3P203 = 1
+        AND (
+          C3P201A_6 IN (1, 2, 3, 4, 19)
+          OR C3P201E_6 IN (1, 2, 3, 4, 19)
+          OR (
+            C3P201A_6 IS NOT NULL
+            AND C3P201A_6 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201C_6 = 1
+            AND C3P201D_6 = 1
+          )
+          OR (
+            C3P201E_6 IS NOT NULL
+            AND C3P201E_6 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201F_6 = 1
+          )
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P201_6_1`,
+    CASE
+      WHEN
+        SEXO IN (1, 2)
+        AND C3P201_7 = 1
+        AND C3P203 = 1
+        AND (
+          C3P201A_7 IN (1, 2, 3, 4, 19)
+          OR C3P201E_7 IN (1, 2, 3, 4, 19)
+          OR (
+            C3P201A_7 IS NOT NULL
+            AND C3P201A_7 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201C_7 = 1
+            AND C3P201D_7 = 1
+          )
+          OR (
+            C3P201E_7 IS NOT NULL
+            AND C3P201E_7 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201F_7 = 1
+          )
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P201_7_1`,
+    CASE
+      WHEN
+        SEXO IN (1, 2)
+        AND C3P201_8 = 1
+        AND C3P203 = 1
+        AND (
+          C3P201A_8 IN (1, 2, 3, 4, 19)
+          OR C3P201E_8 IN (1, 2, 3, 4, 19)
+          OR (
+            C3P201A_8 IS NOT NULL
+            AND C3P201A_8 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201C_8 = 1
+            AND C3P201D_8 = 1
+          )
+          OR (
+            C3P201E_8 IS NOT NULL
+            AND C3P201E_8 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201F_8 = 1
+          )
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P201_8_1`,
+    CASE
+      WHEN
+        SEXO IN (1, 2)
+        AND C3P201_9 = 1
+        AND C3P203 = 1
+        AND (
+          C3P201A_9 IN (1, 2, 3, 4, 19)
+          OR C3P201E_9 IN (1, 2, 3, 4, 19)
+          OR (
+            C3P201A_9 IS NOT NULL
+            AND C3P201A_9 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201C_9 = 1
+            AND C3P201D_9 = 1
+          )
+          OR (
+            C3P201E_9 IS NOT NULL
+            AND C3P201E_9 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201F_9 = 1
+          )
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P201_9_1`,
+    CASE
+      WHEN
+        SEXO IN (1, 2)
+        AND C3P201_10 = 1
+        AND C3P203 = 1
+        AND (
+          C3P201A_10 IN (1, 2, 3, 4, 19)
+          OR C3P201E_10 IN (1, 2, 3, 4, 19)
+          OR (
+            C3P201A_10 IS NOT NULL
+            AND C3P201A_10 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201C_10 = 1
+            AND C3P201D_10 = 1
+          )
+          OR (
+            C3P201E_10 IS NOT NULL
+            AND C3P201E_10 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201F_10 = 1
+          )
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P201_10_1`,
+    CASE
+      WHEN
+        SEXO IN (1, 2)
+        AND C3P201_11 = 1
+        AND C3P203 = 1
+        AND (
+          C3P201A_11 IN (1, 2, 3, 4, 19)
+          OR C3P201E_11 IN (1, 2, 3, 4, 19)
+          OR (
+            C3P201A_11 IS NOT NULL
+            AND C3P201A_11 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201C_11 = 1
+            AND C3P201D_11 = 1
+          )
+          OR (
+            C3P201E_11 IS NOT NULL
+            AND C3P201E_11 NOT IN (1, 2, 3, 4, 19)
+            AND C3P201F_11 = 1
+          )
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P201_11_1`
+  FROM ${ref("cleaned_crs04_merged_adolescents_v0_5")}
+)
+
+SELECT
+  ID,
+  COLEGIAL_ID,
+  FACTOR_ALUMNOS,
+  CCDD,
+  SEXO,
+  AREA,
+  C3P203,
+  `C3P201_1_1`,
+  `C3P201_2_1`,
+  `C3P201_3_1`,
+  `C3P201_4_1`,
+  `C3P201_5_1`,
+  `C3P201_6_1`,
+  `C3P201_7_1`,
+  `C3P201_8_1`,
+  `C3P201_9_1`,
+  `C3P201_10_1`,
+  `C3P201_11_1`,
+
+  CASE
+    WHEN
+      `C3P201_1_1` = 1
+    OR `C3P201_2_1` = 1
+    OR `C3P201_3_1` = 1
+    OR `C3P201_4_1` = 1
+    OR `C3P201_5_1` = 1
+    OR `C3P201_6_1` = 1
+    OR `C3P201_7_1` = 1
+    OR `C3P201_8_1` = 1
+    OR `C3P201_9_1` = 1
+    OR `C3P201_10_1` = 1
+    OR `C3P201_11_1` = 1
+    THEN 1
+    ELSE 0
+  END AS VP_HOGAR
+
+FROM details
