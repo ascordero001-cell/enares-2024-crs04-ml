@@ -4,8 +4,12 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
-  lint-and-syntax:
+  python-tests:
+    name: Python tests
     runs-on: ubuntu-latest
 
     steps:
@@ -15,19 +19,44 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install ruff nbqa pytest
-          pip install -r requirements.txt
+          python -m pip install -r requirements-dev.txt
+          python -m pip install ruff nbqa
 
       - name: Check Python syntax
-        run: python -m compileall .
+        run: python -m compileall -q src scripts tests
 
       - name: Lint notebooks
-        run: nbqa ruff notebooks/ || true
+        continue-on-error: true
+        run: nbqa ruff notebooks/
 
-      - name: Run tests
-        run: pytest -q || true
+      - name: Run blocking tests
+        run: python -m pytest
+
+  dataform-compile:
+    name: Dataform compile
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install pinned Dataform CLI
+        run: npm install --global @dataform/cli@3.0.64
+
+      - name: Compile Dataform graph
+        run: dataform compile dataform
+        
