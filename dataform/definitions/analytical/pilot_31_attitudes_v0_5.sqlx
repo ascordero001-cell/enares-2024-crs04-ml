@@ -1,0 +1,23 @@
+config {
+  type: "table",
+  schema: dataform.projectConfig.vars.analyticalDataset,
+  name: "analytical_crs04_pilot_31_attitudes_v0_5",
+  description: "Stage 03 shadow pilot for SPSS 3.1 attitudes.",
+  tags: ["stage03", "analytical", "pilot_31", "shadow"]
+}
+
+SELECT
+  ID,
+  COLEGIAL_ID,
+  FACTOR_ALUMNOS,
+  CCDD,
+  SEXO,
+  AREA,
+  C3P301_4,
+
+  CASE
+    WHEN C3P301_4 = 1 THEN 1
+    WHEN C3P301_4 = 2 THEN 0
+  END AS justifica_castigo_docente
+
+FROM ${ref("cleaned_crs04_merged_adolescents_v0_5")}
