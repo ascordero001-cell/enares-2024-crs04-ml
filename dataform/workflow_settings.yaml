@@ -9,3 +9,4 @@ vars:
   rawDataset: enares2024_crs04_raw
   cleanedDataset: enares2024_crs04_cleaned
   analyticalDataset: enares2024_crs04_analytical
+  outputsDataset: enares2024_crs04_outputs

@@ -1,0 +1,99 @@
+config {
+  type: "assertion",
+  schema: "enares2024_crs04_ops",
+  tags: ["stage03", "reporting", "survey_input"]
+}
+
+WITH
+candidate AS (
+  SELECT *
+  FROM ${ref("reporting_crs04_survey_input_v0_5")}
+),
+
+duplicate_keys AS (
+  SELECT ID, COLEGIAL_ID
+  FROM candidate
+  GROUP BY ID, COLEGIAL_ID
+  HAVING COUNT(*) > 1
+),
+
+checks AS (
+  SELECT
+    "row_count" AS check_name,
+    ABS(COUNT(*) - 18807) AS violation_count
+  FROM candidate
+  HAVING COUNT(*) != 18807
+
+  UNION ALL
+
+  SELECT
+    "null_keys",
+    COUNTIF(ID IS NULL OR COLEGIAL_ID IS NULL)
+  FROM candidate
+  HAVING COUNTIF(ID IS NULL OR COLEGIAL_ID IS NULL) > 0
+
+  UNION ALL
+
+  SELECT
+    "duplicate_key_groups",
+    COUNT(*)
+  FROM duplicate_keys
+  HAVING COUNT(*) > 0
+
+  UNION ALL
+
+  SELECT
+    "invalid_weights",
+    COUNTIF(FACTOR_ALUMNOS IS NULL OR FACTOR_ALUMNOS <= 0)
+  FROM candidate
+  HAVING COUNTIF(
+    FACTOR_ALUMNOS IS NULL OR FACTOR_ALUMNOS <= 0
+  ) > 0
+
+  UNION ALL
+
+  SELECT
+    "invalid_strata",
+    COUNTIF(CCDD IS NULL OR TRIM(CCDD) = "")
+  FROM candidate
+  HAVING COUNTIF(CCDD IS NULL OR TRIM(CCDD) = "") > 0
+
+  UNION ALL
+
+  SELECT
+    "psu_count",
+    ABS(COUNT(DISTINCT ID) - 1115)
+  FROM candidate
+  HAVING COUNT(DISTINCT ID) != 1115
+
+  UNION ALL
+
+  SELECT
+    "stratum_count",
+    ABS(COUNT(DISTINCT CCDD) - 25)
+  FROM candidate
+  HAVING COUNT(DISTINCT CCDD) != 25
+
+  UNION ALL
+
+  SELECT
+    "indicator_domains",
+    COUNTIF(
+      justifica_castigo_docente NOT IN (0, 1)
+      OR VP_HOGAR NOT IN (0, 1)
+      OR VP_HOGAR IS NULL
+      OR VP_ESCUELA NOT IN (0, 1)
+      OR VP_ESCUELA IS NULL
+    )
+  FROM candidate
+  HAVING COUNTIF(
+    justifica_castigo_docente NOT IN (0, 1)
+    OR VP_HOGAR NOT IN (0, 1)
+    OR VP_HOGAR IS NULL
+    OR VP_ESCUELA NOT IN (0, 1)
+    OR VP_ESCUELA IS NULL
+  ) > 0
+)
+
+SELECT *
+FROM checks

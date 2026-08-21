@@ -1,0 +1,29 @@
+config {
+  type: "table",
+  schema: dataform.projectConfig.vars.outputsDataset,
+  name: "reporting_crs04_survey_input_v0_5",
+  description: "Stage 03 shadow survey input for approved analytical pilots.",
+  tags: ["stage03", "reporting", "survey_input", "shadow"]
+}
+
+SELECT
+  attitudes.ID,
+  attitudes.COLEGIAL_ID,
+  attitudes.FACTOR_ALUMNOS,
+  attitudes.CCDD,
+  attitudes.SEXO,
+  attitudes.AREA,
+  attitudes.justifica_castigo_docente,
+  household.VP_HOGAR,
+  school.VP_ESCUELA
+
+FROM ${ref("analytical_crs04_pilot_31_attitudes_v0_5")}
+  AS attitudes
+
+LEFT JOIN ${ref("analytical_crs04_pilot_32_household_v0_5")}
+  AS household
+  USING (ID, COLEGIAL_ID)
+
+LEFT JOIN ${ref("analytical_crs04_pilot_33_school_v0_5")}
+  AS school
+  USING (ID, COLEGIAL_ID)
