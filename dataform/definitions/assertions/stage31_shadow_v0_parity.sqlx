@@ -1,0 +1,243 @@
+config {
+  type: "assertion",
+  schema: "enares2024_crs04_ops",
+  tags: ["stage03", "analytical", "stage31", "parity"]
+}
+
+WITH
+reference AS (
+  SELECT
+    CAST(ID AS INT64) AS ID,
+    CAST(COLEGIAL_ID AS INT64) AS COLEGIAL_ID,
+    `etnicidad1`,
+    `idiomaHogar`,
+    `DISCAPACIDAD`,
+    `tipo_hogar1`,
+    `DEPARTAMENTO2`,
+    `OPINION_TOMADA`,
+    `discusion_hogar`,
+    `Desemp_DesaproboCurso`,
+    `Desemp_RepitioGrado`,
+    `Desemp_ExpulsionColegio`,
+    `conducta_riesgo_personal`,
+    `conducta_riesgo_inducido`,
+    `no_ir_colegio`,
+    `riesgo_total`,
+    `justifica_castigo_docente`,
+    `justifica_castigo_parental`,
+    `reconoce_derecho_opinar`,
+    `reconoce_derecho_denunciar`,
+    `rechaza_dejar_estudiar`,
+    `rechaza_trabajo_infantil_necesidad`,
+    `justifica_al_menos_una`,
+    `n_formas_justificadas`,
+    `indice_derechos`,
+    `reconoce_todos_derechos_clave`,
+    `reconoce_3omas_derechos`,
+    `tarea1_fem`,
+    `tarea1_masc`,
+    `tarea1_nna`,
+    `tarea2_fem`,
+    `tarea2_masc`,
+    `tarea2_nna`,
+    `tarea3_fem`,
+    `tarea3_masc`,
+    `tarea3_nna`,
+    `tarea4_fem`,
+    `tarea4_masc`,
+    `tarea4_nna`,
+    `tarea5_fem`,
+    `tarea5_masc`,
+    `tarea5_nna`,
+    `tarea6_fem`,
+    `tarea6_masc`,
+    `tarea6_nna`,
+    `tarea7_fem`,
+    `tarea7_masc`,
+    `tarea7_nna`,
+    `tarea8_fem`,
+    `tarea8_masc`,
+    `tarea8_nadie`,
+    `tarea9_fem`,
+    `tarea9_masc`,
+    `tarea9_nadie`,
+    `tarea10_fem`,
+    `tarea10_masc`,
+    `tarea10_nadie`,
+    `n_tareas_femeninas`,
+    `n_tareas_masculinas`,
+    `n_tareas_nna`,
+    `n_tareas_nadie`,
+    `n_tareas_validas_1_7`,
+    `n_tareas_validas_8_10`,
+    `n_tareas_validas_p302`,
+    `prop_tareas_femeninas`,
+    `prop_tareas_masculinas`,
+    `predominio_femenino_tareas`,
+    `mito_locas`,
+    `mito_pobreza`,
+    `mito_fuera_casa`,
+    `mito_sitios_oscuros`,
+    `n_mitos`,
+    `cree_al_menos_un_mito`
+  FROM ${ref("analytical_crs04_adolescents")}
+),
+
+candidate AS (
+  SELECT
+    ID,
+    COLEGIAL_ID,
+    `etnicidad1`,
+    `idiomaHogar`,
+    `DISCAPACIDAD`,
+    `tipo_hogar1`,
+    `DEPARTAMENTO2`,
+    `OPINION_TOMADA`,
+    `discusion_hogar`,
+    `Desemp_DesaproboCurso`,
+    `Desemp_RepitioGrado`,
+    `Desemp_ExpulsionColegio`,
+    `conducta_riesgo_personal`,
+    `conducta_riesgo_inducido`,
+    `no_ir_colegio`,
+    `riesgo_total`,
+    `justifica_castigo_docente`,
+    `justifica_castigo_parental`,
+    `reconoce_derecho_opinar`,
+    `reconoce_derecho_denunciar`,
+    `rechaza_dejar_estudiar`,
+    `rechaza_trabajo_infantil_necesidad`,
+    `justifica_al_menos_una`,
+    `n_formas_justificadas`,
+    `indice_derechos`,
+    `reconoce_todos_derechos_clave`,
+    `reconoce_3omas_derechos`,
+    `tarea1_fem`,
+    `tarea1_masc`,
+    `tarea1_nna`,
+    `tarea2_fem`,
+    `tarea2_masc`,
+    `tarea2_nna`,
+    `tarea3_fem`,
+    `tarea3_masc`,
+    `tarea3_nna`,
+    `tarea4_fem`,
+    `tarea4_masc`,
+    `tarea4_nna`,
+    `tarea5_fem`,
+    `tarea5_masc`,
+    `tarea5_nna`,
+    `tarea6_fem`,
+    `tarea6_masc`,
+    `tarea6_nna`,
+    `tarea7_fem`,
+    `tarea7_masc`,
+    `tarea7_nna`,
+    `tarea8_fem`,
+    `tarea8_masc`,
+    `tarea8_nadie`,
+    `tarea9_fem`,
+    `tarea9_masc`,
+    `tarea9_nadie`,
+    `tarea10_fem`,
+    `tarea10_masc`,
+    `tarea10_nadie`,
+    `n_tareas_femeninas`,
+    `n_tareas_masculinas`,
+    `n_tareas_nna`,
+    `n_tareas_nadie`,
+    `n_tareas_validas_1_7`,
+    `n_tareas_validas_8_10`,
+    `n_tareas_validas_p302`,
+    `prop_tareas_femeninas`,
+    `prop_tareas_masculinas`,
+    `predominio_femenino_tareas`,
+    `mito_locas`,
+    `mito_pobreza`,
+    `mito_fuera_casa`,
+    `mito_sitios_oscuros`,
+    `n_mitos`,
+    `cree_al_menos_un_mito`
+  FROM ${ref("analytical_crs04_stage31_v0_5")}
+)
+
+SELECT
+  COALESCE(candidate.ID, reference.ID) AS ID,
+  COALESCE(candidate.COLEGIAL_ID, reference.COLEGIAL_ID) AS COLEGIAL_ID
+FROM candidate
+FULL OUTER JOIN reference
+  USING (ID, COLEGIAL_ID)
+WHERE
+  candidate.ID IS NULL
+  OR reference.ID IS NULL
+  OR candidate.`etnicidad1` IS DISTINCT FROM reference.`etnicidad1`
+  OR candidate.`idiomaHogar` IS DISTINCT FROM reference.`idiomaHogar`
+  OR candidate.`DISCAPACIDAD` IS DISTINCT FROM reference.`DISCAPACIDAD`
+  OR candidate.`tipo_hogar1` IS DISTINCT FROM reference.`tipo_hogar1`
+  OR candidate.`DEPARTAMENTO2` IS DISTINCT FROM reference.`DEPARTAMENTO2`
+  OR candidate.`OPINION_TOMADA` IS DISTINCT FROM reference.`OPINION_TOMADA`
+  OR candidate.`discusion_hogar` IS DISTINCT FROM reference.`discusion_hogar`
+  OR candidate.`Desemp_DesaproboCurso` IS DISTINCT FROM reference.`Desemp_DesaproboCurso`
+  OR candidate.`Desemp_RepitioGrado` IS DISTINCT FROM reference.`Desemp_RepitioGrado`
+  OR candidate.`Desemp_ExpulsionColegio` IS DISTINCT FROM reference.`Desemp_ExpulsionColegio`
+  OR candidate.`conducta_riesgo_personal` IS DISTINCT FROM reference.`conducta_riesgo_personal`
+  OR candidate.`conducta_riesgo_inducido` IS DISTINCT FROM reference.`conducta_riesgo_inducido`
+  OR candidate.`no_ir_colegio` IS DISTINCT FROM reference.`no_ir_colegio`
+  OR candidate.`riesgo_total` IS DISTINCT FROM reference.`riesgo_total`
+  OR candidate.`justifica_castigo_docente` IS DISTINCT FROM reference.`justifica_castigo_docente`
+  OR candidate.`justifica_castigo_parental` IS DISTINCT FROM reference.`justifica_castigo_parental`
+  OR candidate.`reconoce_derecho_opinar` IS DISTINCT FROM reference.`reconoce_derecho_opinar`
+  OR candidate.`reconoce_derecho_denunciar` IS DISTINCT FROM reference.`reconoce_derecho_denunciar`
+  OR candidate.`rechaza_dejar_estudiar` IS DISTINCT FROM reference.`rechaza_dejar_estudiar`
+  OR candidate.`rechaza_trabajo_infantil_necesidad` IS DISTINCT FROM reference.`rechaza_trabajo_infantil_necesidad`
+  OR candidate.`justifica_al_menos_una` IS DISTINCT FROM reference.`justifica_al_menos_una`
+  OR candidate.`n_formas_justificadas` IS DISTINCT FROM reference.`n_formas_justificadas`
+  OR candidate.`indice_derechos` IS DISTINCT FROM reference.`indice_derechos`
+  OR candidate.`reconoce_todos_derechos_clave` IS DISTINCT FROM reference.`reconoce_todos_derechos_clave`
+  OR candidate.`reconoce_3omas_derechos` IS DISTINCT FROM reference.`reconoce_3omas_derechos`
+  OR candidate.`tarea1_fem` IS DISTINCT FROM reference.`tarea1_fem`
+  OR candidate.`tarea1_masc` IS DISTINCT FROM reference.`tarea1_masc`
+  OR candidate.`tarea1_nna` IS DISTINCT FROM reference.`tarea1_nna`
+  OR candidate.`tarea2_fem` IS DISTINCT FROM reference.`tarea2_fem`
+  OR candidate.`tarea2_masc` IS DISTINCT FROM reference.`tarea2_masc`
+  OR candidate.`tarea2_nna` IS DISTINCT FROM reference.`tarea2_nna`
+  OR candidate.`tarea3_fem` IS DISTINCT FROM reference.`tarea3_fem`
+  OR candidate.`tarea3_masc` IS DISTINCT FROM reference.`tarea3_masc`
+  OR candidate.`tarea3_nna` IS DISTINCT FROM reference.`tarea3_nna`
+  OR candidate.`tarea4_fem` IS DISTINCT FROM reference.`tarea4_fem`
+  OR candidate.`tarea4_masc` IS DISTINCT FROM reference.`tarea4_masc`
+  OR candidate.`tarea4_nna` IS DISTINCT FROM reference.`tarea4_nna`
+  OR candidate.`tarea5_fem` IS DISTINCT FROM reference.`tarea5_fem`
+  OR candidate.`tarea5_masc` IS DISTINCT FROM reference.`tarea5_masc`
+  OR candidate.`tarea5_nna` IS DISTINCT FROM reference.`tarea5_nna`
+  OR candidate.`tarea6_fem` IS DISTINCT FROM reference.`tarea6_fem`
+  OR candidate.`tarea6_masc` IS DISTINCT FROM reference.`tarea6_masc`
+  OR candidate.`tarea6_nna` IS DISTINCT FROM reference.`tarea6_nna`
+  OR candidate.`tarea7_fem` IS DISTINCT FROM reference.`tarea7_fem`
+  OR candidate.`tarea7_masc` IS DISTINCT FROM reference.`tarea7_masc`
+  OR candidate.`tarea7_nna` IS DISTINCT FROM reference.`tarea7_nna`
+  OR candidate.`tarea8_fem` IS DISTINCT FROM reference.`tarea8_fem`
+  OR candidate.`tarea8_masc` IS DISTINCT FROM reference.`tarea8_masc`
+  OR candidate.`tarea8_nadie` IS DISTINCT FROM reference.`tarea8_nadie`
+  OR candidate.`tarea9_fem` IS DISTINCT FROM reference.`tarea9_fem`
+  OR candidate.`tarea9_masc` IS DISTINCT FROM reference.`tarea9_masc`
+  OR candidate.`tarea9_nadie` IS DISTINCT FROM reference.`tarea9_nadie`
+  OR candidate.`tarea10_fem` IS DISTINCT FROM reference.`tarea10_fem`
+  OR candidate.`tarea10_masc` IS DISTINCT FROM reference.`tarea10_masc`
+  OR candidate.`tarea10_nadie` IS DISTINCT FROM reference.`tarea10_nadie`
+  OR candidate.`n_tareas_femeninas` IS DISTINCT FROM reference.`n_tareas_femeninas`
+  OR candidate.`n_tareas_masculinas` IS DISTINCT FROM reference.`n_tareas_masculinas`
+  OR candidate.`n_tareas_nna` IS DISTINCT FROM reference.`n_tareas_nna`
+  OR candidate.`n_tareas_nadie` IS DISTINCT FROM reference.`n_tareas_nadie`
+  OR candidate.`n_tareas_validas_1_7` IS DISTINCT FROM reference.`n_tareas_validas_1_7`
+  OR candidate.`n_tareas_validas_8_10` IS DISTINCT FROM reference.`n_tareas_validas_8_10`
+  OR candidate.`n_tareas_validas_p302` IS DISTINCT FROM reference.`n_tareas_validas_p302`
+  OR candidate.`prop_tareas_femeninas` IS DISTINCT FROM reference.`prop_tareas_femeninas`
+  OR candidate.`prop_tareas_masculinas` IS DISTINCT FROM reference.`prop_tareas_masculinas`
+  OR candidate.`predominio_femenino_tareas` IS DISTINCT FROM reference.`predominio_femenino_tareas`
+  OR candidate.`mito_locas` IS DISTINCT FROM reference.`mito_locas`
+  OR candidate.`mito_pobreza` IS DISTINCT FROM reference.`mito_pobreza`
+  OR candidate.`mito_fuera_casa` IS DISTINCT FROM reference.`mito_fuera_casa`
+  OR candidate.`mito_sitios_oscuros` IS DISTINCT FROM reference.`mito_sitios_oscuros`
+  OR candidate.`n_mitos` IS DISTINCT FROM reference.`n_mitos`
+  OR candidate.`cree_al_menos_un_mito` IS DISTINCT FROM reference.`cree_al_menos_un_mito`

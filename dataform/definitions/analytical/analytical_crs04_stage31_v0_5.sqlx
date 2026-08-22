@@ -1,0 +1,349 @@
+config {
+  type: "table",
+  schema: dataform.projectConfig.vars.analyticalDataset,
+  name: "analytical_crs04_stage31_v0_5",
+  description: "Stage 03 section 3.1 SPSS-authority shadow model.",
+  tags: ["stage03", "analytical", "stage31", "shadow"]
+}
+
+WITH
+base AS (
+  SELECT
+    `ID`,
+    `COLEGIAL_ID`,
+    `FACTOR_ALUMNOS`,
+    `CCDD`,
+    `SEXO`,
+    `AREA`,
+    `C3P105`,
+    `C3P115_1`,
+    `C3P115_2`,
+    `C3P115_3`,
+    `C3P115_4`,
+    `C3P122`,
+    `C3P123`,
+    `C3P126`,
+    `C3P127`,
+    `C3P128`,
+    `C3P216A_1`,
+    `C3P216A_1C`,
+    `C3P216A_2`,
+    `C3P216A_2C`,
+    `C3P216A_3`,
+    `C3P216A_3C`,
+    `C3P216A_4`,
+    `C3P216A_4C`,
+    `C3P216A_5`,
+    `C3P216A_5C`,
+    `C3P216A_6`,
+    `C3P216A_6C`,
+    `C3P216C_1`,
+    `C3P216C_1C`,
+    `C3P216C_2`,
+    `C3P216C_2C`,
+    `C3P216C_3`,
+    `C3P216C_3C`,
+    `C3P216C_4`,
+    `C3P216C_4C`,
+    `C3P216C_5`,
+    `C3P216C_5C`,
+    `C3P218`,
+    `C3P219`,
+    `C3P220`,
+    `C3P301_1`,
+    `C3P301_2`,
+    `C3P301_3`,
+    `C3P301_4`,
+    `C3P301_5`,
+    `C3P301_6`,
+    `C3P302_1`,
+    `C3P302_10`,
+    `C3P302_2`,
+    `C3P302_3`,
+    `C3P302_4`,
+    `C3P302_5`,
+    `C3P302_6`,
+    `C3P302_7`,
+    `C3P302_8`,
+    `C3P302_9`,
+    `C3P303_1`,
+    `C3P303_3`,
+    `C3P303_4`,
+    `C3P303_5`,
+    `C4P129`,
+    `C4P130_1`,
+    `C4P130_2`,
+    `C4P130_3`,
+    `C4P130_4`,
+    `C4P130_5`,
+    `C4P130_6`,
+    `CCPP`
+  FROM ${ref("cleaned_crs04_merged_adolescents_v0_5")}
+),
+
+block_01_31_factores AS (
+  SELECT
+    *,
+    CASE
+          WHEN C4P129 IN (1, 2) THEN 1
+          WHEN C4P129 IN (3, 4) THEN 3
+          WHEN C4P129 = 5 THEN 5
+          WHEN C4P129 IN (6, 7, 8) THEN 6
+          WHEN C4P129 = 9 THEN 9
+        END AS `etnicidad1`,
+    CASE
+          WHEN C3P128 IS NULL THEN -1
+          WHEN C3P128 = 1 THEN 1
+          WHEN C3P128 IN (2, 3) THEN 3
+          WHEN C3P128 = 4 THEN 4
+        END AS `idiomaHogar`,
+    CASE
+          WHEN C4P130_1 = 1 OR C4P130_2 = 1 OR C4P130_3 = 1
+            OR C4P130_4 = 1 OR C4P130_5 = 1 OR C4P130_6 = 1 THEN 1
+          WHEN C4P130_1 = 2 AND C4P130_2 = 2 AND C4P130_3 = 2
+            AND C4P130_4 = 2 AND C4P130_5 = 2 AND C4P130_6 = 2 THEN 0
+        END AS `DISCAPACIDAD`,
+    CASE
+          WHEN C3P105 = 2 THEN 3
+          WHEN C3P105 != 2 AND ((C3P115_1 = 1 AND C3P115_2 = 1) OR (C3P115_1 = 1 AND C3P115_4 = 1) OR (C3P115_2 = 1 AND C3P115_3 = 1) OR (C3P115_3 = 1 AND C3P115_4 = 1)) THEN 1
+          WHEN C3P105 != 2 AND ((C3P115_1 = 1 AND C3P115_2 != 1 AND C3P115_3 != 1 AND C3P115_4 != 1) OR (C3P115_2 = 1 AND C3P115_1 != 1 AND C3P115_3 != 1 AND C3P115_4 != 1) OR (C3P115_3 = 1 AND C3P115_1 != 1 AND C3P115_2 != 1 AND C3P115_4 != 1) OR (C3P115_4 = 1 AND C3P115_1 != 1 AND C3P115_2 != 1 AND C3P115_3 != 1)) THEN 2
+          WHEN C3P115_1 IS NULL OR C3P115_2 IS NULL OR C3P115_3 IS NULL OR C3P115_4 IS NULL THEN -1
+          ELSE 3
+        END AS `tipo_hogar1`,
+    CASE
+          WHEN LPAD(CAST(CCDD AS STRING), 2, '0') = '15'
+            AND LPAD(CAST(CCPP AS STRING), 2, '0')
+              IN ('02','03','04','05','06','07','08','09','10') THEN '64'
+          ELSE LPAD(CAST(CCDD AS STRING), 2, '0')
+        END AS `DEPARTAMENTO2`,
+    CASE
+          WHEN C3P126 = 2 THEN 0
+          WHEN C3P126 = 1 AND C3P127 = 2 THEN 1
+          WHEN C3P126 = 1 AND C3P127 = 1 THEN 0
+          ELSE -1
+        END AS `OPINION_TOMADA`,
+    CASE WHEN C3P123 = 1 THEN 1 WHEN C3P123 = 2 THEN 0 END AS `discusion_hogar`,
+    CASE WHEN C3P218 = 1 THEN 1 WHEN C3P218 = 2 THEN 0 END AS `Desemp_DesaproboCurso`,
+    CASE WHEN C3P219 = 1 THEN 1 WHEN C3P219 = 2 THEN 0 END AS `Desemp_RepitioGrado`,
+    CASE WHEN C3P220 = 1 THEN 1 WHEN C3P220 = 2 THEN 0 END AS `Desemp_ExpulsionColegio`,
+    CASE WHEN SEXO IN (1, 2) AND ((C3P216A_1 = 1 AND C3P216A_1C = 1) OR (C3P216A_2 = 1 AND C3P216A_2C = 1) OR (C3P216A_3 = 1 AND C3P216A_3C = 1) OR (C3P216A_4 = 1 AND C3P216A_4C = 1) OR (C3P216A_5 = 1 AND C3P216A_5C = 1) OR (C3P216A_6 = 1 AND C3P216A_6C = 1)) THEN 1 ELSE 0 END AS `conducta_riesgo_personal`,
+    CASE WHEN SEXO IN (1, 2) AND ((C3P216C_1 = 1 AND C3P216C_1C = 1) OR (C3P216C_2 = 1 AND C3P216C_2C = 1) OR (C3P216C_3 = 1 AND C3P216C_3C = 1) OR (C3P216C_4 = 1 AND C3P216C_4C = 1) OR (C3P216C_5 = 1 AND C3P216C_5C = 1)) THEN 1 ELSE 0 END AS `conducta_riesgo_inducido`,
+    CASE WHEN C3P122 = 1 THEN 1 ELSE 0 END AS `no_ir_colegio`
+  FROM base
+),
+
+block_02_31_riesgo_total AS (
+  SELECT
+    *,
+    CASE
+          WHEN conducta_riesgo_personal = 1 OR conducta_riesgo_inducido = 1
+            THEN 1
+          ELSE 0
+        END AS `riesgo_total`
+  FROM block_01_31_factores
+),
+
+block_03_31_actitudes_componentes AS (
+  SELECT
+    *,
+    CASE WHEN C3P301_4 = 1 THEN 1 WHEN C3P301_4 = 2 THEN 0 END AS `justifica_castigo_docente`,
+    CASE WHEN C3P301_5 = 1 THEN 1 WHEN C3P301_5 = 2 THEN 0 END AS `justifica_castigo_parental`,
+    CASE WHEN C3P301_2 = 1 THEN 1 WHEN C3P301_2 = 2 THEN 0 END AS `reconoce_derecho_opinar`,
+    CASE WHEN C3P301_6 = 1 THEN 1 WHEN C3P301_6 = 2 THEN 0 END AS `reconoce_derecho_denunciar`,
+    CASE WHEN C3P301_3 = 1 THEN 0 WHEN C3P301_3 = 2 THEN 1 END AS `rechaza_dejar_estudiar`,
+    CASE WHEN C3P301_1 = 1 THEN 0 WHEN C3P301_1 = 2 THEN 1 END AS `rechaza_trabajo_infantil_necesidad`
+  FROM block_02_31_riesgo_total
+),
+
+block_04_31_actitudes_agregados AS (
+  SELECT
+    *,
+    CASE
+          WHEN justifica_castigo_docente IS NULL
+            AND justifica_castigo_parental IS NULL THEN NULL
+          ELSE GREATEST(
+            COALESCE(justifica_castigo_docente, 0),
+            COALESCE(justifica_castigo_parental, 0)
+          )
+        END AS `justifica_al_menos_una`,
+    CASE
+          WHEN justifica_castigo_docente IS NULL
+            AND justifica_castigo_parental IS NULL THEN NULL
+          ELSE COALESCE(justifica_castigo_docente, 0)
+            + COALESCE(justifica_castigo_parental, 0)
+        END AS `n_formas_justificadas`,
+    CASE WHEN reconoce_derecho_opinar IS NULL AND reconoce_derecho_denunciar IS NULL AND rechaza_dejar_estudiar IS NULL AND rechaza_trabajo_infantil_necesidad IS NULL THEN NULL ELSE COALESCE(`reconoce_derecho_opinar`, 0) + COALESCE(`reconoce_derecho_denunciar`, 0) + COALESCE(`rechaza_dejar_estudiar`, 0) + COALESCE(`rechaza_trabajo_infantil_necesidad`, 0) END AS `indice_derechos`,
+    CASE WHEN reconoce_derecho_opinar IS NULL OR reconoce_derecho_denunciar IS NULL OR rechaza_dejar_estudiar IS NULL OR rechaza_trabajo_infantil_necesidad IS NULL THEN NULL WHEN reconoce_derecho_opinar = 1 AND reconoce_derecho_denunciar = 1 AND rechaza_dejar_estudiar = 1 AND rechaza_trabajo_infantil_necesidad = 1 THEN 1 ELSE 0 END AS `reconoce_todos_derechos_clave`
+  FROM block_03_31_actitudes_componentes
+),
+
+block_05_31_reconoce_tres_mas AS (
+  SELECT
+    *,
+    CASE
+          WHEN indice_derechos IS NULL THEN NULL
+          WHEN indice_derechos >= 3 THEN 1
+          ELSE 0
+        END AS `reconoce_3omas_derechos`
+  FROM block_04_31_actitudes_agregados
+),
+
+block_06_31_tareas_componentes AS (
+  SELECT
+    *,
+    CASE WHEN C3P302_1 IN (2,4,6) THEN 1 WHEN C3P302_1 IN (1,3,5,7) THEN 0 END AS `tarea1_fem`,
+    CASE WHEN C3P302_1 IN (3,5,7) THEN 1 WHEN C3P302_1 IN (1,2,4,6) THEN 0 END AS `tarea1_masc`,
+    CASE WHEN C3P302_1 = 1 THEN 1 WHEN C3P302_1 IN (2,3,4,5,6,7) THEN 0 END AS `tarea1_nna`,
+    CASE WHEN C3P302_2 IN (2,4,6) THEN 1 WHEN C3P302_2 IN (1,3,5,7) THEN 0 END AS `tarea2_fem`,
+    CASE WHEN C3P302_2 IN (3,5,7) THEN 1 WHEN C3P302_2 IN (1,2,4,6) THEN 0 END AS `tarea2_masc`,
+    CASE WHEN C3P302_2 = 1 THEN 1 WHEN C3P302_2 IN (2,3,4,5,6,7) THEN 0 END AS `tarea2_nna`,
+    CASE WHEN C3P302_3 IN (2,4,6) THEN 1 WHEN C3P302_3 IN (1,3,5,7) THEN 0 END AS `tarea3_fem`,
+    CASE WHEN C3P302_3 IN (3,5,7) THEN 1 WHEN C3P302_3 IN (1,2,4,6) THEN 0 END AS `tarea3_masc`,
+    CASE WHEN C3P302_3 = 1 THEN 1 WHEN C3P302_3 IN (2,3,4,5,6,7) THEN 0 END AS `tarea3_nna`,
+    CASE WHEN C3P302_4 IN (2,4,6) THEN 1 WHEN C3P302_4 IN (1,3,5,7) THEN 0 END AS `tarea4_fem`,
+    CASE WHEN C3P302_4 IN (3,5,7) THEN 1 WHEN C3P302_4 IN (1,2,4,6) THEN 0 END AS `tarea4_masc`,
+    CASE WHEN C3P302_4 = 1 THEN 1 WHEN C3P302_4 IN (2,3,4,5,6,7) THEN 0 END AS `tarea4_nna`,
+    CASE WHEN C3P302_5 IN (2,4,6) THEN 1 WHEN C3P302_5 IN (1,3,5,7) THEN 0 END AS `tarea5_fem`,
+    CASE WHEN C3P302_5 IN (3,5,7) THEN 1 WHEN C3P302_5 IN (1,2,4,6) THEN 0 END AS `tarea5_masc`,
+    CASE WHEN C3P302_5 = 1 THEN 1 WHEN C3P302_5 IN (2,3,4,5,6,7) THEN 0 END AS `tarea5_nna`,
+    CASE WHEN C3P302_6 IN (2,4,6) THEN 1 WHEN C3P302_6 IN (1,3,5,7) THEN 0 END AS `tarea6_fem`,
+    CASE WHEN C3P302_6 IN (3,5,7) THEN 1 WHEN C3P302_6 IN (1,2,4,6) THEN 0 END AS `tarea6_masc`,
+    CASE WHEN C3P302_6 = 1 THEN 1 WHEN C3P302_6 IN (2,3,4,5,6,7) THEN 0 END AS `tarea6_nna`,
+    CASE WHEN C3P302_7 IN (2,4,6) THEN 1 WHEN C3P302_7 IN (1,3,5,7) THEN 0 END AS `tarea7_fem`,
+    CASE WHEN C3P302_7 IN (3,5,7) THEN 1 WHEN C3P302_7 IN (1,2,4,6) THEN 0 END AS `tarea7_masc`,
+    CASE WHEN C3P302_7 = 1 THEN 1 WHEN C3P302_7 IN (2,3,4,5,6,7) THEN 0 END AS `tarea7_nna`,
+    CASE WHEN C3P302_8 IN (2,4,6) THEN 1 WHEN C3P302_8 IN (3,5,7,8) THEN 0 END AS `tarea8_fem`,
+    CASE WHEN C3P302_8 IN (3,5,7) THEN 1 WHEN C3P302_8 IN (2,4,6,8) THEN 0 END AS `tarea8_masc`,
+    CASE WHEN C3P302_8 = 8 THEN 1 WHEN C3P302_8 IN (2,3,4,5,6,7) THEN 0 END AS `tarea8_nadie`,
+    CASE WHEN C3P302_9 IN (2,4,6) THEN 1 WHEN C3P302_9 IN (3,5,7,8) THEN 0 END AS `tarea9_fem`,
+    CASE WHEN C3P302_9 IN (3,5,7) THEN 1 WHEN C3P302_9 IN (2,4,6,8) THEN 0 END AS `tarea9_masc`,
+    CASE WHEN C3P302_9 = 8 THEN 1 WHEN C3P302_9 IN (2,3,4,5,6,7) THEN 0 END AS `tarea9_nadie`,
+    CASE WHEN C3P302_10 IN (2,4,6) THEN 1 WHEN C3P302_10 IN (3,5,7,8) THEN 0 END AS `tarea10_fem`,
+    CASE WHEN C3P302_10 IN (3,5,7) THEN 1 WHEN C3P302_10 IN (2,4,6,8) THEN 0 END AS `tarea10_masc`,
+    CASE WHEN C3P302_10 = 8 THEN 1 WHEN C3P302_10 IN (2,3,4,5,6,7) THEN 0 END AS `tarea10_nadie`
+  FROM block_05_31_reconoce_tres_mas
+),
+
+block_07_31_tareas_conteos AS (
+  SELECT
+    *,
+    COALESCE(`tarea1_fem`, 0) + COALESCE(`tarea2_fem`, 0) + COALESCE(`tarea3_fem`, 0) + COALESCE(`tarea4_fem`, 0) + COALESCE(`tarea5_fem`, 0) + COALESCE(`tarea6_fem`, 0) + COALESCE(`tarea7_fem`, 0) + COALESCE(`tarea8_fem`, 0) + COALESCE(`tarea9_fem`, 0) + COALESCE(`tarea10_fem`, 0) AS `n_tareas_femeninas`,
+    COALESCE(`tarea1_masc`, 0) + COALESCE(`tarea2_masc`, 0) + COALESCE(`tarea3_masc`, 0) + COALESCE(`tarea4_masc`, 0) + COALESCE(`tarea5_masc`, 0) + COALESCE(`tarea6_masc`, 0) + COALESCE(`tarea7_masc`, 0) + COALESCE(`tarea8_masc`, 0) + COALESCE(`tarea9_masc`, 0) + COALESCE(`tarea10_masc`, 0) AS `n_tareas_masculinas`,
+    COALESCE(`tarea1_nna`, 0) + COALESCE(`tarea2_nna`, 0) + COALESCE(`tarea3_nna`, 0) + COALESCE(`tarea4_nna`, 0) + COALESCE(`tarea5_nna`, 0) + COALESCE(`tarea6_nna`, 0) + COALESCE(`tarea7_nna`, 0) AS `n_tareas_nna`,
+    COALESCE(`tarea8_nadie`, 0) + COALESCE(`tarea9_nadie`, 0) + COALESCE(`tarea10_nadie`, 0) AS `n_tareas_nadie`,
+    CASE WHEN C3P302_1 IN (1,2,3,4,5,6,7) THEN 1 ELSE 0 END + CASE WHEN C3P302_2 IN (1,2,3,4,5,6,7) THEN 1 ELSE 0 END + CASE WHEN C3P302_3 IN (1,2,3,4,5,6,7) THEN 1 ELSE 0 END + CASE WHEN C3P302_4 IN (1,2,3,4,5,6,7) THEN 1 ELSE 0 END + CASE WHEN C3P302_5 IN (1,2,3,4,5,6,7) THEN 1 ELSE 0 END + CASE WHEN C3P302_6 IN (1,2,3,4,5,6,7) THEN 1 ELSE 0 END + CASE WHEN C3P302_7 IN (1,2,3,4,5,6,7) THEN 1 ELSE 0 END AS `n_tareas_validas_1_7`,
+    CASE WHEN C3P302_8 IN (2,3,4,5,6,7,8) THEN 1 ELSE 0 END + CASE WHEN C3P302_9 IN (2,3,4,5,6,7,8) THEN 1 ELSE 0 END + CASE WHEN C3P302_10 IN (2,3,4,5,6,7,8) THEN 1 ELSE 0 END AS `n_tareas_validas_8_10`,
+    (CASE WHEN C3P302_1 IN (1,2,3,4,5,6,7) THEN 1 ELSE 0 END + CASE WHEN C3P302_2 IN (1,2,3,4,5,6,7) THEN 1 ELSE 0 END + CASE WHEN C3P302_3 IN (1,2,3,4,5,6,7) THEN 1 ELSE 0 END + CASE WHEN C3P302_4 IN (1,2,3,4,5,6,7) THEN 1 ELSE 0 END + CASE WHEN C3P302_5 IN (1,2,3,4,5,6,7) THEN 1 ELSE 0 END + CASE WHEN C3P302_6 IN (1,2,3,4,5,6,7) THEN 1 ELSE 0 END + CASE WHEN C3P302_7 IN (1,2,3,4,5,6,7) THEN 1 ELSE 0 END) + (CASE WHEN C3P302_8 IN (2,3,4,5,6,7,8) THEN 1 ELSE 0 END + CASE WHEN C3P302_9 IN (2,3,4,5,6,7,8) THEN 1 ELSE 0 END + CASE WHEN C3P302_10 IN (2,3,4,5,6,7,8) THEN 1 ELSE 0 END) AS `n_tareas_validas_p302`
+  FROM block_06_31_tareas_componentes
+),
+
+block_08_31_tareas_indicador AS (
+  SELECT
+    *,
+    SAFE_DIVIDE(n_tareas_femeninas, n_tareas_validas_p302) AS `prop_tareas_femeninas`,
+    SAFE_DIVIDE(n_tareas_masculinas, n_tareas_validas_p302) AS `prop_tareas_masculinas`,
+    CASE
+          WHEN n_tareas_validas_p302 = 0 THEN NULL
+          WHEN n_tareas_femeninas > n_tareas_masculinas THEN 1
+          ELSE 0
+        END AS `predominio_femenino_tareas`
+  FROM block_07_31_tareas_conteos
+),
+
+block_09_31_mitos_componentes AS (
+  SELECT
+    *,
+    CASE WHEN C3P303_1 = 1 THEN 1 WHEN C3P303_1 = 2 THEN 0 END AS `mito_locas`,
+    CASE WHEN C3P303_3 = 1 THEN 1 WHEN C3P303_3 = 2 THEN 0 END AS `mito_pobreza`,
+    CASE WHEN C3P303_4 = 1 THEN 1 WHEN C3P303_4 = 2 THEN 0 END AS `mito_fuera_casa`,
+    CASE WHEN C3P303_5 = 1 THEN 1 WHEN C3P303_5 = 2 THEN 0 END AS `mito_sitios_oscuros`
+  FROM block_08_31_tareas_indicador
+),
+
+block_10_31_mitos_agregados AS (
+  SELECT
+    *,
+    CASE WHEN mito_locas IS NULL AND mito_pobreza IS NULL AND mito_fuera_casa IS NULL AND mito_sitios_oscuros IS NULL THEN NULL ELSE COALESCE(`mito_locas`, 0) + COALESCE(`mito_pobreza`, 0) + COALESCE(`mito_fuera_casa`, 0) + COALESCE(`mito_sitios_oscuros`, 0) END AS `n_mitos`,
+    CASE WHEN mito_locas IS NULL AND mito_pobreza IS NULL AND mito_fuera_casa IS NULL AND mito_sitios_oscuros IS NULL THEN NULL WHEN mito_locas = 1 OR mito_pobreza = 1 OR mito_fuera_casa = 1 OR mito_sitios_oscuros = 1 THEN 1 ELSE 0 END AS `cree_al_menos_un_mito`
+  FROM block_09_31_mitos_componentes
+)
+
+SELECT
+  `ID`,
+  `COLEGIAL_ID`,
+  `FACTOR_ALUMNOS`,
+  `CCDD`,
+  `SEXO`,
+  `AREA`,
+  `etnicidad1`,
+  `idiomaHogar`,
+  `DISCAPACIDAD`,
+  `tipo_hogar1`,
+  `DEPARTAMENTO2`,
+  `OPINION_TOMADA`,
+  `discusion_hogar`,
+  `Desemp_DesaproboCurso`,
+  `Desemp_RepitioGrado`,
+  `Desemp_ExpulsionColegio`,
+  `conducta_riesgo_personal`,
+  `conducta_riesgo_inducido`,
+  `no_ir_colegio`,
+  `riesgo_total`,
+  `justifica_castigo_docente`,
+  `justifica_castigo_parental`,
+  `reconoce_derecho_opinar`,
+  `reconoce_derecho_denunciar`,
+  `rechaza_dejar_estudiar`,
+  `rechaza_trabajo_infantil_necesidad`,
+  `justifica_al_menos_una`,
+  `n_formas_justificadas`,
+  `indice_derechos`,
+  `reconoce_todos_derechos_clave`,
+  `reconoce_3omas_derechos`,
+  `tarea1_fem`,
+  `tarea1_masc`,
+  `tarea1_nna`,
+  `tarea2_fem`,
+  `tarea2_masc`,
+  `tarea2_nna`,
+  `tarea3_fem`,
+  `tarea3_masc`,
+  `tarea3_nna`,
+  `tarea4_fem`,
+  `tarea4_masc`,
+  `tarea4_nna`,
+  `tarea5_fem`,
+  `tarea5_masc`,
+  `tarea5_nna`,
+  `tarea6_fem`,
+  `tarea6_masc`,
+  `tarea6_nna`,
+  `tarea7_fem`,
+  `tarea7_masc`,
+  `tarea7_nna`,
+  `tarea8_fem`,
+  `tarea8_masc`,
+  `tarea8_nadie`,
+  `tarea9_fem`,
+  `tarea9_masc`,
+  `tarea9_nadie`,
+  `tarea10_fem`,
+  `tarea10_masc`,
+  `tarea10_nadie`,
+  `n_tareas_femeninas`,
+  `n_tareas_masculinas`,
+  `n_tareas_nna`,
+  `n_tareas_nadie`,
+  `n_tareas_validas_1_7`,
+  `n_tareas_validas_8_10`,
+  `n_tareas_validas_p302`,
+  `prop_tareas_femeninas`,
+  `prop_tareas_masculinas`,
+  `predominio_femenino_tareas`,
+  `mito_locas`,
+  `mito_pobreza`,
+  `mito_fuera_casa`,
+  `mito_sitios_oscuros`,
+  `n_mitos`,
+  `cree_al_menos_un_mito`
+FROM block_10_31_mitos_agregados
