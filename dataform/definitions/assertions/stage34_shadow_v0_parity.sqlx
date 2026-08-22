@@ -1,0 +1,1302 @@
+config {
+  type: "assertion",
+  schema: "enares2024_crs04_ops",
+  tags: ["stage03", "analytical", "stage34", "parity"]
+}
+
+WITH
+reference AS (
+  SELECT
+    CAST(ID AS INT64) AS ID,
+    CAST(COLEGIAL_ID AS INT64) AS COLEGIAL_ID,
+    `P248_01_12M`,
+    `C4P248_1_1`,
+    `C4P248_1_1_1`,
+    `C4P248_1_3`,
+    `C4P248_1_3_1`,
+    `P248_02_12M`,
+    `C4P248_2_1`,
+    `C4P248_2_1_1`,
+    `C4P248_2_3`,
+    `C4P248_2_3_1`,
+    `P248_03_12M`,
+    `C4P248_3_1`,
+    `C4P248_3_1_1`,
+    `C4P248_3_3`,
+    `C4P248_3_3_1`,
+    `P248_04_12M`,
+    `C4P248_4_1`,
+    `C4P248_4_1_1`,
+    `C4P248_4_3`,
+    `C4P248_4_3_1`,
+    `P248_05_12M`,
+    `C4P248_5_1`,
+    `C4P248_5_1_1`,
+    `C4P248_5_3`,
+    `C4P248_5_3_1`,
+    `P248_06_12M`,
+    `C4P248_6_1`,
+    `C4P248_6_1_1`,
+    `C4P248_6_3`,
+    `C4P248_6_3_1`,
+    `P248_07_12M`,
+    `C4P248_7_1`,
+    `C4P248_7_1_1`,
+    `C4P248_7_3`,
+    `C4P248_7_3_1`,
+    `P248_08_12M`,
+    `C4P248_8_1`,
+    `C4P248_8_1_1`,
+    `C4P248_8_3`,
+    `C4P248_8_3_1`,
+    `P248_09_12M`,
+    `C4P248_9_1`,
+    `C4P248_9_1_1`,
+    `C4P248_9_3`,
+    `C4P248_9_3_1`,
+    `P248_10_12M`,
+    `C4P248_10_1`,
+    `C4P248_10_1_1`,
+    `C4P248_10_3`,
+    `C4P248_10_3_1`,
+    `P248_11_12M`,
+    `C4P248_11_1`,
+    `C4P248_11_1_1`,
+    `C4P248_11_3`,
+    `C4P248_11_3_1`,
+    `P248_12_12M`,
+    `C4P248_12_1`,
+    `C4P248_12_1_1`,
+    `C4P248_12_3`,
+    `C4P248_12_3_1`,
+    `P248_13_12M`,
+    `C4P248_13_1`,
+    `C4P248_13_1_1`,
+    `C4P248_13_3`,
+    `C4P248_13_3_1`,
+    `P248_14_12M`,
+    `C4P248_14_1`,
+    `C4P248_14_1_1`,
+    `C4P248_14_3`,
+    `C4P248_14_3_1`,
+    `P248_15_12M`,
+    `C4P248_15_1`,
+    `C4P248_15_1_1`,
+    `C4P248_15_3`,
+    `C4P248_15_3_1`,
+    `P248_16_12M`,
+    `C4P248_16_1`,
+    `C4P248_16_1_1`,
+    `C4P248_16_3`,
+    `C4P248_16_3_1`,
+    `VS_12M`,
+    `VS_VIDA`,
+    `VS_E`,
+    `VS_E_1`,
+    `VS_H`,
+    `VS_H_1`,
+    `VS_ICVAC_301`,
+    `VS_ICVAC_301_VIDA`,
+    `VSE_301`,
+    `VSE1_301`,
+    `VSH_301`,
+    `VSH1_301`,
+    `VS_ICVAC_302`,
+    `VS_ICVAC_302_VIDA`,
+    `VSE_302`,
+    `VSE1_302`,
+    `VSH_302`,
+    `VSH1_302`,
+    `VS_ICVAC_303`,
+    `VS_ICVAC_303_VIDA`,
+    `VSE_303`,
+    `VSE1_303`,
+    `VSH_303`,
+    `VSH1_303`,
+    `VS_ICVAC_309`,
+    `VS_ICVAC_309_VIDA`,
+    `VSE_309`,
+    `VSE1_309`,
+    `VSH_309`,
+    `VSH1_309`,
+    `VS_CP01`,
+    `VS1_CP01`,
+    `VSE_CP01`,
+    `VSE1_CP01`,
+    `VSH_CP01`,
+    `VSH1_CP01`,
+    `VS_CP02`,
+    `VS1_CP02`,
+    `VSE_CP02`,
+    `VSE1_CP02`,
+    `VSH_CP02`,
+    `VSH1_CP02`,
+    `VS_CP03`,
+    `VS1_CP03`,
+    `VSE_CP03`,
+    `VSE1_CP03`,
+    `VSH_CP03`,
+    `VSH1_CP03`,
+    `VS_CP04`,
+    `VS1_CP04`,
+    `VSE_CP04`,
+    `VSE1_CP04`,
+    `VSH_CP04`,
+    `VSH1_CP04`,
+    `VS_CP05`,
+    `VS1_CP05`,
+    `VSE_CP05`,
+    `VSE1_CP05`,
+    `VSH_CP05`,
+    `VSH1_CP05`,
+    `VS_CP06`,
+    `VS1_CP06`,
+    `VSE_CP06`,
+    `VSE1_CP06`,
+    `VSH_CP06`,
+    `VSH1_CP06`,
+    `VS_CP07`,
+    `VS1_CP07`,
+    `VSE_CP07`,
+    `VSE1_CP07`,
+    `VSH_CP07`,
+    `VSH1_CP07`,
+    `VS_CP08`,
+    `VS1_CP08`,
+    `VSE_CP08`,
+    `VSE1_CP08`,
+    `VSH_CP08`,
+    `VSH1_CP08`,
+    `VS_CP09`,
+    `VS1_CP09`,
+    `VSE_CP09`,
+    `VSE1_CP09`,
+    `VSH_CP09`,
+    `VSH1_CP09`,
+    `VS_ICVAC_CONTACTO`,
+    `VS_ICVAC_CONTACTO_VIDA`,
+    `AG_VS12_01`,
+    `AG_VSVIDA_01`,
+    `AG_VS12_02`,
+    `AG_VSVIDA_02`,
+    `AG_VS12_03`,
+    `AG_VSVIDA_03`,
+    `AG_VS12_04`,
+    `AG_VSVIDA_04`,
+    `AG_VS12_05`,
+    `AG_VSVIDA_05`,
+    `AG_VS12_06`,
+    `AG_VSVIDA_06`,
+    `AG_VS12_07`,
+    `AG_VSVIDA_07`,
+    `AG_VS12_08`,
+    `AG_VSVIDA_08`,
+    `AG_VS12_09`,
+    `AG_VSVIDA_09`,
+    `INDICADOR_8_2_7`,
+    `INDICADOR_8_2_13`,
+    `INDICADOR_8_2_8`,
+    `Formas_VS_12M__C4P248_1`,
+    `Formas_VS_VIDA__C4P248_1`,
+    `Formas_VS_E__C4P248_1`,
+    `Formas_VS_E_1__C4P248_1`,
+    `Formas_Agresor_VS_H__C4P248_1`,
+    `Formas_Agresor_VS_H_1__C4P248_1`,
+    `Formas_VS_12M__C4P248_2`,
+    `Formas_VS_VIDA__C4P248_2`,
+    `Formas_VS_E__C4P248_2`,
+    `Formas_VS_E_1__C4P248_2`,
+    `Formas_Agresor_VS_H__C4P248_2`,
+    `Formas_Agresor_VS_H_1__C4P248_2`,
+    `Formas_VS_12M__C4P248_3`,
+    `Formas_VS_VIDA__C4P248_3`,
+    `Formas_VS_E__C4P248_3`,
+    `Formas_VS_E_1__C4P248_3`,
+    `Formas_Agresor_VS_H__C4P248_3`,
+    `Formas_Agresor_VS_H_1__C4P248_3`,
+    `Formas_VS_12M__C4P248_4`,
+    `Formas_VS_VIDA__C4P248_4`,
+    `Formas_VS_E__C4P248_4`,
+    `Formas_VS_E_1__C4P248_4`,
+    `Formas_Agresor_VS_H__C4P248_4`,
+    `Formas_Agresor_VS_H_1__C4P248_4`,
+    `Formas_VS_12M__C4P248_5`,
+    `Formas_VS_VIDA__C4P248_5`,
+    `Formas_VS_E__C4P248_5`,
+    `Formas_VS_E_1__C4P248_5`,
+    `Formas_Agresor_VS_H__C4P248_5`,
+    `Formas_Agresor_VS_H_1__C4P248_5`,
+    `Formas_VS_12M__C4P248_6`,
+    `Formas_VS_VIDA__C4P248_6`,
+    `Formas_VS_E__C4P248_6`,
+    `Formas_VS_E_1__C4P248_6`,
+    `Formas_Agresor_VS_H__C4P248_6`,
+    `Formas_Agresor_VS_H_1__C4P248_6`,
+    `Formas_VS_12M__C4P248_7`,
+    `Formas_VS_VIDA__C4P248_7`,
+    `Formas_VS_E__C4P248_7`,
+    `Formas_VS_E_1__C4P248_7`,
+    `Formas_Agresor_VS_H__C4P248_7`,
+    `Formas_Agresor_VS_H_1__C4P248_7`,
+    `Formas_VS_12M__C4P248_8`,
+    `Formas_VS_VIDA__C4P248_8`,
+    `Formas_VS_E__C4P248_8`,
+    `Formas_VS_E_1__C4P248_8`,
+    `Formas_Agresor_VS_H__C4P248_8`,
+    `Formas_Agresor_VS_H_1__C4P248_8`,
+    `Formas_VS_12M__C4P248_9`,
+    `Formas_VS_VIDA__C4P248_9`,
+    `Formas_VS_E__C4P248_9`,
+    `Formas_VS_E_1__C4P248_9`,
+    `Formas_Agresor_VS_H__C4P248_9`,
+    `Formas_Agresor_VS_H_1__C4P248_9`,
+    `Formas_VS_12M__C4P248_10`,
+    `Formas_VS_VIDA__C4P248_10`,
+    `Formas_VS_E__C4P248_10`,
+    `Formas_VS_E_1__C4P248_10`,
+    `Formas_Agresor_VS_H__C4P248_10`,
+    `Formas_Agresor_VS_H_1__C4P248_10`,
+    `Formas_VS_12M__C4P248_11`,
+    `Formas_VS_VIDA__C4P248_11`,
+    `Formas_VS_E__C4P248_11`,
+    `Formas_VS_E_1__C4P248_11`,
+    `Formas_Agresor_VS_H__C4P248_11`,
+    `Formas_Agresor_VS_H_1__C4P248_11`,
+    `Formas_VS_12M__C4P248_12`,
+    `Formas_VS_VIDA__C4P248_12`,
+    `Formas_VS_E__C4P248_12`,
+    `Formas_VS_E_1__C4P248_12`,
+    `Formas_VS_12M__C4P248_13`,
+    `Formas_VS_VIDA__C4P248_13`,
+    `Formas_VS_E__C4P248_13`,
+    `Formas_VS_E_1__C4P248_13`,
+    `Formas_Agresor_VS_H__C4P248_13`,
+    `Formas_Agresor_VS_H_1__C4P248_13`,
+    `Formas_VS_12M__C4P248_14`,
+    `Formas_VS_VIDA__C4P248_14`,
+    `Formas_VS_E__C4P248_14`,
+    `Formas_VS_E_1__C4P248_14`,
+    `Formas_Agresor_VS_H__C4P248_14`,
+    `Formas_Agresor_VS_H_1__C4P248_14`,
+    `Formas_VS_12M__C4P248_15`,
+    `Formas_VS_VIDA__C4P248_15`,
+    `Formas_VS_E__C4P248_15`,
+    `Formas_VS_E_1__C4P248_15`,
+    `Formas_Agresor_VS_H__C4P248_15`,
+    `Formas_Agresor_VS_H_1__C4P248_15`,
+    `Formas_VS_12M__C4P248_16`,
+    `Formas_VS_VIDA__C4P248_16`,
+    `Formas_VS_E__C4P248_16`,
+    `Formas_VS_E_1__C4P248_16`,
+    `Formas_Agresor_VS_H__C4P248_16`,
+    `Formas_Agresor_VS_H_1__C4P248_16`,
+    `Formas_VS_12M__ICVAC_301`,
+    `Formas_VS_VIDA__ICVAC_301`,
+    `Formas_VS_E__ICVAC_301`,
+    `Formas_VS_E_1__ICVAC_301`,
+    `Formas_Agresor_VS_H__ICVAC_301`,
+    `Formas_Agresor_VS_H_1__ICVAC_301`,
+    `Formas_VS_12M__ICVAC_302`,
+    `Formas_VS_VIDA__ICVAC_302`,
+    `Formas_VS_E__ICVAC_302`,
+    `Formas_VS_E_1__ICVAC_302`,
+    `Formas_Agresor_VS_H__ICVAC_302`,
+    `Formas_Agresor_VS_H_1__ICVAC_302`,
+    `Formas_VS_12M__ICVAC_303`,
+    `Formas_VS_VIDA__ICVAC_303`,
+    `Formas_VS_E__ICVAC_303`,
+    `Formas_VS_E_1__ICVAC_303`,
+    `Formas_Agresor_VS_H__ICVAC_303`,
+    `Formas_Agresor_VS_H_1__ICVAC_303`,
+    `Formas_VS_12M__ICVAC_309`,
+    `Formas_VS_VIDA__ICVAC_309`,
+    `Formas_VS_E__ICVAC_309`,
+    `Formas_VS_E_1__ICVAC_309`,
+    `Formas_VS_12M__VS_CP01`,
+    `Formas_VS_VIDA__VS_CP01`,
+    `Formas_VS_E__VSE_CP01`,
+    `Formas_VS_E_1__VSE_CP01`,
+    `Formas_Agresor_VS_H__VSH_CP01`,
+    `Formas_Agresor_VS_H_1__VSH_CP01`,
+    `Formas_VS_12M__VS_CP02`,
+    `Formas_VS_VIDA__VS_CP02`,
+    `Formas_VS_E__VSE_CP02`,
+    `Formas_VS_E_1__VSE_CP02`,
+    `Formas_Agresor_VS_H__VSH_CP02`,
+    `Formas_Agresor_VS_H_1__VSH_CP02`,
+    `Formas_VS_12M__VS_CP03`,
+    `Formas_VS_VIDA__VS_CP03`,
+    `Formas_VS_E__VSE_CP03`,
+    `Formas_VS_E_1__VSE_CP03`,
+    `Formas_Agresor_VS_H__VSH_CP03`,
+    `Formas_Agresor_VS_H_1__VSH_CP03`,
+    `Formas_VS_12M__VS_CP04`,
+    `Formas_VS_VIDA__VS_CP04`,
+    `Formas_VS_E__VSE_CP04`,
+    `Formas_VS_E_1__VSE_CP04`,
+    `Formas_Agresor_VS_H__VSH_CP04`,
+    `Formas_Agresor_VS_H_1__VSH_CP04`,
+    `Formas_VS_12M__VS_CP05`,
+    `Formas_VS_VIDA__VS_CP05`,
+    `Formas_VS_E__VSE_CP05`,
+    `Formas_VS_E_1__VSE_CP05`,
+    `Formas_Agresor_VS_H__VSH_CP05`,
+    `Formas_Agresor_VS_H_1__VSH_CP05`,
+    `Formas_VS_12M__VS_CP06`,
+    `Formas_VS_VIDA__VS_CP06`,
+    `Formas_VS_E__VSE_CP06`,
+    `Formas_VS_E_1__VSE_CP06`,
+    `Formas_Agresor_VS_H__VSH_CP06`,
+    `Formas_Agresor_VS_H_1__VSH_CP06`,
+    `Formas_VS_12M__VS_CP07`,
+    `Formas_VS_VIDA__VS_CP07`,
+    `Formas_VS_E__VSE_CP07`,
+    `Formas_VS_E_1__VSE_CP07`,
+    `Formas_Agresor_VS_H__VSH_CP07`,
+    `Formas_Agresor_VS_H_1__VSH_CP07`,
+    `Formas_VS_12M__VS_CP08`,
+    `Formas_VS_VIDA__VS_CP08`,
+    `Formas_VS_E__VSE_CP08`,
+    `Formas_VS_E_1__VSE_CP08`,
+    `Formas_Agresor_VS_H__VSH_CP08`,
+    `Formas_Agresor_VS_H_1__VSH_CP08`,
+    `Formas_VS_12M__VS_CP09`,
+    `Formas_VS_VIDA__VS_CP09`,
+    `Formas_VS_E__VSE_CP09`,
+    `Formas_VS_E_1__VSE_CP09`,
+    `Agresor_VP_E__AG_VP_01`,
+    `Agresor_VF_E__AG_VF_01`,
+    `Agresor_VP_H__AG_VP_01`,
+    `Agresor_VF_H__AG_VF_01`,
+    `Agresor_VP_E__AG_VP_02`,
+    `Agresor_VF_E__AG_VF_02`,
+    `Agresor_VP_H__AG_VP_02`,
+    `Agresor_VF_H__AG_VF_02`,
+    `Agresor_VP_E__AG_VP_03`,
+    `Agresor_VF_E__AG_VF_03`,
+    `Agresor_VP_H__AG_VP_03`,
+    `Agresor_VF_H__AG_VF_03`,
+    `Agresor_VP_E__AG_VP_04`,
+    `Agresor_VF_E__AG_VF_04`,
+    `Agresor_VP_H__AG_VP_04`,
+    `Agresor_VF_H__AG_VF_04`,
+    `Agresor_VP_E__AG_VP_05`,
+    `Agresor_VF_E__AG_VF_05`,
+    `Agresor_VP_H__AG_VP_05`,
+    `Agresor_VF_H__AG_VF_05`,
+    `Agresor_VP_E__AG_VP_06`,
+    `Agresor_VF_E__AG_VF_06`,
+    `Agresor_VP_H__AG_VP_06`,
+    `Agresor_VF_H__AG_VF_06`,
+    `Agresor_VP_E__AG_VP_07`,
+    `Agresor_VF_E__AG_VF_07`,
+    `Agresor_VP_H__AG_VP_07`,
+    `Agresor_VF_H__AG_VF_07`,
+    `Agresor_VP_E__AG_VP_08`,
+    `Agresor_VF_E__AG_VF_08`,
+    `Agresor_VP_H__AG_VP_08`,
+    `Agresor_VF_H__AG_VF_08`,
+    `AG_VP_09`,
+    `AG_VF_09`,
+    `Agresor_VS_12M__AG_01`,
+    `Agresor_VS_VIDA__AG_01`,
+    `Prev_Agresor_VS__AG_01`,
+    `Agresor_VS_12M__AG_02`,
+    `Agresor_VS_VIDA__AG_02`,
+    `Prev_Agresor_VS__AG_02`,
+    `Agresor_VS_12M__AG_03`,
+    `Agresor_VS_VIDA__AG_03`,
+    `Prev_Agresor_VS__AG_03`,
+    `Agresor_VS_12M__AG_04`,
+    `Agresor_VS_VIDA__AG_04`,
+    `Prev_Agresor_VS__AG_04`,
+    `Agresor_VS_12M__AG_05`,
+    `Agresor_VS_VIDA__AG_05`,
+    `Prev_Agresor_VS__AG_05`,
+    `Agresor_VS_12M__AG_06`,
+    `Agresor_VS_VIDA__AG_06`,
+    `Prev_Agresor_VS__AG_06`,
+    `Agresor_VS_12M__AG_07`,
+    `Agresor_VS_VIDA__AG_07`,
+    `Prev_Agresor_VS__AG_07`,
+    `Agresor_VS_12M__AG_08`,
+    `Agresor_VS_VIDA__AG_08`,
+    `Prev_Agresor_VS__AG_08`,
+    `Agresor_VS_12M__AG_09`,
+    `Agresor_VS_VIDA__AG_09`,
+    `Prev_Agresor_VS__AG_09`,
+    `Formas_Agresor_VS_H__VSH_AG01`,
+    `Formas_Agresor_VS_H_1__VSH_AG01`,
+    `Formas_Agresor_VS_H__VSH_AG02`,
+    `Formas_Agresor_VS_H_1__VSH_AG02`,
+    `Formas_Agresor_VS_H__VSH_AG03`,
+    `Formas_Agresor_VS_H_1__VSH_AG03`,
+    `VS_OtraPersona_12M`,
+    `VS_OtraPersona_VIDA`
+  FROM ${ref("analytical_crs04_adolescents")}
+),
+
+candidate AS (
+  SELECT
+    ID,
+    COLEGIAL_ID,
+    `P248_01_12M`,
+    `C4P248_1_1`,
+    `C4P248_1_1_1`,
+    `C4P248_1_3`,
+    `C4P248_1_3_1`,
+    `P248_02_12M`,
+    `C4P248_2_1`,
+    `C4P248_2_1_1`,
+    `C4P248_2_3`,
+    `C4P248_2_3_1`,
+    `P248_03_12M`,
+    `C4P248_3_1`,
+    `C4P248_3_1_1`,
+    `C4P248_3_3`,
+    `C4P248_3_3_1`,
+    `P248_04_12M`,
+    `C4P248_4_1`,
+    `C4P248_4_1_1`,
+    `C4P248_4_3`,
+    `C4P248_4_3_1`,
+    `P248_05_12M`,
+    `C4P248_5_1`,
+    `C4P248_5_1_1`,
+    `C4P248_5_3`,
+    `C4P248_5_3_1`,
+    `P248_06_12M`,
+    `C4P248_6_1`,
+    `C4P248_6_1_1`,
+    `C4P248_6_3`,
+    `C4P248_6_3_1`,
+    `P248_07_12M`,
+    `C4P248_7_1`,
+    `C4P248_7_1_1`,
+    `C4P248_7_3`,
+    `C4P248_7_3_1`,
+    `P248_08_12M`,
+    `C4P248_8_1`,
+    `C4P248_8_1_1`,
+    `C4P248_8_3`,
+    `C4P248_8_3_1`,
+    `P248_09_12M`,
+    `C4P248_9_1`,
+    `C4P248_9_1_1`,
+    `C4P248_9_3`,
+    `C4P248_9_3_1`,
+    `P248_10_12M`,
+    `C4P248_10_1`,
+    `C4P248_10_1_1`,
+    `C4P248_10_3`,
+    `C4P248_10_3_1`,
+    `P248_11_12M`,
+    `C4P248_11_1`,
+    `C4P248_11_1_1`,
+    `C4P248_11_3`,
+    `C4P248_11_3_1`,
+    `P248_12_12M`,
+    `C4P248_12_1`,
+    `C4P248_12_1_1`,
+    `C4P248_12_3`,
+    `C4P248_12_3_1`,
+    `P248_13_12M`,
+    `C4P248_13_1`,
+    `C4P248_13_1_1`,
+    `C4P248_13_3`,
+    `C4P248_13_3_1`,
+    `P248_14_12M`,
+    `C4P248_14_1`,
+    `C4P248_14_1_1`,
+    `C4P248_14_3`,
+    `C4P248_14_3_1`,
+    `P248_15_12M`,
+    `C4P248_15_1`,
+    `C4P248_15_1_1`,
+    `C4P248_15_3`,
+    `C4P248_15_3_1`,
+    `P248_16_12M`,
+    `C4P248_16_1`,
+    `C4P248_16_1_1`,
+    `C4P248_16_3`,
+    `C4P248_16_3_1`,
+    `VS_12M`,
+    `VS_VIDA`,
+    `VS_E`,
+    `VS_E_1`,
+    `VS_H`,
+    `VS_H_1`,
+    `VS_ICVAC_301`,
+    `VS_ICVAC_301_VIDA`,
+    `VSE_301`,
+    `VSE1_301`,
+    `VSH_301`,
+    `VSH1_301`,
+    `VS_ICVAC_302`,
+    `VS_ICVAC_302_VIDA`,
+    `VSE_302`,
+    `VSE1_302`,
+    `VSH_302`,
+    `VSH1_302`,
+    `VS_ICVAC_303`,
+    `VS_ICVAC_303_VIDA`,
+    `VSE_303`,
+    `VSE1_303`,
+    `VSH_303`,
+    `VSH1_303`,
+    `VS_ICVAC_309`,
+    `VS_ICVAC_309_VIDA`,
+    `VSE_309`,
+    `VSE1_309`,
+    `VSH_309`,
+    `VSH1_309`,
+    `VS_CP01`,
+    `VS1_CP01`,
+    `VSE_CP01`,
+    `VSE1_CP01`,
+    `VSH_CP01`,
+    `VSH1_CP01`,
+    `VS_CP02`,
+    `VS1_CP02`,
+    `VSE_CP02`,
+    `VSE1_CP02`,
+    `VSH_CP02`,
+    `VSH1_CP02`,
+    `VS_CP03`,
+    `VS1_CP03`,
+    `VSE_CP03`,
+    `VSE1_CP03`,
+    `VSH_CP03`,
+    `VSH1_CP03`,
+    `VS_CP04`,
+    `VS1_CP04`,
+    `VSE_CP04`,
+    `VSE1_CP04`,
+    `VSH_CP04`,
+    `VSH1_CP04`,
+    `VS_CP05`,
+    `VS1_CP05`,
+    `VSE_CP05`,
+    `VSE1_CP05`,
+    `VSH_CP05`,
+    `VSH1_CP05`,
+    `VS_CP06`,
+    `VS1_CP06`,
+    `VSE_CP06`,
+    `VSE1_CP06`,
+    `VSH_CP06`,
+    `VSH1_CP06`,
+    `VS_CP07`,
+    `VS1_CP07`,
+    `VSE_CP07`,
+    `VSE1_CP07`,
+    `VSH_CP07`,
+    `VSH1_CP07`,
+    `VS_CP08`,
+    `VS1_CP08`,
+    `VSE_CP08`,
+    `VSE1_CP08`,
+    `VSH_CP08`,
+    `VSH1_CP08`,
+    `VS_CP09`,
+    `VS1_CP09`,
+    `VSE_CP09`,
+    `VSE1_CP09`,
+    `VSH_CP09`,
+    `VSH1_CP09`,
+    `VS_ICVAC_CONTACTO`,
+    `VS_ICVAC_CONTACTO_VIDA`,
+    `AG_VS12_01`,
+    `AG_VSVIDA_01`,
+    `AG_VS12_02`,
+    `AG_VSVIDA_02`,
+    `AG_VS12_03`,
+    `AG_VSVIDA_03`,
+    `AG_VS12_04`,
+    `AG_VSVIDA_04`,
+    `AG_VS12_05`,
+    `AG_VSVIDA_05`,
+    `AG_VS12_06`,
+    `AG_VSVIDA_06`,
+    `AG_VS12_07`,
+    `AG_VSVIDA_07`,
+    `AG_VS12_08`,
+    `AG_VSVIDA_08`,
+    `AG_VS12_09`,
+    `AG_VSVIDA_09`,
+    `INDICADOR_8_2_7`,
+    `INDICADOR_8_2_13`,
+    `INDICADOR_8_2_8`,
+    `Formas_VS_12M__C4P248_1`,
+    `Formas_VS_VIDA__C4P248_1`,
+    `Formas_VS_E__C4P248_1`,
+    `Formas_VS_E_1__C4P248_1`,
+    `Formas_Agresor_VS_H__C4P248_1`,
+    `Formas_Agresor_VS_H_1__C4P248_1`,
+    `Formas_VS_12M__C4P248_2`,
+    `Formas_VS_VIDA__C4P248_2`,
+    `Formas_VS_E__C4P248_2`,
+    `Formas_VS_E_1__C4P248_2`,
+    `Formas_Agresor_VS_H__C4P248_2`,
+    `Formas_Agresor_VS_H_1__C4P248_2`,
+    `Formas_VS_12M__C4P248_3`,
+    `Formas_VS_VIDA__C4P248_3`,
+    `Formas_VS_E__C4P248_3`,
+    `Formas_VS_E_1__C4P248_3`,
+    `Formas_Agresor_VS_H__C4P248_3`,
+    `Formas_Agresor_VS_H_1__C4P248_3`,
+    `Formas_VS_12M__C4P248_4`,
+    `Formas_VS_VIDA__C4P248_4`,
+    `Formas_VS_E__C4P248_4`,
+    `Formas_VS_E_1__C4P248_4`,
+    `Formas_Agresor_VS_H__C4P248_4`,
+    `Formas_Agresor_VS_H_1__C4P248_4`,
+    `Formas_VS_12M__C4P248_5`,
+    `Formas_VS_VIDA__C4P248_5`,
+    `Formas_VS_E__C4P248_5`,
+    `Formas_VS_E_1__C4P248_5`,
+    `Formas_Agresor_VS_H__C4P248_5`,
+    `Formas_Agresor_VS_H_1__C4P248_5`,
+    `Formas_VS_12M__C4P248_6`,
+    `Formas_VS_VIDA__C4P248_6`,
+    `Formas_VS_E__C4P248_6`,
+    `Formas_VS_E_1__C4P248_6`,
+    `Formas_Agresor_VS_H__C4P248_6`,
+    `Formas_Agresor_VS_H_1__C4P248_6`,
+    `Formas_VS_12M__C4P248_7`,
+    `Formas_VS_VIDA__C4P248_7`,
+    `Formas_VS_E__C4P248_7`,
+    `Formas_VS_E_1__C4P248_7`,
+    `Formas_Agresor_VS_H__C4P248_7`,
+    `Formas_Agresor_VS_H_1__C4P248_7`,
+    `Formas_VS_12M__C4P248_8`,
+    `Formas_VS_VIDA__C4P248_8`,
+    `Formas_VS_E__C4P248_8`,
+    `Formas_VS_E_1__C4P248_8`,
+    `Formas_Agresor_VS_H__C4P248_8`,
+    `Formas_Agresor_VS_H_1__C4P248_8`,
+    `Formas_VS_12M__C4P248_9`,
+    `Formas_VS_VIDA__C4P248_9`,
+    `Formas_VS_E__C4P248_9`,
+    `Formas_VS_E_1__C4P248_9`,
+    `Formas_Agresor_VS_H__C4P248_9`,
+    `Formas_Agresor_VS_H_1__C4P248_9`,
+    `Formas_VS_12M__C4P248_10`,
+    `Formas_VS_VIDA__C4P248_10`,
+    `Formas_VS_E__C4P248_10`,
+    `Formas_VS_E_1__C4P248_10`,
+    `Formas_Agresor_VS_H__C4P248_10`,
+    `Formas_Agresor_VS_H_1__C4P248_10`,
+    `Formas_VS_12M__C4P248_11`,
+    `Formas_VS_VIDA__C4P248_11`,
+    `Formas_VS_E__C4P248_11`,
+    `Formas_VS_E_1__C4P248_11`,
+    `Formas_Agresor_VS_H__C4P248_11`,
+    `Formas_Agresor_VS_H_1__C4P248_11`,
+    `Formas_VS_12M__C4P248_12`,
+    `Formas_VS_VIDA__C4P248_12`,
+    `Formas_VS_E__C4P248_12`,
+    `Formas_VS_E_1__C4P248_12`,
+    `Formas_VS_12M__C4P248_13`,
+    `Formas_VS_VIDA__C4P248_13`,
+    `Formas_VS_E__C4P248_13`,
+    `Formas_VS_E_1__C4P248_13`,
+    `Formas_Agresor_VS_H__C4P248_13`,
+    `Formas_Agresor_VS_H_1__C4P248_13`,
+    `Formas_VS_12M__C4P248_14`,
+    `Formas_VS_VIDA__C4P248_14`,
+    `Formas_VS_E__C4P248_14`,
+    `Formas_VS_E_1__C4P248_14`,
+    `Formas_Agresor_VS_H__C4P248_14`,
+    `Formas_Agresor_VS_H_1__C4P248_14`,
+    `Formas_VS_12M__C4P248_15`,
+    `Formas_VS_VIDA__C4P248_15`,
+    `Formas_VS_E__C4P248_15`,
+    `Formas_VS_E_1__C4P248_15`,
+    `Formas_Agresor_VS_H__C4P248_15`,
+    `Formas_Agresor_VS_H_1__C4P248_15`,
+    `Formas_VS_12M__C4P248_16`,
+    `Formas_VS_VIDA__C4P248_16`,
+    `Formas_VS_E__C4P248_16`,
+    `Formas_VS_E_1__C4P248_16`,
+    `Formas_Agresor_VS_H__C4P248_16`,
+    `Formas_Agresor_VS_H_1__C4P248_16`,
+    `Formas_VS_12M__ICVAC_301`,
+    `Formas_VS_VIDA__ICVAC_301`,
+    `Formas_VS_E__ICVAC_301`,
+    `Formas_VS_E_1__ICVAC_301`,
+    `Formas_Agresor_VS_H__ICVAC_301`,
+    `Formas_Agresor_VS_H_1__ICVAC_301`,
+    `Formas_VS_12M__ICVAC_302`,
+    `Formas_VS_VIDA__ICVAC_302`,
+    `Formas_VS_E__ICVAC_302`,
+    `Formas_VS_E_1__ICVAC_302`,
+    `Formas_Agresor_VS_H__ICVAC_302`,
+    `Formas_Agresor_VS_H_1__ICVAC_302`,
+    `Formas_VS_12M__ICVAC_303`,
+    `Formas_VS_VIDA__ICVAC_303`,
+    `Formas_VS_E__ICVAC_303`,
+    `Formas_VS_E_1__ICVAC_303`,
+    `Formas_Agresor_VS_H__ICVAC_303`,
+    `Formas_Agresor_VS_H_1__ICVAC_303`,
+    `Formas_VS_12M__ICVAC_309`,
+    `Formas_VS_VIDA__ICVAC_309`,
+    `Formas_VS_E__ICVAC_309`,
+    `Formas_VS_E_1__ICVAC_309`,
+    `Formas_VS_12M__VS_CP01`,
+    `Formas_VS_VIDA__VS_CP01`,
+    `Formas_VS_E__VSE_CP01`,
+    `Formas_VS_E_1__VSE_CP01`,
+    `Formas_Agresor_VS_H__VSH_CP01`,
+    `Formas_Agresor_VS_H_1__VSH_CP01`,
+    `Formas_VS_12M__VS_CP02`,
+    `Formas_VS_VIDA__VS_CP02`,
+    `Formas_VS_E__VSE_CP02`,
+    `Formas_VS_E_1__VSE_CP02`,
+    `Formas_Agresor_VS_H__VSH_CP02`,
+    `Formas_Agresor_VS_H_1__VSH_CP02`,
+    `Formas_VS_12M__VS_CP03`,
+    `Formas_VS_VIDA__VS_CP03`,
+    `Formas_VS_E__VSE_CP03`,
+    `Formas_VS_E_1__VSE_CP03`,
+    `Formas_Agresor_VS_H__VSH_CP03`,
+    `Formas_Agresor_VS_H_1__VSH_CP03`,
+    `Formas_VS_12M__VS_CP04`,
+    `Formas_VS_VIDA__VS_CP04`,
+    `Formas_VS_E__VSE_CP04`,
+    `Formas_VS_E_1__VSE_CP04`,
+    `Formas_Agresor_VS_H__VSH_CP04`,
+    `Formas_Agresor_VS_H_1__VSH_CP04`,
+    `Formas_VS_12M__VS_CP05`,
+    `Formas_VS_VIDA__VS_CP05`,
+    `Formas_VS_E__VSE_CP05`,
+    `Formas_VS_E_1__VSE_CP05`,
+    `Formas_Agresor_VS_H__VSH_CP05`,
+    `Formas_Agresor_VS_H_1__VSH_CP05`,
+    `Formas_VS_12M__VS_CP06`,
+    `Formas_VS_VIDA__VS_CP06`,
+    `Formas_VS_E__VSE_CP06`,
+    `Formas_VS_E_1__VSE_CP06`,
+    `Formas_Agresor_VS_H__VSH_CP06`,
+    `Formas_Agresor_VS_H_1__VSH_CP06`,
+    `Formas_VS_12M__VS_CP07`,
+    `Formas_VS_VIDA__VS_CP07`,
+    `Formas_VS_E__VSE_CP07`,
+    `Formas_VS_E_1__VSE_CP07`,
+    `Formas_Agresor_VS_H__VSH_CP07`,
+    `Formas_Agresor_VS_H_1__VSH_CP07`,
+    `Formas_VS_12M__VS_CP08`,
+    `Formas_VS_VIDA__VS_CP08`,
+    `Formas_VS_E__VSE_CP08`,
+    `Formas_VS_E_1__VSE_CP08`,
+    `Formas_Agresor_VS_H__VSH_CP08`,
+    `Formas_Agresor_VS_H_1__VSH_CP08`,
+    `Formas_VS_12M__VS_CP09`,
+    `Formas_VS_VIDA__VS_CP09`,
+    `Formas_VS_E__VSE_CP09`,
+    `Formas_VS_E_1__VSE_CP09`,
+    `Agresor_VP_E__AG_VP_01`,
+    `Agresor_VF_E__AG_VF_01`,
+    `Agresor_VP_H__AG_VP_01`,
+    `Agresor_VF_H__AG_VF_01`,
+    `Agresor_VP_E__AG_VP_02`,
+    `Agresor_VF_E__AG_VF_02`,
+    `Agresor_VP_H__AG_VP_02`,
+    `Agresor_VF_H__AG_VF_02`,
+    `Agresor_VP_E__AG_VP_03`,
+    `Agresor_VF_E__AG_VF_03`,
+    `Agresor_VP_H__AG_VP_03`,
+    `Agresor_VF_H__AG_VF_03`,
+    `Agresor_VP_E__AG_VP_04`,
+    `Agresor_VF_E__AG_VF_04`,
+    `Agresor_VP_H__AG_VP_04`,
+    `Agresor_VF_H__AG_VF_04`,
+    `Agresor_VP_E__AG_VP_05`,
+    `Agresor_VF_E__AG_VF_05`,
+    `Agresor_VP_H__AG_VP_05`,
+    `Agresor_VF_H__AG_VF_05`,
+    `Agresor_VP_E__AG_VP_06`,
+    `Agresor_VF_E__AG_VF_06`,
+    `Agresor_VP_H__AG_VP_06`,
+    `Agresor_VF_H__AG_VF_06`,
+    `Agresor_VP_E__AG_VP_07`,
+    `Agresor_VF_E__AG_VF_07`,
+    `Agresor_VP_H__AG_VP_07`,
+    `Agresor_VF_H__AG_VF_07`,
+    `Agresor_VP_E__AG_VP_08`,
+    `Agresor_VF_E__AG_VF_08`,
+    `Agresor_VP_H__AG_VP_08`,
+    `Agresor_VF_H__AG_VF_08`,
+    `AG_VP_09`,
+    `AG_VF_09`,
+    `Agresor_VS_12M__AG_01`,
+    `Agresor_VS_VIDA__AG_01`,
+    `Prev_Agresor_VS__AG_01`,
+    `Agresor_VS_12M__AG_02`,
+    `Agresor_VS_VIDA__AG_02`,
+    `Prev_Agresor_VS__AG_02`,
+    `Agresor_VS_12M__AG_03`,
+    `Agresor_VS_VIDA__AG_03`,
+    `Prev_Agresor_VS__AG_03`,
+    `Agresor_VS_12M__AG_04`,
+    `Agresor_VS_VIDA__AG_04`,
+    `Prev_Agresor_VS__AG_04`,
+    `Agresor_VS_12M__AG_05`,
+    `Agresor_VS_VIDA__AG_05`,
+    `Prev_Agresor_VS__AG_05`,
+    `Agresor_VS_12M__AG_06`,
+    `Agresor_VS_VIDA__AG_06`,
+    `Prev_Agresor_VS__AG_06`,
+    `Agresor_VS_12M__AG_07`,
+    `Agresor_VS_VIDA__AG_07`,
+    `Prev_Agresor_VS__AG_07`,
+    `Agresor_VS_12M__AG_08`,
+    `Agresor_VS_VIDA__AG_08`,
+    `Prev_Agresor_VS__AG_08`,
+    `Agresor_VS_12M__AG_09`,
+    `Agresor_VS_VIDA__AG_09`,
+    `Prev_Agresor_VS__AG_09`,
+    `Formas_Agresor_VS_H__VSH_AG01`,
+    `Formas_Agresor_VS_H_1__VSH_AG01`,
+    `Formas_Agresor_VS_H__VSH_AG02`,
+    `Formas_Agresor_VS_H_1__VSH_AG02`,
+    `Formas_Agresor_VS_H__VSH_AG03`,
+    `Formas_Agresor_VS_H_1__VSH_AG03`,
+    `VS_OtraPersona_12M`,
+    `VS_OtraPersona_VIDA`
+  FROM ${ref("analytical_crs04_stage34_v0_5")}
+)
+
+SELECT
+  COALESCE(candidate.ID, reference.ID) AS ID,
+  COALESCE(candidate.COLEGIAL_ID, reference.COLEGIAL_ID) AS COLEGIAL_ID
+FROM candidate
+FULL OUTER JOIN reference
+  USING (ID, COLEGIAL_ID)
+WHERE
+  candidate.ID IS NULL
+  OR reference.ID IS NULL
+  OR candidate.`P248_01_12M` IS DISTINCT FROM reference.`P248_01_12M`
+  OR candidate.`C4P248_1_1` IS DISTINCT FROM reference.`C4P248_1_1`
+  OR candidate.`C4P248_1_1_1` IS DISTINCT FROM reference.`C4P248_1_1_1`
+  OR candidate.`C4P248_1_3` IS DISTINCT FROM reference.`C4P248_1_3`
+  OR candidate.`C4P248_1_3_1` IS DISTINCT FROM reference.`C4P248_1_3_1`
+  OR candidate.`P248_02_12M` IS DISTINCT FROM reference.`P248_02_12M`
+  OR candidate.`C4P248_2_1` IS DISTINCT FROM reference.`C4P248_2_1`
+  OR candidate.`C4P248_2_1_1` IS DISTINCT FROM reference.`C4P248_2_1_1`
+  OR candidate.`C4P248_2_3` IS DISTINCT FROM reference.`C4P248_2_3`
+  OR candidate.`C4P248_2_3_1` IS DISTINCT FROM reference.`C4P248_2_3_1`
+  OR candidate.`P248_03_12M` IS DISTINCT FROM reference.`P248_03_12M`
+  OR candidate.`C4P248_3_1` IS DISTINCT FROM reference.`C4P248_3_1`
+  OR candidate.`C4P248_3_1_1` IS DISTINCT FROM reference.`C4P248_3_1_1`
+  OR candidate.`C4P248_3_3` IS DISTINCT FROM reference.`C4P248_3_3`
+  OR candidate.`C4P248_3_3_1` IS DISTINCT FROM reference.`C4P248_3_3_1`
+  OR candidate.`P248_04_12M` IS DISTINCT FROM reference.`P248_04_12M`
+  OR candidate.`C4P248_4_1` IS DISTINCT FROM reference.`C4P248_4_1`
+  OR candidate.`C4P248_4_1_1` IS DISTINCT FROM reference.`C4P248_4_1_1`
+  OR candidate.`C4P248_4_3` IS DISTINCT FROM reference.`C4P248_4_3`
+  OR candidate.`C4P248_4_3_1` IS DISTINCT FROM reference.`C4P248_4_3_1`
+  OR candidate.`P248_05_12M` IS DISTINCT FROM reference.`P248_05_12M`
+  OR candidate.`C4P248_5_1` IS DISTINCT FROM reference.`C4P248_5_1`
+  OR candidate.`C4P248_5_1_1` IS DISTINCT FROM reference.`C4P248_5_1_1`
+  OR candidate.`C4P248_5_3` IS DISTINCT FROM reference.`C4P248_5_3`
+  OR candidate.`C4P248_5_3_1` IS DISTINCT FROM reference.`C4P248_5_3_1`
+  OR candidate.`P248_06_12M` IS DISTINCT FROM reference.`P248_06_12M`
+  OR candidate.`C4P248_6_1` IS DISTINCT FROM reference.`C4P248_6_1`
+  OR candidate.`C4P248_6_1_1` IS DISTINCT FROM reference.`C4P248_6_1_1`
+  OR candidate.`C4P248_6_3` IS DISTINCT FROM reference.`C4P248_6_3`
+  OR candidate.`C4P248_6_3_1` IS DISTINCT FROM reference.`C4P248_6_3_1`
+  OR candidate.`P248_07_12M` IS DISTINCT FROM reference.`P248_07_12M`
+  OR candidate.`C4P248_7_1` IS DISTINCT FROM reference.`C4P248_7_1`
+  OR candidate.`C4P248_7_1_1` IS DISTINCT FROM reference.`C4P248_7_1_1`
+  OR candidate.`C4P248_7_3` IS DISTINCT FROM reference.`C4P248_7_3`
+  OR candidate.`C4P248_7_3_1` IS DISTINCT FROM reference.`C4P248_7_3_1`
+  OR candidate.`P248_08_12M` IS DISTINCT FROM reference.`P248_08_12M`
+  OR candidate.`C4P248_8_1` IS DISTINCT FROM reference.`C4P248_8_1`
+  OR candidate.`C4P248_8_1_1` IS DISTINCT FROM reference.`C4P248_8_1_1`
+  OR candidate.`C4P248_8_3` IS DISTINCT FROM reference.`C4P248_8_3`
+  OR candidate.`C4P248_8_3_1` IS DISTINCT FROM reference.`C4P248_8_3_1`
+  OR candidate.`P248_09_12M` IS DISTINCT FROM reference.`P248_09_12M`
+  OR candidate.`C4P248_9_1` IS DISTINCT FROM reference.`C4P248_9_1`
+  OR candidate.`C4P248_9_1_1` IS DISTINCT FROM reference.`C4P248_9_1_1`
+  OR candidate.`C4P248_9_3` IS DISTINCT FROM reference.`C4P248_9_3`
+  OR candidate.`C4P248_9_3_1` IS DISTINCT FROM reference.`C4P248_9_3_1`
+  OR candidate.`P248_10_12M` IS DISTINCT FROM reference.`P248_10_12M`
+  OR candidate.`C4P248_10_1` IS DISTINCT FROM reference.`C4P248_10_1`
+  OR candidate.`C4P248_10_1_1` IS DISTINCT FROM reference.`C4P248_10_1_1`
+  OR candidate.`C4P248_10_3` IS DISTINCT FROM reference.`C4P248_10_3`
+  OR candidate.`C4P248_10_3_1` IS DISTINCT FROM reference.`C4P248_10_3_1`
+  OR candidate.`P248_11_12M` IS DISTINCT FROM reference.`P248_11_12M`
+  OR candidate.`C4P248_11_1` IS DISTINCT FROM reference.`C4P248_11_1`
+  OR candidate.`C4P248_11_1_1` IS DISTINCT FROM reference.`C4P248_11_1_1`
+  OR candidate.`C4P248_11_3` IS DISTINCT FROM reference.`C4P248_11_3`
+  OR candidate.`C4P248_11_3_1` IS DISTINCT FROM reference.`C4P248_11_3_1`
+  OR candidate.`P248_12_12M` IS DISTINCT FROM reference.`P248_12_12M`
+  OR candidate.`C4P248_12_1` IS DISTINCT FROM reference.`C4P248_12_1`
+  OR candidate.`C4P248_12_1_1` IS DISTINCT FROM reference.`C4P248_12_1_1`
+  OR candidate.`C4P248_12_3` IS DISTINCT FROM reference.`C4P248_12_3`
+  OR candidate.`C4P248_12_3_1` IS DISTINCT FROM reference.`C4P248_12_3_1`
+  OR candidate.`P248_13_12M` IS DISTINCT FROM reference.`P248_13_12M`
+  OR candidate.`C4P248_13_1` IS DISTINCT FROM reference.`C4P248_13_1`
+  OR candidate.`C4P248_13_1_1` IS DISTINCT FROM reference.`C4P248_13_1_1`
+  OR candidate.`C4P248_13_3` IS DISTINCT FROM reference.`C4P248_13_3`
+  OR candidate.`C4P248_13_3_1` IS DISTINCT FROM reference.`C4P248_13_3_1`
+  OR candidate.`P248_14_12M` IS DISTINCT FROM reference.`P248_14_12M`
+  OR candidate.`C4P248_14_1` IS DISTINCT FROM reference.`C4P248_14_1`
+  OR candidate.`C4P248_14_1_1` IS DISTINCT FROM reference.`C4P248_14_1_1`
+  OR candidate.`C4P248_14_3` IS DISTINCT FROM reference.`C4P248_14_3`
+  OR candidate.`C4P248_14_3_1` IS DISTINCT FROM reference.`C4P248_14_3_1`
+  OR candidate.`P248_15_12M` IS DISTINCT FROM reference.`P248_15_12M`
+  OR candidate.`C4P248_15_1` IS DISTINCT FROM reference.`C4P248_15_1`
+  OR candidate.`C4P248_15_1_1` IS DISTINCT FROM reference.`C4P248_15_1_1`
+  OR candidate.`C4P248_15_3` IS DISTINCT FROM reference.`C4P248_15_3`
+  OR candidate.`C4P248_15_3_1` IS DISTINCT FROM reference.`C4P248_15_3_1`
+  OR candidate.`P248_16_12M` IS DISTINCT FROM reference.`P248_16_12M`
+  OR candidate.`C4P248_16_1` IS DISTINCT FROM reference.`C4P248_16_1`
+  OR candidate.`C4P248_16_1_1` IS DISTINCT FROM reference.`C4P248_16_1_1`
+  OR candidate.`C4P248_16_3` IS DISTINCT FROM reference.`C4P248_16_3`
+  OR candidate.`C4P248_16_3_1` IS DISTINCT FROM reference.`C4P248_16_3_1`
+  OR candidate.`VS_12M` IS DISTINCT FROM reference.`VS_12M`
+  OR candidate.`VS_VIDA` IS DISTINCT FROM reference.`VS_VIDA`
+  OR candidate.`VS_E` IS DISTINCT FROM reference.`VS_E`
+  OR candidate.`VS_E_1` IS DISTINCT FROM reference.`VS_E_1`
+  OR candidate.`VS_H` IS DISTINCT FROM reference.`VS_H`
+  OR candidate.`VS_H_1` IS DISTINCT FROM reference.`VS_H_1`
+  OR candidate.`VS_ICVAC_301` IS DISTINCT FROM reference.`VS_ICVAC_301`
+  OR candidate.`VS_ICVAC_301_VIDA` IS DISTINCT FROM reference.`VS_ICVAC_301_VIDA`
+  OR candidate.`VSE_301` IS DISTINCT FROM reference.`VSE_301`
+  OR candidate.`VSE1_301` IS DISTINCT FROM reference.`VSE1_301`
+  OR candidate.`VSH_301` IS DISTINCT FROM reference.`VSH_301`
+  OR candidate.`VSH1_301` IS DISTINCT FROM reference.`VSH1_301`
+  OR candidate.`VS_ICVAC_302` IS DISTINCT FROM reference.`VS_ICVAC_302`
+  OR candidate.`VS_ICVAC_302_VIDA` IS DISTINCT FROM reference.`VS_ICVAC_302_VIDA`
+  OR candidate.`VSE_302` IS DISTINCT FROM reference.`VSE_302`
+  OR candidate.`VSE1_302` IS DISTINCT FROM reference.`VSE1_302`
+  OR candidate.`VSH_302` IS DISTINCT FROM reference.`VSH_302`
+  OR candidate.`VSH1_302` IS DISTINCT FROM reference.`VSH1_302`
+  OR candidate.`VS_ICVAC_303` IS DISTINCT FROM reference.`VS_ICVAC_303`
+  OR candidate.`VS_ICVAC_303_VIDA` IS DISTINCT FROM reference.`VS_ICVAC_303_VIDA`
+  OR candidate.`VSE_303` IS DISTINCT FROM reference.`VSE_303`
+  OR candidate.`VSE1_303` IS DISTINCT FROM reference.`VSE1_303`
+  OR candidate.`VSH_303` IS DISTINCT FROM reference.`VSH_303`
+  OR candidate.`VSH1_303` IS DISTINCT FROM reference.`VSH1_303`
+  OR candidate.`VS_ICVAC_309` IS DISTINCT FROM reference.`VS_ICVAC_309`
+  OR candidate.`VS_ICVAC_309_VIDA` IS DISTINCT FROM reference.`VS_ICVAC_309_VIDA`
+  OR candidate.`VSE_309` IS DISTINCT FROM reference.`VSE_309`
+  OR candidate.`VSE1_309` IS DISTINCT FROM reference.`VSE1_309`
+  OR candidate.`VSH_309` IS DISTINCT FROM reference.`VSH_309`
+  OR candidate.`VSH1_309` IS DISTINCT FROM reference.`VSH1_309`
+  OR candidate.`VS_CP01` IS DISTINCT FROM reference.`VS_CP01`
+  OR candidate.`VS1_CP01` IS DISTINCT FROM reference.`VS1_CP01`
+  OR candidate.`VSE_CP01` IS DISTINCT FROM reference.`VSE_CP01`
+  OR candidate.`VSE1_CP01` IS DISTINCT FROM reference.`VSE1_CP01`
+  OR candidate.`VSH_CP01` IS DISTINCT FROM reference.`VSH_CP01`
+  OR candidate.`VSH1_CP01` IS DISTINCT FROM reference.`VSH1_CP01`
+  OR candidate.`VS_CP02` IS DISTINCT FROM reference.`VS_CP02`
+  OR candidate.`VS1_CP02` IS DISTINCT FROM reference.`VS1_CP02`
+  OR candidate.`VSE_CP02` IS DISTINCT FROM reference.`VSE_CP02`
+  OR candidate.`VSE1_CP02` IS DISTINCT FROM reference.`VSE1_CP02`
+  OR candidate.`VSH_CP02` IS DISTINCT FROM reference.`VSH_CP02`
+  OR candidate.`VSH1_CP02` IS DISTINCT FROM reference.`VSH1_CP02`
+  OR candidate.`VS_CP03` IS DISTINCT FROM reference.`VS_CP03`
+  OR candidate.`VS1_CP03` IS DISTINCT FROM reference.`VS1_CP03`
+  OR candidate.`VSE_CP03` IS DISTINCT FROM reference.`VSE_CP03`
+  OR candidate.`VSE1_CP03` IS DISTINCT FROM reference.`VSE1_CP03`
+  OR candidate.`VSH_CP03` IS DISTINCT FROM reference.`VSH_CP03`
+  OR candidate.`VSH1_CP03` IS DISTINCT FROM reference.`VSH1_CP03`
+  OR candidate.`VS_CP04` IS DISTINCT FROM reference.`VS_CP04`
+  OR candidate.`VS1_CP04` IS DISTINCT FROM reference.`VS1_CP04`
+  OR candidate.`VSE_CP04` IS DISTINCT FROM reference.`VSE_CP04`
+  OR candidate.`VSE1_CP04` IS DISTINCT FROM reference.`VSE1_CP04`
+  OR candidate.`VSH_CP04` IS DISTINCT FROM reference.`VSH_CP04`
+  OR candidate.`VSH1_CP04` IS DISTINCT FROM reference.`VSH1_CP04`
+  OR candidate.`VS_CP05` IS DISTINCT FROM reference.`VS_CP05`
+  OR candidate.`VS1_CP05` IS DISTINCT FROM reference.`VS1_CP05`
+  OR candidate.`VSE_CP05` IS DISTINCT FROM reference.`VSE_CP05`
+  OR candidate.`VSE1_CP05` IS DISTINCT FROM reference.`VSE1_CP05`
+  OR candidate.`VSH_CP05` IS DISTINCT FROM reference.`VSH_CP05`
+  OR candidate.`VSH1_CP05` IS DISTINCT FROM reference.`VSH1_CP05`
+  OR candidate.`VS_CP06` IS DISTINCT FROM reference.`VS_CP06`
+  OR candidate.`VS1_CP06` IS DISTINCT FROM reference.`VS1_CP06`
+  OR candidate.`VSE_CP06` IS DISTINCT FROM reference.`VSE_CP06`
+  OR candidate.`VSE1_CP06` IS DISTINCT FROM reference.`VSE1_CP06`
+  OR candidate.`VSH_CP06` IS DISTINCT FROM reference.`VSH_CP06`
+  OR candidate.`VSH1_CP06` IS DISTINCT FROM reference.`VSH1_CP06`
+  OR candidate.`VS_CP07` IS DISTINCT FROM reference.`VS_CP07`
+  OR candidate.`VS1_CP07` IS DISTINCT FROM reference.`VS1_CP07`
+  OR candidate.`VSE_CP07` IS DISTINCT FROM reference.`VSE_CP07`
+  OR candidate.`VSE1_CP07` IS DISTINCT FROM reference.`VSE1_CP07`
+  OR candidate.`VSH_CP07` IS DISTINCT FROM reference.`VSH_CP07`
+  OR candidate.`VSH1_CP07` IS DISTINCT FROM reference.`VSH1_CP07`
+  OR candidate.`VS_CP08` IS DISTINCT FROM reference.`VS_CP08`
+  OR candidate.`VS1_CP08` IS DISTINCT FROM reference.`VS1_CP08`
+  OR candidate.`VSE_CP08` IS DISTINCT FROM reference.`VSE_CP08`
+  OR candidate.`VSE1_CP08` IS DISTINCT FROM reference.`VSE1_CP08`
+  OR candidate.`VSH_CP08` IS DISTINCT FROM reference.`VSH_CP08`
+  OR candidate.`VSH1_CP08` IS DISTINCT FROM reference.`VSH1_CP08`
+  OR candidate.`VS_CP09` IS DISTINCT FROM reference.`VS_CP09`
+  OR candidate.`VS1_CP09` IS DISTINCT FROM reference.`VS1_CP09`
+  OR candidate.`VSE_CP09` IS DISTINCT FROM reference.`VSE_CP09`
+  OR candidate.`VSE1_CP09` IS DISTINCT FROM reference.`VSE1_CP09`
+  OR candidate.`VSH_CP09` IS DISTINCT FROM reference.`VSH_CP09`
+  OR candidate.`VSH1_CP09` IS DISTINCT FROM reference.`VSH1_CP09`
+  OR candidate.`VS_ICVAC_CONTACTO` IS DISTINCT FROM reference.`VS_ICVAC_CONTACTO`
+  OR candidate.`VS_ICVAC_CONTACTO_VIDA` IS DISTINCT FROM reference.`VS_ICVAC_CONTACTO_VIDA`
+  OR candidate.`AG_VS12_01` IS DISTINCT FROM reference.`AG_VS12_01`
+  OR candidate.`AG_VSVIDA_01` IS DISTINCT FROM reference.`AG_VSVIDA_01`
+  OR candidate.`AG_VS12_02` IS DISTINCT FROM reference.`AG_VS12_02`
+  OR candidate.`AG_VSVIDA_02` IS DISTINCT FROM reference.`AG_VSVIDA_02`
+  OR candidate.`AG_VS12_03` IS DISTINCT FROM reference.`AG_VS12_03`
+  OR candidate.`AG_VSVIDA_03` IS DISTINCT FROM reference.`AG_VSVIDA_03`
+  OR candidate.`AG_VS12_04` IS DISTINCT FROM reference.`AG_VS12_04`
+  OR candidate.`AG_VSVIDA_04` IS DISTINCT FROM reference.`AG_VSVIDA_04`
+  OR candidate.`AG_VS12_05` IS DISTINCT FROM reference.`AG_VS12_05`
+  OR candidate.`AG_VSVIDA_05` IS DISTINCT FROM reference.`AG_VSVIDA_05`
+  OR candidate.`AG_VS12_06` IS DISTINCT FROM reference.`AG_VS12_06`
+  OR candidate.`AG_VSVIDA_06` IS DISTINCT FROM reference.`AG_VSVIDA_06`
+  OR candidate.`AG_VS12_07` IS DISTINCT FROM reference.`AG_VS12_07`
+  OR candidate.`AG_VSVIDA_07` IS DISTINCT FROM reference.`AG_VSVIDA_07`
+  OR candidate.`AG_VS12_08` IS DISTINCT FROM reference.`AG_VS12_08`
+  OR candidate.`AG_VSVIDA_08` IS DISTINCT FROM reference.`AG_VSVIDA_08`
+  OR candidate.`AG_VS12_09` IS DISTINCT FROM reference.`AG_VS12_09`
+  OR candidate.`AG_VSVIDA_09` IS DISTINCT FROM reference.`AG_VSVIDA_09`
+  OR candidate.`INDICADOR_8_2_7` IS DISTINCT FROM reference.`INDICADOR_8_2_7`
+  OR candidate.`INDICADOR_8_2_13` IS DISTINCT FROM reference.`INDICADOR_8_2_13`
+  OR candidate.`INDICADOR_8_2_8` IS DISTINCT FROM reference.`INDICADOR_8_2_8`
+  OR candidate.`Formas_VS_12M__C4P248_1` IS DISTINCT FROM reference.`Formas_VS_12M__C4P248_1`
+  OR candidate.`Formas_VS_VIDA__C4P248_1` IS DISTINCT FROM reference.`Formas_VS_VIDA__C4P248_1`
+  OR candidate.`Formas_VS_E__C4P248_1` IS DISTINCT FROM reference.`Formas_VS_E__C4P248_1`
+  OR candidate.`Formas_VS_E_1__C4P248_1` IS DISTINCT FROM reference.`Formas_VS_E_1__C4P248_1`
+  OR candidate.`Formas_Agresor_VS_H__C4P248_1` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__C4P248_1`
+  OR candidate.`Formas_Agresor_VS_H_1__C4P248_1` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__C4P248_1`
+  OR candidate.`Formas_VS_12M__C4P248_2` IS DISTINCT FROM reference.`Formas_VS_12M__C4P248_2`
+  OR candidate.`Formas_VS_VIDA__C4P248_2` IS DISTINCT FROM reference.`Formas_VS_VIDA__C4P248_2`
+  OR candidate.`Formas_VS_E__C4P248_2` IS DISTINCT FROM reference.`Formas_VS_E__C4P248_2`
+  OR candidate.`Formas_VS_E_1__C4P248_2` IS DISTINCT FROM reference.`Formas_VS_E_1__C4P248_2`
+  OR candidate.`Formas_Agresor_VS_H__C4P248_2` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__C4P248_2`
+  OR candidate.`Formas_Agresor_VS_H_1__C4P248_2` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__C4P248_2`
+  OR candidate.`Formas_VS_12M__C4P248_3` IS DISTINCT FROM reference.`Formas_VS_12M__C4P248_3`
+  OR candidate.`Formas_VS_VIDA__C4P248_3` IS DISTINCT FROM reference.`Formas_VS_VIDA__C4P248_3`
+  OR candidate.`Formas_VS_E__C4P248_3` IS DISTINCT FROM reference.`Formas_VS_E__C4P248_3`
+  OR candidate.`Formas_VS_E_1__C4P248_3` IS DISTINCT FROM reference.`Formas_VS_E_1__C4P248_3`
+  OR candidate.`Formas_Agresor_VS_H__C4P248_3` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__C4P248_3`
+  OR candidate.`Formas_Agresor_VS_H_1__C4P248_3` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__C4P248_3`
+  OR candidate.`Formas_VS_12M__C4P248_4` IS DISTINCT FROM reference.`Formas_VS_12M__C4P248_4`
+  OR candidate.`Formas_VS_VIDA__C4P248_4` IS DISTINCT FROM reference.`Formas_VS_VIDA__C4P248_4`
+  OR candidate.`Formas_VS_E__C4P248_4` IS DISTINCT FROM reference.`Formas_VS_E__C4P248_4`
+  OR candidate.`Formas_VS_E_1__C4P248_4` IS DISTINCT FROM reference.`Formas_VS_E_1__C4P248_4`
+  OR candidate.`Formas_Agresor_VS_H__C4P248_4` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__C4P248_4`
+  OR candidate.`Formas_Agresor_VS_H_1__C4P248_4` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__C4P248_4`
+  OR candidate.`Formas_VS_12M__C4P248_5` IS DISTINCT FROM reference.`Formas_VS_12M__C4P248_5`
+  OR candidate.`Formas_VS_VIDA__C4P248_5` IS DISTINCT FROM reference.`Formas_VS_VIDA__C4P248_5`
+  OR candidate.`Formas_VS_E__C4P248_5` IS DISTINCT FROM reference.`Formas_VS_E__C4P248_5`
+  OR candidate.`Formas_VS_E_1__C4P248_5` IS DISTINCT FROM reference.`Formas_VS_E_1__C4P248_5`
+  OR candidate.`Formas_Agresor_VS_H__C4P248_5` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__C4P248_5`
+  OR candidate.`Formas_Agresor_VS_H_1__C4P248_5` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__C4P248_5`
+  OR candidate.`Formas_VS_12M__C4P248_6` IS DISTINCT FROM reference.`Formas_VS_12M__C4P248_6`
+  OR candidate.`Formas_VS_VIDA__C4P248_6` IS DISTINCT FROM reference.`Formas_VS_VIDA__C4P248_6`
+  OR candidate.`Formas_VS_E__C4P248_6` IS DISTINCT FROM reference.`Formas_VS_E__C4P248_6`
+  OR candidate.`Formas_VS_E_1__C4P248_6` IS DISTINCT FROM reference.`Formas_VS_E_1__C4P248_6`
+  OR candidate.`Formas_Agresor_VS_H__C4P248_6` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__C4P248_6`
+  OR candidate.`Formas_Agresor_VS_H_1__C4P248_6` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__C4P248_6`
+  OR candidate.`Formas_VS_12M__C4P248_7` IS DISTINCT FROM reference.`Formas_VS_12M__C4P248_7`
+  OR candidate.`Formas_VS_VIDA__C4P248_7` IS DISTINCT FROM reference.`Formas_VS_VIDA__C4P248_7`
+  OR candidate.`Formas_VS_E__C4P248_7` IS DISTINCT FROM reference.`Formas_VS_E__C4P248_7`
+  OR candidate.`Formas_VS_E_1__C4P248_7` IS DISTINCT FROM reference.`Formas_VS_E_1__C4P248_7`
+  OR candidate.`Formas_Agresor_VS_H__C4P248_7` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__C4P248_7`
+  OR candidate.`Formas_Agresor_VS_H_1__C4P248_7` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__C4P248_7`
+  OR candidate.`Formas_VS_12M__C4P248_8` IS DISTINCT FROM reference.`Formas_VS_12M__C4P248_8`
+  OR candidate.`Formas_VS_VIDA__C4P248_8` IS DISTINCT FROM reference.`Formas_VS_VIDA__C4P248_8`
+  OR candidate.`Formas_VS_E__C4P248_8` IS DISTINCT FROM reference.`Formas_VS_E__C4P248_8`
+  OR candidate.`Formas_VS_E_1__C4P248_8` IS DISTINCT FROM reference.`Formas_VS_E_1__C4P248_8`
+  OR candidate.`Formas_Agresor_VS_H__C4P248_8` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__C4P248_8`
+  OR candidate.`Formas_Agresor_VS_H_1__C4P248_8` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__C4P248_8`
+  OR candidate.`Formas_VS_12M__C4P248_9` IS DISTINCT FROM reference.`Formas_VS_12M__C4P248_9`
+  OR candidate.`Formas_VS_VIDA__C4P248_9` IS DISTINCT FROM reference.`Formas_VS_VIDA__C4P248_9`
+  OR candidate.`Formas_VS_E__C4P248_9` IS DISTINCT FROM reference.`Formas_VS_E__C4P248_9`
+  OR candidate.`Formas_VS_E_1__C4P248_9` IS DISTINCT FROM reference.`Formas_VS_E_1__C4P248_9`
+  OR candidate.`Formas_Agresor_VS_H__C4P248_9` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__C4P248_9`
+  OR candidate.`Formas_Agresor_VS_H_1__C4P248_9` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__C4P248_9`
+  OR candidate.`Formas_VS_12M__C4P248_10` IS DISTINCT FROM reference.`Formas_VS_12M__C4P248_10`
+  OR candidate.`Formas_VS_VIDA__C4P248_10` IS DISTINCT FROM reference.`Formas_VS_VIDA__C4P248_10`
+  OR candidate.`Formas_VS_E__C4P248_10` IS DISTINCT FROM reference.`Formas_VS_E__C4P248_10`
+  OR candidate.`Formas_VS_E_1__C4P248_10` IS DISTINCT FROM reference.`Formas_VS_E_1__C4P248_10`
+  OR candidate.`Formas_Agresor_VS_H__C4P248_10` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__C4P248_10`
+  OR candidate.`Formas_Agresor_VS_H_1__C4P248_10` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__C4P248_10`
+  OR candidate.`Formas_VS_12M__C4P248_11` IS DISTINCT FROM reference.`Formas_VS_12M__C4P248_11`
+  OR candidate.`Formas_VS_VIDA__C4P248_11` IS DISTINCT FROM reference.`Formas_VS_VIDA__C4P248_11`
+  OR candidate.`Formas_VS_E__C4P248_11` IS DISTINCT FROM reference.`Formas_VS_E__C4P248_11`
+  OR candidate.`Formas_VS_E_1__C4P248_11` IS DISTINCT FROM reference.`Formas_VS_E_1__C4P248_11`
+  OR candidate.`Formas_Agresor_VS_H__C4P248_11` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__C4P248_11`
+  OR candidate.`Formas_Agresor_VS_H_1__C4P248_11` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__C4P248_11`
+  OR candidate.`Formas_VS_12M__C4P248_12` IS DISTINCT FROM reference.`Formas_VS_12M__C4P248_12`
+  OR candidate.`Formas_VS_VIDA__C4P248_12` IS DISTINCT FROM reference.`Formas_VS_VIDA__C4P248_12`
+  OR candidate.`Formas_VS_E__C4P248_12` IS DISTINCT FROM reference.`Formas_VS_E__C4P248_12`
+  OR candidate.`Formas_VS_E_1__C4P248_12` IS DISTINCT FROM reference.`Formas_VS_E_1__C4P248_12`
+  OR candidate.`Formas_VS_12M__C4P248_13` IS DISTINCT FROM reference.`Formas_VS_12M__C4P248_13`
+  OR candidate.`Formas_VS_VIDA__C4P248_13` IS DISTINCT FROM reference.`Formas_VS_VIDA__C4P248_13`
+  OR candidate.`Formas_VS_E__C4P248_13` IS DISTINCT FROM reference.`Formas_VS_E__C4P248_13`
+  OR candidate.`Formas_VS_E_1__C4P248_13` IS DISTINCT FROM reference.`Formas_VS_E_1__C4P248_13`
+  OR candidate.`Formas_Agresor_VS_H__C4P248_13` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__C4P248_13`
+  OR candidate.`Formas_Agresor_VS_H_1__C4P248_13` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__C4P248_13`
+  OR candidate.`Formas_VS_12M__C4P248_14` IS DISTINCT FROM reference.`Formas_VS_12M__C4P248_14`
+  OR candidate.`Formas_VS_VIDA__C4P248_14` IS DISTINCT FROM reference.`Formas_VS_VIDA__C4P248_14`
+  OR candidate.`Formas_VS_E__C4P248_14` IS DISTINCT FROM reference.`Formas_VS_E__C4P248_14`
+  OR candidate.`Formas_VS_E_1__C4P248_14` IS DISTINCT FROM reference.`Formas_VS_E_1__C4P248_14`
+  OR candidate.`Formas_Agresor_VS_H__C4P248_14` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__C4P248_14`
+  OR candidate.`Formas_Agresor_VS_H_1__C4P248_14` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__C4P248_14`
+  OR candidate.`Formas_VS_12M__C4P248_15` IS DISTINCT FROM reference.`Formas_VS_12M__C4P248_15`
+  OR candidate.`Formas_VS_VIDA__C4P248_15` IS DISTINCT FROM reference.`Formas_VS_VIDA__C4P248_15`
+  OR candidate.`Formas_VS_E__C4P248_15` IS DISTINCT FROM reference.`Formas_VS_E__C4P248_15`
+  OR candidate.`Formas_VS_E_1__C4P248_15` IS DISTINCT FROM reference.`Formas_VS_E_1__C4P248_15`
+  OR candidate.`Formas_Agresor_VS_H__C4P248_15` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__C4P248_15`
+  OR candidate.`Formas_Agresor_VS_H_1__C4P248_15` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__C4P248_15`
+  OR candidate.`Formas_VS_12M__C4P248_16` IS DISTINCT FROM reference.`Formas_VS_12M__C4P248_16`
+  OR candidate.`Formas_VS_VIDA__C4P248_16` IS DISTINCT FROM reference.`Formas_VS_VIDA__C4P248_16`
+  OR candidate.`Formas_VS_E__C4P248_16` IS DISTINCT FROM reference.`Formas_VS_E__C4P248_16`
+  OR candidate.`Formas_VS_E_1__C4P248_16` IS DISTINCT FROM reference.`Formas_VS_E_1__C4P248_16`
+  OR candidate.`Formas_Agresor_VS_H__C4P248_16` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__C4P248_16`
+  OR candidate.`Formas_Agresor_VS_H_1__C4P248_16` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__C4P248_16`
+  OR candidate.`Formas_VS_12M__ICVAC_301` IS DISTINCT FROM reference.`Formas_VS_12M__ICVAC_301`
+  OR candidate.`Formas_VS_VIDA__ICVAC_301` IS DISTINCT FROM reference.`Formas_VS_VIDA__ICVAC_301`
+  OR candidate.`Formas_VS_E__ICVAC_301` IS DISTINCT FROM reference.`Formas_VS_E__ICVAC_301`
+  OR candidate.`Formas_VS_E_1__ICVAC_301` IS DISTINCT FROM reference.`Formas_VS_E_1__ICVAC_301`
+  OR candidate.`Formas_Agresor_VS_H__ICVAC_301` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__ICVAC_301`
+  OR candidate.`Formas_Agresor_VS_H_1__ICVAC_301` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__ICVAC_301`
+  OR candidate.`Formas_VS_12M__ICVAC_302` IS DISTINCT FROM reference.`Formas_VS_12M__ICVAC_302`
+  OR candidate.`Formas_VS_VIDA__ICVAC_302` IS DISTINCT FROM reference.`Formas_VS_VIDA__ICVAC_302`
+  OR candidate.`Formas_VS_E__ICVAC_302` IS DISTINCT FROM reference.`Formas_VS_E__ICVAC_302`
+  OR candidate.`Formas_VS_E_1__ICVAC_302` IS DISTINCT FROM reference.`Formas_VS_E_1__ICVAC_302`
+  OR candidate.`Formas_Agresor_VS_H__ICVAC_302` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__ICVAC_302`
+  OR candidate.`Formas_Agresor_VS_H_1__ICVAC_302` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__ICVAC_302`
+  OR candidate.`Formas_VS_12M__ICVAC_303` IS DISTINCT FROM reference.`Formas_VS_12M__ICVAC_303`
+  OR candidate.`Formas_VS_VIDA__ICVAC_303` IS DISTINCT FROM reference.`Formas_VS_VIDA__ICVAC_303`
+  OR candidate.`Formas_VS_E__ICVAC_303` IS DISTINCT FROM reference.`Formas_VS_E__ICVAC_303`
+  OR candidate.`Formas_VS_E_1__ICVAC_303` IS DISTINCT FROM reference.`Formas_VS_E_1__ICVAC_303`
+  OR candidate.`Formas_Agresor_VS_H__ICVAC_303` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__ICVAC_303`
+  OR candidate.`Formas_Agresor_VS_H_1__ICVAC_303` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__ICVAC_303`
+  OR candidate.`Formas_VS_12M__ICVAC_309` IS DISTINCT FROM reference.`Formas_VS_12M__ICVAC_309`
+  OR candidate.`Formas_VS_VIDA__ICVAC_309` IS DISTINCT FROM reference.`Formas_VS_VIDA__ICVAC_309`
+  OR candidate.`Formas_VS_E__ICVAC_309` IS DISTINCT FROM reference.`Formas_VS_E__ICVAC_309`
+  OR candidate.`Formas_VS_E_1__ICVAC_309` IS DISTINCT FROM reference.`Formas_VS_E_1__ICVAC_309`
+  OR candidate.`Formas_VS_12M__VS_CP01` IS DISTINCT FROM reference.`Formas_VS_12M__VS_CP01`
+  OR candidate.`Formas_VS_VIDA__VS_CP01` IS DISTINCT FROM reference.`Formas_VS_VIDA__VS_CP01`
+  OR candidate.`Formas_VS_E__VSE_CP01` IS DISTINCT FROM reference.`Formas_VS_E__VSE_CP01`
+  OR candidate.`Formas_VS_E_1__VSE_CP01` IS DISTINCT FROM reference.`Formas_VS_E_1__VSE_CP01`
+  OR candidate.`Formas_Agresor_VS_H__VSH_CP01` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__VSH_CP01`
+  OR candidate.`Formas_Agresor_VS_H_1__VSH_CP01` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__VSH_CP01`
+  OR candidate.`Formas_VS_12M__VS_CP02` IS DISTINCT FROM reference.`Formas_VS_12M__VS_CP02`
+  OR candidate.`Formas_VS_VIDA__VS_CP02` IS DISTINCT FROM reference.`Formas_VS_VIDA__VS_CP02`
+  OR candidate.`Formas_VS_E__VSE_CP02` IS DISTINCT FROM reference.`Formas_VS_E__VSE_CP02`
+  OR candidate.`Formas_VS_E_1__VSE_CP02` IS DISTINCT FROM reference.`Formas_VS_E_1__VSE_CP02`
+  OR candidate.`Formas_Agresor_VS_H__VSH_CP02` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__VSH_CP02`
+  OR candidate.`Formas_Agresor_VS_H_1__VSH_CP02` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__VSH_CP02`
+  OR candidate.`Formas_VS_12M__VS_CP03` IS DISTINCT FROM reference.`Formas_VS_12M__VS_CP03`
+  OR candidate.`Formas_VS_VIDA__VS_CP03` IS DISTINCT FROM reference.`Formas_VS_VIDA__VS_CP03`
+  OR candidate.`Formas_VS_E__VSE_CP03` IS DISTINCT FROM reference.`Formas_VS_E__VSE_CP03`
+  OR candidate.`Formas_VS_E_1__VSE_CP03` IS DISTINCT FROM reference.`Formas_VS_E_1__VSE_CP03`
+  OR candidate.`Formas_Agresor_VS_H__VSH_CP03` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__VSH_CP03`
+  OR candidate.`Formas_Agresor_VS_H_1__VSH_CP03` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__VSH_CP03`
+  OR candidate.`Formas_VS_12M__VS_CP04` IS DISTINCT FROM reference.`Formas_VS_12M__VS_CP04`
+  OR candidate.`Formas_VS_VIDA__VS_CP04` IS DISTINCT FROM reference.`Formas_VS_VIDA__VS_CP04`
+  OR candidate.`Formas_VS_E__VSE_CP04` IS DISTINCT FROM reference.`Formas_VS_E__VSE_CP04`
+  OR candidate.`Formas_VS_E_1__VSE_CP04` IS DISTINCT FROM reference.`Formas_VS_E_1__VSE_CP04`
+  OR candidate.`Formas_Agresor_VS_H__VSH_CP04` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__VSH_CP04`
+  OR candidate.`Formas_Agresor_VS_H_1__VSH_CP04` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__VSH_CP04`
+  OR candidate.`Formas_VS_12M__VS_CP05` IS DISTINCT FROM reference.`Formas_VS_12M__VS_CP05`
+  OR candidate.`Formas_VS_VIDA__VS_CP05` IS DISTINCT FROM reference.`Formas_VS_VIDA__VS_CP05`
+  OR candidate.`Formas_VS_E__VSE_CP05` IS DISTINCT FROM reference.`Formas_VS_E__VSE_CP05`
+  OR candidate.`Formas_VS_E_1__VSE_CP05` IS DISTINCT FROM reference.`Formas_VS_E_1__VSE_CP05`
+  OR candidate.`Formas_Agresor_VS_H__VSH_CP05` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__VSH_CP05`
+  OR candidate.`Formas_Agresor_VS_H_1__VSH_CP05` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__VSH_CP05`
+  OR candidate.`Formas_VS_12M__VS_CP06` IS DISTINCT FROM reference.`Formas_VS_12M__VS_CP06`
+  OR candidate.`Formas_VS_VIDA__VS_CP06` IS DISTINCT FROM reference.`Formas_VS_VIDA__VS_CP06`
+  OR candidate.`Formas_VS_E__VSE_CP06` IS DISTINCT FROM reference.`Formas_VS_E__VSE_CP06`
+  OR candidate.`Formas_VS_E_1__VSE_CP06` IS DISTINCT FROM reference.`Formas_VS_E_1__VSE_CP06`
+  OR candidate.`Formas_Agresor_VS_H__VSH_CP06` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__VSH_CP06`
+  OR candidate.`Formas_Agresor_VS_H_1__VSH_CP06` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__VSH_CP06`
+  OR candidate.`Formas_VS_12M__VS_CP07` IS DISTINCT FROM reference.`Formas_VS_12M__VS_CP07`
+  OR candidate.`Formas_VS_VIDA__VS_CP07` IS DISTINCT FROM reference.`Formas_VS_VIDA__VS_CP07`
+  OR candidate.`Formas_VS_E__VSE_CP07` IS DISTINCT FROM reference.`Formas_VS_E__VSE_CP07`
+  OR candidate.`Formas_VS_E_1__VSE_CP07` IS DISTINCT FROM reference.`Formas_VS_E_1__VSE_CP07`
+  OR candidate.`Formas_Agresor_VS_H__VSH_CP07` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__VSH_CP07`
+  OR candidate.`Formas_Agresor_VS_H_1__VSH_CP07` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__VSH_CP07`
+  OR candidate.`Formas_VS_12M__VS_CP08` IS DISTINCT FROM reference.`Formas_VS_12M__VS_CP08`
+  OR candidate.`Formas_VS_VIDA__VS_CP08` IS DISTINCT FROM reference.`Formas_VS_VIDA__VS_CP08`
+  OR candidate.`Formas_VS_E__VSE_CP08` IS DISTINCT FROM reference.`Formas_VS_E__VSE_CP08`
+  OR candidate.`Formas_VS_E_1__VSE_CP08` IS DISTINCT FROM reference.`Formas_VS_E_1__VSE_CP08`
+  OR candidate.`Formas_Agresor_VS_H__VSH_CP08` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__VSH_CP08`
+  OR candidate.`Formas_Agresor_VS_H_1__VSH_CP08` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__VSH_CP08`
+  OR candidate.`Formas_VS_12M__VS_CP09` IS DISTINCT FROM reference.`Formas_VS_12M__VS_CP09`
+  OR candidate.`Formas_VS_VIDA__VS_CP09` IS DISTINCT FROM reference.`Formas_VS_VIDA__VS_CP09`
+  OR candidate.`Formas_VS_E__VSE_CP09` IS DISTINCT FROM reference.`Formas_VS_E__VSE_CP09`
+  OR candidate.`Formas_VS_E_1__VSE_CP09` IS DISTINCT FROM reference.`Formas_VS_E_1__VSE_CP09`
+  OR candidate.`Agresor_VP_E__AG_VP_01` IS DISTINCT FROM reference.`Agresor_VP_E__AG_VP_01`
+  OR candidate.`Agresor_VF_E__AG_VF_01` IS DISTINCT FROM reference.`Agresor_VF_E__AG_VF_01`
+  OR candidate.`Agresor_VP_H__AG_VP_01` IS DISTINCT FROM reference.`Agresor_VP_H__AG_VP_01`
+  OR candidate.`Agresor_VF_H__AG_VF_01` IS DISTINCT FROM reference.`Agresor_VF_H__AG_VF_01`
+  OR candidate.`Agresor_VP_E__AG_VP_02` IS DISTINCT FROM reference.`Agresor_VP_E__AG_VP_02`
+  OR candidate.`Agresor_VF_E__AG_VF_02` IS DISTINCT FROM reference.`Agresor_VF_E__AG_VF_02`
+  OR candidate.`Agresor_VP_H__AG_VP_02` IS DISTINCT FROM reference.`Agresor_VP_H__AG_VP_02`
+  OR candidate.`Agresor_VF_H__AG_VF_02` IS DISTINCT FROM reference.`Agresor_VF_H__AG_VF_02`
+  OR candidate.`Agresor_VP_E__AG_VP_03` IS DISTINCT FROM reference.`Agresor_VP_E__AG_VP_03`
+  OR candidate.`Agresor_VF_E__AG_VF_03` IS DISTINCT FROM reference.`Agresor_VF_E__AG_VF_03`
+  OR candidate.`Agresor_VP_H__AG_VP_03` IS DISTINCT FROM reference.`Agresor_VP_H__AG_VP_03`
+  OR candidate.`Agresor_VF_H__AG_VF_03` IS DISTINCT FROM reference.`Agresor_VF_H__AG_VF_03`
+  OR candidate.`Agresor_VP_E__AG_VP_04` IS DISTINCT FROM reference.`Agresor_VP_E__AG_VP_04`
+  OR candidate.`Agresor_VF_E__AG_VF_04` IS DISTINCT FROM reference.`Agresor_VF_E__AG_VF_04`
+  OR candidate.`Agresor_VP_H__AG_VP_04` IS DISTINCT FROM reference.`Agresor_VP_H__AG_VP_04`
+  OR candidate.`Agresor_VF_H__AG_VF_04` IS DISTINCT FROM reference.`Agresor_VF_H__AG_VF_04`
+  OR candidate.`Agresor_VP_E__AG_VP_05` IS DISTINCT FROM reference.`Agresor_VP_E__AG_VP_05`
+  OR candidate.`Agresor_VF_E__AG_VF_05` IS DISTINCT FROM reference.`Agresor_VF_E__AG_VF_05`
+  OR candidate.`Agresor_VP_H__AG_VP_05` IS DISTINCT FROM reference.`Agresor_VP_H__AG_VP_05`
+  OR candidate.`Agresor_VF_H__AG_VF_05` IS DISTINCT FROM reference.`Agresor_VF_H__AG_VF_05`
+  OR candidate.`Agresor_VP_E__AG_VP_06` IS DISTINCT FROM reference.`Agresor_VP_E__AG_VP_06`
+  OR candidate.`Agresor_VF_E__AG_VF_06` IS DISTINCT FROM reference.`Agresor_VF_E__AG_VF_06`
+  OR candidate.`Agresor_VP_H__AG_VP_06` IS DISTINCT FROM reference.`Agresor_VP_H__AG_VP_06`
+  OR candidate.`Agresor_VF_H__AG_VF_06` IS DISTINCT FROM reference.`Agresor_VF_H__AG_VF_06`
+  OR candidate.`Agresor_VP_E__AG_VP_07` IS DISTINCT FROM reference.`Agresor_VP_E__AG_VP_07`
+  OR candidate.`Agresor_VF_E__AG_VF_07` IS DISTINCT FROM reference.`Agresor_VF_E__AG_VF_07`
+  OR candidate.`Agresor_VP_H__AG_VP_07` IS DISTINCT FROM reference.`Agresor_VP_H__AG_VP_07`
+  OR candidate.`Agresor_VF_H__AG_VF_07` IS DISTINCT FROM reference.`Agresor_VF_H__AG_VF_07`
+  OR candidate.`Agresor_VP_E__AG_VP_08` IS DISTINCT FROM reference.`Agresor_VP_E__AG_VP_08`
+  OR candidate.`Agresor_VF_E__AG_VF_08` IS DISTINCT FROM reference.`Agresor_VF_E__AG_VF_08`
+  OR candidate.`Agresor_VP_H__AG_VP_08` IS DISTINCT FROM reference.`Agresor_VP_H__AG_VP_08`
+  OR candidate.`Agresor_VF_H__AG_VF_08` IS DISTINCT FROM reference.`Agresor_VF_H__AG_VF_08`
+  OR candidate.`AG_VP_09` IS DISTINCT FROM reference.`AG_VP_09`
+  OR candidate.`AG_VF_09` IS DISTINCT FROM reference.`AG_VF_09`
+  OR candidate.`Agresor_VS_12M__AG_01` IS DISTINCT FROM reference.`Agresor_VS_12M__AG_01`
+  OR candidate.`Agresor_VS_VIDA__AG_01` IS DISTINCT FROM reference.`Agresor_VS_VIDA__AG_01`
+  OR candidate.`Prev_Agresor_VS__AG_01` IS DISTINCT FROM reference.`Prev_Agresor_VS__AG_01`
+  OR candidate.`Agresor_VS_12M__AG_02` IS DISTINCT FROM reference.`Agresor_VS_12M__AG_02`
+  OR candidate.`Agresor_VS_VIDA__AG_02` IS DISTINCT FROM reference.`Agresor_VS_VIDA__AG_02`
+  OR candidate.`Prev_Agresor_VS__AG_02` IS DISTINCT FROM reference.`Prev_Agresor_VS__AG_02`
+  OR candidate.`Agresor_VS_12M__AG_03` IS DISTINCT FROM reference.`Agresor_VS_12M__AG_03`
+  OR candidate.`Agresor_VS_VIDA__AG_03` IS DISTINCT FROM reference.`Agresor_VS_VIDA__AG_03`
+  OR candidate.`Prev_Agresor_VS__AG_03` IS DISTINCT FROM reference.`Prev_Agresor_VS__AG_03`
+  OR candidate.`Agresor_VS_12M__AG_04` IS DISTINCT FROM reference.`Agresor_VS_12M__AG_04`
+  OR candidate.`Agresor_VS_VIDA__AG_04` IS DISTINCT FROM reference.`Agresor_VS_VIDA__AG_04`
+  OR candidate.`Prev_Agresor_VS__AG_04` IS DISTINCT FROM reference.`Prev_Agresor_VS__AG_04`
+  OR candidate.`Agresor_VS_12M__AG_05` IS DISTINCT FROM reference.`Agresor_VS_12M__AG_05`
+  OR candidate.`Agresor_VS_VIDA__AG_05` IS DISTINCT FROM reference.`Agresor_VS_VIDA__AG_05`
+  OR candidate.`Prev_Agresor_VS__AG_05` IS DISTINCT FROM reference.`Prev_Agresor_VS__AG_05`
+  OR candidate.`Agresor_VS_12M__AG_06` IS DISTINCT FROM reference.`Agresor_VS_12M__AG_06`
+  OR candidate.`Agresor_VS_VIDA__AG_06` IS DISTINCT FROM reference.`Agresor_VS_VIDA__AG_06`
+  OR candidate.`Prev_Agresor_VS__AG_06` IS DISTINCT FROM reference.`Prev_Agresor_VS__AG_06`
+  OR candidate.`Agresor_VS_12M__AG_07` IS DISTINCT FROM reference.`Agresor_VS_12M__AG_07`
+  OR candidate.`Agresor_VS_VIDA__AG_07` IS DISTINCT FROM reference.`Agresor_VS_VIDA__AG_07`
+  OR candidate.`Prev_Agresor_VS__AG_07` IS DISTINCT FROM reference.`Prev_Agresor_VS__AG_07`
+  OR candidate.`Agresor_VS_12M__AG_08` IS DISTINCT FROM reference.`Agresor_VS_12M__AG_08`
+  OR candidate.`Agresor_VS_VIDA__AG_08` IS DISTINCT FROM reference.`Agresor_VS_VIDA__AG_08`
+  OR candidate.`Prev_Agresor_VS__AG_08` IS DISTINCT FROM reference.`Prev_Agresor_VS__AG_08`
+  OR candidate.`Agresor_VS_12M__AG_09` IS DISTINCT FROM reference.`Agresor_VS_12M__AG_09`
+  OR candidate.`Agresor_VS_VIDA__AG_09` IS DISTINCT FROM reference.`Agresor_VS_VIDA__AG_09`
+  OR candidate.`Prev_Agresor_VS__AG_09` IS DISTINCT FROM reference.`Prev_Agresor_VS__AG_09`
+  OR candidate.`Formas_Agresor_VS_H__VSH_AG01` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__VSH_AG01`
+  OR candidate.`Formas_Agresor_VS_H_1__VSH_AG01` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__VSH_AG01`
+  OR candidate.`Formas_Agresor_VS_H__VSH_AG02` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__VSH_AG02`
+  OR candidate.`Formas_Agresor_VS_H_1__VSH_AG02` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__VSH_AG02`
+  OR candidate.`Formas_Agresor_VS_H__VSH_AG03` IS DISTINCT FROM reference.`Formas_Agresor_VS_H__VSH_AG03`
+  OR candidate.`Formas_Agresor_VS_H_1__VSH_AG03` IS DISTINCT FROM reference.`Formas_Agresor_VS_H_1__VSH_AG03`
+  OR candidate.`VS_OtraPersona_12M` IS DISTINCT FROM reference.`VS_OtraPersona_12M`
+  OR candidate.`VS_OtraPersona_VIDA` IS DISTINCT FROM reference.`VS_OtraPersona_VIDA`
