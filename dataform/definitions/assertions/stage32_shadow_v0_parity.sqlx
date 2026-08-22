@@ -1,0 +1,180 @@
+config {
+  type: "assertion",
+  schema: "enares2024_crs04_ops",
+  tags: ["stage03", "analytical", "stage32", "parity"]
+}
+
+WITH
+reference AS (
+  SELECT
+    CAST(ID AS INT64) AS ID,
+    CAST(COLEGIAL_ID AS INT64) AS COLEGIAL_ID,
+    `C3P201_1_1`,
+    `C3P201_2_1`,
+    `C3P201_3_1`,
+    `C3P201_4_1`,
+    `C3P201_5_1`,
+    `C3P201_6_1`,
+    `C3P201_7_1`,
+    `C3P201_8_1`,
+    `C3P201_9_1`,
+    `C3P201_10_1`,
+    `C3P201_11_1`,
+    `C3P205_1_1`,
+    `C3P205_2_1`,
+    `C3P205_3_1`,
+    `C3P205_4_1`,
+    `C3P205_5_1`,
+    `C3P205_6_1`,
+    `C3P205_7_1`,
+    `VP_HOGAR`,
+    `VF_HOGAR`,
+    `VF_HOGAR_01`,
+    `VF_HOGAR_03`,
+    `VN_HOGAR1`,
+    `INDICADOR_8_3_6`,
+    `VP_o_VF_HOGAR`,
+    `VP_VF_HOGAR`,
+    `Solap_VP_VF_H__Coexistencia`,
+    `VP_ICVAC_401_ATERRORIZAR`,
+    `VP_ICVAC_402_HOSTIGAR_HUMILLAR`,
+    `VP_ICVAC_203_AISLAMIENTO`,
+    `VP_ICVAC_409_OTROS`,
+    `VF_ICVAC_201_AGRESION_GRAVE`,
+    `VF_ICVAC_202_AGRESION_LEVE`,
+    `VF_ICVAC_209_OTROS`,
+    `AG_VP_H_01`,
+    `AG_VP_H_02`,
+    `AG_VP_H_03`,
+    `AG_VP_H_04`,
+    `AG_VP_H_05`,
+    `AG_VP_H_06`,
+    `AG_VP_H_07`,
+    `AG_VP_H_08`,
+    `AG_VF_H_01`,
+    `AG_VF_H_02`,
+    `AG_VF_H_03`,
+    `AG_VF_H_04`,
+    `AG_VF_H_05`,
+    `AG_VF_H_06`,
+    `AG_VF_H_07`,
+    `AG_VF_H_08`
+  FROM ${ref("analytical_crs04_adolescents")}
+),
+
+candidate AS (
+  SELECT
+    ID,
+    COLEGIAL_ID,
+    `C3P201_1_1`,
+    `C3P201_2_1`,
+    `C3P201_3_1`,
+    `C3P201_4_1`,
+    `C3P201_5_1`,
+    `C3P201_6_1`,
+    `C3P201_7_1`,
+    `C3P201_8_1`,
+    `C3P201_9_1`,
+    `C3P201_10_1`,
+    `C3P201_11_1`,
+    `C3P205_1_1`,
+    `C3P205_2_1`,
+    `C3P205_3_1`,
+    `C3P205_4_1`,
+    `C3P205_5_1`,
+    `C3P205_6_1`,
+    `C3P205_7_1`,
+    `VP_HOGAR`,
+    `VF_HOGAR`,
+    `VF_HOGAR_01`,
+    `VF_HOGAR_03`,
+    `VN_HOGAR1`,
+    `INDICADOR_8_3_6`,
+    `VP_o_VF_HOGAR`,
+    `VP_VF_HOGAR`,
+    `Solap_VP_VF_H__Coexistencia`,
+    `VP_ICVAC_401_ATERRORIZAR`,
+    `VP_ICVAC_402_HOSTIGAR_HUMILLAR`,
+    `VP_ICVAC_203_AISLAMIENTO`,
+    `VP_ICVAC_409_OTROS`,
+    `VF_ICVAC_201_AGRESION_GRAVE`,
+    `VF_ICVAC_202_AGRESION_LEVE`,
+    `VF_ICVAC_209_OTROS`,
+    `AG_VP_H_01`,
+    `AG_VP_H_02`,
+    `AG_VP_H_03`,
+    `AG_VP_H_04`,
+    `AG_VP_H_05`,
+    `AG_VP_H_06`,
+    `AG_VP_H_07`,
+    `AG_VP_H_08`,
+    `AG_VF_H_01`,
+    `AG_VF_H_02`,
+    `AG_VF_H_03`,
+    `AG_VF_H_04`,
+    `AG_VF_H_05`,
+    `AG_VF_H_06`,
+    `AG_VF_H_07`,
+    `AG_VF_H_08`
+  FROM ${ref("analytical_crs04_stage32_v0_5")}
+)
+
+SELECT
+  COALESCE(candidate.ID, reference.ID) AS ID,
+  COALESCE(candidate.COLEGIAL_ID, reference.COLEGIAL_ID) AS COLEGIAL_ID
+FROM candidate
+FULL OUTER JOIN reference
+  USING (ID, COLEGIAL_ID)
+WHERE
+  candidate.ID IS NULL
+  OR reference.ID IS NULL
+  OR candidate.`C3P201_1_1` IS DISTINCT FROM reference.`C3P201_1_1`
+  OR candidate.`C3P201_2_1` IS DISTINCT FROM reference.`C3P201_2_1`
+  OR candidate.`C3P201_3_1` IS DISTINCT FROM reference.`C3P201_3_1`
+  OR candidate.`C3P201_4_1` IS DISTINCT FROM reference.`C3P201_4_1`
+  OR candidate.`C3P201_5_1` IS DISTINCT FROM reference.`C3P201_5_1`
+  OR candidate.`C3P201_6_1` IS DISTINCT FROM reference.`C3P201_6_1`
+  OR candidate.`C3P201_7_1` IS DISTINCT FROM reference.`C3P201_7_1`
+  OR candidate.`C3P201_8_1` IS DISTINCT FROM reference.`C3P201_8_1`
+  OR candidate.`C3P201_9_1` IS DISTINCT FROM reference.`C3P201_9_1`
+  OR candidate.`C3P201_10_1` IS DISTINCT FROM reference.`C3P201_10_1`
+  OR candidate.`C3P201_11_1` IS DISTINCT FROM reference.`C3P201_11_1`
+  OR candidate.`C3P205_1_1` IS DISTINCT FROM reference.`C3P205_1_1`
+  OR candidate.`C3P205_2_1` IS DISTINCT FROM reference.`C3P205_2_1`
+  OR candidate.`C3P205_3_1` IS DISTINCT FROM reference.`C3P205_3_1`
+  OR candidate.`C3P205_4_1` IS DISTINCT FROM reference.`C3P205_4_1`
+  OR candidate.`C3P205_5_1` IS DISTINCT FROM reference.`C3P205_5_1`
+  OR candidate.`C3P205_6_1` IS DISTINCT FROM reference.`C3P205_6_1`
+  OR candidate.`C3P205_7_1` IS DISTINCT FROM reference.`C3P205_7_1`
+  OR candidate.`VP_HOGAR` IS DISTINCT FROM reference.`VP_HOGAR`
+  OR candidate.`VF_HOGAR` IS DISTINCT FROM reference.`VF_HOGAR`
+  OR candidate.`VF_HOGAR_01` IS DISTINCT FROM reference.`VF_HOGAR_01`
+  OR candidate.`VF_HOGAR_03` IS DISTINCT FROM reference.`VF_HOGAR_03`
+  OR candidate.`VN_HOGAR1` IS DISTINCT FROM reference.`VN_HOGAR1`
+  OR candidate.`INDICADOR_8_3_6` IS DISTINCT FROM reference.`INDICADOR_8_3_6`
+  OR candidate.`VP_o_VF_HOGAR` IS DISTINCT FROM reference.`VP_o_VF_HOGAR`
+  OR candidate.`VP_VF_HOGAR` IS DISTINCT FROM reference.`VP_VF_HOGAR`
+  OR candidate.`Solap_VP_VF_H__Coexistencia` IS DISTINCT FROM reference.`Solap_VP_VF_H__Coexistencia`
+  OR candidate.`VP_ICVAC_401_ATERRORIZAR` IS DISTINCT FROM reference.`VP_ICVAC_401_ATERRORIZAR`
+  OR candidate.`VP_ICVAC_402_HOSTIGAR_HUMILLAR` IS DISTINCT FROM reference.`VP_ICVAC_402_HOSTIGAR_HUMILLAR`
+  OR candidate.`VP_ICVAC_203_AISLAMIENTO` IS DISTINCT FROM reference.`VP_ICVAC_203_AISLAMIENTO`
+  OR candidate.`VP_ICVAC_409_OTROS` IS DISTINCT FROM reference.`VP_ICVAC_409_OTROS`
+  OR candidate.`VF_ICVAC_201_AGRESION_GRAVE` IS DISTINCT FROM reference.`VF_ICVAC_201_AGRESION_GRAVE`
+  OR candidate.`VF_ICVAC_202_AGRESION_LEVE` IS DISTINCT FROM reference.`VF_ICVAC_202_AGRESION_LEVE`
+  OR candidate.`VF_ICVAC_209_OTROS` IS DISTINCT FROM reference.`VF_ICVAC_209_OTROS`
+  OR candidate.`AG_VP_H_01` IS DISTINCT FROM reference.`AG_VP_H_01`
+  OR candidate.`AG_VP_H_02` IS DISTINCT FROM reference.`AG_VP_H_02`
+  OR candidate.`AG_VP_H_03` IS DISTINCT FROM reference.`AG_VP_H_03`
+  OR candidate.`AG_VP_H_04` IS DISTINCT FROM reference.`AG_VP_H_04`
+  OR candidate.`AG_VP_H_05` IS DISTINCT FROM reference.`AG_VP_H_05`
+  OR candidate.`AG_VP_H_06` IS DISTINCT FROM reference.`AG_VP_H_06`
+  OR candidate.`AG_VP_H_07` IS DISTINCT FROM reference.`AG_VP_H_07`
+  OR candidate.`AG_VP_H_08` IS DISTINCT FROM reference.`AG_VP_H_08`
+  OR candidate.`AG_VF_H_01` IS DISTINCT FROM reference.`AG_VF_H_01`
+  OR candidate.`AG_VF_H_02` IS DISTINCT FROM reference.`AG_VF_H_02`
+  OR candidate.`AG_VF_H_03` IS DISTINCT FROM reference.`AG_VF_H_03`
+  OR candidate.`AG_VF_H_04` IS DISTINCT FROM reference.`AG_VF_H_04`
+  OR candidate.`AG_VF_H_05` IS DISTINCT FROM reference.`AG_VF_H_05`
+  OR candidate.`AG_VF_H_06` IS DISTINCT FROM reference.`AG_VF_H_06`
+  OR candidate.`AG_VF_H_07` IS DISTINCT FROM reference.`AG_VF_H_07`
+  OR candidate.`AG_VF_H_08` IS DISTINCT FROM reference.`AG_VF_H_08`
