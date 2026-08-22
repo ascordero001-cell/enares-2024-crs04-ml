@@ -1,0 +1,51 @@
+config {
+  type: "assertion",
+  description: "Fails when a module key does not match CAP100 in either direction.",
+  tags: ["stage03", "raw", "match"]
+}
+
+SELECT
+  'raw_crs04_cap200' AS module_name,
+  CASE
+    WHEN base.ID IS NULL THEN 'module_without_cap100'
+    ELSE 'cap100_without_module'
+  END AS issue_type,
+  COALESCE(base.ID, module.ID) AS ID,
+  COALESCE(base.COLEGIAL_ID, module.COLEGIAL_ID) AS COLEGIAL_ID
+FROM ${ref("raw_crs04_cap100")} AS base
+FULL OUTER JOIN ${ref("raw_crs04_cap200")} AS module
+  ON base.ID = module.ID
+ AND base.COLEGIAL_ID = module.COLEGIAL_ID
+WHERE base.ID IS NULL OR module.ID IS NULL
+
+UNION ALL
+
+SELECT
+  'raw_crs04_cap248',
+  CASE
+    WHEN base.ID IS NULL THEN 'module_without_cap100'
+    ELSE 'cap100_without_module'
+  END,
+  COALESCE(base.ID, module.ID),
+  COALESCE(base.COLEGIAL_ID, module.COLEGIAL_ID)
+FROM ${ref("raw_crs04_cap100")} AS base
+FULL OUTER JOIN ${ref("raw_crs04_cap248")} AS module
+  ON base.ID = module.ID
+ AND base.COLEGIAL_ID = module.COLEGIAL_ID
+WHERE base.ID IS NULL OR module.ID IS NULL
+
+UNION ALL
+
+SELECT
+  'raw_crs04_cap300',
+  CASE
+    WHEN base.ID IS NULL THEN 'module_without_cap100'
+    ELSE 'cap100_without_module'
+  END,
+  COALESCE(base.ID, module.ID),
+  COALESCE(base.COLEGIAL_ID, module.COLEGIAL_ID)
+FROM ${ref("raw_crs04_cap100")} AS base
+FULL OUTER JOIN ${ref("raw_crs04_cap300")} AS module
+  ON base.ID = module.ID
+ AND base.COLEGIAL_ID = module.COLEGIAL_ID
+WHERE base.ID IS NULL OR module.ID IS NULL

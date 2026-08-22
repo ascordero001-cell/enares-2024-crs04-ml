@@ -1,0 +1,51 @@
+config {
+  type: "assertion",
+  description: "Fails when CRS04 raw merge keys are null or contain decimals.",
+  tags: ["stage03", "raw", "key"]
+}
+
+SELECT
+  'raw_crs04_cap100' AS table_name,
+  ID,
+  COLEGIAL_ID
+FROM ${ref("raw_crs04_cap100")}
+WHERE ID IS NULL
+   OR COLEGIAL_ID IS NULL
+   OR ID != TRUNC(ID)
+   OR COLEGIAL_ID != TRUNC(COLEGIAL_ID)
+
+UNION ALL
+
+SELECT
+  'raw_crs04_cap200',
+  ID,
+  COLEGIAL_ID
+FROM ${ref("raw_crs04_cap200")}
+WHERE ID IS NULL
+   OR COLEGIAL_ID IS NULL
+   OR ID != TRUNC(ID)
+   OR COLEGIAL_ID != TRUNC(COLEGIAL_ID)
+
+UNION ALL
+
+SELECT
+  'raw_crs04_cap248',
+  ID,
+  COLEGIAL_ID
+FROM ${ref("raw_crs04_cap248")}
+WHERE ID IS NULL
+   OR COLEGIAL_ID IS NULL
+   OR ID != TRUNC(ID)
+   OR COLEGIAL_ID != TRUNC(COLEGIAL_ID)
+
+UNION ALL
+
+SELECT
+  'raw_crs04_cap300',
+  ID,
+  COLEGIAL_ID
+FROM ${ref("raw_crs04_cap300")}
+WHERE ID IS NULL
+   OR COLEGIAL_ID IS NULL
+   OR ID != TRUNC(ID)
+   OR COLEGIAL_ID != TRUNC(COLEGIAL_ID)

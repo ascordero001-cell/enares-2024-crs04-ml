@@ -1,0 +1,232 @@
+config {
+  type: "table",
+  schema: dataform.projectConfig.vars.analyticalDataset,
+  name: "analytical_crs04_pilot_33_school_v0_5",
+  description: "Stage 03 shadow pilot for SPSS VP_ESCUELA.",
+  tags: ["stage03", "analytical", "pilot_33", "shadow"]
+}
+
+WITH details AS (
+  SELECT
+    ID,
+    COLEGIAL_ID,
+    FACTOR_ALUMNOS,
+    CCDD,
+    SEXO,
+    AREA,
+    C3P225,
+    CASE
+      WHEN
+        C3P223_1 = 1
+        AND C3P225 = 1
+        AND (
+          C3P223A_1 = 1
+          OR C3P223C_1 = 1
+          OR C3P223E_1 = 1
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P223_1_1`,
+    CASE
+      WHEN
+        C3P223_2 = 1
+        AND C3P225 = 1
+        AND (
+          C3P223A_2 = 1
+          OR C3P223C_2 = 1
+          OR C3P223E_2 = 1
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P223_2_1`,
+    CASE
+      WHEN
+        C3P223_3 = 1
+        AND C3P225 = 1
+        AND (
+          C3P223A_3 = 1
+          OR C3P223C_3 = 1
+          OR C3P223E_3 = 1
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P223_3_1`,
+    CASE
+      WHEN
+        C3P223_4 = 1
+        AND C3P225 = 1
+        AND (
+          C3P223A_4 = 1
+          OR C3P223C_4 = 1
+          OR C3P223E_4 = 1
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P223_4_1`,
+    CASE
+      WHEN
+        C3P223_5 = 1
+        AND C3P225 = 1
+        AND (
+          C3P223A_5 = 1
+          OR C3P223C_5 = 1
+          OR C3P223E_5 = 1
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P223_5_1`,
+    CASE
+      WHEN
+        C3P223_6 = 1
+        AND C3P225 = 1
+        AND (
+          C3P223A_6 = 1
+          OR C3P223C_6 = 1
+          OR C3P223E_6 = 1
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P223_6_1`,
+    CASE
+      WHEN
+        C3P223_7 = 1
+        AND C3P225 = 1
+        AND (
+          C3P223A_7 = 1
+          OR C3P223C_7 = 1
+          OR C3P223E_7 = 1
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P223_7_1`,
+    CASE
+      WHEN
+        C3P223_8 = 1
+        AND C3P225 = 1
+        AND (
+          C3P223A_8 = 1
+          OR C3P223C_8 = 1
+          OR C3P223E_8 = 1
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P223_8_1`,
+    CASE
+      WHEN
+        C3P223_9 = 1
+        AND C3P225 = 1
+        AND (
+          C3P223A_9 = 1
+          OR C3P223C_9 = 1
+          OR C3P223E_9 = 1
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P223_9_1`,
+    CASE
+      WHEN
+        C3P223_10 = 1
+        AND C3P225 = 1
+        AND (
+          C3P223A_10 = 1
+          OR C3P223C_10 = 1
+          OR C3P223E_10 = 1
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P223_10_1`,
+    CASE
+      WHEN
+        C3P223_11 = 1
+        AND C3P225 = 1
+        AND (
+          C3P223A_11 = 1
+          OR C3P223C_11 = 1
+          OR C3P223E_11 = 1
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P223_11_1`,
+    CASE
+      WHEN
+        C3P223_12 = 1
+        AND C3P225 = 1
+        AND (
+          C3P223A_12 = 1
+          OR C3P223C_12 = 1
+          OR C3P223E_12 = 1
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P223_12_1`,
+    CASE
+      WHEN
+        C3P223_13 = 1
+        AND C3P225 = 1
+        AND (
+          C3P223A_13 = 1
+          OR C3P223C_13 = 1
+          OR C3P223E_13 = 1
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P223_13_1`,
+    CASE
+      WHEN
+        C3P223_14 = 1
+        AND C3P225 = 1
+        AND (
+          C3P223A_14 = 1
+          OR C3P223C_14 = 1
+          OR C3P223E_14 = 1
+        )
+      THEN 1
+      ELSE 0
+    END AS `C3P223_14_1`
+  FROM ${ref("cleaned_crs04_merged_adolescents_v0_5")}
+)
+
+SELECT
+  ID,
+  COLEGIAL_ID,
+  FACTOR_ALUMNOS,
+  CCDD,
+  SEXO,
+  AREA,
+  C3P225,
+  `C3P223_1_1`,
+  `C3P223_2_1`,
+  `C3P223_3_1`,
+  `C3P223_4_1`,
+  `C3P223_5_1`,
+  `C3P223_6_1`,
+  `C3P223_7_1`,
+  `C3P223_8_1`,
+  `C3P223_9_1`,
+  `C3P223_10_1`,
+  `C3P223_11_1`,
+  `C3P223_12_1`,
+  `C3P223_13_1`,
+  `C3P223_14_1`,
+
+  CASE
+    WHEN
+      `C3P223_1_1` = 1
+    OR `C3P223_2_1` = 1
+    OR `C3P223_3_1` = 1
+    OR `C3P223_4_1` = 1
+    OR `C3P223_5_1` = 1
+    OR `C3P223_6_1` = 1
+    OR `C3P223_7_1` = 1
+    OR `C3P223_8_1` = 1
+    OR `C3P223_9_1` = 1
+    OR `C3P223_10_1` = 1
+    OR `C3P223_11_1` = 1
+    OR `C3P223_12_1` = 1
+    OR `C3P223_13_1` = 1
+    OR `C3P223_14_1` = 1
+    THEN 1
+    ELSE 0
+  END AS VP_ESCUELA
+
+FROM details

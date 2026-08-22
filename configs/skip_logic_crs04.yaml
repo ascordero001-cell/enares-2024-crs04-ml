@@ -1,0 +1,97 @@
+schema_version: 1
+contract_version: v0.5-shadow
+authority: SPSS syntax and validated V0 skip map
+source: docs/stage03/contracts/v0/stage3_skip_map.csv
+rule_count: 13
+rules:
+- block: VP_HOGAR
+  gateway_var: C3P203
+  open_value: '1'
+  dependent_vars: C3P201_1..C3P201_11
+  recode: SYSMIS->0 según SPSS
+  keep_null_when: C3P203 IS NULL
+  source_module: '3.2'
+- block: VF_HOGAR
+  gateway_var: C3P207
+  open_value: '1'
+  dependent_vars: C3P205_1..C3P205_7
+  recode: SYSMIS->0 según SPSS
+  keep_null_when: C3P207 IS NULL
+  source_module: '3.2'
+- block: VF_HOGAR_01
+  gateway_var: C3P121
+  open_value: '1'
+  dependent_vars: C3P121
+  recode: SYSMIS->0 según SPSS
+  keep_null_when: null
+  source_module: '3.2'
+- block: VF_HOGAR_03
+  gateway_var: C3P216A_*/C3P216C_*
+  open_value: '1'
+  dependent_vars: C3P216A_1..6;C3P216C_1..5;flags C
+  recode: SYSMIS->0 según SPSS
+  keep_null_when: null
+  source_module: '3.2'
+- block: DESP
+  gateway_var: C3P105
+  open_value: '!=2'
+  dependent_vars: VFNNTV
+  recode: conservar SYSMIS
+  keep_null_when: C3P105=2
+  source_module: '3.2'
+- block: VP_ESCUELA
+  gateway_var: C3P225
+  open_value: '1'
+  dependent_vars: C3P223_1..C3P223_14
+  recode: SYSMIS->0 según SPSS
+  keep_null_when: C3P225 IS NULL
+  source_module: '3.3'
+- block: VF_ESCUELA
+  gateway_var: C3P229
+  open_value: '1'
+  dependent_vars: C3P227_1..C3P227_10
+  recode: SYSMIS->0 según SPSS
+  keep_null_when: C3P229 IS NULL
+  source_module: '3.3'
+- block: VS_12M/VS_ESCUELA
+  gateway_var: últimos 12 meses
+  open_value: '1'
+  dependent_vars: C4P248_1..C4P248_16
+  recode: SYSMIS->0 según SPSS
+  keep_null_when: null
+  source_module: '3.4'
+- block: ayuda_hogar_*
+  gateway_var: C3P209/universo víctima hogar
+  open_value: '1'
+  dependent_vars: formas de búsqueda y recepción hogar
+  recode: SYSMIS->0 dentro del dominio
+  keep_null_when: fuera del dominio
+  source_module: '3.6'
+- block: ayuda_escuela_*
+  gateway_var: universo víctima escuela
+  open_value: '1'
+  dependent_vars: formas de búsqueda y recepción escuela
+  recode: SYSMIS->0 dentro del dominio
+  keep_null_when: fuera del dominio
+  source_module: '3.6'
+- block: ayuda_vs_*
+  gateway_var: universo víctima VS
+  open_value: '1'
+  dependent_vars: formas de búsqueda, institución y recepción VS
+  recode: SYSMIS->0 dentro del dominio
+  keep_null_when: fuera del dominio
+  source_module: '3.6'
+- block: agresores_hogar
+  gateway_var: forma hogar marcada
+  open_value: '1'
+  dependent_vars: grupos de agresor VP/VF hogar
+  recode: SYSMIS->0 según SPSS
+  keep_null_when: null
+  source_module: 3.2.1
+- block: agresores_escuela
+  gateway_var: forma escuela marcada
+  open_value: '1'
+  dependent_vars: grupos de agresor VP/VF escuela
+  recode: SYSMIS->0 según SPSS
+  keep_null_when: null
+  source_module: 3.3.1

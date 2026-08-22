@@ -1,0 +1,12 @@
+project_id: enares-2024-crs04
+location: US
+
+datasets:
+  raw: enares2024_crs04_raw
+  cleaned: enares2024_crs04_cleaned
+  analytical: enares2024_crs04_analytical
+  outputs: enares2024_crs04_outputs
+
+  # Planned datasets; do not create without approval.
+  published: enares2024_crs04_published
+  ops: enares2024_crs04_ops

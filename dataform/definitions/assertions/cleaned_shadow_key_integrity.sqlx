@@ -1,0 +1,16 @@
+config {
+  type: "assertion",
+  schema: "enares2024_crs04_ops",
+  tags: ["stage03", "cleaned", "shadow"]
+}
+
+SELECT
+  ID,
+  COLEGIAL_ID,
+  COUNT(*) AS key_count
+FROM ${ref("cleaned_crs04_merged_adolescents_v0_5")}
+GROUP BY ID, COLEGIAL_ID
+HAVING
+  ID IS NULL
+  OR COLEGIAL_ID IS NULL
+  OR COUNT(*) != 1

@@ -1,0 +1,39 @@
+config {
+  type: "assertion",
+  description: "Fails when a CRS04 raw table does not contain 18,807 rows.",
+  tags: ["stage03", "raw", "rowcount"]
+}
+
+SELECT
+  'raw_crs04_cap100' AS table_name,
+  COUNT(*) AS actual_rows,
+  18807 AS expected_rows
+FROM ${ref("raw_crs04_cap100")}
+HAVING COUNT(*) != 18807
+
+UNION ALL
+
+SELECT
+  'raw_crs04_cap200',
+  COUNT(*),
+  18807
+FROM ${ref("raw_crs04_cap200")}
+HAVING COUNT(*) != 18807
+
+UNION ALL
+
+SELECT
+  'raw_crs04_cap248',
+  COUNT(*),
+  18807
+FROM ${ref("raw_crs04_cap248")}
+HAVING COUNT(*) != 18807
+
+UNION ALL
+
+SELECT
+  'raw_crs04_cap300',
+  COUNT(*),
+  18807
+FROM ${ref("raw_crs04_cap300")}
+HAVING COUNT(*) != 18807

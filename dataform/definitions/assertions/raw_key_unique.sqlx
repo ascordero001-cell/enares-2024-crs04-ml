@@ -1,0 +1,47 @@
+config {
+  type: "assertion",
+  description: "Fails when ID + COLEGIAL_ID is duplicated within a CRS04 raw table.",
+  tags: ["stage03", "raw", "key"]
+}
+
+SELECT
+  'raw_crs04_cap100' AS table_name,
+  ID,
+  COLEGIAL_ID,
+  COUNT(*) AS occurrences
+FROM ${ref("raw_crs04_cap100")}
+GROUP BY ID, COLEGIAL_ID
+HAVING COUNT(*) > 1
+
+UNION ALL
+
+SELECT
+  'raw_crs04_cap200',
+  ID,
+  COLEGIAL_ID,
+  COUNT(*)
+FROM ${ref("raw_crs04_cap200")}
+GROUP BY ID, COLEGIAL_ID
+HAVING COUNT(*) > 1
+
+UNION ALL
+
+SELECT
+  'raw_crs04_cap248',
+  ID,
+  COLEGIAL_ID,
+  COUNT(*)
+FROM ${ref("raw_crs04_cap248")}
+GROUP BY ID, COLEGIAL_ID
+HAVING COUNT(*) > 1
+
+UNION ALL
+
+SELECT
+  'raw_crs04_cap300',
+  ID,
+  COLEGIAL_ID,
+  COUNT(*)
+FROM ${ref("raw_crs04_cap300")}
+GROUP BY ID, COLEGIAL_ID
+HAVING COUNT(*) > 1

@@ -1,0 +1,52 @@
+config {
+  type: "assertion",
+  schema: "enares2024_crs04_ops",
+  tags: ["stage03", "reporting", "survey_input", "parity"]
+}
+
+WITH
+reference AS (
+  SELECT
+    CAST(ID AS INT64) AS ID,
+    CAST(COLEGIAL_ID AS INT64) AS COLEGIAL_ID,
+    FACTOR_ALUMNOS,
+    CCDD,
+    SEXO,
+    AREA,
+    CAST(justifica_castigo_docente AS INT64)
+      AS justifica_castigo_docente,
+    CAST(VP_HOGAR AS INT64) AS VP_HOGAR,
+    CAST(VP_ESCUELA AS INT64) AS VP_ESCUELA
+  FROM ${ref("analytical_crs04_adolescents")}
+),
+
+candidate AS (
+  SELECT *
+  FROM ${ref("reporting_crs04_survey_input_v0_5")}
+)
+
+SELECT
+  COALESCE(candidate.ID, reference.ID) AS ID,
+  COALESCE(
+    candidate.COLEGIAL_ID,
+    reference.COLEGIAL_ID
+  ) AS COLEGIAL_ID
+
+FROM candidate
+FULL OUTER JOIN reference
+  USING (ID, COLEGIAL_ID)
+
+WHERE
+  candidate.ID IS NULL
+  OR reference.ID IS NULL
+  OR candidate.FACTOR_ALUMNOS
+     IS DISTINCT FROM reference.FACTOR_ALUMNOS
+  OR candidate.CCDD IS DISTINCT FROM reference.CCDD
+  OR candidate.SEXO IS DISTINCT FROM reference.SEXO
+  OR candidate.AREA IS DISTINCT FROM reference.AREA
+  OR candidate.justifica_castigo_docente
+     IS DISTINCT FROM reference.justifica_castigo_docente
+  OR candidate.VP_HOGAR
+     IS DISTINCT FROM reference.VP_HOGAR
+  OR candidate.VP_ESCUELA
+     IS DISTINCT FROM reference.VP_ESCUELA
