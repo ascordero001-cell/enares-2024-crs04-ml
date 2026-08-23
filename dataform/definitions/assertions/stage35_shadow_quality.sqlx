@@ -1,0 +1,118 @@
+config {
+  type: "assertion",
+  schema: "enares2024_crs04_ops",
+  tags: ["stage03", "analytical", "stage35", "quality"]
+}
+
+WITH
+candidate AS (
+  SELECT * FROM ${ref("analytical_crs04_stage35_v0_5")}
+),
+duplicate_keys AS (
+  SELECT ID, COLEGIAL_ID FROM candidate
+  GROUP BY ID, COLEGIAL_ID HAVING COUNT(*) > 1
+),
+checks AS (
+  SELECT "row_count" AS check_name, ABS(COUNT(*) - 18807) AS violation_count
+  FROM candidate HAVING COUNT(*) != 18807
+  UNION ALL
+  SELECT "null_keys", COUNTIF(ID IS NULL OR COLEGIAL_ID IS NULL)
+  FROM candidate HAVING COUNTIF(ID IS NULL OR COLEGIAL_ID IS NULL) > 0
+  UNION ALL
+  SELECT "duplicate_key_groups", COUNT(*) FROM duplicate_keys HAVING COUNT(*) > 0
+  UNION ALL
+  SELECT "survey_design_fields", COUNTIF(
+    FACTOR_ALUMNOS IS NULL OR FACTOR_ALUMNOS <= 0
+    OR CCDD IS NULL OR SEXO IS NULL OR AREA IS NULL)
+  FROM candidate HAVING COUNTIF(
+    FACTOR_ALUMNOS IS NULL OR FACTOR_ALUMNOS <= 0
+    OR CCDD IS NULL OR SEXO IS NULL OR AREA IS NULL) > 0
+  UNION ALL
+  SELECT "binary_outputs", COUNTIF(`C3P233_1_1` NOT IN (0, 1) OR `C3P233_1_1` IS NULL
+    OR `C3P233_1A_1` NOT IN (0, 1) OR `C3P233_1A_1` IS NULL
+    OR `C3P233_2_1` NOT IN (0, 1) OR `C3P233_2_1` IS NULL
+    OR `C3P233_2A_1` NOT IN (0, 1) OR `C3P233_2A_1` IS NULL
+    OR `C3P233_3_1` NOT IN (0, 1) OR `C3P233_3_1` IS NULL
+    OR `LugarSalon_ViolEsc` NOT IN (0, 1) OR `LugarSalon_ViolEsc` IS NULL
+    OR `LugarPatio_ViolEsc` NOT IN (0, 1) OR `LugarPatio_ViolEsc` IS NULL
+    OR `LugarBano_ViolEsc` NOT IN (0, 1) OR `LugarBano_ViolEsc` IS NULL
+    OR `LugarPasilloEscalera_ViolEsc` NOT IN (0, 1) OR `LugarPasilloEscalera_ViolEsc` IS NULL
+    OR `LugarOtro_ViolEsc` NOT IN (0, 1) OR `LugarOtro_ViolEsc` IS NULL
+    OR `LugarFueraColegio_ViolEsc` NOT IN (0, 1) OR `LugarFueraColegio_ViolEsc` IS NULL
+    OR `HoraEntrada_ViolEsc` NOT IN (0, 1) OR `HoraEntrada_ViolEsc` IS NULL
+    OR `HoraClase_ViolEsc` NOT IN (0, 1) OR `HoraClase_ViolEsc` IS NULL
+    OR `HoraRecreo_ViolEsc` NOT IN (0, 1) OR `HoraRecreo_ViolEsc` IS NULL
+    OR `HoraSalida_ViolEsc` NOT IN (0, 1) OR `HoraSalida_ViolEsc` IS NULL
+    OR `VP_EJERCIDA` NOT IN (0, 1) OR `VP_EJERCIDA` IS NULL
+    OR `VF_EJERCIDA` NOT IN (0, 1) OR `VF_EJERCIDA` IS NULL
+    OR `VP_o_VF_E` NOT IN (0, 1) OR `VP_o_VF_E` IS NULL
+    OR `VP_VF_E` NOT IN (0, 1) OR `VP_VF_E` IS NULL
+    OR `VP_VF_VS_E` NOT IN (0, 1) OR `VP_VF_VS_E` IS NULL
+    OR `VP_o_VF_EJERCIDA` NOT IN (0, 1) OR `VP_o_VF_EJERCIDA` IS NULL
+    OR `INDICADOR_8_3_9` NOT IN (0, 1) OR `INDICADOR_8_3_9` IS NULL
+    OR `VP_o_VF_ESCUELA` NOT IN (0, 1) OR `VP_o_VF_ESCUELA` IS NULL
+    OR `Solap_VP_VF_E__Coexistencia` NOT IN (0, 1) OR `Solap_VP_VF_E__Coexistencia` IS NULL
+    OR `VS_HOGAR` NOT IN (0, 1) OR `VS_HOGAR` IS NULL
+    OR `VP_VF_VS_HOGAR` NOT IN (0, 1) OR `VP_VF_VS_HOGAR` IS NULL
+    OR `VP_o_VF_o_VS_HOGAR` NOT IN (0, 1) OR `VP_o_VF_o_VS_HOGAR` IS NULL
+    OR `PV_hogar_escuela1` NOT IN (0, 1) OR `PV_hogar_escuela1` IS NULL
+    OR `PV_hogar_escuela` NOT IN (0, 1) OR `PV_hogar_escuela` IS NULL
+    OR `PV_VP_hogar_escuela` NOT IN (0, 1) OR `PV_VP_hogar_escuela` IS NULL
+    OR `PV_VF_hogar_escuela` NOT IN (0, 1) OR `PV_VF_hogar_escuela` IS NULL
+    OR `PV_VP_hogar_VF_escuela` NOT IN (0, 1) OR `PV_VP_hogar_VF_escuela` IS NULL
+    OR `PV_VF_hogar_VP_escuela` NOT IN (0, 1) OR `PV_VF_hogar_VP_escuela` IS NULL
+    OR `PV_VP_VF_hogar_escuela` NOT IN (0, 1) OR `PV_VP_VF_hogar_escuela` IS NULL
+    OR `PV_VP_VF_hogar_escuela_VS` NOT IN (0, 1) OR `PV_VP_VF_hogar_escuela_VS` IS NULL)
+  FROM candidate HAVING COUNTIF(`C3P233_1_1` NOT IN (0, 1) OR `C3P233_1_1` IS NULL
+    OR `C3P233_1A_1` NOT IN (0, 1) OR `C3P233_1A_1` IS NULL
+    OR `C3P233_2_1` NOT IN (0, 1) OR `C3P233_2_1` IS NULL
+    OR `C3P233_2A_1` NOT IN (0, 1) OR `C3P233_2A_1` IS NULL
+    OR `C3P233_3_1` NOT IN (0, 1) OR `C3P233_3_1` IS NULL
+    OR `LugarSalon_ViolEsc` NOT IN (0, 1) OR `LugarSalon_ViolEsc` IS NULL
+    OR `LugarPatio_ViolEsc` NOT IN (0, 1) OR `LugarPatio_ViolEsc` IS NULL
+    OR `LugarBano_ViolEsc` NOT IN (0, 1) OR `LugarBano_ViolEsc` IS NULL
+    OR `LugarPasilloEscalera_ViolEsc` NOT IN (0, 1) OR `LugarPasilloEscalera_ViolEsc` IS NULL
+    OR `LugarOtro_ViolEsc` NOT IN (0, 1) OR `LugarOtro_ViolEsc` IS NULL
+    OR `LugarFueraColegio_ViolEsc` NOT IN (0, 1) OR `LugarFueraColegio_ViolEsc` IS NULL
+    OR `HoraEntrada_ViolEsc` NOT IN (0, 1) OR `HoraEntrada_ViolEsc` IS NULL
+    OR `HoraClase_ViolEsc` NOT IN (0, 1) OR `HoraClase_ViolEsc` IS NULL
+    OR `HoraRecreo_ViolEsc` NOT IN (0, 1) OR `HoraRecreo_ViolEsc` IS NULL
+    OR `HoraSalida_ViolEsc` NOT IN (0, 1) OR `HoraSalida_ViolEsc` IS NULL
+    OR `VP_EJERCIDA` NOT IN (0, 1) OR `VP_EJERCIDA` IS NULL
+    OR `VF_EJERCIDA` NOT IN (0, 1) OR `VF_EJERCIDA` IS NULL
+    OR `VP_o_VF_E` NOT IN (0, 1) OR `VP_o_VF_E` IS NULL
+    OR `VP_VF_E` NOT IN (0, 1) OR `VP_VF_E` IS NULL
+    OR `VP_VF_VS_E` NOT IN (0, 1) OR `VP_VF_VS_E` IS NULL
+    OR `VP_o_VF_EJERCIDA` NOT IN (0, 1) OR `VP_o_VF_EJERCIDA` IS NULL
+    OR `INDICADOR_8_3_9` NOT IN (0, 1) OR `INDICADOR_8_3_9` IS NULL
+    OR `VP_o_VF_ESCUELA` NOT IN (0, 1) OR `VP_o_VF_ESCUELA` IS NULL
+    OR `Solap_VP_VF_E__Coexistencia` NOT IN (0, 1) OR `Solap_VP_VF_E__Coexistencia` IS NULL
+    OR `VS_HOGAR` NOT IN (0, 1) OR `VS_HOGAR` IS NULL
+    OR `VP_VF_VS_HOGAR` NOT IN (0, 1) OR `VP_VF_VS_HOGAR` IS NULL
+    OR `VP_o_VF_o_VS_HOGAR` NOT IN (0, 1) OR `VP_o_VF_o_VS_HOGAR` IS NULL
+    OR `PV_hogar_escuela1` NOT IN (0, 1) OR `PV_hogar_escuela1` IS NULL
+    OR `PV_hogar_escuela` NOT IN (0, 1) OR `PV_hogar_escuela` IS NULL
+    OR `PV_VP_hogar_escuela` NOT IN (0, 1) OR `PV_VP_hogar_escuela` IS NULL
+    OR `PV_VF_hogar_escuela` NOT IN (0, 1) OR `PV_VF_hogar_escuela` IS NULL
+    OR `PV_VP_hogar_VF_escuela` NOT IN (0, 1) OR `PV_VP_hogar_VF_escuela` IS NULL
+    OR `PV_VF_hogar_VP_escuela` NOT IN (0, 1) OR `PV_VF_hogar_VP_escuela` IS NULL
+    OR `PV_VP_VF_hogar_escuela` NOT IN (0, 1) OR `PV_VP_VF_hogar_escuela` IS NULL
+    OR `PV_VP_VF_hogar_escuela_VS` NOT IN (0, 1) OR `PV_VP_VF_hogar_escuela_VS` IS NULL) > 0
+  UNION ALL
+  SELECT "accumulation_ranges", COUNTIF(
+    PV_indice_acum NOT BETWEEN 0 AND 4
+    OR PV_indice_acum_VS NOT BETWEEN 0 AND 5)
+  FROM candidate HAVING COUNTIF(
+    PV_indice_acum NOT BETWEEN 0 AND 4
+    OR PV_indice_acum_VS NOT BETWEEN 0 AND 5) > 0
+  UNION ALL
+  SELECT "consequence_ranges", COUNTIF(
+    CONS_ALGUNA NOT IN (0, 1)
+    OR CONS_NUM_CONSECUENCIAS NOT BETWEEN 0 AND 6
+    OR CONS_ATENCION_SALUD NOT IN (0, 1))
+  FROM candidate HAVING COUNTIF(
+    CONS_ALGUNA NOT IN (0, 1)
+    OR CONS_NUM_CONSECUENCIAS NOT BETWEEN 0 AND 6
+    OR CONS_ATENCION_SALUD NOT IN (0, 1)) > 0
+)
+SELECT * FROM checks
