@@ -1,0 +1,300 @@
+config {
+  type: "assertion",
+  schema: "enares2024_crs04_ops",
+  tags: ["stage03", "analytical", "stage36", "parity"]
+}
+
+WITH
+reference AS (
+  SELECT CAST(ID AS INT64) AS ID, CAST(COLEGIAL_ID AS INT64) AS COLEGIAL_ID,
+    `busco_ayuda_hogar`,
+    `recibio_ayuda_hogar`,
+    `apoyo_institucional_hogar`,
+    `ayuda_hogar_madre`,
+    `ayuda_hogar_padre`,
+    `ayuda_hogar_madrastra`,
+    `ayuda_hogar_padrastro`,
+    `ayuda_hogar_hermana`,
+    `ayuda_hogar_hermano`,
+    `ayuda_hogar_abuela`,
+    `ayuda_hogar_abuelo`,
+    `ayuda_hogar_tia`,
+    `ayuda_hogar_tio`,
+    `ayuda_hogar_otro_pariente`,
+    `ayuda_hogar_familiar`,
+    `ayuda_hogar_car`,
+    `ayuda_hogar_escolar_adulto`,
+    `ayuda_hogar_pares_amigos`,
+    `ayuda_hogar_otro`,
+    `ayuda_hogar_consuelo`,
+    `ayuda_hogar_consejo`,
+    `ayuda_hogar_hablo_familia`,
+    `ayuda_hogar_llamo_atencion`,
+    `ayuda_hogar_respuesta_agresion`,
+    `ayuda_hogar_otro_tipo`,
+    `busco_ayuda_escuela`,
+    `recibio_ayuda_escuela`,
+    `apoyo_institucional_escuela`,
+    `ayuda_escuela_madre`,
+    `ayuda_escuela_padre`,
+    `ayuda_escuela_madrastra`,
+    `ayuda_escuela_padrastro`,
+    `ayuda_escuela_hermana`,
+    `ayuda_escuela_hermano`,
+    `ayuda_escuela_abuela`,
+    `ayuda_escuela_abuelo`,
+    `ayuda_escuela_tia`,
+    `ayuda_escuela_tio`,
+    `ayuda_escuela_otro_pariente`,
+    `ayuda_escuela_familiar`,
+    `ayuda_escuela_car`,
+    `ayuda_escuela_escolar_adulto`,
+    `ayuda_escuela_pares_amigos`,
+    `ayuda_escuela_otro`,
+    `ayuda_escuela_consuelo`,
+    `ayuda_escuela_aviso_docente`,
+    `ayuda_escuela_hablo_agresor`,
+    `ayuda_escuela_llamo_atencion`,
+    `ayuda_escuela_hablo_director`,
+    `ayuda_escuela_hablo_padres_agresor`,
+    `ayuda_escuela_consejo`,
+    `ayuda_escuela_otro_tipo`,
+    `recibio_ayuda_hogar_victimas`,
+    `brecha_ayuda_hogar`,
+    `brecha_institucional_hogar`,
+    `recibio_ayuda_escuela_victimas`,
+    `brecha_ayuda_escuela`,
+    `brecha_institucional_escuela`,
+    `busco_ayuda_vs`,
+    `recibio_ayuda_vs`,
+    `apoyo_institucional_vs`,
+    `recibio_ayuda_institucional_vs`,
+    `conoce_demuna`,
+    `uso_demuna`,
+    `ayuda_vs_madre`,
+    `ayuda_vs_padre`,
+    `ayuda_vs_madrastra`,
+    `ayuda_vs_padrastro`,
+    `ayuda_vs_hermana`,
+    `ayuda_vs_hermano`,
+    `ayuda_vs_abuela`,
+    `ayuda_vs_abuelo`,
+    `ayuda_vs_tia`,
+    `ayuda_vs_tio`,
+    `ayuda_vs_otro_pariente`,
+    `ayuda_vs_familiar`,
+    `ayuda_vs_car`,
+    `ayuda_vs_escolar_adulto`,
+    `ayuda_vs_pares_amigos`,
+    `ayuda_vs_otro`,
+    `ayuda_vs_consejo`,
+    `ayuda_vs_hablo_madre_padre`,
+    `ayuda_vs_reclamo_agresor`,
+    `ayuda_vs_aviso_autoridades`,
+    `ayuda_vs_refugio`,
+    `ayuda_vs_especialista`,
+    `ayuda_vs_otro_tipo`,
+    `ayuda_inst_vs_hablo_familia`,
+    `ayuda_inst_vs_terapias`,
+    `ayuda_inst_vs_llamo_atencion`,
+    `ayuda_inst_vs_otro`,
+    `recibio_ayuda_vs_victimas`,
+    `brecha_ayuda_vs`,
+    `brecha_institucional_vs`
+  FROM ${ref("analytical_crs04_adolescents")}
+),
+candidate AS (
+  SELECT ID, COLEGIAL_ID,
+    `busco_ayuda_hogar`,
+    `recibio_ayuda_hogar`,
+    `apoyo_institucional_hogar`,
+    `ayuda_hogar_madre`,
+    `ayuda_hogar_padre`,
+    `ayuda_hogar_madrastra`,
+    `ayuda_hogar_padrastro`,
+    `ayuda_hogar_hermana`,
+    `ayuda_hogar_hermano`,
+    `ayuda_hogar_abuela`,
+    `ayuda_hogar_abuelo`,
+    `ayuda_hogar_tia`,
+    `ayuda_hogar_tio`,
+    `ayuda_hogar_otro_pariente`,
+    `ayuda_hogar_familiar`,
+    `ayuda_hogar_car`,
+    `ayuda_hogar_escolar_adulto`,
+    `ayuda_hogar_pares_amigos`,
+    `ayuda_hogar_otro`,
+    `ayuda_hogar_consuelo`,
+    `ayuda_hogar_consejo`,
+    `ayuda_hogar_hablo_familia`,
+    `ayuda_hogar_llamo_atencion`,
+    `ayuda_hogar_respuesta_agresion`,
+    `ayuda_hogar_otro_tipo`,
+    `busco_ayuda_escuela`,
+    `recibio_ayuda_escuela`,
+    `apoyo_institucional_escuela`,
+    `ayuda_escuela_madre`,
+    `ayuda_escuela_padre`,
+    `ayuda_escuela_madrastra`,
+    `ayuda_escuela_padrastro`,
+    `ayuda_escuela_hermana`,
+    `ayuda_escuela_hermano`,
+    `ayuda_escuela_abuela`,
+    `ayuda_escuela_abuelo`,
+    `ayuda_escuela_tia`,
+    `ayuda_escuela_tio`,
+    `ayuda_escuela_otro_pariente`,
+    `ayuda_escuela_familiar`,
+    `ayuda_escuela_car`,
+    `ayuda_escuela_escolar_adulto`,
+    `ayuda_escuela_pares_amigos`,
+    `ayuda_escuela_otro`,
+    `ayuda_escuela_consuelo`,
+    `ayuda_escuela_aviso_docente`,
+    `ayuda_escuela_hablo_agresor`,
+    `ayuda_escuela_llamo_atencion`,
+    `ayuda_escuela_hablo_director`,
+    `ayuda_escuela_hablo_padres_agresor`,
+    `ayuda_escuela_consejo`,
+    `ayuda_escuela_otro_tipo`,
+    `recibio_ayuda_hogar_victimas`,
+    `brecha_ayuda_hogar`,
+    `brecha_institucional_hogar`,
+    `recibio_ayuda_escuela_victimas`,
+    `brecha_ayuda_escuela`,
+    `brecha_institucional_escuela`,
+    `busco_ayuda_vs`,
+    `recibio_ayuda_vs`,
+    `apoyo_institucional_vs`,
+    `recibio_ayuda_institucional_vs`,
+    `conoce_demuna`,
+    `uso_demuna`,
+    `ayuda_vs_madre`,
+    `ayuda_vs_padre`,
+    `ayuda_vs_madrastra`,
+    `ayuda_vs_padrastro`,
+    `ayuda_vs_hermana`,
+    `ayuda_vs_hermano`,
+    `ayuda_vs_abuela`,
+    `ayuda_vs_abuelo`,
+    `ayuda_vs_tia`,
+    `ayuda_vs_tio`,
+    `ayuda_vs_otro_pariente`,
+    `ayuda_vs_familiar`,
+    `ayuda_vs_car`,
+    `ayuda_vs_escolar_adulto`,
+    `ayuda_vs_pares_amigos`,
+    `ayuda_vs_otro`,
+    `ayuda_vs_consejo`,
+    `ayuda_vs_hablo_madre_padre`,
+    `ayuda_vs_reclamo_agresor`,
+    `ayuda_vs_aviso_autoridades`,
+    `ayuda_vs_refugio`,
+    `ayuda_vs_especialista`,
+    `ayuda_vs_otro_tipo`,
+    `ayuda_inst_vs_hablo_familia`,
+    `ayuda_inst_vs_terapias`,
+    `ayuda_inst_vs_llamo_atencion`,
+    `ayuda_inst_vs_otro`,
+    `recibio_ayuda_vs_victimas`,
+    `brecha_ayuda_vs`,
+    `brecha_institucional_vs`
+  FROM ${ref("analytical_crs04_stage36_v0_5")}
+)
+SELECT COALESCE(candidate.ID, reference.ID) AS ID,
+  COALESCE(candidate.COLEGIAL_ID, reference.COLEGIAL_ID) AS COLEGIAL_ID
+FROM candidate FULL OUTER JOIN reference USING (ID, COLEGIAL_ID)
+WHERE candidate.ID IS NULL OR reference.ID IS NULL OR candidate.`busco_ayuda_hogar` IS DISTINCT FROM reference.`busco_ayuda_hogar`
+  OR candidate.`recibio_ayuda_hogar` IS DISTINCT FROM reference.`recibio_ayuda_hogar`
+  OR candidate.`apoyo_institucional_hogar` IS DISTINCT FROM reference.`apoyo_institucional_hogar`
+  OR candidate.`ayuda_hogar_madre` IS DISTINCT FROM reference.`ayuda_hogar_madre`
+  OR candidate.`ayuda_hogar_padre` IS DISTINCT FROM reference.`ayuda_hogar_padre`
+  OR candidate.`ayuda_hogar_madrastra` IS DISTINCT FROM reference.`ayuda_hogar_madrastra`
+  OR candidate.`ayuda_hogar_padrastro` IS DISTINCT FROM reference.`ayuda_hogar_padrastro`
+  OR candidate.`ayuda_hogar_hermana` IS DISTINCT FROM reference.`ayuda_hogar_hermana`
+  OR candidate.`ayuda_hogar_hermano` IS DISTINCT FROM reference.`ayuda_hogar_hermano`
+  OR candidate.`ayuda_hogar_abuela` IS DISTINCT FROM reference.`ayuda_hogar_abuela`
+  OR candidate.`ayuda_hogar_abuelo` IS DISTINCT FROM reference.`ayuda_hogar_abuelo`
+  OR candidate.`ayuda_hogar_tia` IS DISTINCT FROM reference.`ayuda_hogar_tia`
+  OR candidate.`ayuda_hogar_tio` IS DISTINCT FROM reference.`ayuda_hogar_tio`
+  OR candidate.`ayuda_hogar_otro_pariente` IS DISTINCT FROM reference.`ayuda_hogar_otro_pariente`
+  OR candidate.`ayuda_hogar_familiar` IS DISTINCT FROM reference.`ayuda_hogar_familiar`
+  OR candidate.`ayuda_hogar_car` IS DISTINCT FROM reference.`ayuda_hogar_car`
+  OR candidate.`ayuda_hogar_escolar_adulto` IS DISTINCT FROM reference.`ayuda_hogar_escolar_adulto`
+  OR candidate.`ayuda_hogar_pares_amigos` IS DISTINCT FROM reference.`ayuda_hogar_pares_amigos`
+  OR candidate.`ayuda_hogar_otro` IS DISTINCT FROM reference.`ayuda_hogar_otro`
+  OR candidate.`ayuda_hogar_consuelo` IS DISTINCT FROM reference.`ayuda_hogar_consuelo`
+  OR candidate.`ayuda_hogar_consejo` IS DISTINCT FROM reference.`ayuda_hogar_consejo`
+  OR candidate.`ayuda_hogar_hablo_familia` IS DISTINCT FROM reference.`ayuda_hogar_hablo_familia`
+  OR candidate.`ayuda_hogar_llamo_atencion` IS DISTINCT FROM reference.`ayuda_hogar_llamo_atencion`
+  OR candidate.`ayuda_hogar_respuesta_agresion` IS DISTINCT FROM reference.`ayuda_hogar_respuesta_agresion`
+  OR candidate.`ayuda_hogar_otro_tipo` IS DISTINCT FROM reference.`ayuda_hogar_otro_tipo`
+  OR candidate.`busco_ayuda_escuela` IS DISTINCT FROM reference.`busco_ayuda_escuela`
+  OR candidate.`recibio_ayuda_escuela` IS DISTINCT FROM reference.`recibio_ayuda_escuela`
+  OR candidate.`apoyo_institucional_escuela` IS DISTINCT FROM reference.`apoyo_institucional_escuela`
+  OR candidate.`ayuda_escuela_madre` IS DISTINCT FROM reference.`ayuda_escuela_madre`
+  OR candidate.`ayuda_escuela_padre` IS DISTINCT FROM reference.`ayuda_escuela_padre`
+  OR candidate.`ayuda_escuela_madrastra` IS DISTINCT FROM reference.`ayuda_escuela_madrastra`
+  OR candidate.`ayuda_escuela_padrastro` IS DISTINCT FROM reference.`ayuda_escuela_padrastro`
+  OR candidate.`ayuda_escuela_hermana` IS DISTINCT FROM reference.`ayuda_escuela_hermana`
+  OR candidate.`ayuda_escuela_hermano` IS DISTINCT FROM reference.`ayuda_escuela_hermano`
+  OR candidate.`ayuda_escuela_abuela` IS DISTINCT FROM reference.`ayuda_escuela_abuela`
+  OR candidate.`ayuda_escuela_abuelo` IS DISTINCT FROM reference.`ayuda_escuela_abuelo`
+  OR candidate.`ayuda_escuela_tia` IS DISTINCT FROM reference.`ayuda_escuela_tia`
+  OR candidate.`ayuda_escuela_tio` IS DISTINCT FROM reference.`ayuda_escuela_tio`
+  OR candidate.`ayuda_escuela_otro_pariente` IS DISTINCT FROM reference.`ayuda_escuela_otro_pariente`
+  OR candidate.`ayuda_escuela_familiar` IS DISTINCT FROM reference.`ayuda_escuela_familiar`
+  OR candidate.`ayuda_escuela_car` IS DISTINCT FROM reference.`ayuda_escuela_car`
+  OR candidate.`ayuda_escuela_escolar_adulto` IS DISTINCT FROM reference.`ayuda_escuela_escolar_adulto`
+  OR candidate.`ayuda_escuela_pares_amigos` IS DISTINCT FROM reference.`ayuda_escuela_pares_amigos`
+  OR candidate.`ayuda_escuela_otro` IS DISTINCT FROM reference.`ayuda_escuela_otro`
+  OR candidate.`ayuda_escuela_consuelo` IS DISTINCT FROM reference.`ayuda_escuela_consuelo`
+  OR candidate.`ayuda_escuela_aviso_docente` IS DISTINCT FROM reference.`ayuda_escuela_aviso_docente`
+  OR candidate.`ayuda_escuela_hablo_agresor` IS DISTINCT FROM reference.`ayuda_escuela_hablo_agresor`
+  OR candidate.`ayuda_escuela_llamo_atencion` IS DISTINCT FROM reference.`ayuda_escuela_llamo_atencion`
+  OR candidate.`ayuda_escuela_hablo_director` IS DISTINCT FROM reference.`ayuda_escuela_hablo_director`
+  OR candidate.`ayuda_escuela_hablo_padres_agresor` IS DISTINCT FROM reference.`ayuda_escuela_hablo_padres_agresor`
+  OR candidate.`ayuda_escuela_consejo` IS DISTINCT FROM reference.`ayuda_escuela_consejo`
+  OR candidate.`ayuda_escuela_otro_tipo` IS DISTINCT FROM reference.`ayuda_escuela_otro_tipo`
+  OR candidate.`recibio_ayuda_hogar_victimas` IS DISTINCT FROM reference.`recibio_ayuda_hogar_victimas`
+  OR candidate.`brecha_ayuda_hogar` IS DISTINCT FROM reference.`brecha_ayuda_hogar`
+  OR candidate.`brecha_institucional_hogar` IS DISTINCT FROM reference.`brecha_institucional_hogar`
+  OR candidate.`recibio_ayuda_escuela_victimas` IS DISTINCT FROM reference.`recibio_ayuda_escuela_victimas`
+  OR candidate.`brecha_ayuda_escuela` IS DISTINCT FROM reference.`brecha_ayuda_escuela`
+  OR candidate.`brecha_institucional_escuela` IS DISTINCT FROM reference.`brecha_institucional_escuela`
+  OR candidate.`busco_ayuda_vs` IS DISTINCT FROM reference.`busco_ayuda_vs`
+  OR candidate.`recibio_ayuda_vs` IS DISTINCT FROM reference.`recibio_ayuda_vs`
+  OR candidate.`apoyo_institucional_vs` IS DISTINCT FROM reference.`apoyo_institucional_vs`
+  OR candidate.`recibio_ayuda_institucional_vs` IS DISTINCT FROM reference.`recibio_ayuda_institucional_vs`
+  OR candidate.`conoce_demuna` IS DISTINCT FROM reference.`conoce_demuna`
+  OR candidate.`uso_demuna` IS DISTINCT FROM reference.`uso_demuna`
+  OR candidate.`ayuda_vs_madre` IS DISTINCT FROM reference.`ayuda_vs_madre`
+  OR candidate.`ayuda_vs_padre` IS DISTINCT FROM reference.`ayuda_vs_padre`
+  OR candidate.`ayuda_vs_madrastra` IS DISTINCT FROM reference.`ayuda_vs_madrastra`
+  OR candidate.`ayuda_vs_padrastro` IS DISTINCT FROM reference.`ayuda_vs_padrastro`
+  OR candidate.`ayuda_vs_hermana` IS DISTINCT FROM reference.`ayuda_vs_hermana`
+  OR candidate.`ayuda_vs_hermano` IS DISTINCT FROM reference.`ayuda_vs_hermano`
+  OR candidate.`ayuda_vs_abuela` IS DISTINCT FROM reference.`ayuda_vs_abuela`
+  OR candidate.`ayuda_vs_abuelo` IS DISTINCT FROM reference.`ayuda_vs_abuelo`
+  OR candidate.`ayuda_vs_tia` IS DISTINCT FROM reference.`ayuda_vs_tia`
+  OR candidate.`ayuda_vs_tio` IS DISTINCT FROM reference.`ayuda_vs_tio`
+  OR candidate.`ayuda_vs_otro_pariente` IS DISTINCT FROM reference.`ayuda_vs_otro_pariente`
+  OR candidate.`ayuda_vs_familiar` IS DISTINCT FROM reference.`ayuda_vs_familiar`
+  OR candidate.`ayuda_vs_car` IS DISTINCT FROM reference.`ayuda_vs_car`
+  OR candidate.`ayuda_vs_escolar_adulto` IS DISTINCT FROM reference.`ayuda_vs_escolar_adulto`
+  OR candidate.`ayuda_vs_pares_amigos` IS DISTINCT FROM reference.`ayuda_vs_pares_amigos`
+  OR candidate.`ayuda_vs_otro` IS DISTINCT FROM reference.`ayuda_vs_otro`
+  OR candidate.`ayuda_vs_consejo` IS DISTINCT FROM reference.`ayuda_vs_consejo`
+  OR candidate.`ayuda_vs_hablo_madre_padre` IS DISTINCT FROM reference.`ayuda_vs_hablo_madre_padre`
+  OR candidate.`ayuda_vs_reclamo_agresor` IS DISTINCT FROM reference.`ayuda_vs_reclamo_agresor`
+  OR candidate.`ayuda_vs_aviso_autoridades` IS DISTINCT FROM reference.`ayuda_vs_aviso_autoridades`
+  OR candidate.`ayuda_vs_refugio` IS DISTINCT FROM reference.`ayuda_vs_refugio`
+  OR candidate.`ayuda_vs_especialista` IS DISTINCT FROM reference.`ayuda_vs_especialista`
+  OR candidate.`ayuda_vs_otro_tipo` IS DISTINCT FROM reference.`ayuda_vs_otro_tipo`
+  OR candidate.`ayuda_inst_vs_hablo_familia` IS DISTINCT FROM reference.`ayuda_inst_vs_hablo_familia`
+  OR candidate.`ayuda_inst_vs_terapias` IS DISTINCT FROM reference.`ayuda_inst_vs_terapias`
+  OR candidate.`ayuda_inst_vs_llamo_atencion` IS DISTINCT FROM reference.`ayuda_inst_vs_llamo_atencion`
+  OR candidate.`ayuda_inst_vs_otro` IS DISTINCT FROM reference.`ayuda_inst_vs_otro`
+  OR candidate.`recibio_ayuda_vs_victimas` IS DISTINCT FROM reference.`recibio_ayuda_vs_victimas`
+  OR candidate.`brecha_ayuda_vs` IS DISTINCT FROM reference.`brecha_ayuda_vs`
+  OR candidate.`brecha_institucional_vs` IS DISTINCT FROM reference.`brecha_institucional_vs`
