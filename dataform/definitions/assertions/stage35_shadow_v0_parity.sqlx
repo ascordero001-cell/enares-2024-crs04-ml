@@ -1,0 +1,138 @@
+config {
+  type: "assertion",
+  schema: "enares2024_crs04_ops",
+  tags: ["stage03", "analytical", "stage35", "parity"]
+}
+
+WITH
+reference AS (
+  SELECT CAST(ID AS INT64) AS ID, CAST(COLEGIAL_ID AS INT64) AS COLEGIAL_ID,
+    `C3P233_1_1`,
+    `C3P233_1A_1`,
+    `C3P233_2_1`,
+    `C3P233_2A_1`,
+    `C3P233_3_1`,
+    `LugarSalon_ViolEsc`,
+    `LugarPatio_ViolEsc`,
+    `LugarBano_ViolEsc`,
+    `LugarPasilloEscalera_ViolEsc`,
+    `LugarOtro_ViolEsc`,
+    `LugarFueraColegio_ViolEsc`,
+    `HoraEntrada_ViolEsc`,
+    `HoraClase_ViolEsc`,
+    `HoraRecreo_ViolEsc`,
+    `HoraSalida_ViolEsc`,
+    `VP_EJERCIDA`,
+    `VF_EJERCIDA`,
+    `VP_o_VF_E`,
+    `VP_VF_E`,
+    `VP_VF_VS_E`,
+    `VP_o_VF_EJERCIDA`,
+    `INDICADOR_8_3_9`,
+    `VP_o_VF_ESCUELA`,
+    `Solap_VP_VF_E__Coexistencia`,
+    `VS_HOGAR`,
+    `VP_VF_VS_HOGAR`,
+    `VP_o_VF_o_VS_HOGAR`,
+    `PV_hogar_escuela1`,
+    `PV_hogar_escuela`,
+    `PV_VP_hogar_escuela`,
+    `PV_VF_hogar_escuela`,
+    `PV_VP_hogar_VF_escuela`,
+    `PV_VF_hogar_VP_escuela`,
+    `PV_VP_VF_hogar_escuela`,
+    `PV_VP_VF_hogar_escuela_VS`,
+    `PV_indice_acum`,
+    `PV_indice_acum_VS`,
+    `CONS_ALGUNA`,
+    `CONS_NUM_CONSECUENCIAS`,
+    `CONS_ATENCION_SALUD`
+  FROM ${ref("analytical_crs04_adolescents")}
+),
+candidate AS (
+  SELECT ID, COLEGIAL_ID,
+    `C3P233_1_1`,
+    `C3P233_1A_1`,
+    `C3P233_2_1`,
+    `C3P233_2A_1`,
+    `C3P233_3_1`,
+    `LugarSalon_ViolEsc`,
+    `LugarPatio_ViolEsc`,
+    `LugarBano_ViolEsc`,
+    `LugarPasilloEscalera_ViolEsc`,
+    `LugarOtro_ViolEsc`,
+    `LugarFueraColegio_ViolEsc`,
+    `HoraEntrada_ViolEsc`,
+    `HoraClase_ViolEsc`,
+    `HoraRecreo_ViolEsc`,
+    `HoraSalida_ViolEsc`,
+    `VP_EJERCIDA`,
+    `VF_EJERCIDA`,
+    `VP_o_VF_E`,
+    `VP_VF_E`,
+    `VP_VF_VS_E`,
+    `VP_o_VF_EJERCIDA`,
+    `INDICADOR_8_3_9`,
+    `VP_o_VF_ESCUELA`,
+    `Solap_VP_VF_E__Coexistencia`,
+    `VS_HOGAR`,
+    `VP_VF_VS_HOGAR`,
+    `VP_o_VF_o_VS_HOGAR`,
+    `PV_hogar_escuela1`,
+    `PV_hogar_escuela`,
+    `PV_VP_hogar_escuela`,
+    `PV_VF_hogar_escuela`,
+    `PV_VP_hogar_VF_escuela`,
+    `PV_VF_hogar_VP_escuela`,
+    `PV_VP_VF_hogar_escuela`,
+    `PV_VP_VF_hogar_escuela_VS`,
+    `PV_indice_acum`,
+    `PV_indice_acum_VS`,
+    `CONS_ALGUNA`,
+    `CONS_NUM_CONSECUENCIAS`,
+    `CONS_ATENCION_SALUD`
+  FROM ${ref("analytical_crs04_stage35_v0_5")}
+)
+SELECT COALESCE(candidate.ID, reference.ID) AS ID,
+  COALESCE(candidate.COLEGIAL_ID, reference.COLEGIAL_ID) AS COLEGIAL_ID
+FROM candidate FULL OUTER JOIN reference USING (ID, COLEGIAL_ID)
+WHERE candidate.ID IS NULL OR reference.ID IS NULL OR candidate.`C3P233_1_1` IS DISTINCT FROM reference.`C3P233_1_1`
+  OR candidate.`C3P233_1A_1` IS DISTINCT FROM reference.`C3P233_1A_1`
+  OR candidate.`C3P233_2_1` IS DISTINCT FROM reference.`C3P233_2_1`
+  OR candidate.`C3P233_2A_1` IS DISTINCT FROM reference.`C3P233_2A_1`
+  OR candidate.`C3P233_3_1` IS DISTINCT FROM reference.`C3P233_3_1`
+  OR candidate.`LugarSalon_ViolEsc` IS DISTINCT FROM reference.`LugarSalon_ViolEsc`
+  OR candidate.`LugarPatio_ViolEsc` IS DISTINCT FROM reference.`LugarPatio_ViolEsc`
+  OR candidate.`LugarBano_ViolEsc` IS DISTINCT FROM reference.`LugarBano_ViolEsc`
+  OR candidate.`LugarPasilloEscalera_ViolEsc` IS DISTINCT FROM reference.`LugarPasilloEscalera_ViolEsc`
+  OR candidate.`LugarOtro_ViolEsc` IS DISTINCT FROM reference.`LugarOtro_ViolEsc`
+  OR candidate.`LugarFueraColegio_ViolEsc` IS DISTINCT FROM reference.`LugarFueraColegio_ViolEsc`
+  OR candidate.`HoraEntrada_ViolEsc` IS DISTINCT FROM reference.`HoraEntrada_ViolEsc`
+  OR candidate.`HoraClase_ViolEsc` IS DISTINCT FROM reference.`HoraClase_ViolEsc`
+  OR candidate.`HoraRecreo_ViolEsc` IS DISTINCT FROM reference.`HoraRecreo_ViolEsc`
+  OR candidate.`HoraSalida_ViolEsc` IS DISTINCT FROM reference.`HoraSalida_ViolEsc`
+  OR candidate.`VP_EJERCIDA` IS DISTINCT FROM reference.`VP_EJERCIDA`
+  OR candidate.`VF_EJERCIDA` IS DISTINCT FROM reference.`VF_EJERCIDA`
+  OR candidate.`VP_o_VF_E` IS DISTINCT FROM reference.`VP_o_VF_E`
+  OR candidate.`VP_VF_E` IS DISTINCT FROM reference.`VP_VF_E`
+  OR candidate.`VP_VF_VS_E` IS DISTINCT FROM reference.`VP_VF_VS_E`
+  OR candidate.`VP_o_VF_EJERCIDA` IS DISTINCT FROM reference.`VP_o_VF_EJERCIDA`
+  OR candidate.`INDICADOR_8_3_9` IS DISTINCT FROM reference.`INDICADOR_8_3_9`
+  OR candidate.`VP_o_VF_ESCUELA` IS DISTINCT FROM reference.`VP_o_VF_ESCUELA`
+  OR candidate.`Solap_VP_VF_E__Coexistencia` IS DISTINCT FROM reference.`Solap_VP_VF_E__Coexistencia`
+  OR candidate.`VS_HOGAR` IS DISTINCT FROM reference.`VS_HOGAR`
+  OR candidate.`VP_VF_VS_HOGAR` IS DISTINCT FROM reference.`VP_VF_VS_HOGAR`
+  OR candidate.`VP_o_VF_o_VS_HOGAR` IS DISTINCT FROM reference.`VP_o_VF_o_VS_HOGAR`
+  OR candidate.`PV_hogar_escuela1` IS DISTINCT FROM reference.`PV_hogar_escuela1`
+  OR candidate.`PV_hogar_escuela` IS DISTINCT FROM reference.`PV_hogar_escuela`
+  OR candidate.`PV_VP_hogar_escuela` IS DISTINCT FROM reference.`PV_VP_hogar_escuela`
+  OR candidate.`PV_VF_hogar_escuela` IS DISTINCT FROM reference.`PV_VF_hogar_escuela`
+  OR candidate.`PV_VP_hogar_VF_escuela` IS DISTINCT FROM reference.`PV_VP_hogar_VF_escuela`
+  OR candidate.`PV_VF_hogar_VP_escuela` IS DISTINCT FROM reference.`PV_VF_hogar_VP_escuela`
+  OR candidate.`PV_VP_VF_hogar_escuela` IS DISTINCT FROM reference.`PV_VP_VF_hogar_escuela`
+  OR candidate.`PV_VP_VF_hogar_escuela_VS` IS DISTINCT FROM reference.`PV_VP_VF_hogar_escuela_VS`
+  OR candidate.`PV_indice_acum` IS DISTINCT FROM reference.`PV_indice_acum`
+  OR candidate.`PV_indice_acum_VS` IS DISTINCT FROM reference.`PV_indice_acum_VS`
+  OR candidate.`CONS_ALGUNA` IS DISTINCT FROM reference.`CONS_ALGUNA`
+  OR candidate.`CONS_NUM_CONSECUENCIAS` IS DISTINCT FROM reference.`CONS_NUM_CONSECUENCIAS`
+  OR candidate.`CONS_ATENCION_SALUD` IS DISTINCT FROM reference.`CONS_ATENCION_SALUD`

@@ -1,0 +1,214 @@
+config {
+  type: "table",
+  schema: dataform.projectConfig.vars.analyticalDataset,
+  name: "analytical_crs04_stage35_v0_5",
+  description: "Stage 03 section 3.5 SPSS-authority shadow model.",
+  tags: ["stage03", "analytical", "stage35", "shadow"]
+}
+
+WITH
+base AS (
+  SELECT
+    cleaned.`ID`,
+    cleaned.`COLEGIAL_ID`,
+    cleaned.`FACTOR_ALUMNOS`,
+    cleaned.`CCDD`,
+    cleaned.`SEXO`,
+    cleaned.`AREA`,
+    cleaned.`C3P231_1`,
+    cleaned.`C3P231_1E1`,
+    cleaned.`C3P231_1E2`,
+    cleaned.`C3P231_1E3`,
+    cleaned.`C3P231_1E4`,
+    cleaned.`C3P231_2`,
+    cleaned.`C3P231_2E1`,
+    cleaned.`C3P231_2E2`,
+    cleaned.`C3P231_2E3`,
+    cleaned.`C3P231_2E4`,
+    cleaned.`C3P231_3`,
+    cleaned.`C3P231_3E1`,
+    cleaned.`C3P231_3E2`,
+    cleaned.`C3P231_3E3`,
+    cleaned.`C3P231_3E4`,
+    cleaned.`C3P231_4`,
+    cleaned.`C3P231_4E1`,
+    cleaned.`C3P231_4E2`,
+    cleaned.`C3P231_4E3`,
+    cleaned.`C3P231_4E4`,
+    cleaned.`C3P231_5`,
+    cleaned.`C3P231_5E1`,
+    cleaned.`C3P231_5E2`,
+    cleaned.`C3P231_5E3`,
+    cleaned.`C3P231_5E4`,
+    cleaned.`C3P231_6`,
+    cleaned.`C3P233A`,
+    cleaned.`C3P233_1`,
+    cleaned.`C3P233_1A`,
+    cleaned.`C3P233_2`,
+    cleaned.`C3P233_2A`,
+    cleaned.`C3P233_3`,
+    cleaned.`C3P243_1`,
+    cleaned.`C3P243_2`,
+    cleaned.`C3P243_3`,
+    cleaned.`C3P243_4`,
+    cleaned.`C3P243_5`,
+    cleaned.`C3P243_6`,
+    cleaned.`C3P243_T1`,
+    cleaned.`C3P243_T2`,
+    cleaned.`C3P243_T3`,
+    cleaned.`C3P243_T4`,
+    cleaned.`C3P243_T5`,
+    cleaned.`C3P243_T6`,
+    household.`VP_HOGAR` AS `VP_HOGAR`,
+    household.`VF_HOGAR` AS `VF_HOGAR`,
+    household.`VP_o_VF_HOGAR` AS `VP_o_VF_HOGAR`,
+    school.`VP_ESCUELA` AS `VP_ESCUELA`,
+    school.`VF_ESCUELA` AS `VF_ESCUELA`,
+    sexual.`VS_E` AS `VS_E`,
+    sexual.`VS_H` AS `VS_H`,
+    sexual.`VS_12M` AS `VS_12M`
+  FROM ${ref("cleaned_crs04_merged_adolescents_v0_5")} AS cleaned
+  LEFT JOIN ${ref("analytical_crs04_stage32_v0_5")} AS household
+    USING (ID, COLEGIAL_ID)
+  LEFT JOIN ${ref("analytical_crs04_stage33_v0_5")} AS school
+    USING (ID, COLEGIAL_ID)
+  LEFT JOIN ${ref("analytical_crs04_stage34_v0_5")} AS sexual
+    USING (ID, COLEGIAL_ID)
+),
+
+block_01_336_escuela_contexto AS (
+  SELECT
+    *,
+    CASE WHEN C3P233_1 = 1 AND C3P233A = 1 THEN 1 ELSE 0 END AS `C3P233_1_1`,
+    CASE WHEN C3P233_1A = 1 AND C3P233A = 1 THEN 1 ELSE 0 END AS `C3P233_1A_1`,
+    CASE WHEN C3P233_2 = 1 AND C3P233A = 1 THEN 1 ELSE 0 END AS `C3P233_2_1`,
+    CASE WHEN C3P233_2A = 1 AND C3P233A = 1 THEN 1 ELSE 0 END AS `C3P233_2A_1`,
+    CASE WHEN C3P233_3 = 1 AND C3P233A = 1 THEN 1 ELSE 0 END AS `C3P233_3_1`,
+    CASE WHEN C3P231_1 = 1 THEN 1 ELSE 0 END AS `LugarSalon_ViolEsc`,
+    CASE WHEN C3P231_2 = 1 THEN 1 ELSE 0 END AS `LugarPatio_ViolEsc`,
+    CASE WHEN C3P231_3 = 1 THEN 1 ELSE 0 END AS `LugarBano_ViolEsc`,
+    CASE WHEN C3P231_4 = 1 THEN 1 ELSE 0 END AS `LugarPasilloEscalera_ViolEsc`,
+    CASE WHEN C3P231_5 = 1 THEN 1 ELSE 0 END AS `LugarOtro_ViolEsc`,
+    CASE WHEN C3P231_6 = 1 THEN 1 ELSE 0 END AS `LugarFueraColegio_ViolEsc`,
+    CASE WHEN (`C3P231_1E1` = 1 OR `C3P231_2E1` = 1 OR `C3P231_3E1` = 1 OR `C3P231_4E1` = 1 OR `C3P231_5E1` = 1) THEN 1 ELSE 0 END AS `HoraEntrada_ViolEsc`,
+    CASE WHEN (`C3P231_1E2` = 1 OR `C3P231_2E2` = 1 OR `C3P231_3E2` = 1 OR `C3P231_4E2` = 1 OR `C3P231_5E2` = 1) THEN 1 ELSE 0 END AS `HoraClase_ViolEsc`,
+    CASE WHEN (`C3P231_1E3` = 1 OR `C3P231_2E3` = 1 OR `C3P231_3E3` = 1 OR `C3P231_4E3` = 1 OR `C3P231_5E3` = 1) THEN 1 ELSE 0 END AS `HoraRecreo_ViolEsc`,
+    CASE WHEN (`C3P231_1E4` = 1 OR `C3P231_2E4` = 1 OR `C3P231_3E4` = 1 OR `C3P231_4E4` = 1 OR `C3P231_5E4` = 1) THEN 1 ELSE 0 END AS `HoraSalida_ViolEsc`
+  FROM base
+),
+
+block_02_336_escuela_ejercida AS (
+  SELECT
+    *,
+    CASE WHEN (`C3P233_2_1` = 1 OR `C3P233_2A_1` = 1 OR `C3P233_3_1` = 1) THEN 1 ELSE 0 END AS `VP_EJERCIDA`,
+    CASE WHEN (`C3P233_1_1` = 1 OR `C3P233_1A_1` = 1) THEN 1 ELSE 0 END AS `VF_EJERCIDA`
+  FROM block_01_336_escuela_contexto
+),
+
+block_03_33_escuela_combinaciones AS (
+  SELECT
+    *,
+    CASE WHEN VP_ESCUELA = 1 OR VF_ESCUELA = 1 THEN 1 ELSE 0 END AS `VP_o_VF_E`,
+    CASE WHEN VP_ESCUELA = 1 AND VF_ESCUELA = 1 THEN 1 ELSE 0 END AS `VP_VF_E`,
+    CASE WHEN VP_ESCUELA = 1 AND VF_ESCUELA = 1 AND VS_E = 1 THEN 1 ELSE 0 END AS `VP_VF_VS_E`,
+    CASE WHEN VP_EJERCIDA = 1 OR VF_EJERCIDA = 1 THEN 1 ELSE 0 END AS `VP_o_VF_EJERCIDA`,
+    CASE WHEN VP_ESCUELA = 1 OR VF_ESCUELA = 1 OR VS_E = 1 THEN 1 ELSE 0 END AS `INDICADOR_8_3_9`
+  FROM block_02_336_escuela_ejercida
+),
+
+block_04_33_escuela_aliases_publicados AS (
+  SELECT
+    *,
+    VP_o_VF_E AS `VP_o_VF_ESCUELA`,
+    VP_VF_E AS `Solap_VP_VF_E__Coexistencia`
+  FROM block_03_33_escuela_combinaciones
+),
+
+block_05_32_hogar_tres_formas AS (
+  SELECT
+    *,
+    VS_H AS `VS_HOGAR`,
+    CASE WHEN VP_HOGAR = 1 AND VF_HOGAR = 1 AND VS_H = 1 THEN 1 ELSE 0 END AS `VP_VF_VS_HOGAR`,
+    CASE WHEN VP_HOGAR = 1 OR VF_HOGAR = 1 OR VS_H = 1 THEN 1 ELSE 0 END AS `VP_o_VF_o_VS_HOGAR`
+  FROM block_04_33_escuela_aliases_publicados
+),
+
+block_06_35_acumulacion AS (
+  SELECT
+    *,
+    CASE WHEN VP_o_VF_o_VS_HOGAR = 1 AND INDICADOR_8_3_9 = 1 THEN 1 ELSE 0 END AS `PV_hogar_escuela1`,
+    CASE WHEN VP_o_VF_HOGAR = 1 AND VP_o_VF_E = 1 THEN 1 ELSE 0 END AS `PV_hogar_escuela`,
+    CASE WHEN VP_HOGAR = 1 AND VP_ESCUELA = 1 THEN 1 ELSE 0 END AS `PV_VP_hogar_escuela`,
+    CASE WHEN VF_HOGAR = 1 AND VF_ESCUELA = 1 THEN 1 ELSE 0 END AS `PV_VF_hogar_escuela`,
+    CASE WHEN VP_HOGAR = 1 AND VF_ESCUELA = 1 THEN 1 ELSE 0 END AS `PV_VP_hogar_VF_escuela`,
+    CASE WHEN VF_HOGAR = 1 AND VP_ESCUELA = 1 THEN 1 ELSE 0 END AS `PV_VF_hogar_VP_escuela`,
+    CASE WHEN VP_HOGAR = 1 AND VF_HOGAR = 1 AND VP_ESCUELA = 1 AND VF_ESCUELA = 1 THEN 1 ELSE 0 END AS `PV_VP_VF_hogar_escuela`,
+    CASE WHEN VP_HOGAR = 1 AND VF_HOGAR = 1 AND VP_ESCUELA = 1 AND VF_ESCUELA = 1 AND VS_12M = 1 THEN 1 ELSE 0 END AS `PV_VP_VF_hogar_escuela_VS`,
+    COALESCE(VP_HOGAR, 0) + COALESCE(VF_HOGAR, 0) + COALESCE(VP_ESCUELA, 0) + COALESCE(VF_ESCUELA, 0) AS `PV_indice_acum`,
+    COALESCE(VP_HOGAR, 0) + COALESCE(VF_HOGAR, 0) + COALESCE(VP_ESCUELA, 0) + COALESCE(VF_ESCUELA, 0) + COALESCE(VS_12M, 0) AS `PV_indice_acum_VS`
+  FROM block_05_32_hogar_tres_formas
+),
+
+block_07_354_consecuencias_base AS (
+  SELECT
+    *,
+    CASE WHEN NOT (C3P243_1 IS NOT NULL AND C3P243_2 IS NOT NULL AND C3P243_3 IS NOT NULL AND C3P243_4 IS NOT NULL AND C3P243_5 IS NOT NULL AND C3P243_6 IS NOT NULL) THEN NULL WHEN (`C3P243_1` = 1 OR `C3P243_2` = 1 OR `C3P243_3` = 1 OR `C3P243_4` = 1 OR `C3P243_5` = 1 OR `C3P243_6` = 1) THEN 1 ELSE 0 END AS `CONS_ALGUNA`,
+    CASE WHEN NOT (C3P243_1 IS NOT NULL AND C3P243_2 IS NOT NULL AND C3P243_3 IS NOT NULL AND C3P243_4 IS NOT NULL AND C3P243_5 IS NOT NULL AND C3P243_6 IS NOT NULL) THEN NULL ELSE CASE WHEN C3P243_1 = 1 THEN 1 ELSE 0 END + CASE WHEN C3P243_2 = 1 THEN 1 ELSE 0 END + CASE WHEN C3P243_3 = 1 THEN 1 ELSE 0 END + CASE WHEN C3P243_4 = 1 THEN 1 ELSE 0 END + CASE WHEN C3P243_5 = 1 THEN 1 ELSE 0 END + CASE WHEN C3P243_6 = 1 THEN 1 ELSE 0 END END AS `CONS_NUM_CONSECUENCIAS`
+  FROM block_06_35_acumulacion
+),
+
+block_08_354_consecuencias_salud AS (
+  SELECT
+    *,
+    CASE WHEN CONS_ALGUNA != 1 OR CONS_ALGUNA IS NULL THEN NULL WHEN (`C3P243_T1` = 1 OR `C3P243_T2` = 1 OR `C3P243_T3` = 1 OR `C3P243_T4` = 1 OR `C3P243_T5` = 1 OR `C3P243_T6` = 1) THEN 1 ELSE 0 END AS `CONS_ATENCION_SALUD`
+  FROM block_07_354_consecuencias_base
+)
+
+SELECT
+  `ID`,
+  `COLEGIAL_ID`,
+  `FACTOR_ALUMNOS`,
+  `CCDD`,
+  `SEXO`,
+  `AREA`,
+  `C3P233_1_1`,
+  `C3P233_1A_1`,
+  `C3P233_2_1`,
+  `C3P233_2A_1`,
+  `C3P233_3_1`,
+  `LugarSalon_ViolEsc`,
+  `LugarPatio_ViolEsc`,
+  `LugarBano_ViolEsc`,
+  `LugarPasilloEscalera_ViolEsc`,
+  `LugarOtro_ViolEsc`,
+  `LugarFueraColegio_ViolEsc`,
+  `HoraEntrada_ViolEsc`,
+  `HoraClase_ViolEsc`,
+  `HoraRecreo_ViolEsc`,
+  `HoraSalida_ViolEsc`,
+  `VP_EJERCIDA`,
+  `VF_EJERCIDA`,
+  `VP_o_VF_E`,
+  `VP_VF_E`,
+  `VP_VF_VS_E`,
+  `VP_o_VF_EJERCIDA`,
+  `INDICADOR_8_3_9`,
+  `VP_o_VF_ESCUELA`,
+  `Solap_VP_VF_E__Coexistencia`,
+  `VS_HOGAR`,
+  `VP_VF_VS_HOGAR`,
+  `VP_o_VF_o_VS_HOGAR`,
+  `PV_hogar_escuela1`,
+  `PV_hogar_escuela`,
+  `PV_VP_hogar_escuela`,
+  `PV_VF_hogar_escuela`,
+  `PV_VP_hogar_VF_escuela`,
+  `PV_VF_hogar_VP_escuela`,
+  `PV_VP_VF_hogar_escuela`,
+  `PV_VP_VF_hogar_escuela_VS`,
+  `PV_indice_acum`,
+  `PV_indice_acum_VS`,
+  `CONS_ALGUNA`,
+  `CONS_NUM_CONSECUENCIAS`,
+  `CONS_ATENCION_SALUD`
+FROM block_08_354_consecuencias_salud
