@@ -8,12 +8,13 @@ after the closure PR is merged and the final Dataform run evidence is attached.
 
 ## Methodological review
 
-- Reviewer: _pending_
-- Role/organization: _pending_
-- Review date: _pending_
-- Decision: `PENDING / APPROVED / CHANGES_REQUESTED`
-- Scope reviewed: _pending_
-- Conditions or observations: _pending_
+- Reviewer: Rita Ricaldi
+- Role/organization: Independent Methodological Supervisor — Medical Doctor and Biostatistician
+- Review date: 2026-08-24
+- Decision: `APPROVED`
+- Scope reviewed: Survey design, sampling weight, indicator definitions and denominators, SPSS–R parity, treatment of NULL and skip logic, official block 3.6 help-seeking, and documented discrepancy VS_12M.
+- Conditions or observations: The documented discrepancies were reviewed and considered methodologically resolved. No unresolved methodological discrepancies remain. This approval applies to the Stage 03 methodological validation and does not constitute authorization for institutional publication.
+
 
 ## Stage 04 handoff
 
