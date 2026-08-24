@@ -19,7 +19,7 @@
 | Strict SPSS–R parity | 3,013/3,014 |
 | Documented exceptions | 1: `VS_12M — Nacional — Total` |
 | Survey design | 25 strata; 1,115 PSUs; 1,090 df |
-| GitHub collaboration | PRs #25–#34 merged; CI gates green |
+| GitHub collaboration | PRs #25–#35 and #40 merged; CI gates green |
 | Security review | No microdata or credentials intentionally versioned |
 
 ## Closure-extension gates
@@ -38,14 +38,15 @@ reporting assertions and operational lineage tables.
 
 ## Human gates
 
-The following decisions cannot be inferred from tests:
+The following decisions are now recorded:
 
-- [ ] methodological supervisor signs the closure;
-- [ ] Stage 04 owner accepts the handoff;
-- [ ] publication/cutover decision is recorded separately.
+- [x] Methodological supervisor signed the closure through PR #40.
+- [x] Stage 04 owner accepted the reporting contract for shadow development.
+- [x] Publication decision recorded as `REMAIN_SHADOW`; V0 remains official.
 
-Until those boxes are completed, V0 remains official and V0.5 remains a
-validated shadow release.
+With these gates complete, V0.5 is approved for controlled shadow use. V0
+remains the official release and V0.5 is not authorized for institutional
+publication or cutover.
 
 ## Evidence index
 
