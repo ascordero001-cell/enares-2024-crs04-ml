@@ -2,7 +2,7 @@
 
 - Technical release: `stage03-v0.5-cloud-full`
 - Release commit: `3885fcd344d4d21a7311ca49e3d11f5c0509905f`
-- Report status: `TECHNICAL_PASS — AWAITING CLOSURE PR`
+- Report status: `TECHNICAL_PASS — CLOSURE PR MERGED`
 - Promotion status: `SHADOW — NOT PUBLISHED`
 
 ## Completed gates
@@ -19,7 +19,7 @@
 | Strict SPSS–R parity | 3,013/3,014 |
 | Documented exceptions | 1: `VS_12M — Nacional — Total` |
 | Survey design | 25 strata; 1,115 PSUs; 1,090 df |
-| GitHub collaboration | PRs #25–#33 merged; CI gates green |
+| GitHub collaboration | PRs #25–#34 merged; CI gates green |
 | Security review | No microdata or credentials intentionally versioned |
 
 ## Closure-extension gates
@@ -34,7 +34,7 @@ reporting assertions and operational lineage tables.
 - [x] `pipeline_runs` is created in `enares2024_crs04_ops`;
 - [x] `validation_results` is created in `enares2024_crs04_ops`;
 - [x] ops tables are rerun with closure commit `b86bf9d`;
-- [ ] closure PR CI is green and merged.
+- [x] closure PR #34 CI is green and merged at `c6e643b`.
 
 ## Human gates
 
