@@ -1,0 +1,39 @@
+config {
+  type: "assertion",
+  schema: dataform.projectConfig.vars.opsDataset,
+  tags: ["stage03", "reporting", "survey_input", "full", "quality"]
+}
+
+WITH
+candidate AS (
+  SELECT * FROM ${ref("reporting_crs04_survey_input_v0_5")}
+),
+duplicate_keys AS (
+  SELECT ID, COLEGIAL_ID FROM candidate
+  GROUP BY ID, COLEGIAL_ID HAVING COUNT(*) > 1
+),
+schema_count AS (
+  SELECT COUNT(*) AS column_count
+  FROM `enares-2024-crs04.enares2024_crs04_outputs.INFORMATION_SCHEMA.COLUMNS`
+  WHERE table_name = "reporting_crs04_survey_input_v0_5"
+),
+checks AS (
+  SELECT "row_count" AS check_name, ABS(COUNT(*) - 18807) AS violation_count
+  FROM candidate HAVING COUNT(*) != 18807
+  UNION ALL
+  SELECT "null_keys", COUNTIF(ID IS NULL OR COLEGIAL_ID IS NULL)
+  FROM candidate HAVING COUNTIF(ID IS NULL OR COLEGIAL_ID IS NULL) > 0
+  UNION ALL
+  SELECT "duplicate_key_groups", COUNT(*) FROM duplicate_keys HAVING COUNT(*) > 0
+  UNION ALL
+  SELECT "invalid_design", COUNTIF(
+    CCDD IS NULL OR ID IS NULL OR ID_AULA IS NULL
+    OR FACTOR_ALUMNOS IS NULL OR FACTOR_ALUMNOS <= 0)
+  FROM candidate HAVING COUNTIF(
+    CCDD IS NULL OR ID IS NULL OR ID_AULA IS NULL
+    OR FACTOR_ALUMNOS IS NULL OR FACTOR_ALUMNOS <= 0) > 0
+  UNION ALL
+  SELECT "schema_column_count", ABS(column_count - 737)
+  FROM schema_count WHERE column_count != 737
+)
+SELECT * FROM checks

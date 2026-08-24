@@ -1,0 +1,20 @@
+config {
+  type: "table",
+  schema: dataform.projectConfig.vars.opsDataset,
+  name: "pipeline_runs",
+  description: "Stage 03 release-to-code lineage. Operational metadata only; no microdata.",
+  tags: ["stage03", "ops", "lineage", "release"]
+}
+
+SELECT
+  "${dataform.projectConfig.vars.runId}" AS run_id,
+  "stage03-v0.5-cloud-full" AS release_id,
+  "c9fb351f5dc1b09d7776dc8dedd65ad7471e4fc1fba5d2648daf58f4eba03d33" AS source_hash,
+  "${dataform.projectConfig.vars.gitCommitSha}" AS git_commit_sha,
+  "3885fcd344d4d21a7311ca49e3d11f5c0509905f" AS analytical_release_git_commit_sha,
+  "3.0.64" AS dataform_release,
+  TIMESTAMP("2026-08-23T23:33:18.972083Z") AS execution_started_at,
+  TIMESTAMP("2026-08-24T02:19:33Z") AS execution_finished_at,
+  "PASS_CON_EXCEPCION_DOCUMENTADA" AS validation_status,
+  "shadow" AS promotion_status,
+  "c9923719962cf2cdd172db33770bc4a1f56ee5305d15acb42a99417661edfda9" AS evidence_bundle_sha256
