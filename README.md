@@ -16,8 +16,8 @@ Este repositorio contiene código, notebooks, documentación técnica y evidenci
 - Stage 4: ML Modelling
 - Stage 5: Evaluation & Validation
 
-Stages 1 y 2 están aprobados. Stage 3 se encuentra en migración controlada
-desde notebooks V0 hacia una pipeline modular V0.5/V1 en Google Cloud.
+Stages 1 y 2 están aprobados. Stage 3 completó su validación técnica V0.5 en
+modo shadow y espera el cierre operativo y la aceptación formal de Stage 04.
 
 ---
 
@@ -184,22 +184,38 @@ Cada etapa debe producir:
 
 # Current Status
 
-Stages 1 and 2 están aprobados. Stage 3 se encuentra en migración controlada.
+Stages 1 y 2 están aprobados. Stage 3 tiene un release técnico V0.5 validado
+en shadow: `stage03-v0.5-cloud-full`.
 
 Completado:
 
-- baseline V0 etiquetada y registrada;
-- configuración independiente del entorno;
-- entorno Python local reproducible;
-- autenticación local con Google Cloud;
-- pruebas automáticas del cargador de configuración;
-- piloto V0.5 de acceso cloud en modo read-only.
+- baseline V0 preservada y etiquetada;
+- raw sources, llave, cardinalidad y colisiones validadas;
+- cleaned con 18,807 filas y 1,206 columnas;
+- bloques analíticos 3.1–3.6 con 730 outputs derivados;
+- analytical completo con 18,807 filas y 1,937 columnas;
+- 516 indicadores y 3,014/3,014 filas estadísticas validadas;
+- CI con `pytest` y compilación Dataform;
+- PRs de migración revisados y merged.
 
-En progreso:
+Completado en el cierre operativo:
 
-- contratos de tablas raw;
-- validación de llave y cardinalidad;
-- preparación de Dataform.
+- reporting completo con 18,807 filas y 737 columnas explícitas;
+- `ops.pipeline_runs` y `ops.validation_results`;
+- assertions de calidad y paridad reporting en verde.
+
+Pendiente antes de promoción:
+
+- merge y CI del PR de cierre;
+- aceptación metodológica y handoff formal a Stage 04;
+- decisión separada de publicación o cutover.
+
+Documentos de cierre:
+
+- `docs/stage03/stage03_data_contract.md`;
+- `docs/stage03/known_discrepancies.md`;
+- `docs/stage03/stage3_closure_report.md`;
+- `docs/stage03/stage04_handoff.md`.
 
 ---
 
@@ -231,7 +247,7 @@ No service-account keys or credential files should be stored in this repository.
 python -m pytest -q
 ```
 
-## V0.5 cloud pilot
+## V0.5 cloud validation
 
 Run:
 
@@ -245,8 +261,10 @@ using:
 Python (.venv ENARES CRS04)
 ```
 
-The pilot performs read-only checks for the required BigQuery datasets and raw
-tables. It does not read microdata rows or modify cloud resources.
+The configuration pilot performs read-only checks for the required BigQuery
+datasets and raw tables. The full shadow validation lives in
+`03B_ENARES_2024_cloud_full_survey_validation_v0_5.ipynb`; its generated
+respondent-level outputs remain in Drive and are not committed to GitHub.
 
 ## Version strategy
 

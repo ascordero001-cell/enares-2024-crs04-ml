@@ -1,0 +1,47 @@
+config {
+  type: "table",
+  schema: dataform.projectConfig.vars.opsDataset,
+  name: "validation_results",
+  description: "Stage 03 aggregate validation registry. Contains no respondent records.",
+  tags: ["stage03", "ops", "validation", "release"]
+}
+
+SELECT
+  "${dataform.projectConfig.vars.runId}" AS run_id,
+  "stage03-v0.5-cloud-full" AS release_id,
+  "raw_key_integrity" AS validation_name,
+  "PASS" AS validation_status,
+  "0 duplicate groups; 0 decimal keys; 0 unmatched rows" AS observed_result,
+  "docs/stage03/key_validation_summary.md" AS evidence_path
+UNION ALL
+SELECT
+  "${dataform.projectConfig.vars.runId}" AS run_id,
+  "stage03-v0.5-cloud-full" AS release_id,
+  "cleaned_v0_v0_5_parity" AS validation_name,
+  "PASS" AS validation_status,
+  "18807 rows; 1206 columns; 0 value differences" AS observed_result,
+  "docs/stage03/evidence/cleaned_v0_v0_5_validation_20260819.md" AS evidence_path
+UNION ALL
+SELECT
+  "${dataform.projectConfig.vars.runId}" AS run_id,
+  "stage03-v0.5-cloud-full" AS release_id,
+  "analytical_full_row_parity" AS validation_name,
+  "PASS" AS validation_status,
+  "18807 rows; 1937 columns; 0 value differences" AS observed_result,
+  "docs/stage03/evidence/stage03_full_row_parity_20260823.md" AS evidence_path
+UNION ALL
+SELECT
+  "${dataform.projectConfig.vars.runId}" AS run_id,
+  "stage03-v0.5-cloud-full" AS release_id,
+  "complex_survey_full_parity" AS validation_name,
+  "PASS_CON_EXCEPCION_DOCUMENTADA" AS validation_status,
+  "3014 validated; 3013 strict; 1 documented VS_12M exception" AS observed_result,
+  "docs/stage03/evidence/stage3_cloud_full_survey_pass_20260823.md" AS evidence_path
+UNION ALL
+SELECT
+  "${dataform.projectConfig.vars.runId}" AS run_id,
+  "stage03-v0.5-cloud-full" AS release_id,
+  "github_actions_ci" AS validation_name,
+  "PASS" AS validation_status,
+  "Python tests and Dataform compile gates green" AS observed_result,
+  "docs/stage03/evidence/ci_run_73_20260820.md" AS evidence_path
