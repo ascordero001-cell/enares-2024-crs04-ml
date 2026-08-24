@@ -1,7 +1,7 @@
 # Stage 03 Supervisor Acceptance
 
 - Release: `stage03-v0.5-cloud-full`
-- Decision: `PENDING`
+- Decision: `APPROVED`
 
 This file is a signature gate, not a self-approval mechanism. Complete it only
 after the closure PR is merged and the final Dataform run evidence is attached.
@@ -15,19 +15,20 @@ after the closure PR is merged and the final Dataform run evidence is attached.
 - Scope reviewed: Survey design, sampling weight, indicator definitions and denominators, SPSS–R parity, treatment of NULL and skip logic, official block 3.6 help-seeking, and documented discrepancy VS_12M.
 - Conditions or observations: The documented discrepancies were reviewed and considered methodologically resolved. No unresolved methodological discrepancies remain. This approval applies to the Stage 03 methodological validation and does not constitute authorization for institutional publication.
 
-
 ## Stage 04 handoff
 
-- Recipient: _pending_
-- Role: _pending_
-- Acceptance date: _pending_
-- Decision: `PENDING / ACCEPTED / REJECTED`
-- Notes: _pending_
+- Recipient: Ana Silvia Cordero Ricaldi
+- Role: Stage 04 Implementation Owner
+- Acceptance date: 2026-08-24
+- Decision: `ACCEPTED`
+- Notes: Stage 04 accepts the validated survey-input contract for shadow development and will not reconstruct Stage 03 indicators.
 
 ## Publication decision
 
-- Decision: `NOT_REQUESTED`
-- Approved release, if any: _none_
-- Effective date: _none_
+- Decision owner: Ana Silvia Cordero Ricaldi — Repository and Stage 04 Implementation Owner
+- Decision: `REMAIN_SHADOW`
+- Approved release, if any: *none*
+- Effective date: *none*
+- Rationale: V0.5 is technically and methodologically validated for shadow use. No institutional publication or cutover authorization has been requested. V0 remains official.
 
 Technical validation does not authorize publication or replacement of V0.
