@@ -1,237 +1,186 @@
-# ENARES 2024 CRS04 ML Pipeline
+# ENARES 2024 CRS04 — Reproducible Cloud Pipeline and Population Surveillance
 
-Repositorio técnico del proyecto **ENARES 2024 CRS04 ML Pipeline**, desarrollado como parte de un **Independent Undergraduate Research Apprenticeship** en Data Engineering aplicado a microdatos oficiales de INEI.
+[![CI](https://github.com/ascordero001-cell/enares-2024-crs04-ml/actions/workflows/ci.yml/badge.svg)](https://github.com/ascordero001-cell/enares-2024-crs04-ml/actions/workflows/ci.yml)
 
-El objetivo general del proyecto es construir una pipeline reproducible, trazable y auditable para procesar el **Cuestionario 4 de ENARES 2024**, correspondiente a adolescentes de 12 a 17 años.
+Pipeline reproducible, trazable y auditable para procesar el Cuestionario 4 de
+ENARES 2024, correspondiente a adolescentes de 12 a 17 años, y preparar una
+aplicación de vigilancia poblacional de la violencia contra niñas, niños y
+adolescentes.
 
----
+El proyecto forma parte de un **Independent Undergraduate Research
+Apprenticeship** en Data Engineering aplicado a microdatos oficiales del INEI.
 
-# Project Scope
+> **Estado de publicación:** V0 continúa siendo la versión oficial. La versión
+> `stage03-v0.5-cloud-full` completó sus gates técnicos, de reproducibilidad,
+> supervisión metodológica y handoff a Stage 04, pero permanece en
+> `SHADOW — NOT PUBLISHED`.
 
-Este repositorio contiene código, notebooks, documentación técnica y evidencia de trabajo para las primeras etapas del pipeline:
+## Estado del proyecto
 
-- Stage 1: Data Ingestion
-- Stage 2: Cloud Storage
-- Stage 3: ETL & Pre-processing
-- Stage 4: ML Modelling
-- Stage 5: Evaluation & Validation
+| Stage | Alcance | Estado |
+|---|---|---|
+| Stage 01 | Ingesta y preservación de fuentes oficiales | ✅ Aprobado |
+| Stage 02 | Almacenamiento y validación inicial en BigQuery | ✅ Aprobado |
+| Stage 03 | Limpieza, indicadores 3.1–3.6, diseño muestral y migración cloud | ✅ `PASS` en shadow |
+| Stage 04 | Aplicación cloud de vigilancia poblacional y publicación agregada controlada | 🔄 Handoff aceptado; desarrollo shadow |
+| Stage 05 | Evaluación, monitoreo y decisiones posteriores de publicación | ⏳ Pendiente |
 
-Stages 1 y 2 están aprobados. Stage 3 completó su validación técnica V0.5 en
-modo shadow y espera el cierre operativo y la aceptación formal de Stage 04.
+## Principios
 
----
+- La V0 se conserva; la migración no borra el trabajo previo.
+- SPSS y los contratos V0 congelados son la referencia metodológica.
+- Cada componente candidato se valida antes de cualquier promoción.
+- `0`, `NULL`, salto válido y no respuesta conservan significados distintos.
+- El bloque oficial **3.6 corresponde a búsqueda de ayuda**; los nombres
+  históricos 3.7 se preservan únicamente para trazabilidad.
+- Stage 04 consume resultados aprobados de Stage 03 y no recalcula indicadores.
+- GitHub contiene código, contratos y evidencia agregada; no contiene
+  microdatos ni credenciales.
 
-# Stage 1 - Data Ingestion
+## Arquitectura
 
-El objetivo de Stage 1 es construir una ingesta reproducible de los archivos originales de ENARES 2024 desde la fuente oficial de INEI hacia Google Drive.
+```text
+INEI / fuentes SPSS oficiales
+  -> Stage 01: ingesta, manifiestos y hashes
+  -> Stage 02: BigQuery raw
+  -> Stage 03: cleaned
+  -> Stage 03: analytical 3.1–3.6
+  -> reporting_crs04_survey_input_v0_5
+  -> validaciones Dataform + regresión SPSS–R
+  -> decisión humana y release shadow
+  -> Stage 04: resultados agregados
+  -> staging_dashboard_base
+  -> validación
+  -> staging_dashboard_indicators
+  -> validación
+  -> published.v_dashboard_current
+  -> aplicación Streamlit / Cloud Run
+```
 
-Al cierre de Stage 1 debe poder demostrarse:
+La futura aplicación consulta únicamente datos agregados, validados y
+publicados. No consulta `raw`, `cleaned`, `analytical` ni microdatos de
+respondentes.
 
-- de dónde salió cada archivo;
-- qué formato de descarga fue seleccionado;
-- cuándo fue descargado;
-- dónde quedó guardado;
-- cuál es su hash SHA-256;
-- qué archivos fueron extraídos;
-- qué módulo corresponde a CRS04;
-- qué metadata SPSS fue preservada;
-- si la ingesta puede reproducirse desde cero.
+## Resultados de Stage 03
 
----
+La migración cloud de Stage 03 cerró con:
 
-# Official Data Source
+- baseline V0 preservada mediante el tag `stage03-v0-baseline`;
+- release técnico `stage03-v0.5-cloud-full`;
+- 18,807 registros en la base integrada;
+- 1,206 columnas en la capa cleaned;
+- bloques analíticos 3.1–3.6 y 730 outputs derivados;
+- 1,937 columnas en la tabla analytical completa;
+- 516 indicadores y 3,014 filas estadísticas validadas;
+- 3,013/3,014 comparaciones SPSS–R con paridad estricta;
+- una excepción metodológica documentada: `VS_12M — Nacional — Total`;
+- contrato reporting de 18,807 filas y 737 columnas explícitas;
+- tablas operativas `pipeline_runs` y `validation_results`;
+- CI con `pytest` y compilación Dataform;
+- aprobación metodológica independiente mediante PR #40;
+- handoff, decisión `REMAIN_SHADOW` y cierre mediante PR #41.
 
-Fuente oficial:
+La excepción `VS_12M` utiliza el denominador poblacional completo de 18,807
+adolescentes, de acuerdo con la regla canónica documentada. No se ocultó ni se
+absorbió mediante una tolerancia mayor.
 
-<https://proyectos.inei.gob.pe/microdatos/>
+## Diseño muestral validado
 
-Para este proyecto se utiliza siempre el paquete **SPSS ZIP** de cada módulo ENARES 2024.
+El contrato validado para R survey es:
 
-El formato SPSS se selecciona porque los archivos `.sav` preservan metadata importante, incluyendo:
+```r
+svydesign(
+  ids = ~ID,
+  strata = ~CCDD,
+  weights = ~FACTOR_ALUMNOS,
+  nest = TRUE
+)
+```
 
-- variable labels;
-- value labels;
-- códigos originales;
-- estructura de variables;
-- documentación necesaria para interpretación reproducible.
+El diseño reproduce 25 estratos, 1,115 PSU y 1,090 grados de libertad.
+`ID_AULA` se conserva para auditoría, pero no se utiliza como segunda etapa del
+diseño validado.
 
-CSV y Stata pueden estar disponibles en INEI, pero no se usan como fuente primaria en este proyecto.
+## Módulos analíticos
 
----
+| Bloque | Contenido |
+|---|---|
+| 3.1 | Características, percepciones y normas |
+| 3.2 | Violencia psicológica y física en el hogar |
+| 3.3 | Violencia psicológica y física en la escuela |
+| 3.4 | Violencia sexual |
+| 3.5 | Polivictimización y acumulación de violencias |
+| 3.6 | Búsqueda y recepción de ayuda |
 
-# Repository Structure
+## Estructura del repositorio
 
 ```text
 enares-2024-crs04-ml/
-│
-├── README.md
-├── .gitignore
-├── requirements.txt
-│
-├── notebooks/
-│   └── 01_ingesta/
-│
+├── .github/workflows/       # Integración continua
+├── configs/                 # Configuración, indicadores y skip logic
+├── dataform/
+│   └── definitions/
+│       ├── sources/         # Fuentes raw y referencias V0
+│       ├── cleaned/         # Integración estructural
+│       ├── analytical/      # Bloques 3.1–3.6 y tabla completa
+│       ├── assertions/      # Calidad, dominio y paridad
+│       ├── reporting/       # Contrato de entrega a Stage 04
+│       └── ops/             # Linaje y resultados de validación
 ├── docs/
-│   └── supervision_notes/
-│
-├── outputs/
-│   └── logs/
-│       └── README.md
-│
-├── sql/
-├── src/
-└── config/
+│   ├── adr/                 # Architecture Decision Records
+│   └── stage03/             # Contratos, evidencia y cierre
+├── notebooks/
+│   ├── 01_ingesta/
+│   ├── 02_bigquery/
+│   └── 03_limpieza/
+├── scripts/                 # Generadores y utilidades reproducibles
+├── src/enares/              # Código Python modular
+├── tests/unit/              # Pruebas con datos sintéticos
+├── .env.example
+├── CONTRIBUTING.md
+├── Dockerfile
+├── requirements.txt
+└── requirements-dev.txt
 ```
 
----
+## Fuente oficial
 
-# Notebooks - Stage 1
+Los microdatos y documentos fuente proceden del portal oficial de microdatos
+del INEI:
 
-Los notebooks esperados para Stage 1 son:
+<https://proyectos.inei.gob.pe/microdatos/>
 
-```text
-notebooks/01_ingesta/
-├── 01_ENARES_2024_PROJECT_crear_estructura_drive.ipynb
-├── 02_ENARES_2024_STAGE1_data_ingestion_inei.ipynb
-├── 03_ENARES_2024_CRS04_identificar_modulo.ipynb
-└── 04_ENARES_2024_STAGE1_reporte_cierre.ipynb
-```
+El formato SPSS se conserva como fuente primaria porque mantiene etiquetas de
+variables, etiquetas de valores, códigos y metadatos necesarios para la
+interpretación reproducible.
 
----
+## Instalación local
 
-# Stage 1 Expected Outputs
+### Requisitos
 
-Los outputs principales de Stage 1 se almacenan en Google Drive, no en GitHub.
+- Git;
+- Python 3.12;
+- Google Cloud CLI;
+- Node.js para compilar Dataform;
+- acceso autorizado al proyecto cloud cuando corresponda.
 
-Outputs esperados:
-
-```text
-05Resultados/logs/
-├── ENARES_2024_PROJECT_drive_folder_ids.csv
-├── ENARES_2024_STAGE1_catalogo_modulos.csv
-├── ENARES_2024_CRS04_variables_stage1.csv
-├── ENARES_2024_CRS04_value_labels_stage1.csv
-├── ENARES_2024_CRS04_missing_codes_stage1.csv
-└── ENARES_2024_CRS04_validacion_stage1.csv
-
-01BasesDatosPrimarias/
-├── ENARES_2024_STAGE1_manifest_YYYYMMDD_HHMMSS.json
-└── ENARES_2024_STAGE1_log_ingesta_YYYYMMDD_HHMMSS.txt
-
-04CuestionariosInformes/reportes/
-├── ENARES_2024_CRS_identificacion_modulos.md
-└── ENARES_2024_STAGE1_ingestion_report.md
-```
-
----
-
-# Data Governance
-
-Este repositorio no contiene microdatos.
-
-Por razones de trazabilidad, privacidad y control de versiones, GitHub solo contiene código y documentación. Los datos originales y outputs con identificadores privados permanecen en Google Drive.
-
-No se debe subir a GitHub:
-
-- archivos `.sav`;
-- archivos `.zip`;
-- archivos `.csv` con microdatos o IDs privados;
-- archivos `.xlsx` con datos;
-- credenciales;
-- tokens;
-- archivos `.env`;
-- service accounts;
-- outputs con información sensible;
-- Google Drive file IDs no sanitizados.
-
----
-
-# Required Python Packages
-
-Las dependencias principales del proyecto son:
-
-- `google-api-python-client`
-- `google-auth`
-- `google-auth-oauthlib`
-- `google-auth-httplib2`
-- `requests`
-- `tqdm`
-- `pyreadstat`
-- `pandas`
-
-Estas dependencias están listadas en `requirements.txt`.
-
----
-
-# Reproducibility Principle
-
-La regla técnica del proyecto es:
-
-> Código que no se puede reproducir, auditar y explicar no cuenta como producto técnico.
-
-Cada etapa debe producir:
-
-- código ejecutable;
-- output verificable;
-- log;
-- manifest;
-- documentación;
-- decisión técnica;
-- commit en GitHub;
-- evidencia de revisión.
-
----
-
-# Current Status
-
-Stages 1 y 2 están aprobados. Stage 3 tiene un release técnico V0.5 validado
-en shadow: `stage03-v0.5-cloud-full`.
-
-Completado:
-
-- baseline V0 preservada y etiquetada;
-- raw sources, llave, cardinalidad y colisiones validadas;
-- cleaned con 18,807 filas y 1,206 columnas;
-- bloques analíticos 3.1–3.6 con 730 outputs derivados;
-- analytical completo con 18,807 filas y 1,937 columnas;
-- 516 indicadores y 3,014/3,014 filas estadísticas validadas;
-- CI con `pytest` y compilación Dataform;
-- PRs de migración revisados y merged.
-
-Completado en el cierre operativo:
-
-- reporting completo con 18,807 filas y 737 columnas explícitas;
-- `ops.pipeline_runs` y `ops.validation_results`;
-- assertions de calidad y paridad reporting en verde.
-
-Pendiente antes de promoción:
-
-- merge y CI del PR de cierre;
-- aceptación metodológica y handoff formal a Stage 04;
-- decisión separada de publicación o cutover.
-
-Documentos de cierre:
-
-- `docs/stage03/stage03_data_contract.md`;
-- `docs/stage03/known_discrepancies.md`;
-- `docs/stage03/stage3_closure_report.md`;
-- `docs/stage03/stage04_handoff.md`.
-
----
-
-# Stage 03 Local Setup
-
-## Environment
+### Clonar y crear el entorno
 
 ```powershell
+git clone https://github.com/ascordero001-cell/enares-2024-crs04-ml.git
+cd enares-2024-crs04-ml
 py -3.12 -m venv .venv
 .\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
 python -m pip install -r requirements-dev.txt
 ```
 
-## Google Cloud authentication
+### Configuración segura
 
-For a new computer or collaborator:
+Use `.env.example` y `configs/project.example.yaml` como plantillas. No guarde
+secretos ni rutas personales en archivos versionados.
+
+Para autenticación local:
 
 ```powershell
 gcloud init
@@ -239,53 +188,116 @@ gcloud auth application-default login
 gcloud auth application-default set-quota-project enares-2024-crs04
 ```
 
-No service-account keys or credential files should be stored in this repository.
+Cloud Run debe utilizar una cuenta de servicio con mínimo privilegio; no se
+versionan llaves de cuentas de servicio.
 
-## Tests
+## Validación reproducible
+
+### Pruebas Python
 
 ```powershell
 python -m pytest -q
 ```
 
-## V0.5 cloud validation
-
-Run:
-
-```text
-notebooks/03_limpieza/00_ENARES_2024_STAGE03_cloud_config_pilot_v0_5.ipynb
-```
-
-using:
-
-```text
-Python (.venv ENARES CRS04)
-```
-
-The configuration pilot performs read-only checks for the required BigQuery
-datasets and raw tables. The full shadow validation lives in
-`03B_ENARES_2024_cloud_full_survey_validation_v0_5.ipynb`; its generated
-respondent-level outputs remain in Drive and are not committed to GitHub.
-
-## Version strategy
-
-- V0: preserved baseline tagged `stage03-v0-baseline`.
-- V0.5: modular configuration, tests and read-only cloud pilots.
-- V1: approved Dataform/BigQuery pipeline promoted by component.
-
----
-
-# Stage 03 Local Setup
-
-## Environment
+### Compilación Dataform
 
 ```powershell
-py -3.12 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements-dev.txt
+npm install --global @dataform/cli@3.0.64
+dataform compile dataform
+```
 
-# Author
+El workflow `.github/workflows/ci.yml` ejecuta en un runner limpio:
+
+- verificación de sintaxis Python;
+- lint de notebooks como control informativo;
+- pruebas `pytest` bloqueantes;
+- compilación Dataform bloqueante.
+
+Este flujo se denomina **CI**. No se presenta como CI/CD mientras no exista un
+despliegue automático formalmente aprobado.
+
+## Documentación de cierre
+
+- [Stage 03 PASS](docs/stage03/stage3_pass.md)
+- [Reporte de cierre](docs/stage03/stage3_closure_report.md)
+- [Contrato de datos](docs/stage03/stage03_data_contract.md)
+- [Aceptación supervisora](docs/stage03/stage03_supervisor_acceptance.md)
+- [Handoff a Stage 04](docs/stage03/stage04_handoff.md)
+- [Discrepancias conocidas](docs/stage03/known_discrepancies.md)
+- [Decisiones de migración](docs/stage03/migration_decisions.md)
+- [ADRs](docs/adr/)
+- [Guía de contribución](CONTRIBUTING.md)
+
+## Versionado y promoción
+
+| Versión | Significado | Estado |
+|---|---|---|
+| V0 | Implementación histórica y versión oficial | Oficial |
+| V0.5 | Migración cloud validada por componentes | `SHADOW — NOT PUBLISHED` |
+| V1 | Eventual versión promovida tras una decisión futura de cutover | No aprobada |
+
+Un `PASS` técnico o metodológico no equivale a autorización institucional de
+publicación. La promoción requiere una decisión separada y registrada.
+
+## Stage 04 — siguiente etapa
+
+Stage 04 construirá progresivamente una aplicación de vigilancia poblacional
+con:
+
+- navegación por módulos 3.1–3.6;
+- desagregaciones autorizadas;
+- estimaciones, IC95 %, CV y N no ponderado;
+- reglas de calidad y supresión;
+- comparación app–BigQuery–V0;
+- Streamlit desplegado en Cloud Run;
+- datos sintéticos o agregados shadow durante el desarrollo;
+- publicación únicamente desde una vista agregada validada.
+
+Kubernetes, Airflow, Agent Platform y Looker Studio son laboratorios u opciones
+posteriores. No son requisitos para el MVP y pueden concluir como
+`APRENDIDO Y EVALUADO, PERO NO ADOPTADO`.
+
+## Gobernanza de datos
+
+No subir a GitHub:
+
+- archivos `.sav`, `.zip`, `.xlsx` o exports con microdatos;
+- identificadores personales o filas de respondentes;
+- credenciales, tokens, archivos `.env` o llaves privadas;
+- service-account keys;
+- outputs confidenciales;
+- rutas personales o identificadores de Drive no sanitizados.
+
+Los datos originales y outputs restringidos permanecen en ubicaciones cloud
+autorizadas. El repositorio público contiene únicamente código, documentación,
+contratos, pruebas sintéticas y evidencia agregada.
+
+## Contribución
+
+El flujo esperado es:
+
+```text
+Issue -> rama -> commits pequeños -> pull request -> CI -> revisión -> merge
+```
+
+Consulte [CONTRIBUTING.md](CONTRIBUTING.md) antes de proponer cambios. Las
+modificaciones metodológicas requieren revisión independiente y una ADR cuando
+cambian universos, denominadores, recodes, diseño muestral o reglas de
+publicación.
+
+## Autora
 
 **Ana Silvia Cordero Ricaldi**  
-BSc Computer Science, University of Sussex
+BSc Computer Science and Artificial Intelligence, University of Sussex  
+Independent undergraduate research apprenticeship
 
-Supervised independent research apprenticeship.
+Supervisión metodológica independiente registrada en la evidencia de cierre de
+Stage 03.
+
+## Alcance y descargo
+
+Este repositorio es un proyecto técnico y formativo. La versión V0.5 y la futura
+aplicación Stage 04 no constituyen por sí mismas una publicación oficial del
+INEI, UNICEF u otra institución. Cualquier uso institucional requiere revisión,
+autorización y gobernanza adicionales.
+
