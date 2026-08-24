@@ -37,9 +37,23 @@ Independent BigQuery metadata inspection confirmed:
 
 ## Traceability note
 
-The first operational materialization verified table shape and content. The
-ops models now require `runId` and `gitCommitSha` runtime variables. After the
-closure commit is created, `pipeline_runs` and `validation_results` must be
-rerun with that commit SHA before the closure PR is merged.
+The final operational materialization used:
+
+- `run_id`: `stage03-v0.5-cloud-full-20260823T233318Z`;
+- closure code SHA: `b86bf9dd31aabb39b3f0eb9d4819d61830c9e409`;
+- analytical release SHA: `3885fcd344d4d21a7311ca49e3d11f5c0509905f`.
+
+Final jobs:
+
+| Object | Final job ID | Bytes billed |
+|---|---|---:|
+| `pipeline_runs` | `dataform-80369824-1599-404c-99a6-0438295df062` | 0 B |
+| `validation_results` | `dataform-93e18fdf-49fa-4594-955a-8bfd68479d35` | 0 B |
+
+Independent inspection confirmed one pipeline-run row, five validation rows,
+the expected run ID, the exact closure SHA and only `PASS` or
+`PASS_CON_EXCEPCION_DOCUMENTADA` statuses. An earlier malformed PowerShell
+`--vars` invocation was detected by this inspection and overwritten; it is not
+the retained operational record.
 
 No V0 table was modified. V0.5 remains `shadow`.

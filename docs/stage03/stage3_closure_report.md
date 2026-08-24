@@ -33,7 +33,7 @@ reporting assertions and operational lineage tables.
 - [x] `survey_input_full_v0_parity` passes;
 - [x] `pipeline_runs` is created in `enares2024_crs04_ops`;
 - [x] `validation_results` is created in `enares2024_crs04_ops`;
-- [ ] ops tables are rerun with the closure commit SHA;
+- [x] ops tables are rerun with closure commit `b86bf9d`;
 - [ ] closure PR CI is green and merged.
 
 ## Human gates
