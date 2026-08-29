@@ -4,7 +4,7 @@
 **Repositorio objetivo:** [`ascordero001-cell/enares-2024-crs04-ml`](https://github.com/ascordero001-cell/enares-2024-crs04-ml)
 **Propietaria de implementación:** Ana Silvia Cordero Ricaldi
 **Fecha de verificación en vivo:** 2026-08-25
-**Documento que habilita:** `CRS04_Stage04_CORREGIDO_ver6_NUEVA_METODOLOGIA.md`
+**Documento que habilita:** `CRS04_STAGE04_CORREGIDO_VER6_NUEVA_METODOLOGIA.md`
 
 ## 1. Propósito
 
@@ -33,8 +33,8 @@ commits del repositorio.
 | CI posterior al cierre | **SUCCESS** | [GitHub Actions run 32765383664](https://github.com/ascordero001-cell/enares-2024-crs04-ml/actions/runs/32765383664) |
 | `main` revisado | `0a55a7192a381a0964d6a1fd7ceb32e7109e2e38`, merge de PR #42 | [commit](https://github.com/ascordero001-cell/enares-2024-crs04-ml/commit/0a55a7192a381a0964d6a1fd7ceb32e7109e2e38) |
 | Estado de publicación | **REMAIN_SHADOW**; V0 continúa oficial | documentos anteriores |
-| Protección de `main` | **PENDIENTE**; GitHub informa `protected=false` | configurar antes del primer PR de código Stage 04 |
-| Issues Stage 04 reales | **PENDIENTES**; no había issues abiertos al verificar | crearlos y registrar sus números reales |
+| Protección de `main` | **CONFIGURADA**; PR, aprobación independiente, CI y conversaciones resueltas son obligatorios | protección verificada antes del PR #52 |
+| Issues Stage 04 reales | **CREADOS Y MAPEADOS**; paraguas #43 y núcleo #44-#51 | `docs/stage04/issue_map.md` |
 
 ### Contrato Stage 03 ya aceptado
 
@@ -299,14 +299,14 @@ Stage 04, no condiciones previas para abrir el documento principal.
 - [x] CI del cierre en verde.
 - [x] KD-001 resuelta y ninguna discrepancia abierta.
 - [x] V0 continúa oficial y V0.5 permanece shadow.
-- [ ] Ana trabaja en el repositorio oficial y `main` está sincronizado.
-- [ ] Branch protection/ruleset funciona o la revisión manual alternativa está documentada.
-- [ ] Existe revisora independiente con acceso adecuado.
-- [ ] Issues Stage 04 fueron creados y `issue_map.md` contiene sus números/URLs reales.
+- [x] Ana trabaja en el repositorio oficial y `main` está sincronizado.
+- [x] Branch protection/ruleset funciona o la revisión manual alternativa está documentada.
+- [x] Existe revisora independiente con acceso adecuado.
+- [x] Issues Stage 04 fueron creados y `issue_map.md` contiene sus números/URLs reales.
 - [ ] El PR de bootstrap fue revisado, pasó CI y se fusionó.
-- [ ] `.gitignore` permite solo fixtures/golden sintéticos autorizados.
-- [ ] `pytest tests/test_naming.py -q` y la suite existente pasan desde el repo real.
-- [ ] No hay caches, credenciales, rutas personales, microdatos ni exports reales en el PR.
+- [x] `.gitignore` permite solo fixtures/golden sintéticos autorizados.
+- [x] `pytest tests/test_naming.py -q` y la suite existente pasan desde el repo real.
+- [x] No hay caches, credenciales, rutas personales, microdatos ni exports reales en el PR.
 - [ ] Se conocen las ubicaciones recuperables de scripts R, CSV V0 y diccionario.
 - [ ] Proyecto, región, presupuesto, responsable IAM y condiciones de parada están registrados.
 - [ ] Decisión `READY_FOR_STAGE04_SHADOW` firmada abajo.
@@ -327,14 +327,14 @@ PR bootstrap:
 CI run:
 Revisora:
 Pendientes no bloqueantes:
-Decisión: READY_FOR_STAGE04_SHADOW / NOT_READY
+Decisión: NOT_READY
 Firma o aprobación enlazada:
 ```
 
 ## 15. Primer paso después de READY
 
 Solo después de `READY_FOR_STAGE04_SHADOW`, Ana abre
-`CRS04_Stage04_CORREGIDO_ver6_NUEVA_METODOLOGIA.md` y comienza por:
+`CRS04_STAGE04_CORREGIDO_VER6_NUEVA_METODOLOGIA.md` y comienza por:
 
 1. `Paso 0 - Puerta de entrada Stage 03`;
 2. Sprint 04.1;
