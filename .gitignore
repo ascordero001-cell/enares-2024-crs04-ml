@@ -33,3 +33,13 @@ service_account*.json
 
 .ipynb_checkpoints/
 __pycache__/
+.pytest_cache/
+*.pyc
+
+# Stage 04: solo fixtures sintéticos y golden autorizados
+!app/data/
+!app/data/demo_*.csv
+!app/data/demo_*.manifest.json
+!tests/golden/
+!tests/golden/**/
+!tests/golden/**/*.json
