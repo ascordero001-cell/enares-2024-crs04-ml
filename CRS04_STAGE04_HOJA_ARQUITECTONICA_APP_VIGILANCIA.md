@@ -142,18 +142,22 @@ Ante un fallo:
 6. registrar el incidente y su evidencia;
 7. documentar la decisión de recuperación.
 
-## 9. Pendientes de autorización
+## 9. Registro de autorización cloud
 
 | Control | Estado |
 |---|---|
-| Proyecto GCP | Pendiente |
-| Región | Pendiente |
-| Presupuesto máximo | Pendiente |
-| Responsable de facturación | Pendiente |
-| Responsable IAM | Pendiente |
-| Cuenta de servicio definitiva | Pendiente |
+| Proyecto GCP | `enares-2024-crs04` |
+| Ubicación BigQuery | `US` |
+| Región operativa propuesta | `us-central1`; despliegue no autorizado |
+| Presupuesto máximo autorizado | `USD 0` |
+| Responsable de facturación | No asignado |
+| Responsable IAM | No asignado |
+| Cuenta de servicio prevista | `sa-enares-app-reader@enares-2024-crs04.iam.gserviceaccount.com`; no creada |
+| Estado cloud | `NOT_AUTHORIZED` |
 | URL `*.run.app` | No creada |
 | Publicación institucional | No autorizada |
 | Cutover | No autorizado |
 
-Estos pendientes bloquean la creación de recursos con coste, pero no bloquean la preparación documental del bootstrap.
+Con presupuesto autorizado de `USD 0` y sin responsables de facturación o IAM, queda prohibido
+crear recursos, cuentas de servicio, bindings IAM o despliegues cloud. Esta condición no bloquea
+la preparación documental, pero mantiene la decisión general en `NOT_READY`.
