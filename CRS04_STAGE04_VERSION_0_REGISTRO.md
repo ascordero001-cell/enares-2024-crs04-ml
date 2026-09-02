@@ -19,33 +19,60 @@ Los artefactos reales no se copian a GitHub. Las ubicaciones registradas deben s
 - Cada candidato debe conservar `source_sha256`.
 - Ningún artefacto se promueve sin paridad, calidad, privacidad y aprobación supervisora.
 
-## 3. Inventario V0 recuperado
+## 3. Inventario V0 recuperado para revisión
 
-El productor R y el CSV V0 son integrados y cubren transversalmente los módulos 3.1–3.6.
+El productor R y el CSV V0 son integrados y cubren transversalmente los módulos 3.1–3.6. La
+ubicación se expresa como ruta lógica dentro de Drive privado; no se registran enlaces públicos,
+identificadores de Drive ni rutas personales.
 
-| Módulos | Productor R V0 | Output CSV V0 | Ubicación recuperable | Propietaria/respaldo | Estado |
-|---|---|---|---|---|---|
-| 3.1–3.6 | `tabulados_crs04_v0.R` | `tabulados_crs04_long_v0.csv` | Drive privado — `ENARES_2024_PROJECT/04Outputs` | Ana / historial de Drive y copia local verificada | `RECOVERED_REFERENCE` |
+Metadatos y hashes de los objetos recuperables fueron contrastados el
+`2026-09-02T19:17:00Z`. La responsable registrada es Ana Silvia Cordero Ricaldi y el respaldo
+verificable es el historial de Drive. Esto deja el paquete listo para
+**revisión independiente**, no aprobado.
 
-### Hashes V0
+### 3.1 Objetos V0 oficiales en Drive privado
 
-| Artefacto recuperado | Nombre lógico | Evidencia | SHA-256 |
-|---|---|---|---|
-| `tabulados (4).R` | `tabulados_crs04_v0.R` | Script integrado; 10,879 bytes | `259E75A52E9A8299F5C79A55583C2E964D323E30BEAA39E175EE0E552EC5F5CC` |
-| `tabulados_crs04_long (5).csv` | `tabulados_crs04_long_v0.csv` | 3,274 filas; copia `(4)` idéntica | `919C3F39C7681E71596CBC904369FBE6CD0B85D02FC9DC4D0AF36DF7845EC8FC` |
-| `design_crs04.rds` | `design_crs04.rds` | Diseño survey recuperado | `D65CEA98CCF595E1D2E88287FEDB523CD60B606FD2982AA25CFFF156BC7AF5A6` |
-| `diccionario_indicadores (1).csv` | `diccionario_indicadores.csv` | 516 indicadores | `F5FD6979A19EBC9F510C307705B1E7DE12556A8F5A81DDBC566E97347337BD2C` |
+| Cobertura/rol | Nombre lógico | Nombre real en Drive | Ubicación recuperable | Tamaño o filas | SHA-256 calculado sobre el objeto en Drive | Responsable/respaldo | Estado |
+|---|---|---|---|---|---|---|---|
+| 3.1–3.6 / productor R | `tabulados_crs04_v0.R` | `tabulados.R` | `ENARES_2024_PROJECT/03Scripts_R` | 19,864 bytes | `A45A73F40D728713A52800653991EBDBFF4E80A0D9A6A8318E8D7BD266597C1D` | Ana / historial de Drive | `PENDING_INDEPENDENT_REVIEW` |
+| 3.1–3.6 / output agregado | `tabulados_crs04_long_v0.csv` | `tabulados_crs04_long.csv` | `ENARES_2024_PROJECT/04Outputs` | 576,919 bytes; 3,014 filas | `15B845DA4A886FDCF54A96D8B8471B6F6BE618AE18B43024488C6BD6B23D0BB4` | Ana / historial de Drive | `PENDING_INDEPENDENT_REVIEW` |
+| 3.1–3.6 / diseño survey | `design_crs04.rds` | `design_crs04.rds` | `ENARES_2024_PROJECT/04Outputs` | 6,166,714 bytes; 25 estratos, 1,115 PSU y 1,090 gl | `C9C7D96F053BE17606C9BDCED365ECC5E0016FF0294958E378CC62C747F46965` | Ana / historial de Drive | `PENDING_INDEPENDENT_REVIEW` |
+| 3.1–3.6 / diccionario | `diccionario_indicadores.csv` | `diccionario_indicadores.csv` | `ENARES_2024_PROJECT/04Outputs` | 354,668 bytes; 516 indicadores | `F5FD6979A19EBC9F510C307705B1E7DE12556A8F5A81DDBC566E97347337BD2C` | Ana / historial de Drive | `PENDING_INDEPENDENT_REVIEW` |
+
+Los objetos de Drive privado son la fuente autoritativa de este inventario. Los nombres con
+sufijos de descarga y los hashes de copias locales anteriores no se usan para identificar ni
+aprobar la baseline V0.
+
+### 3.2 Sintaxis SPSS de contraste por módulos 3.1–3.6
+
+Ubicación recuperable para todas las filas:
+`ENARES_2024_PROJECT/02Codigos/CodigoSpss`. Responsable y respaldo: Ana / historial de Drive.
+Estos archivos son sintaxis de referencia; no son microdatos y no se copian al repositorio.
+
+| Módulo | Nombre lógico | Nombre real en Drive | Tamaño | SHA-256 |
+|---|---|---|---:|---|
+| 3.1 | `crs04_3_1_caracteristicas_percepciones.sps` | `07_CRS04_3.1_Caracteristicas_violencia_Percepciones_ver6.sps` | 85,420 bytes | `324247276F3478B76823E0C9BBF92987334E4A470CD23B46A6093301D4A07473` |
+| 3.2 | `crs04_3_2_violencia_hogar.sps` | `08_CRS04_3.2 Violencia en el hogar_ver6.sps` | 113,379 bytes | `41B6EF03F8C39887D1E1B368A86455CB76B352C69289F843E283AE901AA71420` |
+| 3.2 | `crs04_3_2_desagregados.sps` | `08b_CRS04_3.2.6_desagregados.sps` | 23,273 bytes | `FFDE8F8DDEBB36FA8EA0DC5AC650CEC8607D9F6EE9384EE22D8487912EBD5165` |
+| 3.3 | `crs04_3_3_violencia_entorno_escolar.sps` | `09_CRS04_3.3 Violencia en el entorno escolar_ver4.sps` | 112,787 bytes | `8C20905424E8A21D6F61BFE89AF1AA6F9D31E3BE741C25E0ED88C771FBD8561E` |
+| 3.3 | `crs04_3_3_desagregados_b.sps` | `09b_CRS04_3.3_8_desagregados.sps` | 22,763 bytes | `1C64AFF41A15DF8CDAFF021159649E796F9549FB5A6A1E3E165382868DF8C488` |
+| 3.3 | `crs04_3_3_desagregados_c.sps` | `09c_CRS04_3.3_8_desagregados.sps` | 21,698 bytes | `B74D1BEE4B204C7B5FB4706AE95BA242457E9904947FF6F2E20F5FBFB7C4B305` |
+| 3.4 | `crs04_3_4_violencia_sexual_12_17.sps` | `10_CRS04_3.4 Violencia sexual en adolescentes de 12 a 17 años_ver4.sps` | 79,191 bytes | `14468032D9A9FBC4E6D12AA6E7303542DDAC093A9A72377E4FF2FA65C2274009` |
+| 3.4 | `crs04_3_4_desagregados.sps` | `10b_CRS04_3.4_5_desagregados.sps` | 20,259 bytes | `8B772D36320C3BBC707F5F60FCDFA22EB6D0F88F1CAEACF26818BA54631C5D99` |
+| 3.5 | `crs04_3_5_acumulacion_violencias.sps` | `11_CRS04_3.5 Acumulación de violencias_ver4.sps` | 35,017 bytes | `CBB03211806E14BED95885F2DF86A0635BE364D9335DE476CF77AC1218C9E593` |
+| 3.6 | `crs04_3_6_busqueda_ayuda_hogar_escuela.sps` | `12_CRS03_CRS04_3.6_BusquedaAyuda_Hogar_Escuela_ver5.sps` | 73,100 bytes | `D979283C1861F4F6D78EE539113A4FB9E00BC9663E41F71EFF683AAD1A8C8688` |
+| 3.6 | `crs04_3_6_busqueda_ayuda_vs.sps` | `13_CRS04_3.6_BusquedaAyuda_VS_ver4.sps` | 32,393 bytes | `C84A96B75BDEC8403B50C4D71200E8D447BAFB22719D942BC3CCE02A74A8DD0D` |
 
 ## 4. Handoff V0.5 aceptado para shadow
 
 V0.5 se registra separadamente y no reemplaza la V0 oficial.
 
-| Rol | Archivo recuperado | Nombre lógico | Evidencia | SHA-256 | Estado |
+| Rol | Nombre real en Drive | Nombre lógico | Evidencia de Drive | SHA-256 | Estado |
 |---|---|---|---|---|---|
-| Productor R | `tabulados (5).R` | `tabulados_crs04_v0_5.R` | Productor del output aceptado | `B41233026096CCB9F6457604A9BEDFEB21743874E2902046AC94099A5A870AC6` | `ACCEPTED_SHADOW` |
-| Especificaciones | `stage3_r_tabulation_specs.csv` | Mismo nombre | 516 indicadores | `AF312A53F19718B00E3307E02FC6C91B8720B7EEAC4139493529AAF81F368082` | `ACCEPTED_SHADOW` |
-| Output agregado | `tabulados_crs04_long (7).csv` | `tabulados_crs04_long_v0_5.csv` | 3,014 filas | `0977FA7D2C68BE7B1A1E37DF8D5A131D8551A1251D61D2CC28DC2D932BAEF760` | `ACCEPTED_SHADOW` |
-| Diseño survey | `design_crs04.rds` | Mismo nombre | 25 estratos, 1,115 PSU y 1,090 gl | `D65CEA98CCF595E1D2E88287FEDB523CD60B606FD2982AA25CFFF156BC7AF5A6` | `ACCEPTED_SHADOW` |
+| Productor R | `tabulados.R` | `tabulados_crs04_v0_5.R` | 19,915 bytes | `B41233026096CCB9F6457604A9BEDFEB21743874E2902046AC94099A5A870AC6` | `ACCEPTED_SHADOW` |
+| Especificaciones | `stage3_r_tabulation_specs.csv` | Mismo nombre | 153,012 bytes; 516 indicadores | `FE97A84167C356816C7E30C302F0138DA5468B9E05F1EF6AB24D58AAF556E076` | `ACCEPTED_SHADOW` |
+| Output agregado | `tabulados_crs04_long.csv` | `tabulados_crs04_long_v0_5.csv` | 576,797 bytes; 3,014 filas | `0977FA7D2C68BE7B1A1E37DF8D5A131D8551A1251D61D2CC28DC2D932BAEF760` | `ACCEPTED_SHADOW` |
+| Diseño survey | `design_crs04.rds` | Mismo nombre | 6,155,185 bytes; 25 estratos, 1,115 PSU y 1,090 gl | `26748A206E64020A2504969BD9A5C758CAF18D71B40E62A38575274755C54B11` | `ACCEPTED_SHADOW` |
 | Tabla Stage 03 | `reporting_crs04_survey_input_v0_5` | BigQuery autorizado | 18,807 filas y 737 columnas | Contrato Stage 03 | `ACCEPTED_SHADOW` |
 
 Ubicación recuperable: Drive privado —
@@ -93,10 +120,12 @@ No se inicia la carga V0 si:
 
 | Control | Valor |
 |---|---|
-| Fecha UTC | 2026-08-29 |
+| Fecha UTC de actualización | 2026-09-02T19:17:00Z |
 | Revisora | `ritaricaldi-cpu` |
 | Issue | `#44` |
 | Resultado | `READY_FOR_V0_INVENTORY_REVIEW` |
-| Evidencia o aprobación | Hashes, ubicaciones, inputs y outputs registrados; aprobación independiente pendiente |
+| Evidencia disponible | Nombres lógicos y reales, ubicación privada recuperable, tamaños/filas, hashes, responsable/respaldo y cobertura 3.1–3.6 registrados |
+| Contraste pendiente | Verificación independiente de los objetos y hashes autoritativos de Drive |
+| Aprobación | Pendiente; este documento no declara `READY_FOR_V0_INVENTORY` |
 
 El resultado cambia a `READY_FOR_V0_INVENTORY` únicamente cuando todas las filas bloqueantes estén completas y revisadas.

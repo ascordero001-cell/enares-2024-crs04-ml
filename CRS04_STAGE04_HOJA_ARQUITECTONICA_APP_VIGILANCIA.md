@@ -150,8 +150,8 @@ Ante un fallo:
 | Ubicación BigQuery | `US` |
 | Región operativa propuesta | `us-central1`; despliegue no autorizado |
 | Presupuesto máximo autorizado | `USD 0` |
-| Responsable de facturación | No asignado |
-| Responsable IAM | No asignado |
+| Responsable de facturación | `PENDIENTE/NO ASIGNADO`; bloqueante |
+| Responsable IAM | `PENDIENTE/NO ASIGNADO`; bloqueante |
 | Cuenta de servicio prevista | `sa-enares-app-reader@enares-2024-crs04.iam.gserviceaccount.com`; no creada |
 | Estado cloud | `NOT_AUTHORIZED` |
 | URL `*.run.app` | No creada |
@@ -159,5 +159,7 @@ Ante un fallo:
 | Cutover | No autorizado |
 
 Con presupuesto autorizado de `USD 0` y sin responsables de facturación o IAM, queda prohibido
-crear recursos, cuentas de servicio, bindings IAM o despliegues cloud. Esta condición no bloquea
-la preparación documental, pero mantiene la decisión general en `NOT_READY`.
+crear recursos, cuentas de servicio, bindings IAM, buckets, Cloud Run, GKE, Airflow, Agent Engine
+o despliegues cloud. Se puede continuar preparando código, tests, contratos y diseño local. Esta
+condición mantiene la decisión general en `NOT_READY` hasta que se registren responsables reales
+o una alternativa formalmente aprobada.

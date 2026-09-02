@@ -35,6 +35,8 @@ commits del repositorio.
 | Estado de publicación | **REMAIN_SHADOW**; V0 continúa oficial | documentos anteriores |
 | Protección de `main` | **CONFIGURADA**; PR, aprobación independiente, CI y conversaciones resueltas son obligatorios | protección verificada antes del PR #52 |
 | Issues Stage 04 reales | **CREADOS Y MAPEADOS**; paraguas #43 y núcleo #44-#51 | `docs/stage04/issue_map.md` |
+| PR de bootstrap Stage 04 | **REVISADO Y MERGED** | [PR #52](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/52), aprobación de `ritaricaldi-cpu`, merge `e381158e377f2d615e5b56cbc4ac8041a68df6ff` |
+| CI posterior al merge del bootstrap | **SUCCESS** | [GitHub Actions run 33585101445](https://github.com/ascordero001-cell/enares-2024-crs04-ml/actions/runs/33585101445) |
 
 ### Contrato Stage 03 ya aceptado
 
@@ -100,8 +102,9 @@ git status --short
 git rev-parse HEAD
 ```
 
-Resultado esperado al preparar este documento: `main` en
-`0a55a7192a381a0964d6a1fd7ceb32e7109e2e38` o un commit posterior cuyo CI esté verde. Si el SHA
+Resultado confirmado para este registro de cierre: `main` en
+`e381158e377f2d615e5b56cbc4ac8041a68df6ff`, merge de PR #52, con CI posterior al merge en
+verde. Si el SHA
 cambió, se registra el nuevo SHA y se vuelve a verificar Stage 03; no se obliga al repositorio a
 retroceder al SHA escrito aquí.
 
@@ -287,6 +290,24 @@ Antes de crear recursos cloud, registrar:
 - datasets permitidos y prohibidos;
 - mecanismo de parada y borrado/rollback de recursos candidatos.
 
+### Registro cloud vigente
+
+| Control | Valor registrado | Gate |
+|---|---|---|
+| Proyecto propuesto | `enares-2024-crs04` | documentado; no creado ni autorizado por este cierre |
+| Ubicación BigQuery | `US` | propuesta documentada |
+| Región operativa propuesta | `us-central1` | despliegue no autorizado |
+| Presupuesto máximo autorizado | `USD 0` | bloquea toda creación o despliegue cloud |
+| Responsable de facturación | `PENDIENTE/NO ASIGNADO` | **BLOQUEANTE** |
+| Responsable IAM | `PENDIENTE/NO ASIGNADO` | **BLOQUEANTE** |
+| Cuenta de servicio prevista | `sa-enares-app-reader@enares-2024-crs04.iam.gserviceaccount.com`; no creada | solo diseño |
+| Estado cloud | `NOT_AUTHORIZED` | **BLOQUEANTE** |
+
+Con presupuesto `USD 0` se pueden preparar código, tests, contratos y diseño local. No se crean
+cuentas de servicio, bindings IAM, buckets, Cloud Run, GKE, Airflow, Agent Engine ni otros
+recursos cloud. La ausencia de responsables reales de facturación e IAM mantiene la decisión
+general en `NOT_READY` hasta que se registren o exista una alternativa formalmente aprobada.
+
 No es necesario crear todavía `BigQueryRepository`, Docker, Cloud Run, app CI, supresión
 complementaria, evaluación HCI, pruebas de carga o laboratorios #49-#52. Esos son entregables de
 Stage 04, no condiciones previas para abrir el documento principal.
@@ -303,12 +324,12 @@ Stage 04, no condiciones previas para abrir el documento principal.
 - [x] Branch protection/ruleset funciona o la revisión manual alternativa está documentada.
 - [x] Existe revisora independiente con acceso adecuado.
 - [x] Issues Stage 04 fueron creados y `issue_map.md` contiene sus números/URLs reales.
-- [ ] El PR de bootstrap fue revisado, pasó CI y se fusionó.
+- [x] El PR de bootstrap fue revisado, pasó CI y se fusionó.
 - [x] `.gitignore` permite solo fixtures/golden sintéticos autorizados.
 - [x] `pytest tests/test_naming.py -q` y la suite existente pasan desde el repo real.
 - [x] No hay caches, credenciales, rutas personales, microdatos ni exports reales en el PR.
-- [ ] Se conocen las ubicaciones recuperables de scripts R, CSV V0 y diccionario.
-- [ ] Proyecto, región, presupuesto, responsable IAM y condiciones de parada están registrados.
+- [x] Se conocen las ubicaciones recuperables de scripts R, CSV V0, sintaxis SPSS y diccionario; sus hashes y metadatos quedan en revisión independiente.
+- [ ] Proyecto, región, presupuesto y condiciones de parada están registrados; responsables IAM y facturación: `PENDIENTE/NO ASIGNADO` (**BLOQUEANTE**).
 - [ ] Decisión `READY_FOR_STAGE04_SHADOW` firmada abajo.
 
 Si una casilla pendiente no aplica, no se borra: se explica, se asigna responsable y se registra
@@ -317,18 +338,19 @@ la alternativa aprobada.
 ## 14. Registro de decisión
 
 ```text
-Fecha UTC:
-Repositorio:
-main SHA:
+Fecha UTC: 2026-09-02T19:17:00Z
+Repositorio: ascordero001-cell/enares-2024-crs04-ml
+main SHA: e381158e377f2d615e5b56cbc4ac8041a68df6ff
 Stage 03 release: stage03-v0.5-cloud-full
 Estado autorizado: SHADOW
-Issue paraguas real:
-PR bootstrap:
-CI run:
-Revisora:
-Pendientes no bloqueantes:
+Issue paraguas real: #43
+PR bootstrap: #52
+CI run: 33585101445
+Revisora: ritaricaldi-cpu
+Estado de versiones: V0 sigue siendo oficial; V0.5 continúa únicamente en shadow
+Pendientes bloqueantes: aprobación independiente del inventario V0; responsable de facturación; responsable IAM; revisión y merge del PR de cierre
 Decisión: NOT_READY
-Firma o aprobación enlazada:
+Firma o aprobación enlazada: aprobación del bootstrap en PR #52; aprobación final del PRE-STAGE 04 pendiente
 ```
 
 ## 15. Primer paso después de READY
