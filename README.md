@@ -22,7 +22,7 @@ Apprenticeship** en Data Engineering aplicado a microdatos oficiales del INEI.
 | Stage 01 | Ingesta y preservación de fuentes oficiales | ✅ Aprobado |
 | Stage 02 | Almacenamiento y validación inicial en BigQuery | ✅ Aprobado |
 | Stage 03 | Limpieza, indicadores 3.1–3.6, diseño muestral y migración cloud | ✅ `PASS` en shadow |
-| Stage 04 | Aplicación cloud de vigilancia poblacional y publicación agregada controlada | 🔄 Handoff aceptado; desarrollo shadow |
+| Stage 04 | Aplicación cloud de vigilancia poblacional y publicación agregada controlada | `PREPARING/SHADOW` — bootstrap en revisión |
 | Stage 05 | Evaluación, monitoreo y decisiones posteriores de publicación | ⏳ Pendiente |
 
 ## Principios
@@ -241,6 +241,18 @@ publicación. La promoción requiere una decisión separada y registrada.
 
 ## Stage 04 — siguiente etapa
 
+**Estado actual:** `PREPARING/SHADOW`. La preparación documental esta en curso y no autoriza publicación, cutover ni gasto cloud.
+
+Documentos de inicio:
+
+- [Puerta PRE-STAGE04](PRE_STAGE04.md)
+- [Documento rector Stage 04](CRS04_STAGE04_CORREGIDO_VER6_NUEVA_METODOLOGIA.md)
+- [Hoja arquitectonica](CRS04_STAGE04_HOJA_ARQUITECTONICA_APP_VIGILANCIA.md)
+- [Convenciones de nombres](NAMING_CONVENTIONS.md)
+- [Registro V0](CRS04_STAGE04_VERSION_0_REGISTRO.md)
+- [Mapa real de issues](docs/stage04/issue_map.md)
+- [Issue paraguas #43](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/43)
+
 Stage 04 construirá progresivamente una aplicación de vigilancia poblacional
 con:
 
@@ -287,8 +299,8 @@ publicación.
 
 ## Autora
 
-**Ana Silvia Cordero Ricaldi**  
-BSc Computer Science and Artificial Intelligence, University of Sussex  
+**Ana Silvia Cordero Ricaldi**
+BSc Computer Science and Artificial Intelligence, University of Sussex
 Independent undergraduate research apprenticeship
 
 Supervisión metodológica independiente registrada en la evidencia de cierre de
@@ -300,4 +312,3 @@ Este repositorio es un proyecto técnico y formativo. La versión V0.5 y la futu
 aplicación Stage 04 no constituyen por sí mismas una publicación oficial del
 INEI, UNICEF u otra institución. Cualquier uso institucional requiere revisión,
 autorización y gobernanza adicionales.
-
