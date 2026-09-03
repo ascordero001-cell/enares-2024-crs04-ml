@@ -150,14 +150,23 @@ Ante un fallo:
 | Ubicación BigQuery | `US` |
 | Región operativa propuesta | `us-central1`; despliegue no autorizado |
 | Presupuesto máximo autorizado | `USD 0` |
-| Responsable de facturación | No asignado |
-| Responsable IAM | No asignado |
+| Responsable de facturación | `NO APLICA EN FASE LOCAL; pendiente antes de cloud` |
+| Responsable IAM | `NO APLICA EN FASE LOCAL; pendiente antes de cloud` |
 | Cuenta de servicio prevista | `sa-enares-app-reader@enares-2024-crs04.iam.gserviceaccount.com`; no creada |
 | Estado cloud | `NOT_AUTHORIZED` |
 | URL `*.run.app` | No creada |
 | Publicación institucional | No autorizada |
 | Cutover | No autorizado |
 
-Con presupuesto autorizado de `USD 0` y sin responsables de facturación o IAM, queda prohibido
-crear recursos, cuentas de servicio, bindings IAM o despliegues cloud. Esta condición no bloquea
-la preparación documental, pero mantiene la decisión general en `NOT_READY`.
+Con presupuesto autorizado de `USD 0` y sin responsables cloud asignados, queda prohibido
+crear recursos, cuentas de servicio, bindings IAM, buckets, Cloud Run, GKE, Airflow, Agent Engine
+o despliegues cloud. La alternativa aprobada permite continuar únicamente con código, tests,
+contratos, fixtures sintéticos, documentación y diseño local.
+
+### Alternativa local aprobada
+
+[`LOCAL SHADOW ONLY` está `APPROVED` por `ritaricaldi-cpu` en PR #53](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/53#issuecomment-5518990195), con Ana Silvia Cordero Ricaldi como responsable del desarrollo
+local y `ritaricaldi-cpu` como revisora metodológica y de privacidad. En esta fase, facturación e
+IAM se registran como `NO APLICA EN FASE LOCAL; pendiente antes de cloud`; el presupuesto sigue
+en `USD 0` y cloud en `NOT_AUTHORIZED`. Facturación e IAM vuelven a ser gates obligatorios antes
+de cualquier recurso o despliegue cloud. La aprobación local no autoriza ningún recurso cloud.
