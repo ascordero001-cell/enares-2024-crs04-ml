@@ -1,11 +1,11 @@
 # Inventario reproducible de la baseline V0
 
-**Estado:** `PUERTA_B_REVIEW_REQUESTED`  
-**Alcance:** `LOCAL_SHADOW_ONLY`  
-**Cloud:** `NOT_AUTHORIZED`  
-**Fuente:** lectura directa de los objetos privados de Drive; no se usaron copias locales como autoridad  
-**Baseline aprobada:** manifiesto contrastado el `2026-09-03T00:31:07Z`  
-**Release aprobado de Stage 03:** `stage03-v0.5-cloud-full`
+- **Estado:** `PUERTA_B_REVIEW_REQUESTED`
+- **Alcance:** `LOCAL_SHADOW_ONLY`
+- **Cloud:** `NOT_AUTHORIZED`
+- **Fuente:** lectura directa de los objetos privados de Drive; no se usaron copias locales como autoridad
+- **Baseline aprobada:** manifiesto contrastado el `2026-09-03T00:31:07Z`
+- **Release aprobado de Stage 03:** `stage03-v0.5-cloud-full`
 
 Este archivo solo contiene metadatos agregados. No contiene microdatos, archivos `.sav`, rutas
 personales, identificadores internos de Drive, enlaces públicos ni credenciales. Los originales no

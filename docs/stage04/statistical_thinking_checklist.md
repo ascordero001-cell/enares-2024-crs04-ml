@@ -1,10 +1,10 @@
 # Checklist de razonamiento estadístico — corte vertical 3.2
 
-**Estado:** `PUERTA_B_REVIEW_REQUESTED`  
-**Alcance:** `LOCAL_SHADOW_ONLY`  
-**Fuente:** `tabulados_crs04_long.csv` y `diccionario_indicadores.csv` V0 leídos directamente
-desde Drive privado y fijados por `docs/stage04/v0_drive_hash_manifest.md`  
-**Indicador piloto:** `VF_HOGAR`, Nacional, Total
+- **Estado:** `PUERTA_B_REVIEW_REQUESTED`
+- **Alcance:** `LOCAL_SHADOW_ONLY`
+- **Fuente:** `tabulados_crs04_long.csv` y `diccionario_indicadores.csv` V0 leídos directamente
+  desde Drive privado y fijados por `docs/stage04/v0_drive_hash_manifest.md`
+- **Indicador piloto:** `VF_HOGAR`, Nacional, Total
 
 Los valores de V0 que aparecen aquí son evidencia agregada para revisión shadow; no constituyen
 publicación institucional. No se consultaron microdatos ni se recalcularon estimaciones.
