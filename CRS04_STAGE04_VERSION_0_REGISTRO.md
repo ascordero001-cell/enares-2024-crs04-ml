@@ -26,7 +26,7 @@ ubicación se expresa como ruta lógica dentro de Drive privado; no se registran
 identificadores de Drive ni rutas personales.
 
 Metadatos y hashes de los objetos recuperables fueron contrastados el
-`2026-09-02T19:17:00Z`. La responsable registrada es Ana Silvia Cordero Ricaldi y el respaldo
+`2026-09-03T00:31:07Z`. La responsable registrada es Ana Silvia Cordero Ricaldi y el respaldo
 verificable es el historial de Drive. Esto deja el paquete listo para
 **revisión independiente**, no aprobado.
 
@@ -43,7 +43,30 @@ Los objetos de Drive privado son la fuente autoritativa de este inventario. Los 
 sufijos de descarga y los hashes de copias locales anteriores no se usan para identificar ni
 aprobar la baseline V0.
 
-### 3.2 Sintaxis SPSS de contraste por módulos 3.1–3.6
+### 3.2 Conciliación de hashes y linaje
+
+La conciliación se hizo sobre los bytes de cada objeto en Drive, no sobre copias locales. La
+evidencia mínima reproducible, incluidas las fechas de modificación y la salida normalizada del
+cálculo, está en [`docs/stage04/v0_drive_hash_manifest.md`](docs/stage04/v0_drive_hash_manifest.md).
+Ningún cambio de hash se sustituyó silenciosamente.
+
+| Artefacto | Versión | Nombre lógico | Nombre real en Drive | Ubicación lógica privada | Tamaño o filas | Hash registrado anteriormente | Hash observado actualmente en Drive | Motivo de la diferencia | Objeto declarado autoritativo | Evidencia | Estado | Responsable | Decisión de la revisora |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Productor R | V0 oficial | `tabulados_crs04_v0.R` | `tabulados.R` | `ENARES_2024_PROJECT/03Scripts_R` | 19,864 bytes | `259E75A52E9A8299F5C79A55583C2E964D323E30BEAA39E175EE0E552EC5F5CC` | `A45A73F40D728713A52800653991EBDBFF4E80A0D9A6A8318E8D7BD266597C1D` | El mismo objeto fue actualizado en Drive: el historial registra 68 revisiones y revisiones del 12–13 de agosto de 10,879 bytes; la revisión vigente del 20 de agosto tiene 19,864 bytes. | Revisión vigente del objeto raíz `03Scripts_R/tabulados.R` | Historial de Drive, tamaño, fecha, hash y enlace productor–salida del manifiesto | `EXPLAINED_VERSION_DIFFERENCE` | Ana Silvia Cordero Ricaldi | `PENDIENTE — ritaricaldi-cpu` |
+| Output agregado | V0 oficial | `tabulados_crs04_long_v0.csv` | `tabulados_crs04_long.csv` | `ENARES_2024_PROJECT/04Outputs` | 576,919 bytes; 3,014 filas | 3,274 filas; `919C3F39C7681E71596CBC904369FBE6CD0B85D02FC9DC4D0AF36DF7845EC8FC` | `15B845DA4A886FDCF54A96D8B8471B6F6BE618AE18B43024488C6BD6B23D0BB4` | El nombre fue versionado en el mismo objeto de Drive (82 revisiones). El registro de 3,274 filas corresponde a una revisión/copia anterior; el objeto raíz vigente tiene 3,014 filas. No es V0.5: está en otra carpeta, tiene tamaño y hash distintos y su productor R apunta explícitamente a la carpeta shadow. | Revisión vigente del objeto raíz `04Outputs/tabulados_crs04_long.csv` | Historial de Drive; conteo sobre bytes actuales; hashes, tamaños, carpetas y enlaces productor–salida de ambas versiones | `EXPLAINED_VERSION_DIFFERENCE` | Ana Silvia Cordero Ricaldi | `PENDIENTE — ritaricaldi-cpu` |
+| Diseño survey | V0 oficial | `design_crs04.rds` | `design_crs04.rds` | `ENARES_2024_PROJECT/04Outputs` | 6,166,714 bytes | `D65CEA98CCF595E1D2E88287FEDB523CD60B606FD2982AA25CFFF156BC7AF5A6` | `C9C7D96F053BE17606C9BDCED365ECC5E0016FF0294958E378CC62C747F46965` | El objeto V0 fue actualizado en Drive; su historial registra 58 revisiones y cambios de tamaño. | Revisión vigente del objeto raíz `04Outputs/design_crs04.rds` | Historial de Drive, tamaño, fecha y hash del manifiesto | `EXPLAINED_VERSION_DIFFERENCE` | Ana Silvia Cordero Ricaldi | `PENDIENTE — ritaricaldi-cpu` |
+| Diccionario | V0 oficial | `diccionario_indicadores.csv` | `diccionario_indicadores.csv` | `ENARES_2024_PROJECT/04Outputs` | 354,668 bytes; 516 filas | `F5FD6979A19EBC9F510C307705B1E7DE12556A8F5A81DDBC566E97347337BD2C` | `F5FD6979A19EBC9F510C307705B1E7DE12556A8F5A81DDBC566E97347337BD2C` | Sin diferencia. | Objeto raíz `04Outputs/diccionario_indicadores.csv` | Tamaño, fecha y hash del manifiesto | `MATCH` | Ana Silvia Cordero Ricaldi | `PENDIENTE — ritaricaldi-cpu` |
+| Productor R | V0.5 shadow | `tabulados_crs04_v0_5.R` | `tabulados.R` | `ENARES_2024_PROJECT/03Scripts_R/shadow_full_v0_5` | 19,915 bytes | `B41233026096CCB9F6457604A9BEDFEB21743874E2902046AC94099A5A870AC6` | `B41233026096CCB9F6457604A9BEDFEB21743874E2902046AC94099A5A870AC6` | Sin diferencia. | Objeto `shadow_full_v0_5/tabulados.R` | Carpeta, tamaño, fecha, hash y enlace productor–salida del manifiesto | `MATCH` | Ana Silvia Cordero Ricaldi | `PENDIENTE — ritaricaldi-cpu` |
+| Especificaciones | V0.5 shadow | `stage3_r_tabulation_specs.csv` | `stage3_r_tabulation_specs.csv` | `ENARES_2024_PROJECT/04Outputs/shadow_full_v0_5` | 153,012 bytes; 516 filas | `AF312A53F19718B00E3307E02FC6C91B8720B7EEAC4139493529AAF81F368082` | `FE97A84167C356816C7E30C302F0138DA5468B9E05F1EF6AB24D58AAF556E076` | El objeto se amplió durante el armado shadow: el historial registra cuatro revisiones de 122,229, 128,337, 135,667 y 153,012 bytes; la última es la vigente. | Revisión final del objeto shadow `stage3_r_tabulation_specs.csv` | Historial de Drive, tamaño, fecha y hash del manifiesto | `EXPLAINED_VERSION_DIFFERENCE` | Ana Silvia Cordero Ricaldi | `PENDIENTE — ritaricaldi-cpu` |
+| Output agregado | V0.5 shadow | `tabulados_crs04_long_v0_5.csv` | `tabulados_crs04_long.csv` | `ENARES_2024_PROJECT/04Outputs/shadow_full_v0_5` | 576,797 bytes; 3,014 filas | `0977FA7D2C68BE7B1A1E37DF8D5A131D8551A1251D61D2CC28DC2D932BAEF760` | `0977FA7D2C68BE7B1A1E37DF8D5A131D8551A1251D61D2CC28DC2D932BAEF760` | Sin diferencia. Igual número de filas que V0 no implica igualdad: el tamaño y SHA-256 difieren. | Objeto shadow `04Outputs/shadow_full_v0_5/tabulados_crs04_long.csv` | Carpeta, tamaño, conteo y hash del manifiesto | `MATCH` | Ana Silvia Cordero Ricaldi | `PENDIENTE — ritaricaldi-cpu` |
+| Diseño survey | V0.5 shadow | `design_crs04.rds` | `design_crs04.rds` | `ENARES_2024_PROJECT/04Outputs/shadow_full_v0_5` | 6,155,185 bytes | `D65CEA98CCF595E1D2E88287FEDB523CD60B606FD2982AA25CFFF156BC7AF5A6` | `26748A206E64020A2504969BD9A5C758CAF18D71B40E62A38575274755C54B11` | El hash anterior reutilizaba el registro de otro objeto V0. Drive contiene un objeto shadow separado, con una sola revisión, otro tamaño y otro hash. | Objeto separado `04Outputs/shadow_full_v0_5/design_crs04.rds` | Carpeta, revisión única, tamaño, fecha y hash del manifiesto | `WRONG_OBJECT_REPLACED` | Ana Silvia Cordero Ricaldi | `PENDIENTE — ritaricaldi-cpu` |
+
+No quedan filas `UNRESOLVED` en la conciliación documental. Esto no constituye aprobación: la
+revisora debe contrastar los objetos autoritativos y decidir cada fila. La V0 oficial es el
+conjunto vigente en las carpetas raíz indicadas; V0.5 es un conjunto separado bajo
+`shadow_full_v0_5` y no sustituye ni publica V0.
+
+### 3.3 Sintaxis SPSS de contraste por módulos 3.1–3.6
 
 Ubicación recuperable para todas las filas:
 `ENARES_2024_PROJECT/02Codigos/CodigoSpss`. Responsable y respaldo: Ana / historial de Drive.
@@ -120,12 +143,13 @@ No se inicia la carga V0 si:
 
 | Control | Valor |
 |---|---|
-| Fecha UTC de actualización | 2026-09-02T19:17:00Z |
+| Fecha UTC de actualización | 2026-09-03T00:31:07Z |
 | Revisora | `ritaricaldi-cpu` |
 | Issue | `#44` |
 | Resultado | `READY_FOR_V0_INVENTORY_REVIEW` |
 | Evidencia disponible | Nombres lógicos y reales, ubicación privada recuperable, tamaños/filas, hashes, responsable/respaldo y cobertura 3.1–3.6 registrados |
-| Contraste pendiente | Verificación independiente de los objetos y hashes autoritativos de Drive |
+| Conciliación documental | Cero filas `UNRESOLVED`; diferencias explicadas y objetos autoritativos identificados |
+| Contraste pendiente | Verificación y decisión independiente de la conciliación y de los objetos autoritativos de Drive |
 | Aprobación | Pendiente; este documento no declara `READY_FOR_V0_INVENTORY` |
 
 El resultado cambia a `READY_FOR_V0_INVENTORY` únicamente cuando todas las filas bloqueantes estén completas y revisadas.

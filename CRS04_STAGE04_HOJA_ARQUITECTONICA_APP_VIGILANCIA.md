@@ -163,3 +163,11 @@ crear recursos, cuentas de servicio, bindings IAM, buckets, Cloud Run, GKE, Airf
 o despliegues cloud. Se puede continuar preparando código, tests, contratos y diseño local. Esta
 condición mantiene la decisión general en `NOT_READY` hasta que se registren responsables reales
 o una alternativa formalmente aprobada.
+
+### Alternativa local propuesta
+
+Se propone `LOCAL SHADOW ONLY`, con Ana Silvia Cordero Ricaldi como responsable del desarrollo
+local y `ritaricaldi-cpu` como revisora metodológica y de privacidad. En esta fase, facturación e
+IAM se registran como `NO APLICA EN FASE LOCAL; pendiente antes de cloud`; el presupuesto sigue
+en `USD 0` y cloud en `NOT_AUTHORIZED`. La propuesta está pendiente de aprobación explícita en
+PR #53 y, mientras tanto, no cambia la decisión `NOT_READY` ni autoriza recursos o despliegues.

@@ -37,6 +37,8 @@ commits del repositorio.
 | Issues Stage 04 reales | **CREADOS Y MAPEADOS**; paraguas #43 y núcleo #44-#51 | `docs/stage04/issue_map.md` |
 | PR de bootstrap Stage 04 | **REVISADO Y MERGED** | [PR #52](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/52), aprobación de `ritaricaldi-cpu`, merge `e381158e377f2d615e5b56cbc4ac8041a68df6ff` |
 | CI posterior al merge del bootstrap | **SUCCESS** | [GitHub Actions run 33585101445](https://github.com/ascordero001-cell/enares-2024-crs04-ml/actions/runs/33585101445) |
+| PR de cierre PRE-STAGE 04 | **ABIERTO; REVISIÓN PENDIENTE** | [PR #53](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/53), head verificado `38a8305287c566923f2fdb26c5226fba72a912db` |
+| CI del head verificado de PR #53 | **SUCCESS** | [GitHub Actions run 33675103364](https://github.com/ascordero001-cell/enares-2024-crs04-ml/actions/runs/33675103364) |
 
 ### Contrato Stage 03 ya aceptado
 
@@ -308,6 +310,34 @@ cuentas de servicio, bindings IAM, buckets, Cloud Run, GKE, Airflow, Agent Engin
 recursos cloud. La ausencia de responsables reales de facturación e IAM mantiene la decisión
 general en `NOT_READY` hasta que se registren o exista una alternativa formalmente aprobada.
 
+### Alternativa formal propuesta: LOCAL SHADOW ONLY
+
+**Estado:** `PROPUESTA — PENDIENTE DE APROBACIÓN` en PR #53.
+
+> Stage 04 queda autorizado únicamente para desarrollo SHADOW local:
+> código, tests, contratos, fixtures sintéticos, diseño de interfaz y
+> documentación. No se autoriza crear recursos, habilitar facturación,
+> modificar IAM, crear cuentas de servicio, buckets, BigQuery adicional,
+> Cloud Run, GKE, Airflow ni Agent Engine. Antes de cualquier despliegue
+> cloud será obligatorio abrir un nuevo gate de autorización con
+> responsable de facturación, responsable IAM, presupuesto y condiciones
+> de rollback.
+
+| Control de la alternativa | Valor propuesto |
+|---|---|
+| Responsable del desarrollo local | Ana Silvia Cordero Ricaldi |
+| Revisora metodológica y de privacidad | `ritaricaldi-cpu` |
+| Responsable de facturación | `NO APLICA EN FASE LOCAL; pendiente antes de cloud` |
+| Responsable IAM | `NO APLICA EN FASE LOCAL; pendiente antes de cloud` |
+| Presupuesto | `USD 0` |
+| Alcance autorizado, si se aprueba | `LOCAL SHADOW ONLY` |
+| Cloud | `NOT_AUTHORIZED` |
+| Aprobación | Pendiente de aprobación explícita de `ritaricaldi-cpu` en PR #53 |
+
+Esta alternativa aún no elimina el bloqueante. Si se aprueba, sustituye la exigencia de asignar
+responsables cloud para el trabajo exclusivamente local; facturación e IAM vuelven a ser gates
+obligatorios antes de cualquier recurso o despliegue cloud.
+
 No es necesario crear todavía `BigQueryRepository`, Docker, Cloud Run, app CI, supresión
 complementaria, evaluación HCI, pruebas de carga o laboratorios #49-#52. Esos son entregables de
 Stage 04, no condiciones previas para abrir el documento principal.
@@ -328,7 +358,9 @@ Stage 04, no condiciones previas para abrir el documento principal.
 - [x] `.gitignore` permite solo fixtures/golden sintéticos autorizados.
 - [x] `pytest tests/test_naming.py -q` y la suite existente pasan desde el repo real.
 - [x] No hay caches, credenciales, rutas personales, microdatos ni exports reales en el PR.
-- [x] Se conocen las ubicaciones recuperables de scripts R, CSV V0, sintaxis SPSS y diccionario; sus hashes y metadatos quedan en revisión independiente.
+- [x] Se conocen las ubicaciones recuperables de scripts R, CSV V0, sintaxis SPSS y diccionario; sus hashes y metadatos de Drive están conciliados sin filas `UNRESOLVED`.
+- [ ] El inventario V0 y su conciliación cuentan con aprobación independiente de `ritaricaldi-cpu`.
+- [ ] La alternativa `LOCAL SHADOW ONLY` cuenta con aprobación explícita de `ritaricaldi-cpu`.
 - [ ] Proyecto, región, presupuesto y condiciones de parada están registrados; responsables IAM y facturación: `PENDIENTE/NO ASIGNADO` (**BLOQUEANTE**).
 - [ ] Decisión `READY_FOR_STAGE04_SHADOW` firmada abajo.
 
@@ -338,7 +370,7 @@ la alternativa aprobada.
 ## 14. Registro de decisión
 
 ```text
-Fecha UTC: 2026-09-02T19:17:00Z
+Fecha UTC: 2026-09-03T00:31:07Z
 Repositorio: ascordero001-cell/enares-2024-crs04-ml
 main SHA: e381158e377f2d615e5b56cbc4ac8041a68df6ff
 Stage 03 release: stage03-v0.5-cloud-full
@@ -346,11 +378,31 @@ Estado autorizado: SHADOW
 Issue paraguas real: #43
 PR bootstrap: #52
 CI run: 33585101445
+PR de cierre: #53
+Head SHA de PR #53 verificado antes de esta actualización: 38a8305287c566923f2fdb26c5226fba72a912db
+CI de ese head de PR #53: 33675103364
 Revisora: ritaricaldi-cpu
 Estado de versiones: V0 sigue siendo oficial; V0.5 continúa únicamente en shadow
-Pendientes bloqueantes: aprobación independiente del inventario V0; responsable de facturación; responsable IAM; revisión y merge del PR de cierre
+Inventario: conciliado sin filas UNRESOLVED; aprobación independiente pendiente
+Alternativa LOCAL SHADOW ONLY: propuesta; aprobación explícita pendiente
+Cloud: NOT_AUTHORIZED
+Publicación y cutover: no autorizados
+Pendientes bloqueantes: aprobación independiente del inventario V0; aprobación de la alternativa local; revisión y merge del PR de cierre
 Decisión: NOT_READY
 Firma o aprobación enlazada: aprobación del bootstrap en PR #52; aprobación final del PRE-STAGE 04 pendiente
+```
+
+El SHA vigente de la rama se registra en PR #53 y en el Issue #43 después de cada push; no puede
+autoidentificarse dentro del mismo commit sin cambiar el SHA. Tras aprobar inventario,
+conciliación, alternativa local y PR #53, la decisión podrá registrarse exactamente como:
+
+```text
+READY_FOR_STAGE04_SHADOW
+Alcance: LOCAL SHADOW ONLY
+Cloud: NOT_AUTHORIZED
+Presupuesto: USD 0
+V0: continúa oficial
+V0.5: shadow, sin publicación ni cutover
 ```
 
 ## 15. Primer paso después de READY
