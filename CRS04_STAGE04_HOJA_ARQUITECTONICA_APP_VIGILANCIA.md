@@ -150,24 +150,23 @@ Ante un fallo:
 | Ubicación BigQuery | `US` |
 | Región operativa propuesta | `us-central1`; despliegue no autorizado |
 | Presupuesto máximo autorizado | `USD 0` |
-| Responsable de facturación | `PENDIENTE/NO ASIGNADO`; bloqueante |
-| Responsable IAM | `PENDIENTE/NO ASIGNADO`; bloqueante |
+| Responsable de facturación | `NO APLICA EN FASE LOCAL; pendiente antes de cloud` |
+| Responsable IAM | `NO APLICA EN FASE LOCAL; pendiente antes de cloud` |
 | Cuenta de servicio prevista | `sa-enares-app-reader@enares-2024-crs04.iam.gserviceaccount.com`; no creada |
 | Estado cloud | `NOT_AUTHORIZED` |
 | URL `*.run.app` | No creada |
 | Publicación institucional | No autorizada |
 | Cutover | No autorizado |
 
-Con presupuesto autorizado de `USD 0` y sin responsables de facturación o IAM, queda prohibido
+Con presupuesto autorizado de `USD 0` y sin responsables cloud asignados, queda prohibido
 crear recursos, cuentas de servicio, bindings IAM, buckets, Cloud Run, GKE, Airflow, Agent Engine
-o despliegues cloud. Se puede continuar preparando código, tests, contratos y diseño local. Esta
-condición mantiene la decisión general en `NOT_READY` hasta que se registren responsables reales
-o una alternativa formalmente aprobada.
+o despliegues cloud. La alternativa aprobada permite continuar únicamente con código, tests,
+contratos, fixtures sintéticos, documentación y diseño local.
 
-### Alternativa local propuesta
+### Alternativa local aprobada
 
-Se propone `LOCAL SHADOW ONLY`, con Ana Silvia Cordero Ricaldi como responsable del desarrollo
+[`LOCAL SHADOW ONLY` está `APPROVED` por `ritaricaldi-cpu` en PR #53](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/53#issuecomment-5518990195), con Ana Silvia Cordero Ricaldi como responsable del desarrollo
 local y `ritaricaldi-cpu` como revisora metodológica y de privacidad. En esta fase, facturación e
 IAM se registran como `NO APLICA EN FASE LOCAL; pendiente antes de cloud`; el presupuesto sigue
-en `USD 0` y cloud en `NOT_AUTHORIZED`. La propuesta está pendiente de aprobación explícita en
-PR #53 y, mientras tanto, no cambia la decisión `NOT_READY` ni autoriza recursos o despliegues.
+en `USD 0` y cloud en `NOT_AUTHORIZED`. Facturación e IAM vuelven a ser gates obligatorios antes
+de cualquier recurso o despliegue cloud. La aprobación local no autoriza ningún recurso cloud.

@@ -2,9 +2,10 @@
 
 **Fecha UTC de contraste:** `2026-09-03T00:31:07Z`
 **Fuente autoritativa:** objetos y revisiones de Drive privado
-**Estado:** `PENDING_INDEPENDENT_REVIEW`
+**Estado:** `APPROVED_FOR_STAGE04_BASELINE`
 **Responsable:** Ana Silvia Cordero Ricaldi
-**Revisora:** `ritaricaldi-cpu` — decisión pendiente
+**Revisora:** `ritaricaldi-cpu`
+**Aprobación:** [comentario supervisor en PR #53](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/53#issuecomment-5518990195)
 
 Este manifiesto contiene solo metadatos y hashes. No contiene archivos `.sav`, microdatos,
 credenciales, identificadores de Drive, enlaces públicos, rutas personales ni registros de NNA.
@@ -55,5 +56,6 @@ SHA256 26748A206E64020A2504969BD9A5C758CAF18D71B40E62A38575274755C54B11 ENARES_2
   historial y SHA-256. El diseño shadow tiene una sola revisión registrada.
 
 La cobertura funcional declarada de los productores integrados y sus salidas es 3.1–3.6. La
-aceptación de esta evidencia y el cambio a `READY_FOR_V0_INVENTORY` requieren aprobación explícita
-de `ritaricaldi-cpu`.
+evidencia fue aprobada explícitamente por `ritaricaldi-cpu`. Esta baseline corresponde exactamente
+al conjunto de hashes y a la fecha de contraste registrados arriba; cualquier cambio posterior
+debe producir una nueva versión y no puede sobrescribirla.
