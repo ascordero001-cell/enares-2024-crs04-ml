@@ -1,0 +1,22 @@
+{
+  "category": "Total",
+  "ci95_lower": 15.739651002103178,
+  "ci95_upper": 17.74694535576104,
+  "cv": 0.030549876151588228,
+  "denominator": "casos válidos del diseño muestral",
+  "disaggregation": "Nacional",
+  "engine_version": "v0_csv",
+  "estimate": 16.743298178932108,
+  "indicator_id": "VF_HOGAR",
+  "indicator_name": "VF_HOGAR",
+  "module_id": "3.2",
+  "n_unweighted": 18807,
+  "quality_status": "PUBLISHABLE_CANDIDATE",
+  "release_id": "enares2024-crs04-v0-shadow-001",
+  "scale": "0_100",
+  "source_hash": "15B845DA4A886FDCF54A96D8B8471B6F6BE618AE18B43024488C6BD6B23D0BB4",
+  "standard_error": 0.5115056857354886,
+  "state": "SHADOW",
+  "universe": "Adolescentes de 12 a 17 años de CRS04 con VF_HOGAR válido; ENARES 2024",
+  "validation_status": "PENDING"
+}
