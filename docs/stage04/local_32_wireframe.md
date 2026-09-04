@@ -44,7 +44,8 @@
 
 ```mermaid
 flowchart LR
-    D[DemoRepository local] --> P[published candidata ya suprimida]
+    A[AuthorizedAggregateRepository local] --> P[published candidata ya suprimida]
+    D[DemoRepository 100 % sintético] --> P
     P --> S{estado}
     S -->|candidato| C[tarjeta con estadísticos]
     S -->|referencial| R[tarjeta con advertencia]

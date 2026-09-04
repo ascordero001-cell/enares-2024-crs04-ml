@@ -17,11 +17,17 @@ primaria suprimida activa análisis de reconstrucción y, cuando un total o marg
 supresión complementaria. Published elimina estimate, error estándar, intervalo, CV y N antes de
 que la aplicación o un export reciban la fila.
 
+Las entradas se mantienen separadas por clasificación: el demo es 100 % sintético; el golden usa
+un único agregado V0 autorizado, no sintético y sin microdatos, ligado a su propio manifiesto. Los
+datos institucionales publicados no están autorizados. BigQuery, DDL, Cloud Run y demás recursos
+cloud permanecen `BLOCKED_BY_CLOUD_GATE`.
+
 ## Estado de decisiones
 
 | Decisión | Estado | Responsable de aprobar | Evidencia requerida |
 |---|---|---|---|
 | Nulificar campos protegidos en una celda suprimida dentro de published candidata | `TECHNICAL_CONTROL_IMPLEMENTED_LOCAL` | Revisión técnica del PR | Tests de supresión y contrato |
+| Usar `suppress_flag` como control principal de nulificación | `TECHNICAL_CONTROL_IMPLEMENTED_LOCAL` | Revisión técnica del PR | Tests de estado/flag y campos protegidos |
 | Usar `CV > 0.15` como señal referencial | `DIDACTIC_PROPOSAL` | Propietario metodológico `PENDIENTE/NO_ASIGNADO` y supervisión | Criterio institucional documentado y casos límite |
 | Usar `N < 30` como señal de supresión | `DIDACTIC_PROPOSAL` | Propietario metodológico `PENDIENTE/NO_ASIGNADO` y supervisión | Evaluación de divulgación, utilidad y cruces |
 | Tolerancia golden absoluta `1e-9` | `PROPOSED_REQUIRES_SUPERVISORY_APPROVAL` | Supervisión metodológica | Comparación de serialización y sensibilidad |

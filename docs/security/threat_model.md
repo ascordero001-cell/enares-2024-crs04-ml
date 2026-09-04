@@ -2,7 +2,7 @@
 
 - Estado: `REVIEW_REQUIRED`
 - Alcance: `LOCAL_SHADOW_ONLY`
-- Datos del ejercicio: totalmente sintéticos
+- Entradas locales: fixture demo 100 % sintético y corte golden V0 agregado autorizado, separados
 - Cloud: `NOT_AUTHORIZED`
 
 ## Amenazas y controles
@@ -20,6 +20,10 @@
 | Control de detección | Test de reconstrucción, revisión de schema, auditoría de exports y registro de release |
 | Riesgo residual | Más de un cruce o release podría permitir inferencia aun con una tabla aislada protegida |
 | Decisión pendiente | Aprobar propietario, regla institucional, umbrales y análisis multitabla/multirelease |
+
+El agregado golden V0 no contiene observaciones individuales y se valida contra un manifiesto
+separado. No es una publicación institucional. BigQuery, DDL, Cloud Run y cualquier otro recurso
+cloud continúan `BLOCKED_BY_CLOUD_GATE`.
 
 ## Estado de verificación
 

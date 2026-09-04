@@ -34,7 +34,6 @@ def validate_estimates(rows: Iterable[IndicatorEstimate]) -> None:
         raise ValueError("The aggregate catalog must not be empty")
 
     keys: set[tuple[str, ...]] = set()
-    quality_states: set[str] = set()
     for row in materialized:
         key = (
             row.release_id,
@@ -55,13 +54,13 @@ def validate_estimates(rows: Iterable[IndicatorEstimate]) -> None:
             raise ValueError("Unknown quality status")
         if not re.fullmatch(r"[0-9a-fA-F]{64}", row.source_hash):
             raise ValueError("source_hash must be a SHA-256")
-        quality_states.add(row.quality_status)
-
-        if row.quality_status == "SUPPRESSED_EXERCISE":
-            if not row.suppress_flag:
-                raise ValueError("Suppressed quality state requires suppress_flag")
+        if row.quality_status == "SUPPRESSED_EXERCISE" and not row.suppress_flag:
+            raise ValueError("Suppressed quality state requires suppress_flag")
+        if row.suppress_flag:
             if any(getattr(row, field) is not None for field in SUPPRESSED_PROTECTED_FIELDS):
                 raise ValueError("Suppressed rows must not expose protected statistics")
+            if row.quality_status != "SUPPRESSED_EXERCISE":
+                raise ValueError("suppress_flag requires the suppressed quality state")
             continue
 
         if any(getattr(row, field) is None for field in REQUIRED_STATISTICAL_FIELDS):
@@ -79,6 +78,3 @@ def validate_estimates(rows: Iterable[IndicatorEstimate]) -> None:
             raise ValueError("weighted_population must be non-negative when present")
         if not row.ci95_lower <= row.estimate <= row.ci95_upper:
             raise ValueError("The confidence interval must contain the estimate")
-
-    if quality_states != VALID_QUALITY_STATES:
-        raise ValueError("The demo catalog must cover all three visual quality states")

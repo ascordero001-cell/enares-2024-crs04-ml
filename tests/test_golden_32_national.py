@@ -4,13 +4,15 @@ from pathlib import Path
 
 import pytest
 
-from enares.stage04.repository import DemoRepository
+from enares.stage04.repository import AuthorizedAggregateRepository
 from enares.stage04.view_model import to_card_view_model, to_indicator_contract
 
 
 ROOT = Path(__file__).resolve().parents[1]
 GOLDEN = ROOT / "tests" / "golden" / "stage04_32_national"
-DEMO_FIXTURE = ROOT / "app" / "data" / "demo_indicator_estimates.csv"
+V0_FIXTURE = ROOT / "app" / "data" / "v0_authorized_indicator_estimates.csv"
+V0_MANIFEST = ROOT / "app" / "data" / "v0_authorized_indicator_estimates.manifest.json"
+V0_REGISTRY = ROOT / "docs" / "stage04" / "v0_drive_hash_manifest.md"
 NUMERIC_FIELDS = (
     "estimate",
     "standard_error",
@@ -43,7 +45,9 @@ def load_json(name: str) -> dict:
 
 def actual_pilot_row():
     selector = load_json("expected_indicator.json")
-    rows = DemoRepository(DEMO_FIXTURE).list_estimates(selector["module_id"])
+    rows = AuthorizedAggregateRepository(V0_FIXTURE, V0_MANIFEST, V0_REGISTRY).list_estimates(
+        selector["module_id"]
+    )
     matches = [
         row
         for row in rows

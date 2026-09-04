@@ -8,6 +8,15 @@
 Este contrato describe resultados poblacionales agregados. No admite microdatos ni identificadores
 de personas. Los ejemplos son seguros y no constituyen nombres de recursos reales.
 
+## Clasificación de entradas locales
+
+- `demo_indicator_estimates.csv` es un fixture 100 % sintético, didáctico y sin uso institucional.
+- `v0_authorized_indicator_estimates.csv` contiene exclusivamente un corte agregado V0 autorizado,
+  no sintético, sin microdatos y ligado a su manifiesto y al inventario aprobado en el PR #53.
+- Ninguna de estas entradas constituye datos institucionales publicados; publicación y cutover
+  permanecen no autorizados.
+- BigQuery, DDL, Cloud Run y todo recurso cloud permanecen `BLOCKED_BY_CLOUD_GATE`.
+
 | Campo | Tipo | Obligatorio | Significado | Ejemplo seguro | Validación | Procedencia |
 |---|---|---:|---|---|---|---|
 | `release_id` | STRING | Sí | Identifica el release candidato | `enares2024-crs04-v0-shadow-001` | No vacío; inmutable | Registro shadow local |
@@ -32,7 +41,7 @@ de personas. Los ejemplos son seguros y no constituyen nombres de recursos reale
 | `weighted_population` | FLOAT64 | Condicional | Población ponderada cuando la fuente la entrega | `NULL` | Mayor o igual que cero; NULL permitido en V0 legado | Fuente agregada |
 | `cv_flag` | BOOL | Sí | Señal de revisión por CV | `false` | Coherente con regla versionada | Validador de calidad |
 | `n_flag` | BOOL | Sí | Señal de revisión por N | `false` | Coherente con regla versionada | Validador de calidad |
-| `suppress_flag` | BOOL | Sí | Indica que no se exponen valores | `false` | Si true, campos protegidos son NULL en published | Control de privacidad |
+| `suppress_flag` | BOOL | Sí | Control principal de no exposición | `false` | Si true, estimate, SE, IC95, CV, N y weighted_population son NULL | Control de privacidad |
 | `quality_note` | STRING | Sí | Explicación de calidad | `Umbrales provisionales` | No vacía | Validador y ADR |
 | `validation_status` | ENUM | Sí | Estado de validación | `PENDING` | `PENDING`, `PASSED`, `FAILED` o `APPROVED` | Ops local |
 | `created_at` | TIMESTAMP | Sí | Fecha UTC de creación | `2026-09-04T00:00:00Z` | ISO-8601 UTC | Ejecución local |
@@ -50,3 +59,7 @@ Los flags existen técnicamente y viajan con cada resultado, pero su regla insti
 aprobada. `CV > 0.15`, `N < 30` y la tolerancia golden `1e-9` son propuestas didácticas o técnicas
 pendientes de supervisión. El ADR-005 identifica responsables pendientes y evidencia requerida;
 ningún test local puede convertirlas en política institucional.
+
+La validación genérica no exige que cada catálogo reproduzca los tres estados didácticos. La
+cobertura simultánea de `PUBLISHABLE_CANDIDATE`, `REFERENCE_HIGH_CV` y
+`SUPPRESSED_EXERCISE` pertenece exclusivamente al fixture demo.

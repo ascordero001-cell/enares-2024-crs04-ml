@@ -1,0 +1,14 @@
+{
+  "file_name": "v0_authorized_indicator_estimates.csv",
+  "generated_at_utc": "2026-09-04T20:56:12Z",
+  "row_count": 1,
+  "schema_version": "stage04-v0-authorized-aggregate-v1",
+  "sha256": "43f689ba9a54fb98eb3af821c76133a3ff5882abfced64dd87f0c922c3e4465e",
+  "synthetic": false,
+  "data_classification": "AUTHORIZED_AGGREGATE_ONLY",
+  "source_hash": "15B845DA4A886FDCF54A96D8B8471B6F6BE618AE18B43024488C6BD6B23D0BB4",
+  "source_version": "v0_official_drive_baseline",
+  "purpose": "golden local 3.2",
+  "prohibition": "no microdata / no institutional publication",
+  "approval_reference": "Inventario V0 aprobado en https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/53"
+}

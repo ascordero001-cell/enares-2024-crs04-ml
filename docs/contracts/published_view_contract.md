@@ -17,6 +17,8 @@ identificadores personales, variables de diseño ni rutas a fuentes privadas.
 4. La supresión se materializa en la capa published candidata; no puede ser solo visual.
 5. No se publican combinaciones ausentes del catálogo ni filas con `FAILED`.
 6. La aplicación no abre CSV privados, Drive ni `survey_input`.
+7. `suppress_flag` es el control principal de nulificación; el estado visual debe ser coherente,
+   pero no sustituye al flag como barrera de seguridad.
 
 ## Proyección segura mínima
 
@@ -28,3 +30,7 @@ La creación de una vista real en BigQuery permanece `BLOCKED_BY_CLOUD_GATE`.
 La nulificación de campos protegidos es un control técnico local implementado. Los umbrales que
 activan estados siguen siendo propuestas didácticas y requieren aprobación metodológica; no son
 una decisión institucional.
+
+El fixture demo es 100 % sintético. El corte golden V0 es un agregado autorizado, no sintético y
+sin microdatos. Ninguno equivale a datos institucionales publicados. BigQuery, DDL, Cloud Run y
+los demás recursos cloud continúan `BLOCKED_BY_CLOUD_GATE`.
