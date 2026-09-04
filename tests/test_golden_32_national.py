@@ -74,17 +74,32 @@ def test_approved_aggregate_matches_national_32_golden():
     assert_matches_golden(actual)
 
 
-def test_synthetic_change_to_estimate_fails():
+@pytest.mark.parametrize("field", NUMERIC_FIELDS)
+def test_change_to_numeric_golden_field_fails(field):
     changed = deepcopy(to_indicator_contract(actual_pilot_row()))
-    changed["estimate"] += 0.01
+    changed[field] += 0.01
     with pytest.raises(AssertionError):
         assert_matches_golden(changed)
 
 
-@pytest.mark.parametrize("field", ["release_id", "source_hash"])
-def test_change_to_lineage_fails(field):
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("n_unweighted", 18808),
+        ("indicator_id", "CHANGED_ID"),
+        ("indicator_name", "Etiqueta cambiada"),
+        ("module_id", "changed"),
+        ("disaggregation", "changed"),
+        ("category", "changed"),
+        ("state", "APPROVED"),
+        ("quality_status", "REFERENCE_HIGH_CV"),
+        ("release_id", "changed"),
+        ("source_hash", "b" * 64),
+    ],
+)
+def test_change_to_exact_golden_field_fails(field, value):
     changed = deepcopy(to_indicator_contract(actual_pilot_row()))
-    changed[field] = "changed"
+    changed[field] = value
     with pytest.raises(AssertionError):
         assert_matches_golden(changed)
 

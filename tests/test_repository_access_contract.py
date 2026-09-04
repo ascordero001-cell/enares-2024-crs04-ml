@@ -74,6 +74,18 @@ def test_demo_repository_rejects_non_synthetic_row(tmp_path):
         DemoRepository(fixture).list_estimates("3.2")
 
 
+def test_demo_repository_rejects_sensitive_columns(tmp_path):
+    lines = FIXTURE.read_text(encoding="utf-8").splitlines()
+    fixture = tmp_path / "demo.csv"
+    fixture.write_text(
+        f"{lines[0]},respondent_id\n{lines[1]},\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    with pytest.raises(ValueError, match="Sensitive columns"):
+        DemoRepository(fixture).list_estimates("3.2")
+
+
 def test_authorized_repository_rejects_unapproved_source_hash(tmp_path):
     manifest = json.loads(V0_MANIFEST.read_text(encoding="utf-8"))
     manifest["source_hash"] = "b" * 64
