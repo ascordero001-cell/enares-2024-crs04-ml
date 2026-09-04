@@ -19,7 +19,8 @@ def test_demo_repository_implements_expected_signature_and_preserves_quality():
         "REFERENCE_HIGH_CV",
         "SUPPRESSED_EXERCISE",
     }
-    assert all(row.synthetic for row in rows)
+    assert sum(row.synthetic for row in rows) == 2
+    assert next(row for row in rows if row.indicator_id == "VF_HOGAR").synthetic is False
     assert all(row.engine_version == "v0_csv" for row in rows)
 
 

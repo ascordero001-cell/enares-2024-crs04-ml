@@ -1,2 +1,3 @@
 # Preserve hash-stable Stage 03 contract evidence.
 /docs/stage03/contracts/v0/*.csv text eol=lf
+/app/data/*.csv text eol=lf

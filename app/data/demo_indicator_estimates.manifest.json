@@ -1,11 +1,15 @@
 {
   "file_name": "demo_indicator_estimates.csv",
   "generated_at_utc": "2026-09-04T17:47:59Z",
-  "purpose": "Ejercitar localmente los estados visuales del módulo 3.2 sin usar datos ENARES.",
+  "purpose": "Ejercitar localmente el piloto agregado autorizado y dos estados visuales sintéticos del módulo 3.2.",
   "responsible": "Ana Silvia Cordero Ricaldi",
   "row_count": 3,
   "schema_version": "stage04-demo-indicator-estimates-v1",
-  "sha256": "528ef4b9a5d3cb14aaec420f3d617ae5220e7f9f01a99e648d72a93f5ac9f7c8",
+  "sha256": "5c7073b3e86334324e8dbf0694860077bdb7b5bdaf65996d767c8e19effe24ad",
   "synthetic": true,
-  "warning": "Datos totalmente sintéticos; prohibido su uso institucional o interpretación como resultados ENARES."
+  "composition": {
+    "authorized_aggregate_rows": 1,
+    "synthetic_rows": 2
+  },
+  "warning": "Fixture local mixto: un agregado V0 autorizado y dos filas totalmente sintéticas; prohibido su uso institucional."
 }

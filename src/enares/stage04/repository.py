@@ -22,6 +22,9 @@ SENSITIVE_COLUMNS = {
     "longitude",
     "raw_record",
 }
+AUTHORIZED_AGGREGATE_HASHES = {
+    "15B845DA4A886FDCF54A96D8B8471B6F6BE618AE18B43024488C6BD6B23D0BB4"
+}
 
 
 @dataclass(frozen=True)
@@ -95,8 +98,9 @@ class DemoRepository(IndicatorRepository):
 
     @classmethod
     def _to_estimate(cls, row: dict[str, str]) -> IndicatorEstimate:
-        if row.get("synthetic", "").lower() != "true":
-            raise ValueError("DemoRepository only accepts rows marked synthetic=true")
+        synthetic = cls._bool(row.get("synthetic", ""))
+        if not synthetic and row["source_hash"] not in AUTHORIZED_AGGREGATE_HASHES:
+            raise ValueError("Non-synthetic rows require an explicitly authorized aggregate hash")
         return IndicatorEstimate(
             release_id=row["release_id"],
             run_id=row["run_id"],
@@ -128,7 +132,7 @@ class DemoRepository(IndicatorRepository):
             universe=row["universe"],
             denominator=row["denominator"],
             quality_status=row["quality_status"],
-            synthetic=True,
+            synthetic=synthetic,
         )
 
 
