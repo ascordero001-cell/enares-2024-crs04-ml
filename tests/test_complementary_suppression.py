@@ -18,6 +18,7 @@ def synthetic_partition():
             "ci95_upper": 100.0,
             "cv": 0.0,
             "n_unweighted": 100,
+            "weighted_population": 1000.0,
             "suppress_flag": False,
         },
         {
@@ -29,6 +30,7 @@ def synthetic_partition():
             "ci95_upper": 9.0,
             "cv": 0.14,
             "n_unweighted": 7,
+            "weighted_population": 70.0,
             "suppress_flag": True,
         },
         {
@@ -40,6 +42,7 @@ def synthetic_partition():
             "ci95_upper": 95.0,
             "cv": 0.01,
             "n_unweighted": 93,
+            "weighted_population": 930.0,
             "suppress_flag": False,
         },
     ]
@@ -66,6 +69,18 @@ def test_suppression_is_materialized_in_published_layer():
         assert row["ci95_lower"] is None
         assert row["ci95_upper"] is None
         assert row["n_unweighted"] is None
+        assert row["weighted_population"] is None
+
+
+def test_suppressed_weighted_population_is_rejected_before_materialization():
+    rows = synthetic_partition()
+    with pytest.raises(ValueError, match="exposes"):
+        assert_suppressed_fields_are_null(rows)
+
+
+def test_non_suppressed_weighted_population_is_preserved():
+    published = apply_published_suppression(synthetic_partition())
+    assert published[0]["weighted_population"] == 1000.0
 
 
 def test_visual_only_suppression_fails_published_contract():

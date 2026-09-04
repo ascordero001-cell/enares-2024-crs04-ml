@@ -21,6 +21,19 @@
 | Riesgo residual | Más de un cruce o release podría permitir inferencia aun con una tabla aislada protegida |
 | Decisión pendiente | Aprobar propietario, regla institucional, umbrales y análisis multitabla/multirelease |
 
+## Estado de verificación
+
+| Riesgo o control | Estado de evidencia |
+|---|---|
+| Reconstrucción aditiva simple `Total = A + B` | `TEST_AUTOMATIZADO` |
+| Cruces entre tablas o múltiples releases | `RIESGO_DOCUMENTADO_TEST_PENDIENTE` |
+| Enlace con fuentes externas | `RIESGO_DOCUMENTADO_TEST_PENDIENTE` |
+| Logs, errores, caché y exports | `CONTROLES_ESPECIFICADOS_PRUEBA_DE_INTEGRACION_PENDIENTE` |
+
+Solo la reconstrucción aditiva simple y la nulificación de campos en la proyección local cuentan
+como pruebas automatizadas en este subbloque. Los demás elementos son riesgos o controles
+documentados y no se presentan como verificados experimentalmente.
+
 ## Demostración sintética
 
 La tabla de prueba usa `Total = 100`, `grupo A = 7` y `grupo B = 93`. Ninguna cifra representa

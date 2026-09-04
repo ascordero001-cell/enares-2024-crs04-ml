@@ -17,6 +17,19 @@ primaria suprimida activa análisis de reconstrucción y, cuando un total o marg
 supresión complementaria. Published elimina estimate, error estándar, intervalo, CV y N antes de
 que la aplicación o un export reciban la fila.
 
+## Estado de decisiones
+
+| Decisión | Estado | Responsable de aprobar | Evidencia requerida |
+|---|---|---|---|
+| Nulificar campos protegidos en una celda suprimida dentro de published candidata | `TECHNICAL_CONTROL_IMPLEMENTED_LOCAL` | Revisión técnica del PR | Tests de supresión y contrato |
+| Usar `CV > 0.15` como señal referencial | `DIDACTIC_PROPOSAL` | Propietario metodológico `PENDIENTE/NO_ASIGNADO` y supervisión | Criterio institucional documentado y casos límite |
+| Usar `N < 30` como señal de supresión | `DIDACTIC_PROPOSAL` | Propietario metodológico `PENDIENTE/NO_ASIGNADO` y supervisión | Evaluación de divulgación, utilidad y cruces |
+| Tolerancia golden absoluta `1e-9` | `PROPOSED_REQUIRES_SUPERVISORY_APPROVAL` | Supervisión metodológica | Comparación de serialización y sensibilidad |
+| Regla institucional de calidad y supresión | `NOT_APPROVED_PENDING_SUPERVISION` | Institución y propietario metodológico aún no asignado | Política formal, pruebas multitabla/multirelease y aprobación registrada |
+
+La implementación técnica local no convierte una propuesta didáctica en decisión institucional.
+No existe autoaprobación de umbrales, tolerancia ni propietario.
+
 ## Alternativas
 
 - Mostrar todo con advertencias: rechazada por riesgo de reconstrucción.

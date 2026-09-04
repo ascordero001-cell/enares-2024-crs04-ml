@@ -24,3 +24,7 @@ identificadores personales, variables de diseño ni rutas a fuentes privadas.
 campos estadísticos protegidos, flags, `quality_note`, `validation_status` y `created_at`.
 
 La creación de una vista real en BigQuery permanece `BLOCKED_BY_CLOUD_GATE`.
+
+La nulificación de campos protegidos es un control técnico local implementado. Los umbrales que
+activan estados siguen siendo propuestas didácticas y requieren aprobación metodológica; no son
+una decisión institucional.

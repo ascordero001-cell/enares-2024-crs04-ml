@@ -43,3 +43,10 @@ La llave candidata es `release_id + run_id + indicator_id + disaggregation + cat
 No puede haber duplicados. Un release aprobado nunca se sobrescribe: una corrección crea otro
 `run_id` o release y conserva el registro anterior. El piloto usa `engine_version = v0_csv`,
 `validation_status = PENDING` y un `release_id` explícitamente shadow.
+
+## Decisiones metodológicas vigentes
+
+Los flags existen técnicamente y viajan con cada resultado, pero su regla institucional no está
+aprobada. `CV > 0.15`, `N < 30` y la tolerancia golden `1e-9` son propuestas didácticas o técnicas
+pendientes de supervisión. El ADR-005 identifica responsables pendientes y evidencia requerida;
+ningún test local puede convertirlas en política institucional.

@@ -12,6 +12,7 @@ PROTECTED_FIELDS = (
     "ci95_upper",
     "cv",
     "n_unweighted",
+    "weighted_population",
 )
 
 

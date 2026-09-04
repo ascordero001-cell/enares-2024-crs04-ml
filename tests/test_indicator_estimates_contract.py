@@ -47,3 +47,31 @@ def test_failed_validation_state_is_blocking():
     rows[0] = replace(rows[0], validation_status="FAILED")
     with pytest.raises(ValueError, match="FAILED"):
         validate_estimates(rows)
+
+
+def test_legacy_v0_row_allows_missing_weighted_population():
+    rows = demo_rows()
+    pilot = next(row for row in rows if row.indicator_id == "VF_HOGAR")
+    assert pilot.weighted_population is None
+    validate_estimates(rows)
+
+
+def test_positive_weighted_population_is_valid():
+    rows = demo_rows()
+    assert any((row.weighted_population or 0) > 0 for row in rows)
+    validate_estimates(rows)
+
+
+def test_negative_weighted_population_fails():
+    rows = demo_rows()
+    rows[0] = replace(rows[0], weighted_population=-1.0)
+    with pytest.raises(ValueError, match="weighted_population"):
+        validate_estimates(rows)
+
+
+def test_suppressed_row_cannot_retain_weighted_population():
+    rows = demo_rows()
+    suppressed_index = next(i for i, row in enumerate(rows) if row.suppress_flag)
+    rows[suppressed_index] = replace(rows[suppressed_index], weighted_population=1.0)
+    with pytest.raises(ValueError, match="protected"):
+        validate_estimates(rows)
