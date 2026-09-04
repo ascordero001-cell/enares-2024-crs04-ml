@@ -88,4 +88,3 @@ comparación CSV–BigQuery ejecutada. Toda creación o carga cloud permanece
   `CV > 0.15` y `N < 30` solo se usan como ejercicios provisionales en el checklist.
 - Pendiente de una fase posterior: contratos locales, golden test, seguridad, wireframe y toda
   actividad cloud. No se avanzará a ellos antes de resolver la PUERTA B.
-

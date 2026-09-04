@@ -100,4 +100,3 @@ Se solicita confirmar:
 2. que universo, denominador y tratamiento de missing están interpretados correctamente;
 3. que los casos A–C son suficientes para el ejercicio formativo;
 4. qué regla institucional sustituirá, si corresponde, los umbrales provisionales.
-
