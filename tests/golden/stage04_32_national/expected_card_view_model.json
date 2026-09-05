@@ -1,0 +1,17 @@
+{
+  "category": "Total",
+  "cv_text": "CV 0.03055",
+  "denominator_text": "Denominador: casos válidos del diseño muestral",
+  "disaggregation": "Nacional",
+  "estimate_text": "16.74 %",
+  "indicator_id": "VF_HOGAR",
+  "indicator_name": "VF_HOGAR",
+  "interval_text": "IC95 %: 15.74 %–17.75 %",
+  "module_label": "3.2 Violencia en el hogar",
+  "n_text": "N no ponderado: 18,807",
+  "quality_status": "PUBLISHABLE_CANDIDATE",
+  "release_id": "enares2024-crs04-v0-shadow-001",
+  "source_version": "v0_official_drive_baseline",
+  "state": "SHADOW",
+  "universe_text": "Adolescentes de 12 a 17 años de CRS04 con VF_HOGAR válido; ENARES 2024"
+}

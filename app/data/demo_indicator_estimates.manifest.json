@@ -1,0 +1,14 @@
+{
+  "file_name": "demo_indicator_estimates.csv",
+  "generated_at_utc": "2026-09-04T20:56:12Z",
+  "purpose": "Ejercitar localmente los tres estados visuales del módulo 3.2 con datos 100 % didácticos y sin uso institucional.",
+  "responsible": "Ana Silvia Cordero Ricaldi",
+  "row_count": 3,
+  "schema_version": "stage04-demo-indicator-estimates-v1",
+  "sha256": "4b94239e5fb32a16305e71e00d17b9bbe499fd257000f2ea9a56a2634b892d5a",
+  "synthetic": true,
+  "composition": {
+    "synthetic_rows": 3
+  },
+  "warning": "Fixture 100 % sintético y didáctico; no contiene resultados V0 y está prohibido su uso institucional."
+}

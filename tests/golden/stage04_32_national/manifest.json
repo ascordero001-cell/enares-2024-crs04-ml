@@ -1,0 +1,14 @@
+{
+  "fixture_kind": "authorized_aggregate_golden",
+  "indicator_id": "VF_HOGAR",
+  "methodological_approval": "PUERTA_B_PR_54",
+  "numeric_tolerance": {
+    "absolute": 1e-09,
+    "justification": "Solo absorbe serialización de punto flotante; es mucho menor que la precisión reportable y no puede ocultar una diferencia sustantiva.",
+    "status": "PROPOSED_REQUIRES_SUPERVISORY_APPROVAL"
+  },
+  "release_id": "enares2024-crs04-v0-shadow-001",
+  "source_hash": "15B845DA4A886FDCF54A96D8B8471B6F6BE618AE18B43024488C6BD6B23D0BB4",
+  "state": "SHADOW",
+  "synthetic": false
+}
