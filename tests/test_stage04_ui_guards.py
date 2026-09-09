@@ -206,7 +206,7 @@ def test_streamlit_local_hardening_is_versioned():
 
 
 def test_apptest_escapes_repository_html_sentinel_before_display():
-    def sentinel_application(row: IndicatorEstimate) -> None:
+    def sentinel_application(row):
         import streamlit as st
 
         from app.views.stage04_dashboard import build_numeric_card
@@ -232,7 +232,7 @@ def test_unsafe_html_is_limited_to_static_css():
 
 
 def test_apptest_invalid_statistic_never_reaches_a_metric():
-    def guarded_application(repository: IndicatorRepository) -> None:
+    def guarded_application(repository):
         from app.streamlit_app import _validated_state_gallery
 
         _validated_state_gallery(repository)
@@ -245,7 +245,7 @@ def test_apptest_invalid_statistic_never_reaches_a_metric():
 
 
 def test_apptest_internal_error_exposes_no_path_token_or_file_content():
-    def guarded_application(repository: IndicatorRepository) -> None:
+    def guarded_application(repository):
         from app.streamlit_app import _validated_state_gallery
 
         _validated_state_gallery(repository)
