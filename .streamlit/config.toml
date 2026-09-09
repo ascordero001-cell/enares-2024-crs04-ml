@@ -1,0 +1,4 @@
+[client]
+toolbarMode = "viewer"
+disableDataExport = true
+showErrorDetails = "none"
