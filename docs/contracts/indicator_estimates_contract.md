@@ -48,6 +48,13 @@ de personas. Los ejemplos son seguros y no constituyen nombres de recursos reale
 
 ## Llave e invariantes
 
+Para el adaptador V0 del Corte 2, `n_unweighted` procede exclusivamente de `base_unw`:
+cuenta los casos no ponderados del denominador. `target_unw` cuenta los casos de la
+categoría analizada y `n_unw` legado no se usa como sustituto. Si falta `base_unw`,
+la adaptación falla; no se infiere N. Correspondencia aclarada explícitamente por la
+usuaria y contrastada con las columnas del agregado de Drive. Esta correspondencia
+no autoriza por sí sola estados de calidad ni supresión.
+
 La llave candidata es `release_id + run_id + indicator_id + disaggregation + category`.
 No puede haber duplicados. Un release aprobado nunca se sobrescribe: una corrección crea otro
 `run_id` o release y conserva el registro anterior. El piloto usa `engine_version = v0_csv`,

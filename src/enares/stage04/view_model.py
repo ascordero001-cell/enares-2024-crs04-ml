@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from .modules import get_module
 from .repository import IndicatorEstimate
 
 
@@ -44,7 +45,7 @@ def to_card_view_model(row: IndicatorEstimate) -> dict:
         "indicator_id": row.indicator_id,
         "indicator_name": row.indicator_name,
         "interval_text": f"IC95 %: {row.ci95_lower:.2f} %–{row.ci95_upper:.2f} %",
-        "module_label": "3.2 Violencia en el hogar",
+        "module_label": get_module(row.module_id).full_label,
         "n_text": f"N no ponderado: {row.n_unweighted:,}",
         "quality_status": row.quality_status,
         "release_id": row.release_id,

@@ -30,3 +30,15 @@ La reconstrucción aditiva simple tiene prueba automatizada. Los cruces multitab
 el enlace externo permanecen `TEST_PENDIENTE`; logs, errores, caché y exports permanecen
 `PRUEBA_DE_INTEGRACIÓN_PENDIENTE`. Los umbrales `CV > 0.15`, `N < 30`, la tolerancia `1e-9` y el
 owner metodológico siguen pendientes de aprobación formal y no son política institucional.
+
+## Corte 2 — discrepancias detectadas antes de publicación
+
+| ID | Comparación | Clasificación | Efecto | Tratamiento | Revisor | Estado |
+|---|---|---|---|---|---|---|
+| KD-C2-01 | Flags de la adaptación frente a campos existentes en V0 | Calidad no conciliada | Bloquea nuevas cifras | Retirada adaptación con flags false por defecto; conservar golden | PENDIENTE | OPEN |
+| KD-C2-02 | Centinelas 3.1/3.5 frente a títulos mitos/acumulación | Correspondencia temática contrastada en Drive | Selección resuelta; calidad/supresión pendientes | 3.1: justifica_castigo_parental/docente; 3.5: PV_hogar_escuela; evidencia en indicator_reconciliation_corte2.md | Revisión formal pendiente | RESOLVED_MAPPING |
+| KD-C2-03 | n_unw frente a target_unw/base_unw en dominios condicionados | N del denominador aclarada | Correspondencia resuelta; otros gates siguen abiertos | n_unweighted toma exclusivamente base_unw; aclaración explícita de la usuaria, contraste en Drive y tests sintéticos | Revisión formal del corte pendiente | RESOLVED_MAPPING |
+| KD-C2-04 | Tipo special del diccionario frente a prevalence/distribution en seis salidas 3.5 | Contrato especial | Bloquea adaptación genérica | Exigir adaptador explícito; no tratar como prevalencia binaria ordinaria | PENDIENTE | OPEN |
+| KD-C2-05 | Cuatro filas de contexto de Solap_VP_VF_E / Solap_VP_VF_H sin SE, IC ni CV | Estadísticas incompletas | No pueden mostrarse como estimaciones completas | Conservar vacíos y excluir de tarjetas hasta decisión de calidad | PENDIENTE | OPEN |
+| KD-C2-06 | C3P242_10, C3P242_5, C4P258_7 y ayuda_vs_car con estimación/target 0 y CV vacío | CV no definido para cero eventos | Requiere estado visual explícito | Conservar CV vacío; no sustituir por cero ni aprobar publicación por defecto | PENDIENTE | OPEN |
+| KD-C2-07 | Disponibilidad observada frente a autorización explícita por dimensión | La presencia en V0 no acredita calidad/supresión | Una fila disponible podía alcanzar el repositorio sin un gate explícito de autorización | Validación central y UI exigen `authorized_dimensions`; solo 3.2/Nacional permanece habilitado | Revisión formal pendiente | RESOLVED_ENGINEERING_REVIEW_PENDING |

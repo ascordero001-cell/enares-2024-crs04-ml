@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from collections.abc import Iterable
 
+from .modules import get_module
 from .repository import IndicatorEstimate
 
 
@@ -35,6 +36,23 @@ def validate_estimates(rows: Iterable[IndicatorEstimate]) -> None:
 
     keys: set[tuple[str, ...]] = set()
     for row in materialized:
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{2,127}", row.release_id):
+            raise ValueError("release_id is invalid")
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{2,127}", row.run_id):
+            raise ValueError("run_id is invalid")
+        if not re.fullmatch(r"[0-9a-fA-F]{40}", row.git_commit_sha):
+            raise ValueError("git_commit_sha must be a 40-character hexadecimal SHA")
+        if not row.source_version:
+            raise ValueError("source_version is required")
+        module = get_module(row.module_id)
+        if not row.synthetic and row.indicator_id not in module.indicator_ids:
+            raise ValueError("indicator_id is not registered for its module")
+        if not row.synthetic and row.disaggregation not in module.available_dimensions:
+            raise ValueError("disaggregation is not available for its module")
+        if not row.synthetic and row.disaggregation not in module.authorized_dimensions:
+            raise ValueError("disaggregation is not authorized for its module")
+        if not row.category:
+            raise ValueError("category is required")
         key = (
             row.release_id,
             row.run_id,
@@ -78,3 +96,8 @@ def validate_estimates(rows: Iterable[IndicatorEstimate]) -> None:
             raise ValueError("weighted_population must be non-negative when present")
         if not row.ci95_lower <= row.estimate <= row.ci95_upper:
             raise ValueError("The confidence interval must contain the estimate")
+
+    if len({row.release_id for row in materialized}) != 1:
+        raise ValueError("A catalog cannot mix releases")
+    if len({row.source_hash for row in materialized}) != 1:
+        raise ValueError("A catalog cannot mix source hashes")

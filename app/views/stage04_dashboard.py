@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import asdict
 from html import escape
 
-from app.config import QUALITY_LABELS
+from app.config import QUALITY_LABELS, get_module
 from enares.stage04.privacy import PROTECTED_FIELDS, apply_published_suppression
 from enares.stage04.repository import IndicatorEstimate, IndicatorRepository
 from enares.stage04.validation import validate_estimates
@@ -85,7 +85,7 @@ def build_suppressed_card(row: IndicatorEstimate) -> dict:
     return {
         "indicator_id": escape_dynamic_text(row.indicator_id),
         "indicator_name": escape_dynamic_text(row.indicator_name),
-        "module_label": "3.2 Violencia en el hogar",
+        "module_label": get_module(row.module_id).full_label,
         "disaggregation": escape_dynamic_text(row.disaggregation),
         "category": escape_dynamic_text(row.category),
         "quality_status": row.quality_status,
@@ -99,9 +99,12 @@ def build_suppressed_card(row: IndicatorEstimate) -> dict:
     }
 
 
-def build_state_cards(repository: IndicatorRepository) -> list[dict]:
+def build_state_cards(
+    repository: IndicatorRepository,
+    module_id: str = "3.2",
+) -> list[dict]:
     """Build the three documented demo states through the Repository interface."""
     cards = []
-    for row in load_validated_estimates(repository, "3.2"):
+    for row in load_validated_estimates(repository, module_id):
         cards.append(build_suppressed_card(row) if row.suppress_flag else build_numeric_card(row))
     return cards
