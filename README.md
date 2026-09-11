@@ -1,141 +1,167 @@
-# ENARES 2024 CRS04 — Reproducible Cloud Pipeline and Population Surveillance
+# ENARES 2024 CRS04 — Reproducible Pipeline and Population Surveillance
+
+### Reproducible survey engineering and privacy-safe population surveillance for adolescents in Peru
 
 [![CI](https://github.com/ascordero001-cell/enares-2024-crs04-ml/actions/workflows/ci.yml/badge.svg)](https://github.com/ascordero001-cell/enares-2024-crs04-ml/actions/workflows/ci.yml)
+![Stage 03](https://img.shields.io/badge/Stage%2003-PASS%20in%20shadow-success)
+![Stage 04](https://img.shields.io/badge/Stage%2004-LOCAL%20SHADOW-yellow)
+![Privacy](https://img.shields.io/badge/data-no%20microdata-blue)
 
-Pipeline reproducible, trazable y auditable para procesar el Cuestionario 4 de
-ENARES 2024, correspondiente a adolescentes de 12 a 17 años, y preparar una
-aplicación de vigilancia poblacional de la violencia contra niñas, niños y
-adolescentes.
+A reproducible, traceable and auditable pipeline that processes ENARES 2024
+Questionnaire 4 — adolescents aged 12–17 — and develops a population-level
+surveillance application for violence against children and adolescents in Peru.
 
-El proyecto forma parte de un **Independent Undergraduate Research
-Apprenticeship** en Data Engineering aplicado a microdatos oficiales del INEI.
+Built by **Ana Silvia Cordero Ricaldi**, BSc Computer Science and Artificial
+Intelligence student at the University of Sussex, as an **Independent
+Undergraduate Research Apprenticeship** in data engineering applied to official
+institutional microdata.
 
-> **Estado de publicación:** V0 continúa siendo la versión oficial. La versión
-> `stage03-v0.5-cloud-full` completó sus gates técnicos, de reproducibilidad,
-> supervisión metodológica y handoff a Stage 04, pero permanece en
-> `SHADOW — NOT PUBLISHED`.
+> **Publication status:** V0 remains the official version. Release
+> `stage03-v0.5-cloud-full` passed its technical, reproducibility and
+> methodological-supervision gates and completed handoff to Stage 04, but
+> remains `SHADOW — NOT PUBLISHED`. Stage 04 is authorised only as
+> `LOCAL SHADOW ONLY`; cloud, publication and cutover remain unauthorised.
 
-## Estado del proyecto
+![Synthetic Stage 04 demonstration showing candidate, reference and suppressed states](docs/stage04/evidence/sprint042_corte2_states.png)
 
-| Stage | Alcance | Estado |
+*Synthetic demonstration — SHADOW, NOT PUBLISHED. It contains no respondent-level data.*
+
+## What this project delivers
+
+- Reproducible ingestion and preservation of official institutional survey sources, with
+  manifests and hashes frozen at every stage.
+- Survey-weighted indicators for analytical modules 3.1–3.6 — **516 indicators**
+  across **3,014 statistical rows**, validated against SPSS with **3,013/3,014
+  exact parity (99.97%)**.
+- Automated tests, CI (`pytest` and Dataform compilation), Architecture Decision
+  Records, and independent methodological review before promotion.
+- A privacy-safe Streamlit population-surveillance application, currently in
+  controlled local shadow development for Stage 04.
+- No microdata or individual respondent records in the public repository —
+  code, contracts, synthetic fixtures and aggregated evidence only.
+
+## Current status
+
+| Stage | Scope | Status |
 |---|---|---|
-| Stage 01 | Ingesta y preservación de fuentes oficiales | ✅ Aprobado |
-| Stage 02 | Almacenamiento y validación inicial en BigQuery | ✅ Aprobado |
-| Stage 03 | Limpieza, indicadores 3.1–3.6, diseño muestral y migración cloud | ✅ `PASS` en shadow |
-| Stage 04 | Aplicación cloud de vigilancia poblacional y publicación agregada controlada | `PREPARING/SHADOW` — bootstrap en revisión |
-| Stage 05 | Evaluación, monitoreo y decisiones posteriores de publicación | ⏳ Pendiente |
+| Stage 01 | Ingestion and preservation of official sources | ✅ Approved |
+| Stage 02 | Storage and initial validation in BigQuery | ✅ Approved |
+| Stage 03 | Cleaning, indicators 3.1–3.6, sampling design and cloud migration | ✅ `PASS` in shadow |
+| Stage 04 | Privacy-safe population-surveillance application | 🟡 `LOCAL SHADOW ONLY` — Corte 2 under review |
+| Stage 05 | Evaluation, monitoring and post-publication decisions | ⏳ Pending |
 
-## Principios
+**Version meaning:** `V0` is the historical implementation and official version.
+`V0.5` is the component-validated cloud migration and remains
+`SHADOW — NOT PUBLISHED`. `V1` is a future promoted version, pending a separate
+cutover decision. A technical or methodological `PASS` does not itself authorise
+institutional publication.
 
-- La V0 se conserva; la migración no borra el trabajo previo.
-- SPSS y los contratos V0 congelados son la referencia metodológica.
-- Cada componente candidato se valida antes de cualquier promoción.
-- `0`, `NULL`, salto válido y no respuesta conservan significados distintos.
-- El bloque oficial **3.6 corresponde a búsqueda de ayuda**; los nombres
-  históricos 3.7 se preservan únicamente para trazabilidad.
-- Stage 04 consume resultados aprobados de Stage 03 y no recalcula indicadores.
-- GitHub contiene código, contratos y evidencia agregada; no contiene
-  microdatos ni credenciales.
+## Explore the project
 
-## Arquitectura
+| I want to… | Go to |
+|---|---|
+| Understand the Stage 04 architecture | [Architecture blueprint](CRS04_STAGE04_HOJA_ARQUITECTONICA_APP_VIGILANCIA.md) |
+| Review full Stage 03 closure evidence | [Closure report](docs/stage03/stage3_closure_report.md) · [Stage 03 PASS](docs/stage03/stage3_pass.md) · [Data contract](docs/stage03/stage03_data_contract.md) |
+| Follow Stage 04 development | [Governing document](CRS04_STAGE04_CORREGIDO_VER6_NUEVA_METODOLOGIA.md) · [Issue map](docs/stage04/issue_map.md) · [Umbrella issue #43](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/43) |
+| Inspect Corte 2 evidence | [Coverage record](docs/stage04/sprint042_corte2_module_coverage.md) · [Module matrix](docs/stage04/module_coverage_matrix.md) · [HCI evidence](docs/stage04/hci_accessibility_corte2.md) |
+| Understand an engineering decision | [Architecture Decision Records](docs/adr/) |
+| Contribute | [Contribution guide](CONTRIBUTING.md) |
+
+## Architecture at a glance
 
 ```text
-INEI / fuentes SPSS oficiales
-  -> Stage 01: ingesta, manifiestos y hashes
-  -> Stage 02: BigQuery raw
-  -> Stage 03: cleaned
-  -> Stage 03: analytical 3.1–3.6
+Official institutional / SPSS sources
+  -> Stage 01: ingestion, manifests and hashes
+  -> Stage 02: raw layer
+  -> Stage 03: cleaned layer
+  -> Stage 03: analytical modules 3.1–3.6
   -> reporting_crs04_survey_input_v0_5
-  -> validaciones Dataform + regresión SPSS–R
-  -> decisión humana y release shadow
-  -> Stage 04: resultados agregados
-  -> staging_dashboard_base
-  -> validación
-  -> staging_dashboard_indicators
-  -> validación
-  -> published.v_dashboard_current
-  -> aplicación Streamlit / Cloud Run
+  -> Dataform validations + SPSS-R regression
+  -> human decision and shadow release
+  -> Stage 04: validated aggregates
+  -> local contracts and repository boundary
+  -> row validation and privacy controls
+  -> local Streamlit application
 ```
 
-La futura aplicación consulta únicamente datos agregados, validados y
-publicados. No consulta `raw`, `cleaned`, `analytical` ni microdatos de
-respondentes.
+The application consumes only authorised aggregated results. It never queries
+respondent-level microdata or supports searches for individual children or
+adolescents. The future BigQuery published view and Cloud Run deployment remain
+behind a separate cloud gate; no cloud resource is authorised in the current phase.
 
-## Resultados de Stage 03
+## Analytical modules
 
-La migración cloud de Stage 03 cerró con:
-
-- baseline V0 preservada mediante el tag `stage03-v0-baseline`;
-- release técnico `stage03-v0.5-cloud-full`;
-- 18,807 registros en la base integrada;
-- 1,206 columnas en la capa cleaned;
-- bloques analíticos 3.1–3.6 y 730 outputs derivados;
-- 1,937 columnas en la tabla analytical completa;
-- 516 indicadores y 3,014 filas estadísticas validadas;
-- 3,013/3,014 comparaciones SPSS–R con paridad estricta;
-- una excepción metodológica documentada: `VS_12M — Nacional — Total`;
-- contrato reporting de 18,807 filas y 737 columnas explícitas;
-- tablas operativas `pipeline_runs` y `validation_results`;
-- CI con `pytest` y compilación Dataform;
-- aprobación metodológica independiente mediante PR #40;
-- handoff, decisión `REMAIN_SHADOW` y cierre mediante PR #41.
-
-La excepción `VS_12M` utiliza el denominador poblacional completo de 18,807
-adolescentes, de acuerdo con la regla canónica documentada. No se ocultó ni se
-absorbió mediante una tolerancia mayor.
-
-## Diseño muestral validado
-
-El contrato validado para R survey es:
-
-```r
-svydesign(
-  ids = ~ID,
-  strata = ~CCDD,
-  weights = ~FACTOR_ALUMNOS,
-  nest = TRUE
-)
-```
-
-El diseño reproduce 25 estratos, 1,115 PSU y 1,090 grados de libertad.
-`ID_AULA` se conserva para auditoría, pero no se utiliza como segunda etapa del
-diseño validado.
-
-## Módulos analíticos
-
-| Bloque | Contenido |
+| Module | Population surveillance content |
 |---|---|
-| 3.1 | Características, percepciones y normas |
-| 3.2 | Violencia psicológica y física en el hogar |
-| 3.3 | Violencia psicológica y física en la escuela |
-| 3.4 | Violencia sexual |
-| 3.5 | Polivictimización y acumulación de violencias |
-| 3.6 | Búsqueda y recepción de ayuda |
+| 3.1 | Characteristics, perceptions and social norms |
+| 3.2 | Psychological and physical violence in the household |
+| 3.3 | Psychological and physical violence at school |
+| 3.4 | Sexual violence |
+| 3.5 | Polyvictimisation and accumulation of violence |
+| 3.6 | Help-seeking and receipt of support |
 
-## Estructura del repositorio
+The official block **3.6 corresponds to help-seeking**. Historical `3.7` naming
+is preserved only in traceability documentation and is never presented as current.
+
+## Reproducibility and collaboration
+
+Two guarantees are kept separate: **reproducible** means that the same inputs
+produce the same outputs; **collaborative** means another contributor can extend
+the work without silently breaking its contracts.
+
+**Reproducible — same inputs, same outputs**
+
+- **Source integrity.** Every raw survey file is hashed on ingestion in Stage 01,
+  and the V0 baseline is frozen under the `stage03-v0-baseline` tag.
+- **Validated parity.** Release `stage03-v0.5-cloud-full` matched SPSS on 3,013 of
+  3,014 statistical rows. The documented `VS_12M` exception uses the full
+  18,807-adolescent denominator required by the canonical rule.
+- **Versioned contracts.** The reporting contract is pinned at 18,807 rows and
+  737 explicit columns; an indicator change requires a contract change rather
+  than an unrecorded query edit.
+
+**Collaborative — someone else can pick this up**
+
+- **Traceable decisions.** [Architecture Decision Records](docs/adr/) capture why
+  universes, denominators, recodes and sampling-design choices were made.
+- **Gated changes.** Work follows issue → branch → small commits → pull request →
+  CI → independent review → merge.
+- **Tested before merge.** `.github/workflows/ci.yml` runs blocking `pytest` and
+  Dataform compilation on a clean runner, plus informative notebook lint.
+
+## Privacy and responsible use
+
+This public repository contains code, contracts, synthetic fixtures and
+aggregated evidence only. It does not contain `.sav` files, `.zip`/`.xlsx`
+exports with microdata, respondent-level rows, personal identifiers,
+credentials, tokens, `.env` files, service-account keys or unsanitised Drive
+identifiers. Original data and restricted outputs remain in authorised private
+locations. The surveillance application must never support searches for
+individual children or adolescents.
+
+## Repository map
 
 ```text
 enares-2024-crs04-ml/
-├── .github/workflows/       # Integración continua
-├── configs/                 # Configuración, indicadores y skip logic
+├── .github/workflows/       # Continuous integration
+├── app/                     # Local Streamlit application
+├── configs/                 # Configuration, indicators and skip logic
 ├── dataform/
 │   └── definitions/
-│       ├── sources/         # Fuentes raw y referencias V0
-│       ├── cleaned/         # Integración estructural
-│       ├── analytical/      # Bloques 3.1–3.6 y tabla completa
-│       ├── assertions/      # Calidad, dominio y paridad
-│       ├── reporting/       # Contrato de entrega a Stage 04
-│       └── ops/             # Linaje y resultados de validación
+│       ├── sources/         # Raw sources and V0 references
+│       ├── cleaned/         # Structural integration
+│       ├── analytical/      # Modules 3.1–3.6 and the full table
+│       ├── assertions/      # Quality, domain and parity checks
+│       ├── reporting/       # Delivery contract to Stage 04
+│       └── ops/             # Lineage and validation results
 ├── docs/
 │   ├── adr/                 # Architecture Decision Records
-│   └── stage03/             # Contratos, evidencia y cierre
-├── notebooks/
-│   ├── 01_ingesta/
-│   ├── 02_bigquery/
-│   └── 03_limpieza/
-├── scripts/                 # Generadores y utilidades reproducibles
-├── src/enares/              # Código Python modular
-├── tests/unit/              # Pruebas con datos sintéticos
+│   ├── stage03/             # Contracts, evidence and closure
+│   └── stage04/             # Local-shadow contracts and evidence
+├── notebooks/               # Reproducible Stage 01–03 notebooks
+├── scripts/                 # Reproducible generators and utilities
+├── src/enares/              # Modular Python source
+├── tests/                   # Synthetic, contract and application tests
 ├── .env.example
 ├── CONTRIBUTING.md
 ├── Dockerfile
@@ -143,28 +169,7 @@ enares-2024-crs04-ml/
 └── requirements-dev.txt
 ```
 
-## Fuente oficial
-
-Los microdatos y documentos fuente proceden del portal oficial de microdatos
-del INEI:
-
-<https://proyectos.inei.gob.pe/microdatos/>
-
-El formato SPSS se conserva como fuente primaria porque mantiene etiquetas de
-variables, etiquetas de valores, códigos y metadatos necesarios para la
-interpretación reproducible.
-
-## Instalación local
-
-### Requisitos
-
-- Git;
-- Python 3.12;
-- Google Cloud CLI;
-- Node.js para compilar Dataform;
-- acceso autorizado al proyecto cloud cuando corresponda.
-
-### Clonar y crear el entorno
+## Quick start
 
 ```powershell
 git clone https://github.com/ascordero001-cell/enares-2024-crs04-ml.git
@@ -173,142 +178,30 @@ py -3.12 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -r requirements-dev.txt
-```
-
-### Configuración segura
-
-Use `.env.example` y `configs/project.example.yaml` como plantillas. No guarde
-secretos ni rutas personales en archivos versionados.
-
-Para autenticación local:
-
-```powershell
-gcloud init
-gcloud auth application-default login
-gcloud auth application-default set-quota-project enares-2024-crs04
-```
-
-Cloud Run debe utilizar una cuenta de servicio con mínimo privilegio; no se
-versionan llaves de cuentas de servicio.
-
-## Validación reproducible
-
-### Pruebas Python
-
-```powershell
 python -m pytest -q
 ```
 
-### Compilación Dataform
+Cloud authentication and deployment commands are intentionally omitted. They
+require a separate gate with authorised billing and IAM owners, budget and
+rollback conditions; they are never run automatically in the current phase.
 
-```powershell
-npm install --global @dataform/cli@3.0.64
-dataform compile dataform
-```
+## Extended documentation
 
-El workflow `.github/workflows/ci.yml` ejecuta en un runner limpio:
+- [Stage 03 PASS](docs/stage03/stage3_pass.md) · [Closure report](docs/stage03/stage3_closure_report.md) · [Data contract](docs/stage03/stage03_data_contract.md)
+- [Supervisor acceptance](docs/stage03/stage03_supervisor_acceptance.md) · [Handoff to Stage 04](docs/stage03/stage04_handoff.md)
+- [Known Stage 03 discrepancies](docs/stage03/known_discrepancies.md) · [Migration decisions](docs/stage03/migration_decisions.md)
+- [PRE-STAGE04 gate](PRE_STAGE04.md) · [Naming conventions](NAMING_CONVENTIONS.md) · [V0 registry](CRS04_STAGE04_VERSION_0_REGISTRO.md)
+- [Corte 2 reconciliation](docs/stage04/reconciliation_modules_31_36.md) · [Known Stage 04 discrepancies](docs/stage04/known_discrepancies.md)
+- [Contribution guide](CONTRIBUTING.md)
 
-- verificación de sintaxis Python;
-- lint de notebooks como control informativo;
-- pruebas `pytest` bloqueantes;
-- compilación Dataform bloqueante.
+## Author, supervision and disclaimer
 
-Este flujo se denomina **CI**. No se presenta como CI/CD mientras no exista un
-despliegue automático formalmente aprobado.
+Built and maintained by **Ana Silvia Cordero Ricaldi**, BSc Computer Science and
+Artificial Intelligence, University of Sussex, as an independent undergraduate
+research apprenticeship. Independent methodological supervision is registered
+in the Stage 03 closure and Stage 04 gate evidence.
 
-## Documentación de cierre
-
-- [Stage 03 PASS](docs/stage03/stage3_pass.md)
-- [Reporte de cierre](docs/stage03/stage3_closure_report.md)
-- [Contrato de datos](docs/stage03/stage03_data_contract.md)
-- [Aceptación supervisora](docs/stage03/stage03_supervisor_acceptance.md)
-- [Handoff a Stage 04](docs/stage03/stage04_handoff.md)
-- [Discrepancias conocidas](docs/stage03/known_discrepancies.md)
-- [Decisiones de migración](docs/stage03/migration_decisions.md)
-- [ADRs](docs/adr/)
-- [Guía de contribución](CONTRIBUTING.md)
-
-## Versionado y promoción
-
-| Versión | Significado | Estado |
-|---|---|---|
-| V0 | Implementación histórica y versión oficial | Oficial |
-| V0.5 | Migración cloud validada por componentes | `SHADOW — NOT PUBLISHED` |
-| V1 | Eventual versión promovida tras una decisión futura de cutover | No aprobada |
-
-Un `PASS` técnico o metodológico no equivale a autorización institucional de
-publicación. La promoción requiere una decisión separada y registrada.
-
-## Stage 04 — siguiente etapa
-
-**Estado actual:** `PREPARING/SHADOW`. La preparación documental esta en curso y no autoriza publicación, cutover ni gasto cloud.
-
-Documentos de inicio:
-
-- [Puerta PRE-STAGE04](PRE_STAGE04.md)
-- [Documento rector Stage 04](CRS04_STAGE04_CORREGIDO_VER6_NUEVA_METODOLOGIA.md)
-- [Hoja arquitectonica](CRS04_STAGE04_HOJA_ARQUITECTONICA_APP_VIGILANCIA.md)
-- [Convenciones de nombres](NAMING_CONVENTIONS.md)
-- [Registro V0](CRS04_STAGE04_VERSION_0_REGISTRO.md)
-- [Mapa real de issues](docs/stage04/issue_map.md)
-- [Issue paraguas #43](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/43)
-
-Stage 04 construirá progresivamente una aplicación de vigilancia poblacional
-con:
-
-- navegación por módulos 3.1–3.6;
-- desagregaciones autorizadas;
-- estimaciones, IC95 %, CV y N no ponderado;
-- reglas de calidad y supresión;
-- comparación app–BigQuery–V0;
-- Streamlit desplegado en Cloud Run;
-- datos sintéticos o agregados shadow durante el desarrollo;
-- publicación únicamente desde una vista agregada validada.
-
-Kubernetes, Airflow, Agent Platform y Looker Studio son laboratorios u opciones
-posteriores. No son requisitos para el MVP y pueden concluir como
-`APRENDIDO Y EVALUADO, PERO NO ADOPTADO`.
-
-## Gobernanza de datos
-
-No subir a GitHub:
-
-- archivos `.sav`, `.zip`, `.xlsx` o exports con microdatos;
-- identificadores personales o filas de respondentes;
-- credenciales, tokens, archivos `.env` o llaves privadas;
-- service-account keys;
-- outputs confidenciales;
-- rutas personales o identificadores de Drive no sanitizados.
-
-Los datos originales y outputs restringidos permanecen en ubicaciones cloud
-autorizadas. El repositorio público contiene únicamente código, documentación,
-contratos, pruebas sintéticas y evidencia agregada.
-
-## Contribución
-
-El flujo esperado es:
-
-```text
-Issue -> rama -> commits pequeños -> pull request -> CI -> revisión -> merge
-```
-
-Consulte [CONTRIBUTING.md](CONTRIBUTING.md) antes de proponer cambios. Las
-modificaciones metodológicas requieren revisión independiente y una ADR cuando
-cambian universos, denominadores, recodes, diseño muestral o reglas de
-publicación.
-
-## Autora
-
-**Ana Silvia Cordero Ricaldi**
-BSc Computer Science and Artificial Intelligence, University of Sussex
-Independent undergraduate research apprenticeship
-
-Supervisión metodológica independiente registrada en la evidencia de cierre de
-Stage 03.
-
-## Alcance y descargo
-
-Este repositorio es un proyecto técnico y formativo. La versión V0.5 y la futura
-aplicación Stage 04 no constituyen por sí mismas una publicación oficial del
-INEI, UNICEF u otra institución. Cualquier uso institucional requiere revisión,
-autorización y gobernanza adicionales.
+This repository is a technical and formative project. Neither the V0.5 release
+nor the Stage 04 application constitute, by themselves, an official publication
+of any institution. Institutional use requires additional review, authorisation
+and governance.
