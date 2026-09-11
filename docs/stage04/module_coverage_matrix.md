@@ -8,6 +8,9 @@ Detalle verificable por indicador y dimensión:
 
 Las nueve dimensiones están configuradas. La existencia de filas en Drive no equivale a
 conciliación de calidad, supresión y significado del indicador para su presentación.
+Tampoco equivale a autorización: una dimensión puede figurar en `available_dimensions`, pero
+solo `authorized_dimensions` habilita el agregado no sintético después de validar indicador,
+disponibilidad y autorización. La UI repite el gate antes de consultar el repositorio.
 
 | Módulo | Centinela examinado en Drive | Dimensiones observadas para ese centinela | Datos habilitados en UI | Evidencia automatizada |
 |---|---|---|---|---|

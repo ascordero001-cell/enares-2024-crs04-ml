@@ -10,8 +10,13 @@ from streamlit.testing.v1 import AppTest
 
 from app.config import FUTURE_DIMENSIONS, MODULES, NAVIGATION, get_module
 from app.streamlit_app import local_repositories
-from app.views.stage04_dashboard import EXPORT_ENABLED, filter_estimates
-from enares.stage04.repository import BigQueryRepository
+from app.views.stage04_dashboard import EXPORT_ENABLED, build_numeric_card, filter_estimates
+from enares.stage04.repository import (
+    AuthorizedAggregateRepository,
+    BigQueryRepository,
+    IndicatorRepository,
+)
+import enares.stage04.modules as module_registry
 from enares.stage04.modules import (
     AUTHORIZED_GOLDEN,
     LOCAL_COVERAGE_RUN_ID,
@@ -49,6 +54,14 @@ def _visible_text(app: AppTest) -> str:
                 (str(getattr(element, "value", "")), str(getattr(element, "label", "")))
             )
     return "\n".join(values)
+
+
+class _StaticRepository(IndicatorRepository):
+    def __init__(self, rows):
+        self.rows = list(rows)
+
+    def list_estimates(self, module_id: str):
+        return [row for row in self.rows if row.module_id == module_id]
 
 
 def test_registry_contains_every_module_once_in_required_order():
@@ -106,6 +119,58 @@ def test_registry_makes_data_authorization_explicit_and_fail_closed():
         assert module.authorized_dimensions == ()
 
 
+def test_valid_non_synthetic_31_national_row_is_rejected_without_authorization():
+    authorized, _ = local_repositories()
+    golden = authorized.list_estimates("3.2")[0]
+    pending = replace(
+        golden,
+        module_id="3.1",
+        indicator_id="justifica_castigo_parental",
+        indicator_name="Justificación del castigo parental",
+    )
+    with pytest.raises(ValueError, match="not authorized"):
+        validate_estimates([pending])
+    with pytest.raises(ValueError, match="not authorized"):
+        filter_estimates(_StaticRepository([pending]), "3.1", "Nacional", "Total")
+
+
+def test_valid_non_synthetic_32_sex_row_is_rejected_when_only_national_is_authorized():
+    authorized, _ = local_repositories()
+    pending = replace(
+        authorized.list_estimates("3.2")[0],
+        disaggregation="Sexo",
+        category="Mujer",
+    )
+    with pytest.raises(ValueError, match="not authorized"):
+        validate_estimates([pending])
+
+
+def test_expanding_available_dimensions_does_not_expand_authorization(monkeypatch):
+    authorized, _ = local_repositories()
+    golden = authorized.list_estimates("3.2")[0]
+    current = get_module("3.1")
+    monkeypatch.setitem(
+        module_registry.MODULE_BY_ID,
+        "3.1",
+        replace(current, available_dimensions=(*current.available_dimensions, "Técnica")),
+    )
+    pending = replace(
+        golden,
+        module_id="3.1",
+        indicator_id="justifica_castigo_parental",
+        disaggregation="Técnica",
+    )
+    with pytest.raises(ValueError, match="not authorized"):
+        validate_estimates([pending])
+
+
+def test_32_national_golden_still_builds_numeric_card():
+    authorized, _ = local_repositories()
+    card = build_numeric_card(filter_estimates(authorized, "3.2", "Nacional", "Total")[0])
+    assert card["indicator_id"] == "VF_HOGAR"
+    assert card["n_text"] == "N no ponderado: 18,807"
+
+
 def test_modules_with_national_only_source_do_not_advertise_other_dimensions():
     assert get_module("3.3").available_dimensions == ("Nacional",)
     assert get_module("3.4").available_dimensions == ("Nacional",)
@@ -158,6 +223,53 @@ def test_apptest_absent_combination_is_no_data_without_numbers():
     assert not app.exception
     assert "sin datos autorizados para 3.1" in visible
     assert "No se fabrican resultados" in visible
+    assert not app.metric
+
+
+def test_apptest_pending_module_stops_before_repository_and_category_selector(monkeypatch):
+    calls = []
+    original = AuthorizedAggregateRepository.list_estimates
+
+    def record_calls(self, module_id):
+        calls.append(module_id)
+        return original(self, module_id)
+
+    monkeypatch.setattr(AuthorizedAggregateRepository, "list_estimates", record_calls)
+    app = _run_application()
+    app.sidebar.radio[0].set_value(get_module("3.1").page_label).run(timeout=15)
+    visible = _visible_text(app)
+    assert not app.exception
+    assert "El gate de calidad y supresión está pendiente" in visible
+    assert "sin datos autorizados" in visible
+    assert set(calls) == {"3.2"}
+    assert not app.metric
+    assert not app.table
+    assert len(app.selectbox) == 1
+
+
+def test_apptest_demo_synthetic_keeps_three_textual_states():
+    app = _run_application()
+    app.sidebar.radio[0].set_value(get_module("3.2").page_label).run(timeout=15)
+    app.radio[0].set_value("Demo sintético").run(timeout=15)
+    visible = _visible_text(app)
+    assert not app.exception
+    assert all(state in visible for state in ("Candidato", "Referencia", "Suprimido"))
+    assert visible.count("DEMO SINTÉTICO") == 3
+
+
+def test_invalid_row_error_is_generic_and_does_not_expose_internal_content(monkeypatch):
+    internal_marker = "<INTERNAL_STORAGE_MARKER>"
+    authorized, _ = local_repositories()
+    invalid = replace(authorized.list_estimates("3.2")[0], release_id=internal_marker)
+
+    def invalid_rows(self, module_id):
+        return [invalid] if module_id == "3.2" else []
+
+    monkeypatch.setattr(AuthorizedAggregateRepository, "list_estimates", invalid_rows)
+    app = _run_application()
+    visible = _visible_text(app)
+    assert "Los resultados no superaron la validación estadística" in visible
+    assert internal_marker not in visible
     assert not app.metric
 
 

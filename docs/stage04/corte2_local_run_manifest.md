@@ -27,5 +27,10 @@ Solo el golden previamente aprobado de 3.2 conserva `AUTHORIZED_GOLDEN`. Las com
 nuevas permanecen `PENDING_QUALITY_SUPPRESSION` y no producen tarjetas numéricas hasta que
 exista aprobación independiente de su estado de calidad/supresión.
 
+Para filas no sintéticas se aplican tres gates: indicador registrado en el módulo, dimensión
+presente en `available_dimensions` y dimensión incluida en `authorized_dimensions`. La
+validación central rechaza cualquier incumplimiento y la UI repite el gate antes de consultar el
+repositorio. La disponibilidad de una fila en V0 no se interpreta como autorización.
+
 Este identificador pertenece a evidencia técnica local. No crea ni modifica
 `ops.current_release`, un release institucional o una ejecución cloud.

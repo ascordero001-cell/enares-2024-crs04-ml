@@ -48,6 +48,8 @@ def validate_estimates(rows: Iterable[IndicatorEstimate]) -> None:
         if not row.synthetic and row.indicator_id not in module.indicator_ids:
             raise ValueError("indicator_id is not registered for its module")
         if not row.synthetic and row.disaggregation not in module.available_dimensions:
+            raise ValueError("disaggregation is not available for its module")
+        if not row.synthetic and row.disaggregation not in module.authorized_dimensions:
             raise ValueError("disaggregation is not authorized for its module")
         if not row.category:
             raise ValueError("category is required")

@@ -71,6 +71,9 @@ Run de evidencia: `sprint042-corte2-local-coverage-001`. Fuente: baseline V0 apr
 
 ## Lectura de la matriz
 
+- `Presencia en V0` describe disponibilidad observada; no concede autorización de uso.
+- Una fila no sintética debe superar tres comprobaciones independientes: indicador registrado
+  en el módulo, dimensión disponible y dimensión incluida en `authorized_dimensions`.
 - `AUTHORIZED_GOLDEN` solo aplica a VF_HOGAR / Nacional en el CSV autorizado ya aprobado.
 - `PENDING_QUALITY_SUPPRESSION` identifica una combinación existente en V0 cuyo estado de calidad/supresión no está aprobado para la nueva ejecución local.
 - `SOURCE_COMBINATION_ABSENT` impide ofrecer la dimensión y no genera categorías ni estimaciones.

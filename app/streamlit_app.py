@@ -43,8 +43,33 @@ def _styles() -> None:
         """
         <style>
         [data-testid="stSidebar"] { background: #102d25; }
-        [data-testid="stSidebar"] * { color: #f6fbf8 !important; }
-        [data-testid="stSidebar"] [data-baseweb="select"] * { color: #17251f !important; }
+        [data-testid="stSidebar"] h2,
+        [data-testid="stSidebar"] label,
+        [data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
+            color: #f6fbf8;
+        }
+        [data-testid="stSidebar"] [data-baseweb="select"] > div {
+            background: #ffffff;
+            color: #17251f;
+        }
+        [data-testid="stSidebar"] [data-baseweb="select"] input,
+        [data-testid="stSidebar"] [data-baseweb="select"] [role="combobox"],
+        [data-testid="stSidebar"] [data-baseweb="select"] svg,
+        [data-baseweb="popover"] [role="option"] {
+            color: #17251f !important;
+            fill: #17251f;
+        }
+        [data-testid="stSidebar"] button:disabled {
+            background: #d4d9d6;
+            color: #46524d !important;
+            border-color: #a7b0ac;
+            opacity: 1;
+        }
+        [data-testid="stSidebar"] :focus-visible {
+            outline: 3px solid #f3c44e !important;
+            outline-offset: 2px;
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -176,6 +201,13 @@ def render() -> None:
         if source == "Demo sintético":
             _validated_state_gallery(demo)
         else:
+            if dimension not in module.authorized_dimensions:
+                st.info(
+                    f"{dimension}: sin datos autorizados para {module.module_id}. "
+                    "El gate de calidad y supresión está pendiente. "
+                    "No se fabrican resultados."
+                )
+                return
             try:
                 dimension_rows = [
                     row

@@ -18,6 +18,11 @@ Exportación deshabilitada; publicación, cutover y sustitución de V0 no autori
   current_release ni crea una ejecución cloud.
 - Matriz detallada módulo × indicador × nueve dimensiones creada con estado de datos y
   evidencia fail-closed por combinación.
+- Barrera de autorización reforzada en dos capas: la validación central rechaza toda fila V0
+  cuya dimensión no esté en `authorized_dimensions`, y la interfaz detiene el flujo antes de
+  consultar el repositorio cuando la combinación no está autorizada.
+- La disponibilidad observada en V0 no concede autorización. Solo 3.2 / `VF_HOGAR` /
+  `Nacional` continúa autorizado; el fixture sintético conserva sus estados didácticos.
 
 ## Conciliación del catálogo y gate restante
 
@@ -51,18 +56,21 @@ Para ampliar cifras se necesita resolver:
 
 ## Verificación y pendientes
 
-La suite anterior obtuvo 200 passed, pero no comprobaba la autorización de esos estados.
-Se actualizaron los tests para exigir ausencia de cifras en los módulos pendientes.
-Resultado local actual: 213 passed, 0 failed, incluyendo diez pruebas de la conversión de N.
+La suite anterior obtuvo 213 passed, pero no comprobaba en todas las capas la autorización de
+esos estados. Se añadieron pruebas negativas de validación y repositorio, prueba positiva del
+golden y AppTest para asegurar que la UI se detiene antes de consultar filas no autorizadas.
+Resultado local actual: 220 passed, 0 failed, incluidos los gates de autorización y diez
+pruebas de la conversión de N.
 Ejecutado con Python 3.12 y pytest, deshabilitando
 la caché y usando una carpeta temporal nueva por permisos del entorno Windows.
 Incluye AppTest de navegación y ausencia de cifras pendientes; no acredita su autorización.
 git diff --check: sin errores de whitespace en los cambios de trabajo.
 
-Se completaron capturas de resumen, módulos 3.1–3.6, estados y ancho reducido. La revisión HCI
-local confirmó navegación por teclado, foco visible, etiquetas y ausencia de solapamiento. Se
-corrigió el contraste configurando un tema claro coherente. La revisión independiente de HCI,
-el clon limpio y la CI del nuevo corte se registran como gates antes de aprobar.
+Se renovaron capturas de resumen, módulos 3.1–3.6, estados, selector cerrado/abierto y ancho
+reducido. La revisión HCI local a 1280 × 900 y 390 × 844 confirmó navegación por teclado, foco
+visible, etiquetas, selector legible, botón Exportar deshabilitado y ausencia de solapamiento.
+El clon limpio reprodujo 220 passed y Dataform compiló 44 acciones. La revisión independiente
+de HCI y la CI del nuevo head continúan como gates antes de aprobar.
 
 No se declara cerrado Sprint 04.2. La revisión del PR no autoriza cifras nuevas, cloud,
 exportación, publicación ni cutover.
