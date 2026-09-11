@@ -2,3 +2,11 @@
 toolbarMode = "viewer"
 disableDataExport = true
 showErrorDetails = "none"
+
+[theme]
+base = "light"
+primaryColor = "#9B2342"
+backgroundColor = "#F5F7F4"
+secondaryBackgroundColor = "#E3ECE7"
+textColor = "#17251F"
+font = "sans serif"

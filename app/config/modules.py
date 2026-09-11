@@ -1,18 +1,16 @@
-"""Labels and filter capabilities; no estimates or methodological rules live here."""
+"""Application-facing aliases for the single Stage 04 module registry."""
 
-NAVIGATION = ("Resumen", "Módulo 3.2", "Metodología", "Estado del release")
+from enares.stage04.modules import DIMENSIONS, MODULES, get_module, module_for_page
 
-FUTURE_DIMENSIONS = (
-    "Nacional",
-    "Sexo",
-    "Área",
-    "Área × sexo",
-    "Idioma del hogar",
-    "Discapacidad",
-    "Etnicidad",
-    "Tipo de hogar",
-    "Departamento",
+
+NAVIGATION = (
+    "Resumen",
+    *(module.page_label for module in MODULES),
+    "Metodología",
+    "Estado del release",
 )
+
+FUTURE_DIMENSIONS = DIMENSIONS
 
 SUPPORTED_FILTER = ("Nacional", "Total")
 

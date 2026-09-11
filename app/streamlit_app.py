@@ -12,12 +12,13 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from app.config import FUTURE_DIMENSIONS, NAVIGATION
+from app.config import FUTURE_DIMENSIONS, MODULES, NAVIGATION, module_for_page
 from app.views.stage04_dashboard import (
     EXPORT_ENABLED,
     build_numeric_card,
     build_state_cards,
     filter_estimates,
+    load_validated_estimates,
 )
 from enares.stage04.repository import (
     AuthorizedAggregateRepository,
@@ -41,7 +42,6 @@ def _styles() -> None:
     st.markdown(
         """
         <style>
-        .stApp { background: #f5f7f4; color: #17251f; }
         [data-testid="stSidebar"] { background: #102d25; }
         [data-testid="stSidebar"] * { color: #f6fbf8 !important; }
         [data-testid="stSidebar"] [data-baseweb="select"] * { color: #17251f !important; }
@@ -64,9 +64,11 @@ def _header(release_id: str, created_at: str) -> None:
     )
 
 
-def _numeric_summary(card: dict) -> None:
-    st.subheader("Resumen nacional · Módulo 3.2")
-    st.caption("VF_HOGAR · Nacional / Total")
+def _numeric_summary(card: dict, heading: str | None = None) -> None:
+    st.subheader(heading or "Resumen nacional · Módulo 3.2")
+    st.caption(
+        f"{card['indicator_id']} · {card['disaggregation']} / {card['category']}"
+    )
     a, b, c, d = st.columns(4)
     a.metric("Estimación", card["estimate_text"])
     b.metric("Error estándar", card["standard_error_text"])
@@ -94,10 +96,13 @@ def _state_gallery(cards: list[dict]) -> None:
                 st.caption("Estado: SHADOW")
 
 
-def _validated_state_gallery(repository: IndicatorRepository) -> None:
+def _validated_state_gallery(
+    repository: IndicatorRepository,
+    module_id: str = "3.2",
+) -> None:
     """Render demo states only after repository and row validation succeeds."""
     try:
-        cards = build_state_cards(repository)
+        cards = build_state_cards(repository, module_id)
     except ValueError:
         st.error("Los resultados no superaron la validación estadística.")
         return
@@ -133,23 +138,73 @@ def render() -> None:
     st.sidebar.button("Exportar", disabled=not EXPORT_ENABLED, help="Exportación no autorizada")
     st.sidebar.caption("Cloud: NOT_AUTHORIZED · Presupuesto: USD 0")
 
-    if dimension != "Nacional":
-        st.info(f"{dimension}: sin datos en este corte local. No se fabrican resultados.")
-        return
-
     if page == "Resumen":
+        if dimension != "Nacional":
+            st.info(
+                f"{dimension}: sin datos en el resumen del corte local. "
+                "No se fabrican resultados."
+            )
+            return
         _numeric_summary(summary)
         _validated_state_gallery(demo)
-    elif page == "Módulo 3.2":
-        st.subheader("Módulo 3.2 · Violencia en el hogar")
-        source_options = ("V0 autorizado", "Demo sintético")
-        requested_source = st.query_params.get("source", source_options[0])
-        source_index = source_options.index(requested_source) if requested_source in source_options else 0
-        source = st.radio("Fuente local", source_options, index=source_index, horizontal=True)
-        if source == "V0 autorizado":
-            _numeric_summary(summary)
-        else:
+    elif module := module_for_page(page):
+        st.subheader(module.full_label)
+        st.caption(f"Estado de datos: {module.data_state}")
+        if dimension not in module.available_dimensions:
+            st.info(
+                f"{dimension}: sin datos autorizados para {module.module_id}. "
+                "No se fabrican resultados."
+            )
+            return
+
+        source = "V0 autorizado"
+        if module.module_id == "3.2":
+            source_options = ("V0 autorizado", "Demo sintético")
+            requested_source = st.query_params.get("source", source_options[0])
+            source_index = (
+                source_options.index(requested_source)
+                if requested_source in source_options
+                else 0
+            )
+            source = st.radio(
+                "Fuente local",
+                source_options,
+                index=source_index,
+                horizontal=True,
+            )
+
+        if source == "Demo sintético":
             _validated_state_gallery(demo)
+        else:
+            try:
+                dimension_rows = [
+                    row
+                    for row in load_validated_estimates(authorized, module.module_id)
+                    if row.disaggregation == dimension
+                ]
+            except (ValueError, OSError, KeyError, TypeError):
+                st.error("Los resultados no superaron la validación estadística.")
+                return
+            if not dimension_rows:
+                st.info(
+                    f"{dimension}: sin datos autorizados para {module.module_id}. "
+                    "Pendiente de conciliación del contrato y los estados de calidad. "
+                    "No se fabrican resultados."
+                )
+                return
+            categories = tuple(row.category for row in dimension_rows)
+            category = st.selectbox("Categoría", categories)
+            matches = filter_estimates(
+                authorized,
+                module.module_id,
+                dimension,
+                category,
+            )
+            if len(matches) != 1:
+                st.error("La combinación autorizada no está disponible de forma única.")
+                return
+            card = build_numeric_card(matches[0])
+            _numeric_summary(card, f"Resultado agregado · {module.full_label}")
     elif page == "Metodología":
         st.subheader("Metodología y límites")
         st.write("Las cifras V0 se consumen como agregados aprobados; la aplicación no recalcula Stage 03.")
@@ -163,7 +218,12 @@ def render() -> None:
         st.caption("BigQuery, DDL, Cloud Run, IAM y facturación: BLOCKED_BY_CLOUD_GATE")
 
     st.divider()
-    st.caption("Módulos pendientes: 3.1, 3.3, 3.4, 3.5 y 3.6 · Sin exportación · Sin búsqueda individual")
+    coverage = " · ".join(
+        f"{module.module_id}: {len(module.authorized_dimensions)}/9 dimensiones autorizadas"
+        for module in MODULES
+    )
+    st.caption(f"Cobertura local: {coverage}")
+    st.caption("Sin exportación · Sin búsqueda individual · Cloud bloqueado")
 
 
 if __name__ == "__main__":
