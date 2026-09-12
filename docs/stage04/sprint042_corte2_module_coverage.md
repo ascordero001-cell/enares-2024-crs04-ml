@@ -1,7 +1,7 @@
 # Sprint 04.2 — Corte 2 de cobertura funcional local
 
-Estado: READY_FOR_CORTE2_ENGINEERING_REVIEW; NUMERIC_DATA_GATE_OPEN.
-No está aprobado ni cerrado Sprint 04.2.
+Estado: CORTE2_ENGINEERING_CHECKPOINT_APPROVED_MERGED; NUMERIC_DATA_GATE_OPEN.
+El checkpoint de ingeniería fue aprobado y fusionado mediante PR #57; Sprint 04.2 no está cerrado.
 Alcance: LOCAL_SHADOW_ONLY. Cloud NOT_AUTHORIZED. Presupuesto USD 0.
 Exportación deshabilitada; publicación, cutover y sustitución de V0 no autorizados.
 
@@ -69,8 +69,9 @@ git diff --check: sin errores de whitespace en los cambios de trabajo.
 Se renovaron capturas de resumen, módulos 3.1–3.6, estados, selector cerrado/abierto y ancho
 reducido. La revisión HCI local a 1280 × 900 y 390 × 844 confirmó navegación por teclado, foco
 visible, etiquetas, selector legible, botón Exportar deshabilitado y ausencia de solapamiento.
-El clon limpio reprodujo 220 passed y Dataform compiló 44 acciones. La revisión independiente
-de HCI y la CI del nuevo head continúan como gates antes de aprobar.
+El clon limpio reprodujo 220 passed y Dataform compiló 44 acciones. La CI del SHA revisado quedó
+aprobada. La comprensión de etiquetas por una persona revisora y los gates
+numéricos/metodológicos continúan pendientes antes de cerrar el sprint.
 
 No se declara cerrado Sprint 04.2. La revisión del PR no autoriza cifras nuevas, cloud,
 exportación, publicación ni cutover.

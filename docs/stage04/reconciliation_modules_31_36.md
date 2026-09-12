@@ -39,7 +39,9 @@ del objetivo y no lo sustituye.
 La pertenencia a módulo, las definiciones y la presencia de salida quedaron
 conciliadas para los 516 indicadores. Esto no habilita automáticamente las cifras
 en Streamlit: siguen pendientes los estados autorizados de calidad/supresión, los
-adaptadores especiales, el nuevo run_id local y la revisión formal del Corte 2.
+adaptadores especiales y las decisiones metodológicas del gate numérico. El run técnico local
+ya está documentado como `sprint042-corte2-local-coverage-001` en su
+[manifiesto de ejecución](corte2_local_run_manifest.md), sin alterar el run del golden 3.2.
 
 Fuentes: diccionario_indicadores.csv y tabulados_crs04_long.csv. Sus hashes de la
 baseline contrastada están en v0_drive_hash_manifest.md. Los archivos de Drive no
