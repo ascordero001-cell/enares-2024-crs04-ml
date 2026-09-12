@@ -45,3 +45,13 @@ owner metodológico siguen pendientes de aprobación formal y no son política i
 | KD-C2-08 | `Componentes` special frente a prevalence | Contrato especial 3.1 | Bloquea adaptación genérica | Adaptador propuesto en [D01](numeric_gate_decision_package.md) | `ritaricaldi-cpu` | METHODOLOGICAL_DECISION_PENDING |
 | KD-C2-09 | `VP_VF_VS_HOGAR`, Cusco/Huancavelica, con CV vacío | Estadística incompleta 3.4 | Presentación completa bloqueada | Conservar vacío; propuesta [D02](numeric_gate_decision_package.md) | `ritaricaldi-cpu` | METHODOLOGICAL_DECISION_PENDING |
 | KD-C2-10 | `Área × sexo`/`Área y sexo` e `Idioma del hogar`/`Lengua materna` | Equivalencia de etiqueta no aprobada | Alias UI bloqueado | Mantener nombre original hasta decisión; [D12](numeric_gate_decision_package.md) | `ritaricaldi-cpu` | METHODOLOGICAL_DECISION_PENDING |
+
+## Correcciones técnicas R01–R05 del PR #59
+
+| Revisión | Corrección | Estado técnico | Límite conservado |
+|---|---|---|---|
+| R01 | Catálogos runtime de tipo, escala y unidad CV; adaptador solo como identificador candidato | RESOLVED_ENGINEERING | No concede autorización ni acredita implementación futura |
+| R02 | NaN, infinitos, texto y booleanos rechazados; `None` solo donde incomplete lo permite | RESOLVED_ENGINEERING | No imputa IC/CV ni crea regla metodológica |
+| R03 | Alcance como pares exactos dimensión/categoría | RESOLVED_ENGINEERING | No modifica `authorized_dimensions` ni activa cifras |
+| R04 | D01–D12 y anexos de alcance/opciones precisados desde baseline por hash | RESOLVED_DOCUMENTED | Todas las decisiones indicadas siguen PENDING |
+| R05 | Ejemplo renombrado como un total con dos componentes ocultos | RESOLVED_DOCUMENTED | Cruces con márgenes múltiples, multitabla y multirelease siguen TEST_PENDING |
