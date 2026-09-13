@@ -1,10 +1,15 @@
 # Paquete de decisiones — gate numérico de Sprint 04.2
 
-**Estado:** `PROPOSED_FOR_SUPERVISORY_REVIEW`
+**Estado:** `SPSS_EVIDENCE_RECONCILED_PENDING_INDEPENDENT_APPROVAL`
 **Alcance:** preparación local desconectada; no autoriza cifras nuevas, exportación ni cloud
 **Issues:** [#48](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/48) y [#49](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/49)
 **Revisora requerida:** `ritaricaldi-cpu`
 **Fecha del paquete:** `2026-09-12`
+
+La conciliación directa posterior contra las sintaxis primarias entregadas está en
+[spss_numeric_gate_reconciliation.md](spss_numeric_gate_reconciliation.md), con identificación
+por hash en [spss_source_manifest.md](spss_source_manifest.md). La evidencia resuelve qué reglas
+provienen de SPSS, pero no reemplaza la decisión independiente de la revisora.
 
 ## Fuentes congeladas
 
@@ -21,7 +26,10 @@ sustituye.
 
 ## Propuestas transversales
 
-- `CV > 0.15`, `N < 30` y tolerancia absoluta `1e-9` permanecen propuestas, no política.
+- `CV > 0.15` está respaldado por las sintaxis SPSS revisadas como regla de imprecisión, con
+  instrucciones de presentación que varían entre referencial y supresión según el bloque.
+  `N < 30` no aparece en esas sintaxis y la tolerancia absoluta `1e-9` permanece como propuesta
+  técnica de paridad, no como regla SPSS.
 - Ningún flag se rellena con `false` por defecto. Hasta una decisión explícita: `cv_flag = null`,
   `n_flag = null`, `suppress_flag = null` y `quality_status =
   PENDING_METHODOLOGICAL_DECISION`.
@@ -115,8 +123,8 @@ un producto cartesiano ni una autorización vigente.
 | D08 | excluir; adaptar distribución; tratar erróneamente como prevalencia | Adaptador de distribución y navegación Consecuencias | `SPECIAL_DISTRIBUTION_ADAPTER_PENDING` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
 | D02, D10 | excluir métricas; contexto no numérico; presentación parcial señalizada | Conservar cero y nulos; contexto no numérico hasta definir CV/calidad | `ZERO_EVENT_CV_UNDEFINED_PENDING` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
 | D09, D11 | rechazar; autorizar pares enumerados; autorizar subconjunto | Decidir indicador por indicador y par por par | `EXACT_SCOPE_AUTHORIZATION_PENDING` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
-| D12a, D12b | conservar original; aprobar alias; pedir validación de comprensión | Conservar etiqueta original hasta aprobación semántica/HCI | `SEMANTIC_ALIAS_REVIEW_PENDING` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
-| Transversal precisión | mantener; cambiar; retirar `CV > 0.15`, `N < 30` | Mantener como propuesta. CV es proporción y N proviene de `base_unw` | `PRECISION_POLICY_PENDING` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
+| D12a, D12b | conservar original; aprobar alias; pedir validación de comprensión | La sintaxis respalda `Área × sexo` para `AREA BY SEXO` e `Idioma del hogar` para `idiomaHogar`; conservar también el código fuente en metadata | `SEMANTIC_ALIAS_SPSS_EVIDENCE_READY` | PENDING / `ritaricaldi-cpu` / — / conciliación SPSS |
+| Transversal precisión | aplicar por bloque la instrucción SPSS; definir estado explícito | `CV > 0.15` respaldado como imprecisión; `N < 30` no respaldado; N proviene de `base_unw` | `SPSS_PRECISION_EVIDENCE_READY` | PENDING / `ritaricaldi-cpu` / — / conciliación SPSS |
 | Transversal paridad | mantener; cambiar; retirar tolerancia absoluta `1e-9` | Limitarla a serialización del mismo indicador/celda/escala, nunca a diferencias sustantivas | `PARITY_TOLERANCE_PENDING` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
 | Transversal confidencialidad | definir supresión independientemente de precisión | No inferir `suppress_flag` desde CV/N; esperar política de confidencialidad | `CONFIDENTIALITY_POLICY_PENDING` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
 
@@ -147,7 +155,8 @@ el resto del catálogo permanecen fuera del próximo corte hasta una solicitud c
 
 1. Aprobar, ajustar o rechazar los adaptadores D01 y D03–D08, incluidos tipo y categorías.
 2. Definir el tratamiento UI de D02, D04, D05 y D10 sin imputar estadísticas.
-3. Aprobar o reemplazar las propuestas `CV > 0.15`, `N < 30` y `1e-9`, indicando unidad de CV.
+3. Confirmar la aplicación por bloque de `CV > 0.15` respaldada por SPSS, rechazar o justificar
+   separadamente `N < 30`, y aprobar o reemplazar `1e-9`; CV está expresado como proporción.
 4. Definir `cv_flag`, `n_flag`, `suppress_flag`, `quality_status` y `quality_note` por familia.
 5. Autorizar alcances exactos por indicador/dimensión/categorías; no por módulo implícito.
 6. Resolver las equivalencias de etiquetas de D12.
@@ -155,3 +164,4 @@ el resto del catálogo permanecen fuera del próximo corte hasta una solicitud c
 
 Hasta esas decisiones, `NUMERIC_DATA_GATE_OPEN`; solo 3.2 / `VF_HOGAR` / Nacional / Total continúa
 como golden numérico local autorizado.
+
