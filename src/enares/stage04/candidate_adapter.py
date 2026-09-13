@@ -15,13 +15,23 @@ from typing import Literal
 StatisticType = Literal["prevalence", "distribution", "special", "incomplete"]
 Scale = Literal["0_1", "0_100"]
 CvUnit = Literal["proportion", "percent"]
+MODULE_IDS = frozenset({"3.1", "3.2", "3.3", "3.4", "3.5", "3.6"})
 VALID_SCALES = frozenset({"0_1", "0_100"})
 VALID_CV_UNITS = frozenset({"proportion", "percent"})
 VALID_STATISTIC_TYPES = frozenset({"prevalence", "distribution", "special", "incomplete"})
+CV_HIGH_NOTE = (
+    "Estimación referencial por precisión reducida: CV superior al 15 %. "
+    "Interpretar con cautela."
+)
+N_SMALL_NOTE = (
+    "Estimación basada en menos de 30 observaciones no ponderadas. "
+    "Interpretar con cautela."
+)
 
 
 @dataclass(frozen=True)
 class CandidateScope:
+    module_id: str
     indicator_id: str
     allowed_pairs: frozenset[tuple[str, str]]
     dictionary_type: StatisticType
@@ -33,6 +43,7 @@ class CandidateScope:
 
 @dataclass(frozen=True)
 class CandidateAggregate:
+    module_id: str
     indicator_id: str
     dimension: str
     category: str
@@ -47,10 +58,12 @@ class CandidateAggregate:
     scale: Scale
     cv_unit: CvUnit
     adapter_id: str | None
-    cv_flag: None = None
-    n_flag: None = None
+    cv_flag: bool | None = None
+    n_flag: bool = False
     suppress_flag: None = None
-    quality_status: str = "PENDING_METHODOLOGICAL_DECISION"
+    quality_status: str = "PUBLISHABLE_CANDIDATE"
+    quality_notes: tuple[str, ...] = ()
+    authorization_state: str = "PENDING_NUMERIC_AUTHORIZATION"
 
 
 REQUIRED_COMPLETE_FIELDS = ("estimate", "standard_error", "ci95_lower", "ci95_upper", "cv")
@@ -63,6 +76,8 @@ def _count(value: object, field: str) -> int:
 
 
 def _validate_scope(scope: CandidateScope, row_type: object) -> None:
+    if scope.module_id not in MODULE_IDS:
+        raise ValueError("Unknown module")
     if scope.scale not in VALID_SCALES:
         raise ValueError("Unknown scale")
     if scope.cv_unit not in VALID_CV_UNITS:
@@ -88,6 +103,10 @@ def adapt_candidate_row(raw: Mapping[str, object], scope: CandidateScope) -> Can
     """Validate one synthetic proposal without authorizing or connecting it."""
     output_type = raw.get("statistic_type")
     _validate_scope(scope, output_type)
+    if raw.get("synthetic") is not True:
+        raise ValueError("Candidate adapter accepts only explicit synthetic=true rows")
+    if raw.get("module_id") != scope.module_id:
+        raise ValueError("module is outside the candidate authorization scope")
     if raw.get("indicator_id") != scope.indicator_id:
         raise ValueError("indicator is outside the candidate authorization scope")
     pair = (raw.get("dimension"), raw.get("category"))
@@ -137,9 +156,20 @@ def adapt_candidate_row(raw: Mapping[str, object], scope: CandidateScope) -> Can
 
     for flag in ("cv_flag", "n_flag", "suppress_flag"):
         if raw.get(flag) is not None:
-            raise ValueError(f"{flag} must remain pending until supervisory approval")
+            raise ValueError(f"{flag} is derived centrally and cannot be supplied")
+
+    cv_threshold = {"proportion": 0.15, "percent": 15.0}[scope.cv_unit]
+    cv_flag = None if cv is None else cv > cv_threshold
+    n_flag = n_unweighted < 30
+    notes = tuple(
+        note
+        for active, note in ((cv_flag is True, CV_HIGH_NOTE), (n_flag, N_SMALL_NOTE))
+        if active
+    )
+    quality_status = "REFERENCE_HIGH_CV" if cv_flag else "PUBLISHABLE_CANDIDATE"
 
     return CandidateAggregate(
+        module_id=scope.module_id,
         indicator_id=scope.indicator_id,
         dimension=str(raw["dimension"]),
         category=str(raw["category"]),
@@ -154,21 +184,56 @@ def adapt_candidate_row(raw: Mapping[str, object], scope: CandidateScope) -> Can
         scale=scope.scale,
         cv_unit=scope.cv_unit,
         adapter_id=scope.adapter_id,
+        cv_flag=cv_flag,
+        n_flag=n_flag,
+        quality_status=quality_status,
+        quality_notes=notes,
     )
 
 
 def candidate_view_model(row: CandidateAggregate) -> dict[str, object]:
-    """Return a non-numeric state for incomplete or still-pending candidates."""
+    """Render approved quality alerts for synthetic candidates only."""
+    visible = row.statistic_type != "incomplete"
     return {
+        "module_id": row.module_id,
         "indicator_id": row.indicator_id,
         "dimension": row.dimension,
         "category": row.category,
-        "state": row.quality_status,
-        "numeric_visible": False,
-        "estimate": None,
-        "standard_error": None,
-        "ci95_lower": None,
-        "ci95_upper": None,
-        "cv": None,
-        "n_unweighted": None,
+        "state": row.authorization_state,
+        "quality_status": row.quality_status,
+        "quality_notes": row.quality_notes,
+        "cv_flag": row.cv_flag,
+        "n_flag": row.n_flag,
+        "suppress_flag": row.suppress_flag,
+        "confidentiality_state": "PENDING_INDEPENDENT_POLICY",
+        "numeric_visible": visible,
+        "estimate": row.estimate if visible else None,
+        "standard_error": row.standard_error if visible else None,
+        "ci95_lower": row.ci95_lower if visible else None,
+        "ci95_upper": row.ci95_upper if visible else None,
+        "cv": row.cv if visible else None,
+        "n_unweighted": row.n_unweighted if visible else None,
     }
+
+
+def summarize_synthetic_health_care_domain(
+    rows: list[Mapping[str, object]],
+) -> tuple[int, int]:
+    """Prove the D09 denominator rule with synthetic records, never production data."""
+    base_unw = 0
+    target_unw = 0
+    for row in rows:
+        if row.get("synthetic") is not True:
+            raise ValueError("D09 domain evidence accepts only synthetic=true rows")
+        domain = row.get("CONS_ALGUNA")
+        care = row.get("CONS_ATENCION_SALUD")
+        if domain not in (0, 1, None) or isinstance(domain, bool):
+            raise ValueError("CONS_ALGUNA must be 0, 1 or null")
+        if care not in (0, 1, None) or isinstance(care, bool):
+            raise ValueError("CONS_ATENCION_SALUD must be 0, 1 or null")
+        if domain != 1 and care is not None:
+            raise ValueError("CONS_ATENCION_SALUD must be null outside CONS_ALGUNA = 1")
+        if domain == 1 and care is not None:
+            base_unw += 1
+            target_unw += int(care == 1)
+    return base_unw, target_unw

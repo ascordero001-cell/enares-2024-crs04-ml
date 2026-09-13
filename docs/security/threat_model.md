@@ -50,5 +50,6 @@ un territorio, grupo o resultado ENARES.
 3. La capa published candidata reemplaza estimate, SE, IC95 %, CV y N por NULL para ambas celdas
    suprimidas. La interfaz no recibe el valor oculto.
 
-Los umbrales `CV > 0.15` y `N < 30` permanecen
-`PROVISIONAL_REQUIRES_METHODOLOGICAL_APPROVAL`. No son una regla institucional.
+Desde la decisión supervisora del 2026-09-13, `CV > 15 %` y `base_unw < 30` son alertas de
+calidad visibles para 3.1–3.6. No activan `suppress_flag` ni sustituyen los controles de
+confidencialidad descritos aquí.

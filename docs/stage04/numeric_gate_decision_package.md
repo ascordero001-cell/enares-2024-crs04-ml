@@ -1,10 +1,16 @@
 # Paquete de decisiones — gate numérico de Sprint 04.2
 
-**Estado:** `PROPOSED_FOR_SUPERVISORY_REVIEW`
+**Estado:** `QUALITY_RULES_APPROVED; NUMERIC_SCOPE_REVIEW_PENDING`
 **Alcance:** preparación local desconectada; no autoriza cifras nuevas, exportación ni cloud
 **Issues:** [#48](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/48) y [#49](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/49)
 **Revisora requerida:** `ritaricaldi-cpu`
-**Fecha del paquete:** `2026-09-12`
+**Fecha del paquete:** `2026-09-13`
+
+La conciliación directa posterior contra las sintaxis primarias entregadas está en
+[spss_numeric_gate_reconciliation.md](spss_numeric_gate_reconciliation.md), con identificación
+por hash en [spss_source_manifest.md](spss_source_manifest.md). La decisión independiente posterior
+está registrada en [supervisory_decisions_20260913.md](supervisory_decisions_20260913.md). La fuente
+histórica SPSS se conserva, pero la presentación Stage 04 aplica la decisión vigente de Rita.
 
 ## Fuentes congeladas
 
@@ -19,12 +25,15 @@ recalcularon resultados de Stage 03 ni se modificaron CSV o manifests. Para toda
 ponderado` procede exclusivamente de `base_unw`; `target_unw` se conserva separado y jamás lo
 sustituye.
 
-## Propuestas transversales
+## Decisiones transversales aprobadas
 
-- `CV > 0.15`, `N < 30` y tolerancia absoluta `1e-9` permanecen propuestas, no política.
-- Ningún flag se rellena con `false` por defecto. Hasta una decisión explícita: `cv_flag = null`,
-  `n_flag = null`, `suppress_flag = null` y `quality_status =
-  PENDING_METHODOLOGICAL_DECISION`.
+- En 3.1–3.6, `CV > 0.15` —o `CV > 15` cuando la unidad declarada sea porcentaje— conserva la
+  prevalencia visible, la clasifica como referencial y añade la nota aprobada. La igualdad exacta
+  al umbral no activa la alerta y un CV ausente permanece ausente.
+- En 3.1–3.6, `base_unw < 30` conserva la prevalencia visible y añade la alerta de N pequeño.
+  `target_unw` jamás sustituye el denominador. La igualdad exacta a 30 no activa la alerta.
+- `cv_flag` y `n_flag` se derivan centralmente. Ninguno activa `suppress_flag`; la confidencialidad
+  mantiene política y aprobación independientes. La tolerancia `1e-9` sigue pendiente.
 - La autorización debe enumerar `indicator_id`, dimensión y categorías o una regla de alcance
   inequívoca. Un centinela no autoriza el módulo.
 - Una estadística ausente permanece `null`. Una salida incompleta se muestra solo como contexto,
@@ -47,7 +56,7 @@ la evidencia puntual está enlazada en la última columna.
 | D06 | 3.5 `Solap_VS_12M` | 2×2 y 3×3; 8 categorías | CRS04 válido; sin dominio adicional; `special(VS_ICVAC_301)` / casos válidos | special → prevalence | completos | Adaptador matricial propio; no reinterpretar celdas | discrepancia exige adaptador nombrado | Aprobar semántica de celdas/alcance. [Conciliación 3.5](reconciliation_module_35.md) |
 | D07 | 3.5 `Solap_VS_VIDA` | 2×2 y 3×3; 8 categorías | CRS04 válido; sin dominio adicional; `special(VS_ICVAC_301_VIDA)` / casos válidos | special → prevalence | completos | Adaptador matricial propio; no reinterpretar celdas | discrepancia exige adaptador nombrado | Aprobar semántica de celdas/alcance. [Conciliación 3.5](reconciliation_module_35.md) |
 | D08 | 3.5 `num_consecuencias_fisicas` | Nacional; 7 categorías | CRS04 válido; sin dominio adicional; `special(CONS_NUM_CONSECUENCIAS)` / casos válidos | special → distribution | completos | Adaptador de distribución; ubicar en Consecuencias, no Acumulación | tipo completo separado y adaptador requerido | Aprobar categorías y navegación. [Conciliación 3.5](reconciliation_module_35.md) |
-| D09 | 3.5 `CONS_ATENCION_SALUD` (atención de salud por consecuencias) | 22 pares exactos del anexo; sin Departamento | CRS04 válido; sin dominio adicional; `CONS_ATENCION_SALUD == 1` / casos válidos | prevalence → prevalence | completos | Mantener en Consecuencias; no hereda autorización del centinela de Acumulación | alcance exacto rechaza dimensión/categoría ajena | Aprobar alcance separado. [Conciliación 3.5](reconciliation_module_35.md) |
+| D09 | 3.5 `CONS_ATENCION_SALUD` (atención de salud por consecuencias) | 22 pares exactos del anexo; sin Departamento | `CONS_ALGUNA = 1`; numerador `CONS_ATENCION_SALUD = 1`; denominador de respuestas válidas dentro del dominio; N=`base_unw` condicionado | prevalence → prevalence | completos | Mantener en Consecuencias con dominio visible; no hereda autorización del centinela de Acumulación | equivalencia sintética y contraste estructural R/V0; alcance exacto continúa cerrado | Dominio aprobado; autorizar pares por separado. [Evidencia D09](d09_cons_atencion_salud_domain_evidence.md) |
 | D10 | 3.6, cuatro indicadores separados en el anexo | Nacional / Total en cada indicador | Dominio, numerador y denominador específicos del anexo | prevalence → incomplete | estimate=0, SE=0, IC=0–0, target=0 y CV ausente; `base_unw` presente | Conservar cero y `CV=null`; estado candidato `ZERO_EVENT_CV_UNDEFINED_PENDING`; sin métricas | nulo conservado; cero no se convierte en ausencia ni CV=0 | Aprobar estado y presentación. [Conciliación 3.6](reconciliation_module_36.md) |
 | D11 | 3.3 `C3P223_10_1`; 3.4 `Agresor_VS_12M__AG_01`; 3.6 `C3P213` | Solo Nacional / Total; ningún otro indicador incluido | Tres definiciones específicas del anexo; `C3P213 == 5`, no regla universal `== 1` | prevalence → prevalence | completos | No fabricar otras dimensiones; alcance cerrado a tres indicadores | pruebas de pares e indicador ajeno | Aprobar cada uno por separado. Informes 3.3, 3.4 y 3.6 |
 | D12 | Familias con `Área y sexo` o `Lengua materna` | Posibles etiquetas UI `Área × sexo` e `Idioma del hogar` | Sin cambio estadístico; equivalencia solo de presentación | mismo tipo | según familia | Mantener etiqueta original o bloquear alias hasta revisión semántica | alcance exacto rechaza alias no autorizado | Aprobar o rechazar cada equivalencia. [Matriz de módulos](module_indicator_dimension_matrix.md) |
@@ -114,9 +123,9 @@ un producto cartesiano ni una autorización vigente.
 | D06, D07 | excluir; adaptar matriz completa; autorizar subconjunto explícito | Revisar matriz y categorías como una unidad; no reinterpretar pares | `SPECIAL_MATRIX_SEMANTICS_PENDING` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
 | D08 | excluir; adaptar distribución; tratar erróneamente como prevalencia | Adaptador de distribución y navegación Consecuencias | `SPECIAL_DISTRIBUTION_ADAPTER_PENDING` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
 | D02, D10 | excluir métricas; contexto no numérico; presentación parcial señalizada | Conservar cero y nulos; contexto no numérico hasta definir CV/calidad | `ZERO_EVENT_CV_UNDEFINED_PENDING` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
-| D09, D11 | rechazar; autorizar pares enumerados; autorizar subconjunto | Decidir indicador por indicador y par por par | `EXACT_SCOPE_AUTHORIZATION_PENDING` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
-| D12a, D12b | conservar original; aprobar alias; pedir validación de comprensión | Conservar etiqueta original hasta aprobación semántica/HCI | `SEMANTIC_ALIAS_REVIEW_PENDING` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
-| Transversal precisión | mantener; cambiar; retirar `CV > 0.15`, `N < 30` | Mantener como propuesta. CV es proporción y N proviene de `base_unw` | `PRECISION_POLICY_PENDING` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
+| D09, D11 | rechazar; autorizar pares enumerados; autorizar subconjunto | D09 ya tiene dominio aprobado; decidir indicador por indicador y par por par | `EXACT_SCOPE_AUTHORIZATION_PENDING` | DOMAIN_APPROVED_SCOPE_PENDING / `ritaricaldi-cpu` / 2026-09-13 / revisión PR #60 |
+| D12a, D12b | conservar original; aprobar alias; pedir validación de comprensión | La sintaxis respalda `Área × sexo` para `AREA BY SEXO` e `Idioma del hogar` para `idiomaHogar`; conservar también el código fuente en metadata | `SEMANTIC_ALIAS_SPSS_EVIDENCE_READY` | PENDING / `ritaricaldi-cpu` / — / conciliación SPSS |
+| Transversal precisión | conservar valor y mostrar alertas aprobadas | CV alto referencial; N pequeño visible; N proviene de `base_unw`; sin supresión automática | notas aprobadas de CV/N | APPROVED / `ritaricaldi-cpu` / 2026-09-13 / revisión PR #60 |
 | Transversal paridad | mantener; cambiar; retirar tolerancia absoluta `1e-9` | Limitarla a serialización del mismo indicador/celda/escala, nunca a diferencias sustantivas | `PARITY_TOLERANCE_PENDING` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
 | Transversal confidencialidad | definir supresión independientemente de precisión | No inferir `suppress_flag` desde CV/N; esperar política de confidencialidad | `CONFIDENTIALITY_POLICY_PENDING` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
 
@@ -142,16 +151,20 @@ el resto del catálogo permanecen fuera del próximo corte hasta una solicitud c
 | Cruces con márgenes de filas/columnas, multitabla o multirelease | TEST_PENDING | Requiere escenarios y política de vínculo aprobados |
 | AppTest: combinaciones pendientes/ausentes sin métricas | TESTED | `tests/test_stage04_ui_guards.py` |
 | AppTest: demo sintético separado de V0 autorizado | TESTED | `tests/test_stage04_ui_guards.py` |
+| CV menor/igual/mayor a 15 %, N=29/30/31 y alertas combinadas en 3.1–3.6 | TESTED_SYNTHETIC | `tests/test_stage04_candidate_adapter.py` |
+| D09 condicionado a `CONS_ALGUNA = 1`, con válidos y ausencias | TESTED_SYNTHETIC_AND_V0_STRUCTURAL | mismo archivo y [evidencia D09](d09_cons_atencion_salud_domain_evidence.md) |
 
 ## Decisiones concretas solicitadas
 
 1. Aprobar, ajustar o rechazar los adaptadores D01 y D03–D08, incluidos tipo y categorías.
 2. Definir el tratamiento UI de D02, D04, D05 y D10 sin imputar estadísticas.
-3. Aprobar o reemplazar las propuestas `CV > 0.15`, `N < 30` y `1e-9`, indicando unidad de CV.
-4. Definir `cv_flag`, `n_flag`, `suppress_flag`, `quality_status` y `quality_note` por familia.
+3. Aprobar o reemplazar la tolerancia `1e-9`; no forma parte de la decisión CV/N.
+4. Definir la política independiente de confidencialidad, `suppress_flag` y precedencias.
 5. Autorizar alcances exactos por indicador/dimensión/categorías; no por módulo implícito.
 6. Resolver las equivalencias de etiquetas de D12.
 7. Definir política contra reconstrucción multitabla y multirelease.
 
-Hasta esas decisiones, `NUMERIC_DATA_GATE_OPEN`; solo 3.2 / `VF_HOGAR` / Nacional / Total continúa
-como golden numérico local autorizado.
+Las reglas de calidad están resueltas, pero `NUMERIC_DATA_GATE_OPEN` continúa para cifras nuevas.
+Solo 3.2 / `VF_HOGAR` / Nacional / Total permanece como golden numérico local autorizado. La tabla
+completa para la siguiente decisión está en
+[numeric_authorization_review_20260913.md](numeric_authorization_review_20260913.md).

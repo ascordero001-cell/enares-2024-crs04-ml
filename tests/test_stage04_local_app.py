@@ -69,6 +69,15 @@ def test_demo_states_have_distinct_labels():
     assert len({card["quality_label"] for card in cards}) == 3
 
 
+def test_demo_quality_notes_separate_precision_from_confidentiality():
+    _, demo = repositories()
+    cards = build_state_cards(demo)
+    reference = next(card for card in cards if card["quality_status"] == "REFERENCE_HIGH_CV")
+    suppressed = next(card for card in cards if card["quality_status"] == "SUPPRESSED_EXERCISE")
+    assert "CV superior al 15 %" in reference["quality_note"]
+    assert "no derivado de CV ni N" in suppressed["quality_note"]
+
+
 def test_unsupported_filter_returns_no_rows_instead_of_fabricating_results():
     authorized, _ = repositories()
     assert filter_estimates(authorized, "3.2", "Sexo", "Mujer") == []

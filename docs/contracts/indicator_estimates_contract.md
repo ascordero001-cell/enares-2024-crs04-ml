@@ -42,7 +42,7 @@ de personas. Los ejemplos son seguros y no constituyen nombres de recursos reale
 | `cv_flag` | BOOL | Sí | Señal de revisión por CV | `false` | Coherente con regla versionada | Validador de calidad |
 | `n_flag` | BOOL | Sí | Señal de revisión por N | `false` | Coherente con regla versionada | Validador de calidad |
 | `suppress_flag` | BOOL | Sí | Control principal de no exposición | `false` | Si true, estimate, SE, IC95, CV, N y weighted_population son NULL | Control de privacidad |
-| `quality_note` | STRING | Sí | Explicación de calidad | `Umbrales provisionales` | No vacía | Validador y ADR |
+| `quality_note` | STRING | Sí | Explicación de calidad | `Estimación referencial por precisión reducida` | No vacía cuando hay alerta | Validador y ADR |
 | `validation_status` | ENUM | Sí | Estado de validación | `PENDING` | `PENDING`, `PASSED`, `FAILED` o `APPROVED` | Ops local |
 | `created_at` | TIMESTAMP | Sí | Fecha UTC de creación | `2026-09-04T00:00:00Z` | ISO-8601 UTC | Ejecución local |
 
@@ -53,7 +53,8 @@ cuenta los casos no ponderados del denominador. `target_unw` cuenta los casos de
 categoría analizada y `n_unw` legado no se usa como sustituto. Si falta `base_unw`,
 la adaptación falla; no se infiere N. Correspondencia aclarada explícitamente por la
 usuaria y contrastada con las columnas del agregado de Drive. Esta correspondencia
-no autoriza por sí sola estados de calidad ni supresión.
+fue aprobada como fuente de N no ponderado. No autoriza por sí sola supresión: la
+confidencialidad conserva un gate independiente.
 
 La llave candidata es `release_id + run_id + indicator_id + disaggregation + category`.
 No puede haber duplicados. Un release aprobado nunca se sobrescribe: una corrección crea otro
@@ -62,10 +63,13 @@ No puede haber duplicados. Un release aprobado nunca se sobrescribe: una correcc
 
 ## Decisiones metodológicas vigentes
 
-Los flags existen técnicamente y viajan con cada resultado, pero su regla institucional no está
-aprobada. `CV > 0.15`, `N < 30` y la tolerancia golden `1e-9` son propuestas didácticas o técnicas
-pendientes de supervisión. El ADR-005 identifica responsables pendientes y evidencia requerida;
-ningún test local puede convertirlas en política institucional.
+La decisión supervisora del 2026-09-13 aplica a los módulos 3.1–3.6. `CV > 0.15` —o `CV > 15`
+si la unidad declarada es porcentaje— conserva la prevalencia visible, la marca referencial y
+añade la nota aprobada. `base_unw < 30` conserva la prevalencia visible y añade la alerta aprobada.
+La igualdad exacta no activa flags y un estadístico ausente permanece ausente. `cv_flag` y
+`n_flag` nunca activan `suppress_flag`; cualquier supresión requiere la política independiente de
+confidencialidad. La tolerancia golden `1e-9` continúa siendo un control técnico, no una regla de
+calidad ni confidencialidad.
 
 La validación genérica no exige que cada catálogo reproduzca los tres estados didácticos. La
 cobertura simultánea de `PUBLISHABLE_CANDIDATE`, `REFERENCE_HIGH_CV` y

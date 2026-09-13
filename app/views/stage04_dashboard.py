@@ -66,6 +66,7 @@ def build_numeric_card(row: IndicatorEstimate) -> dict:
         {
             "standard_error_text": f"EE {row.standard_error:.4f}",
             "quality_label": escape_dynamic_text(QUALITY_LABELS[row.quality_status]),
+            "quality_note": escape_dynamic_text(row.quality_note),
             "denominator": escape_dynamic_text(row.denominator),
             "created_at": escape_dynamic_text(row.created_at),
             "protected_values_visible": True,
@@ -90,6 +91,7 @@ def build_suppressed_card(row: IndicatorEstimate) -> dict:
         "category": escape_dynamic_text(row.category),
         "quality_status": row.quality_status,
         "quality_label": escape_dynamic_text(QUALITY_LABELS[row.quality_status]),
+        "quality_note": escape_dynamic_text(row.quality_note),
         "release_id": escape_dynamic_text(row.release_id),
         "state": "SHADOW",
         "universe_text": escape_dynamic_text(row.universe),

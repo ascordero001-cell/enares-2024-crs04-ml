@@ -30,6 +30,7 @@ def test_stage35_contract_preserves_key_formulas_and_nullable_domains():
     assert "COALESCE(VS_12M, 0)" in sql["PV_indice_acum_VS"]
     assert "THEN NULL" in sql["CONS_ALGUNA"]
     assert "CONS_ALGUNA IS NULL THEN NULL" in sql["CONS_ATENCION_SALUD"]
+    assert "CONS_ALGUNA != 1" in sql["CONS_ATENCION_SALUD"]
 
 
 def test_stage35_model_uses_only_prior_shadow_dependencies():

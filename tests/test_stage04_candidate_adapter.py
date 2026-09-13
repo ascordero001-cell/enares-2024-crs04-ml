@@ -7,9 +7,12 @@ from pathlib import Path
 import pytest
 
 from enares.stage04.candidate_adapter import (
+    CV_HIGH_NOTE,
+    N_SMALL_NOTE,
     CandidateScope,
     adapt_candidate_row,
     candidate_view_model,
+    summarize_synthetic_health_care_domain,
 )
 from enares.stage04.modules import get_module
 from enares.stage04.privacy import (
@@ -27,6 +30,7 @@ V0_REGISTRY = ROOT / "docs" / "stage04" / "v0_drive_hash_manifest.md"
 
 def scope(**changes):
     base = CandidateScope(
+        module_id="3.2",
         indicator_id="SYNTHETIC_RATE",
         allowed_pairs=frozenset({("Nacional", "Total")}),
         dictionary_type="prevalence",
@@ -37,6 +41,8 @@ def scope(**changes):
 
 def row(**changes):
     base = {
+        "module_id": "3.2",
+        "synthetic": True,
         "indicator_id": "SYNTHETIC_RATE",
         "dimension": "Nacional",
         "category": "Total",
@@ -65,6 +71,12 @@ def test_n_comes_exclusively_from_base_unw():
 def test_invalid_base_unw_is_rejected_without_target_fallback(base_unw):
     with pytest.raises(ValueError, match="base_unw"):
         adapt_candidate_row(row(base_unw=base_unw, target_unw=25), scope())
+
+
+def test_candidate_adapter_rejects_non_synthetic_or_undeclared_rows():
+    for synthetic in (False, None):
+        with pytest.raises(ValueError, match="synthetic=true"):
+            adapt_candidate_row(row(synthetic=synthetic), scope())
 
 
 def test_target_cannot_exceed_denominator():
@@ -99,8 +111,8 @@ def test_special_mismatch_requires_named_adapter():
     adapted = adapt_candidate_row(row(), replace(mismatched, adapter_id="synthetic-special-v1"))
     assert adapted.statistic_type == "prevalence"
     assert adapted.adapter_id == "synthetic-special-v1"
-    assert adapted.quality_status == "PENDING_METHODOLOGICAL_DECISION"
-    assert candidate_view_model(adapted)["numeric_visible"] is False
+    assert adapted.authorization_state == "PENDING_NUMERIC_AUTHORIZATION"
+    assert candidate_view_model(adapted)["numeric_visible"] is True
 
 
 @pytest.mark.parametrize("invalid", ["", "invalid", None])
@@ -280,9 +292,56 @@ def test_candidate_pair_does_not_change_real_authorized_dimensions():
 
 
 @pytest.mark.parametrize("flag", ["cv_flag", "n_flag", "suppress_flag"])
-def test_flags_cannot_default_to_false_before_decision(flag):
-    with pytest.raises(ValueError, match="pending"):
+def test_quality_and_confidentiality_flags_cannot_be_supplied_by_input(flag):
+    with pytest.raises(ValueError, match="derived centrally"):
         adapt_candidate_row(row(**{flag: False}), scope())
+
+
+@pytest.mark.parametrize("module_id", ["3.1", "3.2", "3.3", "3.4", "3.5", "3.6"])
+@pytest.mark.parametrize(
+    ("cv_unit", "cv", "base_unw", "expected_cv", "expected_n", "notes"),
+    [
+        ("proportion", 0.15, 30, False, False, ()),
+        ("proportion", 0.150001, 30, True, False, (CV_HIGH_NOTE,)),
+        ("percent", 15.0, 29, False, True, (N_SMALL_NOTE,)),
+        ("percent", 15.0001, 29, True, True, (CV_HIGH_NOTE, N_SMALL_NOTE)),
+    ],
+)
+def test_approved_cv_and_n_alerts_apply_without_suppression_in_all_modules(
+    module_id, cv_unit, cv, base_unw, expected_cv, expected_n, notes
+):
+    adapted = adapt_candidate_row(
+        row(module_id=module_id, cv=cv, base_unw=base_unw, target_unw=10),
+        scope(module_id=module_id, cv_unit=cv_unit),
+    )
+    view = candidate_view_model(adapted)
+    assert adapted.cv_flag is expected_cv
+    assert adapted.n_flag is expected_n
+    assert adapted.suppress_flag is None
+    assert view["numeric_visible"] is True
+    assert view["estimate"] == 25.0
+    assert view["quality_notes"] == notes
+    assert view["confidentiality_state"] == "PENDING_INDEPENDENT_POLICY"
+
+
+def test_d09_synthetic_domain_uses_valid_responses_inside_cons_alguna_only():
+    base_unw, target_unw = summarize_synthetic_health_care_domain(
+        [
+            {"synthetic": True, "CONS_ALGUNA": 1, "CONS_ATENCION_SALUD": 1},
+            {"synthetic": True, "CONS_ALGUNA": 1, "CONS_ATENCION_SALUD": 0},
+            {"synthetic": True, "CONS_ALGUNA": 1, "CONS_ATENCION_SALUD": None},
+            {"synthetic": True, "CONS_ALGUNA": 0, "CONS_ATENCION_SALUD": None},
+            {"synthetic": True, "CONS_ALGUNA": None, "CONS_ATENCION_SALUD": None},
+        ]
+    )
+    assert (base_unw, target_unw) == (2, 1)
+
+
+def test_d09_synthetic_domain_rejects_observed_care_outside_cons_alguna():
+    with pytest.raises(ValueError, match="outside CONS_ALGUNA"):
+        summarize_synthetic_health_care_domain(
+            [{"synthetic": True, "CONS_ALGUNA": 0, "CONS_ATENCION_SALUD": 1}]
+        )
 
 
 def test_golden_32_and_manifest_hash_remain_bound():
