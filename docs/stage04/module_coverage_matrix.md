@@ -1,6 +1,6 @@
 # Matriz de cobertura — Corte 2
 
-Estado: READY_FOR_CORTE2_ENGINEERING_REVIEW; NUMERIC_DATA_GATE_OPEN.
+Estado: CORTE2_ENGINEERING_CHECKPOINT_APPROVED_MERGED; NUMERIC_DATA_GATE_OPEN.
 Alcance: LOCAL_SHADOW_ONLY.
 
 Detalle verificable por indicador y dimensión:

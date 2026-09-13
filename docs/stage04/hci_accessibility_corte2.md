@@ -49,5 +49,7 @@ certificación WCAG ni una auditoría formal con lector de pantalla.
 
 ## Gate pendiente
 
-La comprensión de etiquetas por una persona revisora independiente continúa pendiente y debe
-resolverse durante la revisión del PR. Hasta entonces no se declara cerrado Sprint 04.2.
+La aprobación general del checkpoint de ingeniería no acredita una sesión independiente de
+teclado, lector de pantalla o prueba con personas usuarias. La comprensión de etiquetas por una
+persona distinta de la autora continúa pendiente. Hasta entonces no se declara cerrado Sprint
+04.2.

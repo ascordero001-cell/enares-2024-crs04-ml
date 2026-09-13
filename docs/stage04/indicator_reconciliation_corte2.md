@@ -2,7 +2,9 @@
 
 Fuente de autoridad: lectura del diccionario y agregado en Drive privado, junto con
 la hoja arquitectónica y metodología ver6 del paquete rector. No se abrieron microdatos.
-Estado: correspondencia temática contrastada; revisión formal del Corte 2 pendiente.
+Estado: correspondencia temática contrastada y checkpoint de ingeniería aprobado mediante
+[PR #57](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/57); decisiones de
+calidad/supresión del gate numérico pendientes.
 
 ## Selección
 
