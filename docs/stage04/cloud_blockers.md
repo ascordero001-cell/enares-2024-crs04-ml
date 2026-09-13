@@ -4,6 +4,10 @@
 **Administradoras designadas:** Ana y Rita.
 **Estado operativo:** `CLOUD_CONFIGURATION_PENDING`; no existe GO técnico ni primer despliegue verificado.
 
+El [acta supervisora D01–D12](acta_decision_d01_d12_20260913.md) confirma que el presupuesto no
+autoriza conexión cloud, publicación ni cutover. Billing, IAM y la lista de seis identidades
+continúan sin verificar.
+
 La autorización presupuestaria sustituye el estado histórico USD 0, que se conserva en commits y
 evidencia anteriores. No configura billing, IAM ni recursos y no equivale a autorización de datos.
 Los elementos siguientes permanecen `BLOCKED_BY_CLOUD_GATE` hasta completar verificación:

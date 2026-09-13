@@ -20,3 +20,14 @@
 | Agent Engine | No creado | — | learning-lab | no |
 
 Los números anteriores usados por las plantillas locales son referencias temáticas y no identificadores reales de GitHub. Los laboratorios opcionales se crearán únicamente si existe una decisión posterior documentada.
+
+## Orden rector corregido
+
+El PR histórico #42 actualizó el README y ya fue fusionado; no es una dependencia operativa del
+Issue paraguas #43 ni bloquea Sprint 04.2. No existe actualmente una relación GitHub `blocked by`
+entre #43 y #42.
+
+La secuencia vigente del rector valida primero la aplicación en Sprint 04.2 mediante #46, #47 y
+#48. La automatización #45 pertenece a Sprint 04.3 y comienza después de validar la aplicación.
+Esta precedencia sustituye cualquier referencia local anterior que presentara #42 como requisito
+de #43.
