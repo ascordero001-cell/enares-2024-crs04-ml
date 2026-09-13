@@ -23,11 +23,6 @@ Los números anteriores usados por las plantillas locales son referencias temát
 
 ## Orden rector corregido
 
-El PR histórico #42 actualizó el README y ya fue fusionado; no es una dependencia operativa del
-Issue paraguas #43 ni bloquea Sprint 04.2. No existe actualmente una relación GitHub `blocked by`
-entre #43 y #42.
+La plantilla local stage04_43.md declara como dependencia el «#42» en numeración local, que corresponde a «Automatizar ejecución por release y código en shadow» y en GitHub es el issue #45, hoy abierto. No debe confundirse con el PR #42 de GitHub, que actualizó el README y se fusionó el 2026-08-24.
 
-La secuencia vigente del rector valida primero la aplicación en Sprint 04.2 mediante #46, #47 y
-#48. La automatización #45 pertenece a Sprint 04.3 y comienza después de validar la aplicación.
-Esta precedencia sustituye cualquier referencia local anterior que presentara #42 como requisito
-de #43.
+Esa dependencia quedó superada por el reordenamiento del rector: la aplicación se valida primero en Sprint 04.2 mediante #46, #47 y #48, y la automatización #45 pertenece a Sprint 04.3, después de esa validación. Local 43 no está bloqueado por local 42, y no existe relación GitHub blocked by entre estos issues.

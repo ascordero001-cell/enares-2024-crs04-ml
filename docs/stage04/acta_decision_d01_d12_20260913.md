@@ -69,6 +69,8 @@ Aprobados: `special → prevalence` para D01, D03, D04, D05, D06 y D07;
 identifica con nombre y versión, tiene pruebas sintéticas propias y rechaza filas no marcadas como
 sintéticas. Un `adapter_id` registrado no equivale a alcance autorizado.
 
+Aclaración posterior, 2026-09-13: esa comprobación pertenece al adaptador de pruebas sintéticas y debe conservarse ahí. Los agregados autorizados son datos institucionales reales y no pasan por esa barrera: usan un adaptador institucional con nombre, versión y pruebas propias. Bajo ninguna circunstancia se marca un dato real como sintético para superar la comprobación. La separación entre ambos adaptadores se presenta para revisión antes de conectar el primer agregado.
+
 ### 2.4 Confidencialidad — política pendiente, con plazo
 
 `suppress_flag` no se deriva de `cv_flag` ni de `n_flag`, en ningún sentido, ni por defecto a
