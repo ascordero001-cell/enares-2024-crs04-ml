@@ -29,4 +29,3 @@ CRS03/CRS04 y contiene el bloque CRS04 de búsqueda de ayuda.
 No se copiaron rutas `FILE HANDLE`, credenciales, datos, resultados individuales ni archivos
 `.sav`. La evidencia derivada se limita a reglas, nombres de variables, universos, comandos de
 diseño complejo y referencias de línea verificables en estos archivos identificados por hash.
-

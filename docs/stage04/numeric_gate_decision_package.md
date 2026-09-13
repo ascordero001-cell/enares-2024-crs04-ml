@@ -164,4 +164,3 @@ el resto del catálogo permanecen fuera del próximo corte hasta una solicitud c
 
 Hasta esas decisiones, `NUMERIC_DATA_GATE_OPEN`; solo 3.2 / `VF_HOGAR` / Nacional / Total continúa
 como golden numérico local autorizado.
-

@@ -64,4 +64,3 @@ aprobación independiente. Hasta que la revisora enumere los casos y alcances ap
 - el adaptador candidato continúa desconectado;
 - no se modifican `authorized_dimensions`, la aplicación, el golden ni los agregados V0;
 - Cloud permanece `NOT_AUTHORIZED`, con presupuesto USD 0.
-
