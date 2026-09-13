@@ -1,5 +1,16 @@
 # Discrepancias conocidas del corte vertical 3.2
 
+## Actualización 2026-09-13 — dominio D09
+
+El V0 deja vacíos `domain_variable/domain_value` de `CONS_ATENCION_SALUD`, mientras la decisión
+vigente exige `CONS_ALGUNA = 1`. El contraste de Drive no encontró una diferencia estructural de
+dominio: en los 22 pares, `base_unw(CONS_ATENCION_SALUD)` coincide con
+`target_unw(CONS_ALGUNA)`. La equivalencia se explica porque la variable queda `NULL` fuera del
+dominio y R usa respuestas válidas. Estado: `STRUCTURAL_EQUIVALENCE_VERIFIED`; se recomienda
+versionar metadata explícita en el próximo productor, sin sobrescribir V0. Los pares y cifras
+continúan pendientes de autorización. Véase
+[d09_cons_atencion_salud_domain_evidence.md](d09_cons_atencion_salud_domain_evidence.md).
+
 **Estado al 2026-09-04:** No existen discrepancias abiertas para el corte vertical 3.2 a la
 fecha de esta revisión.
 
@@ -28,16 +39,17 @@ usarse para ocultar una discrepancia sustantiva.
 
 La reconstrucción aditiva simple tiene prueba automatizada. Los cruces multitabla o multirelease y
 el enlace externo permanecen `TEST_PENDIENTE`; logs, errores, caché y exports permanecen
-`PRUEBA_DE_INTEGRACIÓN_PENDIENTE`. Los umbrales `CV > 0.15`, `N < 30`, la tolerancia `1e-9` y el
-owner metodológico siguen pendientes de aprobación formal y no son política institucional.
+`PRUEBA_DE_INTEGRACIÓN_PENDIENTE`. La decisión del 2026-09-13 resolvió `CV > 0.15` y
+`base_unw < 30` como alertas visibles sin supresión automática. La tolerancia `1e-9`, la política
+de confidencialidad y los alcances numéricos continúan pendientes de aprobación formal.
 
 ## Corte 2 — discrepancias detectadas antes de publicación
 
 | ID | Comparación | Clasificación | Efecto | Tratamiento | Revisor | Estado |
 |---|---|---|---|---|---|---|
-| KD-C2-01 | Flags de la adaptación frente a campos existentes en V0 | Calidad no conciliada | Bloquea nuevas cifras | Se retiraron flags `false` por defecto; el contrato candidato exige `null` hasta decisión | `ritaricaldi-cpu` debe decidir política | RESOLVED_ENGINEERING; METHODOLOGICAL_DECISION_PENDING |
+| KD-C2-01 | Flags de la adaptación frente a campos existentes en V0 | Calidad conciliada | No autoriza nuevas cifras | El adaptador deriva CV/N con umbrales aprobados y nunca deriva `suppress_flag` | `ritaricaldi-cpu`, revisión PR #60 | RESOLVED_APPROVED_2026_09_13 |
 | KD-C2-02 | Centinelas 3.1/3.5 frente a títulos mitos/acumulación | Correspondencia temática contrastada | Selección resuelta; calidad/supresión pendientes | 3.1: justifica_castigo_parental/docente; 3.5: PV_hogar_escuela; [evidencia](indicator_reconciliation_corte2.md) | Checkpoint de ingeniería aprobado en PR #57 | RESOLVED_DOCUMENTED |
-| KD-C2-03 | n_unw frente a target_unw/base_unw en dominios condicionados | N del denominador aclarada | Correspondencia resuelta; otros gates siguen abiertos | `n_unweighted` toma exclusivamente `base_unw`; contrato y pruebas rechazan fallback | Checkpoint de ingeniería aprobado; política numérica pendiente | RESOLVED_ENGINEERING; METHODOLOGICAL_DECISION_PENDING |
+| KD-C2-03 | n_unw frente a target_unw/base_unw en dominios condicionados | N del denominador aprobada | Correspondencia resuelta; otros gates siguen abiertos | `n_unweighted` toma exclusivamente `base_unw`; contrato y pruebas rechazan fallback | `ritaricaldi-cpu`, revisión PR #60 | RESOLVED_APPROVED_2026_09_13 |
 | KD-C2-04 | Tipo special del diccionario frente a prevalence/distribution en seis salidas 3.5 | Contrato especial | Bloquea adaptación genérica | Exigir seis adaptadores específicos; [D03–D08](numeric_gate_decision_package.md) | `ritaricaldi-cpu` | METHODOLOGICAL_DECISION_PENDING |
 | KD-C2-05 | Cuatro filas de contexto de Solap_VP_VF_E / Solap_VP_VF_H sin SE, IC ni CV | Estadísticas incompletas | No pueden mostrarse como estimaciones completas | Conservar vacíos y excluir de métricas; [D04–D05](numeric_gate_decision_package.md) | `ritaricaldi-cpu` | METHODOLOGICAL_DECISION_PENDING |
 | KD-C2-06 | C3P242_10, C3P242_5, C4P258_7 y ayuda_vs_car con estimación/target 0 y CV vacío | CV no definido para cero eventos | Requiere estado visual explícito | Conservar `CV=null`, sin sustituir por cero; [D10](numeric_gate_decision_package.md) | `ritaricaldi-cpu` | METHODOLOGICAL_DECISION_PENDING |

@@ -101,6 +101,7 @@ def _numeric_summary(card: dict, heading: str | None = None) -> None:
     d.metric("N no ponderado", card["n_text"].replace("N no ponderado: ", ""))
     st.write(card["interval_text"])
     st.info(card["quality_label"])
+    st.caption(card["quality_note"])
     st.text(card["universe_text"])
     st.caption(card["denominator_text"])
 
@@ -114,6 +115,7 @@ def _state_gallery(cards: list[dict]) -> None:
                 st.caption("DEMO SINTÉTICO")
                 st.subheader(card["category"])
                 st.text(card["quality_label"])
+                st.caption(card["quality_note"])
                 if card["quality_status"] == "SUPPRESSED_EXERCISE":
                     st.text("Los campos protegidos no llegan a la interfaz.")
                 else:
@@ -161,7 +163,7 @@ def render() -> None:
     )
     dimension = st.sidebar.selectbox("Dimensión", FUTURE_DIMENSIONS, index=dimension_index)
     st.sidebar.button("Exportar", disabled=not EXPORT_ENABLED, help="Exportación no autorizada")
-    st.sidebar.caption("Cloud: NOT_AUTHORIZED · Presupuesto: USD 0")
+    st.sidebar.caption("Cloud: NOT_AUTHORIZED · Tope autorizado: USD 20/mes total")
 
     if page == "Resumen":
         if dimension != "Nacional":
@@ -240,14 +242,20 @@ def render() -> None:
     elif page == "Metodología":
         st.subheader("Metodología y límites")
         st.write("Las cifras V0 se consumen como agregados aprobados; la aplicación no recalcula Stage 03.")
-        st.warning("CV > 0.15, N < 30 y tolerancia 1e-9 continúan como propuestas pendientes.")
+        st.warning(
+            "En 3.1–3.6, CV > 15 % es visible y referencial; base_unw < 30 "
+            "es visible con alerta. Ninguna regla activa supresión."
+        )
         st.write("SHADOW permite evaluación local. APPROVED requiere revisión formal. PUBLISHED requiere un gate institucional separado.")
     else:
         st.subheader("Estado del release")
         st.code(summary["release_id"])
         st.success("SHADOW · agregado V0 identificado por manifiesto")
         st.error("PUBLISHED: NOT_AUTHORIZED")
-        st.caption("BigQuery, DDL, Cloud Run, IAM y facturación: BLOCKED_BY_CLOUD_GATE")
+        st.caption(
+            "BigQuery, DDL y Cloud Run: BLOCKED_BY_CLOUD_GATE; "
+            "configuración y primer despliegue pendientes de verificación"
+        )
 
     st.divider()
     coverage = " · ".join(

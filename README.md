@@ -13,8 +13,10 @@ poblacional basada únicamente en agregados validados.
 > `SHADOW — NOT PUBLISHED`. PRE-STAGE04 está cerrado y el checkpoint de ingeniería
 > local del Corte 2 fue aprobado y fusionado mediante el [PR #57](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/57).
 > Sprint 04.2 sigue en curso con `NUMERIC_DATA_GATE_OPEN`. La aplicación está autorizada
-> exclusivamente como `LOCAL_SHADOW_ONLY`; Cloud continúa `NOT_AUTHORIZED`, con
-> presupuesto autorizado USD 0.
+> exclusivamente como `LOCAL_SHADOW_ONLY`; Cloud continúa `NOT_AUTHORIZED`. El tope aprobado
+> es USD 20 mensuales en total,
+> con Ana y Rita como administradoras; la configuración y el primer despliegue cloud continúan
+> sujetos a verificación y todavía no autorizan publicar resultados.
 
 ![Demostración sintética de estados candidato, referencia y suprimido](docs/stage04/evidence/sprint042_corte2_states.png)
 

@@ -27,9 +27,10 @@ campos estadísticos protegidos, flags, `quality_note`, `validation_status` y `c
 
 La creación de una vista real en BigQuery permanece `BLOCKED_BY_CLOUD_GATE`.
 
-La nulificación de campos protegidos es un control técnico local implementado. Los umbrales que
-activan estados siguen siendo propuestas didácticas y requieren aprobación metodológica; no son
-una decisión institucional.
+La nulificación de campos protegidos es un control técnico local implementado. Para 3.1–3.6,
+`CV > 15 %` produce una estimación visible, referencial y con nota; `base_unw < 30` produce una
+estimación visible con alerta. Ninguna de estas señales activa `suppress_flag`. La publicación de
+nuevas cifras y la política independiente de confidencialidad continúan sujetas a sus gates.
 
 El fixture demo es 100 % sintético. El corte golden V0 es un agregado autorizado, no sintético y
 sin microdatos. Ninguno equivale a datos institucionales publicados. BigQuery, DDL, Cloud Run y

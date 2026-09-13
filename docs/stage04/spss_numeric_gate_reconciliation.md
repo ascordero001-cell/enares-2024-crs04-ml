@@ -1,6 +1,6 @@
 # Conciliación directa de SPSS para D01–D12
 
-**Estado:** `SPSS_EVIDENCE_RECONCILED_PENDING_INDEPENDENT_APPROVAL`
+**Estado:** `SPSS_EVIDENCE_PRESERVED; SUPERVISORY_PRESENTATION_RULES_APPROVED`
 **Alcance:** preparación local desconectada; no habilita cifras ni cambia la aplicación
 **Manifiesto:** [spss_source_manifest.md](spss_source_manifest.md)
 **Revisora requerida:** `ritaricaldi-cpu`
@@ -8,6 +8,18 @@
 Esta conciliación contrasta el paquete D01–D12 con las sintaxis CRS04 entregadas y con el
 diccionario y los agregados V0 congelados. Las referencias `Lx–Ly` son líneas del archivo lógico
 identificado por SHA-256 en el manifiesto; no son rutas locales.
+
+## Decisión supervisora posterior — 2026-09-13
+
+La revisión de Rita en el PR #60 resolvió la capa de presentación sin reescribir la evidencia
+histórica: en 3.1–3.6, CV > 15 % es visible, referencial y lleva nota; `base_unw < 30` es visible y
+lleva alerta; ninguno implica supresión. Por ello, las instrucciones SPSS históricas que dicen
+“suprimir por imprecisión” se mantienen citadas como antecedente, pero no gobiernan la interfaz
+Stage 04. La confidencialidad continúa como decisión separada.
+
+También quedó aprobado que D09 usa `CONS_ALGUNA = 1`. La evidencia de su equivalencia estructural
+con el productor R y V0 se registra en
+[d09_cons_atencion_salud_domain_evidence.md](d09_cons_atencion_salud_domain_evidence.md).
 
 ## Hallazgos transversales
 
@@ -42,13 +54,12 @@ identificado por SHA-256 en el manifiesto; no son rutas locales.
 | D11 | 3.3 contiene `C3P223_10_1`; 3.4 contiene `Agresor_VS_12M__AG_01`; 3.6 contiene `C3P213` y sus dominios respectivos | Cada indicador se autoriza individualmente; no se generaliza la regla de numerador ni el módulo | `READY_FOR_SUPERVISORY_DECISION` |
 | D12 | SPSS usa `/SUBPOP TABLE = AREA BY SEXO`; las sintaxis de desagregación llaman `Idioma del hogar` a `idiomaHogar` | Se consideran fieles las etiquetas UI `Área × sexo` e `Idioma del hogar`, manteniendo en metadata `AREA BY SEXO` e `idiomaHogar` | `READY_FOR_SUPERVISORY_DECISION` |
 
-## Política candidata derivada de SPSS
+## Política vigente y separación de fuentes
 
-1. `cv_flag = true` cuando el CV, expresado como proporción, sea mayor que `0.15`.
-2. `quality_status = REFERENCE_HIGH_CV` para bloques que ordenan identificación referencial.
-3. Los bloques que ordenan supresión por imprecisión requieren un estado explícito diferente de
-   la supresión por confidencialidad; ningún dato debe ocultarse bajo un motivo ambiguo.
-4. `n_flag` permanece nulo: las sintaxis revisadas no establecen `N < 30`.
+1. `cv_flag = true` cuando el CV sea mayor que el umbral correspondiente a su unidad declarada.
+2. `quality_status = REFERENCE_HIGH_CV` y la nota aprobada; la prevalencia permanece visible.
+3. `n_flag = true` cuando `base_unw < 30`; la prevalencia permanece visible con nota.
+4. La regla N no se atribuye a SPSS: proviene de la decisión supervisora del 2026-09-13.
 5. Un CV ausente permanece ausente y la fila conserva estado incompleto.
 6. `suppress_flag` de confidencialidad permanece pendiente hasta una política independiente.
 7. La tolerancia `1e-9` continúa limitada a una propuesta técnica de paridad y no se atribuye a
@@ -56,11 +67,11 @@ identificado por SHA-256 en el manifiesto; no son rutas locales.
 
 ## Parada de supervisión
 
-Esta evidencia permite revisar decisiones con la sintaxis primaria delante, pero no sustituye la
-aprobación independiente. Hasta que la revisora enumere los casos y alcances aprobados:
+La aprobación resuelve CV/N y el dominio D09, pero no autoriza cifras nuevas ni los alcances
+D01–D12. Hasta que la revisora enumere cada indicador/dimensión/categoría aprobado:
 
 - `NUMERIC_DATA_GATE_OPEN`;
 - solo 3.2 / `VF_HOGAR` / Nacional / Total permanece autorizado;
 - el adaptador candidato continúa desconectado;
 - no se modifican `authorized_dimensions`, la aplicación, el golden ni los agregados V0;
-- Cloud permanece `NOT_AUTHORIZED`, con presupuesto USD 0.
+- existe presupuesto máximo aprobado de USD 20/mes, pero la configuración cloud continúa pendiente.

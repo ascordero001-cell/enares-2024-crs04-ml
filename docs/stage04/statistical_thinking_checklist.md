@@ -34,19 +34,17 @@ describen su incertidumbre; el CV relaciona el error estándar con la estimació
 no ponderado y no debe confundirse con población proyectada. La lectura solo es válida para el
 universo y el periodo indicados.
 
-## 2. Tres decisiones de visualización para la PUERTA B
+## 2. Decisiones de visualización vigentes
 
-No existe todavía una regla institucional aprobada de publicación o supresión. Para practicar el
-razonamiento se aplica provisionalmente `CV > 0.15` como señal referencial y `N < 30` como señal
-de supresión. Estas reglas son ejemplos técnicos pendientes de aprobación metodológica; no
-cambian el estado de las filas V0.
+La revisión supervisora del 2026-09-13 aprobó `CV > 15 %` como señal referencial visible y
+`base_unw < 30` como alerta visible. Ninguna implica supresión. La política de confidencialidad y
+la autorización de cifras continúan separadas y pendientes.
 
 ### Caso A — candidato publicable
 
 - Fila: `VF_HOGAR / Nacional / Total` (V0 agregada real).
 - Estimate 16.7433; SE 0.5115; IC95 % [15.7397, 17.7469]; CV 0.03055; N 18,807.
-- Decisión provisional: `PUBLISHABLE_CANDIDATE`, porque no activa los ejemplos técnicos de CV
-  ni N.
+- Decisión de calidad: `PUBLISHABLE_CANDIDATE`, porque no activa las alertas CV/N.
 - Presentación: valor, IC95 %, CV, N, universo, denominador y etiqueta SHADOW visibles.
 - Límite: “candidato” no equivale a publicación institucional ni a reemplazo de V0.
 
@@ -55,21 +53,22 @@ cambian el estado de las filas V0.
 - Fila: `VF_HOGAR_01 / Departamento / Lambayeque` (V0 agregada real).
 - Estimate 0.3596; SE 0.2498; IC95 % Wald [-0.1306, 0.8498]; CV 0.69475;
   N no ponderado del denominador 651; conteo no ponderado del numerador 2.
-- Decisión provisional: `REFERENCE_HIGH_CV`, porque `0.69475 > 0.15`.
+- Decisión de calidad: `REFERENCE_HIGH_CV`, porque `0.69475 > 0.15`; la prevalencia permanece
+  visible y lleva la nota aprobada.
 - Presentación: no destacar ni ordenar como ranking; acompañar con “estimación imprecisa” y toda
   la evidencia de incertidumbre. El límite inferior negativo es una consecuencia del IC Wald y
   no una prevalencia negativa observable.
 - Límite: el conteo de numerador bajo refuerza la cautela, pero no se convierte aquí en una regla
   institucional de supresión.
 
-### Caso C — celda suprimida de ejercicio
+### Caso C — N pequeño sintético, visible con alerta
 
 - Fila: ejemplo **totalmente sintético** del módulo 3.2; no procede del CSV V0 y no representa
   ningún territorio ni grupo real.
 - Valores de prueba: estimate 12.0; SE 4.0; IC95 % [4.16, 19.84]; CV 0.3333; N 24.
-- Decisión provisional: `SUPPRESSED_EXERCISE`, porque `N = 24 < 30` bajo la regla técnica de
-  práctica. La interfaz mostraría “Suprimido” sin estimate, intervalo ni conteo.
-- Propósito: demostrar el estado visual requerido sin atribuir una supresión inexistente a V0.
+- Decisión de calidad: `base_unw = 24 < 30`; la interfaz conserva estimate, intervalo, CV y N y
+  añade “Estimación basada en menos de 30 observaciones no ponderadas. Interpretar con cautela.”
+- Propósito: demostrar la alerta visible sin atribuir una supresión a V0.
 - Límite: no es evidencia empírica y no debe entrar en comparaciones, totales ni exports.
 
 ## 3. Reconstrucción conceptual del resultado
@@ -78,8 +77,8 @@ cambian el estado de las filas V0.
 2. El diseño Stage 03 aplica `ID`, `CCDD`, `FACTOR_ALUMNOS` y `nest = TRUE`.
 3. El productor R calcula estimate, SE, IC95 %, CV y conteos y escribe el CSV integrado V0.
 4. Stage 04 lee esa fila agregada por hash; no consulta microdatos ni recalcula el indicador.
-5. La decisión visual depende de una regla de calidad separada. Por ahora las decisiones de los
-   tres casos son didácticas y provisionales.
+5. La decisión visual aplica alertas de calidad aprobadas; la supresión requiere política de
+   confidencialidad independiente.
 
 ## 4. Autoevaluación y parada
 
@@ -88,9 +87,8 @@ cambian el estado de las filas V0.
   individuales.
 - Puedo distinguir N no ponderado, conteo del numerador y estimate ponderado.
 - Puedo explicar que CV es `SE / estimate` en la misma escala.
-- No puedo declarar una regla institucional de publicación o supresión sin aprobación.
-- No avanzaré a contratos, golden, seguridad, interfaz ni réplica 3.1–3.6 hasta que supervisión
-  revise esta PUERTA B.
+- No puedo autorizar cifras ni una regla de confidencialidad a partir de las alertas CV/N.
+- Puedo avanzar en implementación local sintética, pero no conectar nuevas cifras ni publicar.
 
 ## 5. Solicitud de revisión
 
@@ -99,4 +97,14 @@ Se solicita confirmar:
 1. que `VF_HOGAR / Nacional / Total` es un piloto adecuado;
 2. que universo, denominador y tratamiento de missing están interpretados correctamente;
 3. que los casos A–C son suficientes para el ejercicio formativo;
-4. qué regla institucional sustituirá, si corresponde, los umbrales provisionales.
+4. qué política independiente de confidencialidad y reconstrucción se aprobará.
+
+## 6. Extensión aprobada a 3.1–3.6 y D09
+
+`tests/test_stage04_candidate_adapter.py` cubre CV por debajo, igual y por encima de 15 %, N
+29/30/31, unidades proporción/porcentaje y alertas conjuntas en los seis módulos. Los valores
+sintéticos permanecen visibles y `suppress_flag` no se deriva.
+
+Para D09, `CONS_ATENCION_SALUD` usa `CONS_ALGUNA = 1`; su N es `base_unw` de respuestas válidas
+dentro del dominio. La correspondencia R/V0 se documenta en
+[d09_cons_atencion_salud_domain_evidence.md](d09_cons_atencion_salud_domain_evidence.md).

@@ -170,7 +170,9 @@ def test_apptest_module_32_shows_golden_and_three_demo_states():
     visible = _visible_text(app)
     assert "Candidato — revisión pendiente" in visible
     assert "Referencial — precisión limitada" in visible
+    assert "CV superior al 15 %" in visible
     assert "Suprimido — confidencialidad protegida" in visible
+    assert "no derivado de CV ni N" in visible
     assert "Los campos protegidos no llegan a la interfaz" in visible
     assert "weighted_population" not in visible
 
