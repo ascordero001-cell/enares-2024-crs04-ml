@@ -32,15 +32,15 @@ Leyenda de estado: **AUTORIZADO** (puede implementarse y conectarse dentro del a
 | Caso | Decisión | Alcance autorizado | Condición de cumplimiento |
 |---|---|---|---|
 | **D01** · 3.1 `Componentes` | AUTORIZADO CONDICIONADO | Adaptador `components-special-prevalence-v1`; las 10 categorías enumeradas de `Tareas del hogar` | Antes de conectar cifras, Ana documenta qué mide el sufijo `_fem` en `tarea1_fem`–`tarea10_fem`: universo, sujeto de la tarea y persona de referencia. Si el universo no es el declarado en la etiqueta, la etiqueta se corrige antes de publicar, no después. |
-| **D02** · 3.4 `VP_VF_VS_HOGAR` | CONTEXTO NO NUMÉRICO | Departamento: Cusco, Huancavelica | Es un cero con `CV` ausente en un indicador de violencia. Antes de cualquier presentación numérica, Ana consulta al productor Stage 03 si el cero es un cero real observado o un artefacto de procesamiento, y lo registra en `known_discrepancies.md`. No se publica `0 %` para estos departamentos en este corte. |
+| **D02** · 3.2 `VP_VF_VS_HOGAR` | AUTORIZADO | Departamento: Cusco, Huancavelica | Los ceros observados significan que no concurren las tres violencias. Se muestran como `0 %`, con `base_unw` presente, `CV` indefinido por aritmética y la etiqueta conjuntiva aprobada. |
 | **D03** · 3.5 `PV_condicional_con_VS` | AUTORIZADO | Adaptador de prevalencia condicional; las 2 categorías: P(escuela \| hogar) con VS; P(hogar \| escuela) con VS | La etiqueta conserva el denominador explícito. Queda prohibido comparar o presentar junto a CRS.03 sin una decisión separada. |
 | **D04** · 3.5 `Solap_VP_VF_E` | AUTORIZADO para las 2 condicionales · CONTEXTO NO NUMÉRICO para las 2 filas de contexto | Condicionales P(VF \| VP) y P(VP \| VF) con su texto “de [denominador], % con [numerador]” | Las filas de contexto VF (física) y VP (psicológica) carecen de SE, IC y CV: se muestran sin métrica y no se exportan. No se completan ni se imputan. |
 | **D05** · 3.5 `Solap_VP_VF_H` | Igual que D04, con adaptador propio | Mismos 4 pares aplicados al hogar | Prohibido intercambiar o reutilizar el adaptador de escuela. La cobertura se demuestra por separado. |
 | **D06** · 3.5 `Solap_VS_12M` | AUTORIZADO CONDICIONADO — estructura sí, cifras no | Matriz dirigida completa como unidad: 2 pares 2×2 y 6 pares dirigidos 3×3 | El adaptador y las pruebas pueden construirse ahora con datos sintéticos. **La conexión de cifras reales queda suspendida hasta que exista la política de confidencialidad del punto 2.4.** Una matriz dirigida sobre violencia sexual con celdas pequeñas es el caso de reconstrucción de mayor riesgo del catálogo; no se abre antes que la política. |
 | **D07** · 3.5 `Solap_VS_VIDA` | Igual que D06, autorizado por separado | Mismo conjunto cerrado aplicado a vida | No hereda nada de D06. Universo, adaptador, pruebas y evidencia propios. Misma suspensión de cifras. |
 | **D08** · 3.5 `num_consecuencias_fisicas` | AUTORIZADO | Adaptador de distribución; 7 categorías: Ninguna, Una, Dos, Tres, Cuatro, Cinco consecuencias, Total | Se ubica en **Consecuencias**, no en Acumulación. La fila `Total` se presenta como total de la distribución, nunca como una prevalencia. |
-| **D09** · 3.5 `CONS_ATENCION_SALUD` | AUTORIZADO — los 22 pares exactos | Discapacidad 0,1 · Etnicidad 1,3,5,6,9 · Idioma del hogar 1,3,4 · Nacional Total · Sexo 1,2 · Tipo de hogar 1,2,3 · Área 1,2 · Área × sexo (Rural Hombre, Rural Mujer, Urbano Hombre, Urbano Mujer). Departamento excluido. | Dominio `CONS_ALGUNA = 1` ya aprobado y su equivalencia estructural R/V0 verificada. El dominio se muestra en pantalla junto a la cifra. La etiqueta larga aprobada acompaña tarjeta, tabla y exportación. Las dimensiones usan las etiquetas aprobadas en D12. |
-| **D10** · 3.6 `C3P242_10`, `C3P242_5`, `C4P258_7`, `ayuda_vs_car` | CONTEXTO NO NUMÉRICO | Nacional / Total en cada indicador | Mismo tratamiento que D02: cero observado con `CV` indefinido. Ana verifica con Stage 03 si el cero es real. Son indicadores de búsqueda y recepción de ayuda: publicar `0 %` sin resolver su origen es el error más costoso de este corte. `base_unw` se conserva y alimenta N. |
+| **D09** · 3.5 `CONS_ATENCION_SALUD` | AUTORIZADO — los 22 pares exactos | Discapacidad 0,1 · Etnicidad 1,3,5,6,9 · Idioma del hogar 1,3,4 · Nacional Total · Sexo 1,2 · Tipo de hogar 1,2,3 · Área 1,2 · Área × sexo (Rural Hombre, Rural Mujer, Urbano Hombre, Urbano Mujer). Departamento excluido. | Dominio `CONS_ALGUNA = 1` aprobado y equivalencia estructural R/V0 verificada. El dominio se muestra junto a la cifra. Las 13 celdas con `CV > 15 %` siguen visibles y referenciales; la precisión no activa supresión. Las etiquetas de código constan en la adenda. |
+| **D10** · 3.6 `C3P242_10`, `C3P242_5`, `C4P258_7`, `ayuda_vs_car` | AUTORIZADO | Nacional / Total en cada indicador | Los cuatro ceros son observados. Se publican con `base_unw` presente y `CV` indefinido por aritmética. El linaje de `C3P242_5` y `C3P242_10` está resuelto en Issue #24. |
 | **D11** · 3.3 `C3P223_10_1` · 3.4 `Agresor_VS_12M__AG_01` · 3.6 `C3P213` | AUTORIZADO CONDICIONADO, uno por uno | Solo Nacional / Total en cada indicador | `C3P213` usa numerador `== 5`, no la regla binaria `== 1`. Antes de conectarlo, Ana registra la etiqueta exacta del valor 5 y el texto del indicador que se mostrará. Ningún otro indicador de esos módulos queda incluido. |
 | **D12a** · alias `Área y sexo` → `Área × sexo` | AUTORIZADO | Todas las familias que ya usan la dimensión | Cambio tipográfico sobre el mismo constructo. `AREA BY SEXO` y el nombre V0 `Área y sexo` se conservan en metadata. No amplía pares ni habilita combinaciones nuevas. |
 | **D12b** · alias `Lengua materna` → `Idioma del hogar` | AUTORIZADO | Todas las familias que ya usan la dimensión | La variable de origen es `idiomaHogar` y la pregunta CRS04 capta el idioma hablado en el hogar, no la lengua materna de la persona: la etiqueta correcta para la interfaz y los anexos es **Idioma del hogar**. El nombre V0 `Lengua materna` y el código fuente `idiomaHogar` se conservan en metadata para trazabilidad. El alias no amplía pares ni habilita combinaciones nuevas. Ana actualiza la etiqueta de forma consistente en tarjeta, tabla, gráfico, tooltip, impresión y exportación; no quedan las dos denominaciones conviviendo. |
@@ -121,3 +121,68 @@ ajusta la tolerancia para que un test pase.
 
 Decisiones tomadas sobre la evidencia del head `cff8faf3`. Si alguna cifra, etiqueta o dominio
 cambia respecto de esa evidencia, la autorización correspondiente caduca y vuelve a revisión.
+
+## 5. Adenda supervisora de Etapa 1 — 2026-09-14 UTC
+
+La [revisión formal del PR #62](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/62#pullrequestreview-5192999425)
+aprobó la separación de adaptadores. Antes de conectar el primer
+agregado, las reglas de CV, N, notas y `quality_status` deben ser funciones puras compartidas por
+ambos caminos, y `synthetic=false` debe ser derivado por `AuthorizedAggregateRepository` desde la
+procedencia verificada; nunca se acepta de quien llama ni se fija manualmente.
+
+### D01 — textos y agrupación cerrada
+
+- Ítems 1–7: «Porcentaje en que [tarea] la realiza principalmente una mujer del hogar».
+- Ítems 8–10: «Porcentaje en que quien [ayuda con las tareas escolares / aconseja y escucha /
+  juega con ella] es principalmente una mujer del hogar».
+- Los dos bloques representan preguntas distintas y no se combinan en una figura de diez barras.
+
+`predominio_femenino_tareas` permanece fuera de D01. La sintaxis CRS04 confirma que su categoría
+0 agrupa predominio masculino, empate y ausencia de ambos, y que la proporción usa los diez ítems
+aunque la etiqueta V0 diga «tareas del hogar». Se conserva la etiqueta V0 sin reescribirla y la
+discrepancia vuelve al productor.
+
+### Corrección D02 y resolución D10
+
+D02 pertenece a 3.2, no a 3.4. Sus dos ceros son observados: significan que no concurren las tres
+violencias, y quien sufrió una o dos sigue contado en sus indicadores propios. Los cuatro ceros de
+D10 también son observados.
+
+El linaje de D10 queda resuelto: la base de 9 a 11 años no está disponible en el entorno de
+trabajo, así que el bloque CRS03 emparejado no pudo producir ninguna fila. Las filas de
+`C3P242_5` y `C3P242_10` provienen del bloque CRS04 de la línea 2416.
+
+D02 y D10 salen de `NON_NUMERIC_CONTEXT` y se publican con su valor visible y CV indefinido por
+aritmética. La etiqueta de D02 hace explícita la conjunción: «Porcentaje que sufrió violencia
+psicológica, física y sexual en el hogar, las tres simultáneamente».
+
+### Retiro de ampliaciones sin respaldo en V0 — 2026-09-14 UTC
+
+- **D09 Departamento:** se retira la ampliación de 26 categorías. El agregado aprobado contiene
+  exactamente 22 filas de `CONS_ATENCION_SALUD` y ninguna dimensión `Departamento`. Esa apertura
+  no fue tabulada porque el dominio condicionado dejaba muy pocos casos por celda. D09 queda
+  cerrado a los 22 pares existentes y no se reabre la baseline.
+- **D01 «nadie»:** se retiran `tarea8_nadie`, `tarea9_nadie` y `tarea10_nadie` de este corte porque
+  no existen en el agregado. Quedan registradas como candidatas para un corte posterior que cree
+  una versión nueva; Stage 04 no las calcula ni modifica V0.
+
+Etiquetas aprobadas para D09:
+
+| Dimensión | Código | Etiqueta |
+|---|---:|---|
+| Idioma del hogar | 1 | Castellano |
+| Idioma del hogar | 3 | Quechua/Aymara |
+| Idioma del hogar | 4 | Otra lengua nativa |
+| Etnicidad | 1 | Indígena andino |
+| Etnicidad | 3 | Indígena amazónico/nativo |
+| Etnicidad | 5 | Afrodescendiente |
+| Etnicidad | 6 | No indígena ni afrodescendiente |
+| Etnicidad | 9 | No sabe |
+| Tipo de hogar | 1 | Biparental |
+| Tipo de hogar | 2 | Monoparental |
+| Tipo de hogar | 3 | Sin figuras parentales |
+| Discapacidad | 0 | No |
+| Discapacidad | 1 | Sí |
+
+Trece de las 22 celdas D09 tienen `CV > 15 %`: se muestran visibles, referenciales y con nota.
+La alerta de precisión no activa `suppress_flag`.

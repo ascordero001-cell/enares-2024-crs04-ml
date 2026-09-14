@@ -38,7 +38,7 @@ def to_card_view_model(row: IndicatorEstimate) -> dict:
         raise ValueError("A suppressed row cannot build a numeric card")
     return {
         "category": row.category,
-        "cv_text": f"CV {row.cv:.5f}",
+        "cv_text": "CV indefinido (0/0)" if row.cv is None else f"CV {row.cv:.5f}",
         "denominator_text": f"Denominador: {row.denominator}",
         "disaggregation": row.disaggregation,
         "estimate_text": f"{row.estimate:.2f} %",

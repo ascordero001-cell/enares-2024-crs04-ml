@@ -1,0 +1,6 @@
+docs/stage04/acta_decision_*.md          @ritaricaldi-cpu
+docs/stage04/cloud_authorization.md      @ritaricaldi-cpu
+docs/stage04/cloud_blockers.md           @ritaricaldi-cpu
+docs/contracts/                          @ritaricaldi-cpu
+src/enares/stage04/authorized_scopes.py  @ritaricaldi-cpu
+src/enares/stage04/quality_rules.py      @ritaricaldi-cpu

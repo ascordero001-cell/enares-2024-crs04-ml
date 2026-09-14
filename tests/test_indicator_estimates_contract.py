@@ -6,7 +6,6 @@ import pytest
 from enares.stage04.repository import AuthorizedAggregateRepository, DemoRepository
 from enares.stage04.validation import validate_estimates
 
-
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "app" / "data" / "demo_indicator_estimates.csv"
 V0_FIXTURE = ROOT / "app" / "data" / "v0_authorized_indicator_estimates.csv"
@@ -19,7 +18,9 @@ def demo_rows():
 
 
 def v0_rows():
-    return AuthorizedAggregateRepository(V0_FIXTURE, V0_MANIFEST, V0_REGISTRY).list_estimates("3.2")
+    return AuthorizedAggregateRepository(
+        V0_FIXTURE, V0_MANIFEST, V0_REGISTRY
+    ).list_estimates("3.2")
 
 
 def test_demo_catalog_satisfies_aggregate_contract():
@@ -85,7 +86,9 @@ def test_suppressed_row_cannot_retain_weighted_population():
 
 
 def test_publishable_only_catalog_is_valid():
-    publishable = next(row for row in demo_rows() if row.quality_status == "PUBLISHABLE_CANDIDATE")
+    publishable = next(
+        row for row in demo_rows() if row.quality_status == "PUBLISHABLE_CANDIDATE"
+    )
     validate_estimates([publishable])
 
 
@@ -95,21 +98,48 @@ def test_catalog_without_suppressed_rows_is_valid():
 
 
 def test_suppressed_quality_status_without_flag_fails():
-    suppressed = next(row for row in demo_rows() if row.quality_status == "SUPPRESSED_EXERCISE")
-    exposed = next(row for row in demo_rows() if row.quality_status == "PUBLISHABLE_CANDIDATE")
-    inconsistent = replace(exposed, quality_status="SUPPRESSED_EXERCISE", suppress_flag=False)
+    suppressed = next(
+        row for row in demo_rows() if row.quality_status == "SUPPRESSED_EXERCISE"
+    )
+    exposed = next(
+        row for row in demo_rows() if row.quality_status == "PUBLISHABLE_CANDIDATE"
+    )
+    inconsistent = replace(
+        exposed, quality_status="SUPPRESSED_EXERCISE", suppress_flag=False
+    )
     assert suppressed.suppress_flag is True
     with pytest.raises(ValueError, match="requires suppress_flag"):
         validate_estimates([inconsistent])
 
 
 def test_suppress_flag_with_publishable_status_and_visible_statistics_fails():
-    publishable = next(row for row in demo_rows() if row.quality_status == "PUBLISHABLE_CANDIDATE")
+    publishable = next(
+        row for row in demo_rows() if row.quality_status == "PUBLISHABLE_CANDIDATE"
+    )
     inconsistent = replace(publishable, suppress_flag=True)
     with pytest.raises(ValueError, match="protected"):
         validate_estimates([inconsistent])
 
 
 def test_correctly_nullified_suppressed_row_is_valid():
-    suppressed = next(row for row in demo_rows() if row.quality_status == "SUPPRESSED_EXERCISE")
+    suppressed = next(
+        row for row in demo_rows() if row.quality_status == "SUPPRESSED_EXERCISE"
+    )
     validate_estimates([suppressed])
+
+
+def test_exact_zero_with_undefined_cv_is_valid_only_in_its_explicit_state():
+    row = replace(
+        v0_rows()[0],
+        estimate=0,
+        standard_error=0,
+        ci95_lower=0,
+        ci95_upper=0,
+        cv=None,
+        n_unweighted=200,
+        quality_status="EXACT_ZERO_CV_UNDEFINED",
+        cv_flag=False,
+    )
+    validate_estimates([row])
+    with pytest.raises(ValueError, match="complete statistics"):
+        validate_estimates([replace(row, quality_status="PUBLISHABLE_CANDIDATE")])

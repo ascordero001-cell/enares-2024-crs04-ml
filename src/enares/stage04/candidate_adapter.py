@@ -12,20 +12,20 @@ from dataclasses import dataclass
 from math import isfinite
 from typing import Literal
 
+from . import quality_rules
+
+CV_HIGH_NOTE = quality_rules.CV_HIGH_NOTE
+N_SMALL_NOTE = quality_rules.N_SMALL_NOTE
+EXACT_ZERO_CV_NOTE = quality_rules.EXACT_ZERO_CV_NOTE
+
 StatisticType = Literal["prevalence", "distribution", "special", "incomplete"]
 Scale = Literal["0_1", "0_100"]
 CvUnit = Literal["proportion", "percent"]
 MODULE_IDS = frozenset({"3.1", "3.2", "3.3", "3.4", "3.5", "3.6"})
 VALID_SCALES = frozenset({"0_1", "0_100"})
 VALID_CV_UNITS = frozenset({"proportion", "percent"})
-VALID_STATISTIC_TYPES = frozenset({"prevalence", "distribution", "special", "incomplete"})
-CV_HIGH_NOTE = (
-    "Estimación referencial por precisión reducida: CV superior al 15 %. "
-    "Interpretar con cautela."
-)
-N_SMALL_NOTE = (
-    "Estimación basada en menos de 30 observaciones no ponderadas. "
-    "Interpretar con cautela."
+VALID_STATISTIC_TYPES = frozenset(
+    {"prevalence", "distribution", "special", "incomplete"}
 )
 
 
@@ -66,7 +66,13 @@ class CandidateAggregate:
     authorization_state: str = "PENDING_NUMERIC_AUTHORIZATION"
 
 
-REQUIRED_COMPLETE_FIELDS = ("estimate", "standard_error", "ci95_lower", "ci95_upper", "cv")
+REQUIRED_COMPLETE_FIELDS = (
+    "estimate",
+    "standard_error",
+    "ci95_lower",
+    "ci95_upper",
+    "cv",
+)
 
 
 def _count(value: object, field: str) -> int:
@@ -99,19 +105,33 @@ def _finite_number(value: object, field: str) -> float:
     return converted
 
 
-def adapt_candidate_row(raw: Mapping[str, object], scope: CandidateScope) -> CandidateAggregate:
+def adapt_candidate_row(
+    raw: Mapping[str, object], scope: CandidateScope
+) -> CandidateAggregate:
     """Validate one synthetic proposal without authorizing or connecting it."""
-    output_type = raw.get("statistic_type")
-    _validate_scope(scope, output_type)
     if raw.get("synthetic") is not True:
         raise ValueError("Candidate adapter accepts only explicit synthetic=true rows")
+    return _adapt_row_after_source_boundary(raw, scope)
+
+
+def _adapt_row_after_source_boundary(
+    raw: Mapping[str, object],
+    scope: CandidateScope,
+    *,
+    authorization_state: str = "PENDING_NUMERIC_AUTHORIZATION",
+) -> CandidateAggregate:
+    """Apply shared validation after a source-specific boundary has succeeded."""
+    output_type = raw.get("statistic_type")
+    _validate_scope(scope, output_type)
     if raw.get("module_id") != scope.module_id:
         raise ValueError("module is outside the candidate authorization scope")
     if raw.get("indicator_id") != scope.indicator_id:
         raise ValueError("indicator is outside the candidate authorization scope")
     pair = (raw.get("dimension"), raw.get("category"))
     if pair not in scope.allowed_pairs:
-        raise ValueError("dimension/category pair is outside the candidate authorization scope")
+        raise ValueError(
+            "dimension/category pair is outside the candidate authorization scope"
+        )
 
     if output_type != scope.output_type:
         raise ValueError("statistic type does not match the candidate contract")
@@ -121,16 +141,29 @@ def adapt_candidate_row(raw: Mapping[str, object], scope: CandidateScope) -> Can
     # N is exclusively base_unw. target_unw is retained only as a separate numerator count.
     n_unweighted = _count(raw.get("base_unw"), "base_unw")
     target_value = raw.get("target_unw")
-    target_unweighted = None if target_value is None else _count(target_value, "target_unw")
+    target_unweighted = (
+        None if target_value is None else _count(target_value, "target_unw")
+    )
     if target_unweighted is not None and target_unweighted > n_unweighted:
         raise ValueError("target_unw cannot exceed base_unw")
 
     statistics = {field: raw.get(field) for field in REQUIRED_COMPLETE_FIELDS}
     missing = [field for field, value in statistics.items() if value is None]
+    exact_zero_with_undefined_cv = (
+        statistics["estimate"] == 0
+        and statistics["cv"] is None
+        and all(
+            statistics[field] is not None
+            for field in REQUIRED_COMPLETE_FIELDS
+            if field != "cv"
+        )
+    )
     if scope.output_type == "incomplete":
         if not missing:
-            raise ValueError("incomplete output must preserve at least one missing statistic")
-    elif missing:
+            raise ValueError(
+                "incomplete output must preserve at least one missing statistic"
+            )
+    elif missing and not (missing == ["cv"] and exact_zero_with_undefined_cv):
         raise ValueError("complete output requires all statistical fields")
 
     numeric = {
@@ -151,22 +184,21 @@ def adapt_candidate_row(raw: Mapping[str, object], scope: CandidateScope) -> Can
         raise ValueError("cv must be non-negative")
     if ci95_lower is not None and ci95_upper is not None and ci95_lower > ci95_upper:
         raise ValueError("confidence interval bounds are reversed")
-    if None not in (estimate, ci95_lower, ci95_upper) and not (ci95_lower <= estimate <= ci95_upper):
+    if None not in (estimate, ci95_lower, ci95_upper) and not (
+        ci95_lower <= estimate <= ci95_upper
+    ):
         raise ValueError("confidence interval must contain estimate")
 
     for flag in ("cv_flag", "n_flag", "suppress_flag"):
         if raw.get(flag) is not None:
             raise ValueError(f"{flag} is derived centrally and cannot be supplied")
 
-    cv_threshold = {"proportion": 0.15, "percent": 15.0}[scope.cv_unit]
-    cv_flag = None if cv is None else cv > cv_threshold
-    n_flag = n_unweighted < 30
-    notes = tuple(
-        note
-        for active, note in ((cv_flag is True, CV_HIGH_NOTE), (n_flag, N_SMALL_NOTE))
-        if active
+    quality = quality_rules.derive_statistical_quality(
+        estimate=estimate,
+        cv=cv,
+        cv_unit=scope.cv_unit,
+        n_unweighted=n_unweighted,
     )
-    quality_status = "REFERENCE_HIGH_CV" if cv_flag else "PUBLISHABLE_CANDIDATE"
 
     return CandidateAggregate(
         module_id=scope.module_id,
@@ -184,10 +216,11 @@ def adapt_candidate_row(raw: Mapping[str, object], scope: CandidateScope) -> Can
         scale=scope.scale,
         cv_unit=scope.cv_unit,
         adapter_id=scope.adapter_id,
-        cv_flag=cv_flag,
-        n_flag=n_flag,
-        quality_status=quality_status,
-        quality_notes=notes,
+        cv_flag=quality.cv_flag,
+        n_flag=quality.n_flag,
+        quality_status=quality.quality_status,
+        quality_notes=quality.quality_notes,
+        authorization_state=authorization_state,
     )
 
 

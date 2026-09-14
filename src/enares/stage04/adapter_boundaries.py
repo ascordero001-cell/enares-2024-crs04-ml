@@ -1,20 +1,17 @@
-"""Review boundary between synthetic tests and institutional aggregates.
-
-The institutional adapter is intentionally disconnected.  Its first aggregate
-cannot be adapted until the separation recorded here receives supervisory
-review.
-"""
+"""Separate adapters for synthetic tests and provenance-verified aggregates."""
 
 from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
 
-from .candidate_adapter import CandidateAggregate, CandidateScope, adapt_candidate_row
-
-
-class AdapterSeparationReviewRequired(RuntimeError):
-    """Raised while the institutional adapter remains at the review checkpoint."""
+from .candidate_adapter import (
+    CandidateAggregate,
+    CandidateScope,
+    _adapt_row_after_source_boundary,
+    adapt_candidate_row,
+)
+from .repository import IndicatorEstimate, is_verified_authorized_estimate
 
 
 @dataclass(frozen=True)
@@ -39,7 +36,7 @@ INSTITUTIONAL_ADAPTER = AdapterIdentity(
     name="institutional-authorized-aggregate",
     version="1",
     source_classification="AUTHORIZED_INSTITUTIONAL_AGGREGATE",
-    connection_state="REVIEW_REQUIRED_BEFORE_FIRST_AGGREGATE",
+    connection_state="PROVENANCE_GATE_REQUIRED",
 )
 
 
@@ -57,17 +54,37 @@ class SyntheticCandidateAdapter:
 
 
 class InstitutionalAuthorizedAggregateAdapter:
-    """Non-connected skeleton for real, manifest-bound institutional aggregates."""
+    """Adapt only aggregates classified by AuthorizedAggregateRepository."""
 
     identity = INSTITUTIONAL_ADAPTER
 
     @staticmethod
-    def assert_source_boundary(raw: Mapping[str, object]) -> None:
-        if raw.get("synthetic") is not False:
-            raise ValueError("Institutional adapter requires explicit synthetic=false")
+    def assert_source_boundary(row: IndicatorEstimate) -> None:
+        if not is_verified_authorized_estimate(row):
+            raise ValueError(
+                "Institutional adapter requires provenance-derived synthetic=false"
+            )
 
-    def adapt(self, raw: Mapping[str, object], scope: CandidateScope) -> CandidateAggregate:
-        self.assert_source_boundary(raw)
-        raise AdapterSeparationReviewRequired(
-            "Institutional adapter is disconnected pending supervisory separation review"
+    def adapt(
+        self, row: IndicatorEstimate, scope: CandidateScope
+    ) -> CandidateAggregate:
+        self.assert_source_boundary(row)
+        raw = {
+            "module_id": row.module_id,
+            "indicator_id": row.indicator_id,
+            "dimension": row.disaggregation,
+            "category": row.category,
+            "statistic_type": scope.output_type,
+            "estimate": row.estimate,
+            "standard_error": row.standard_error,
+            "ci95_lower": row.ci95_lower,
+            "ci95_upper": row.ci95_upper,
+            "cv": row.cv,
+            "base_unw": row.n_unweighted,
+            "target_unw": None,
+        }
+        return _adapt_row_after_source_boundary(
+            raw,
+            scope,
+            authorization_state="AUTHORIZED_LOCAL_SHADOW",
         )

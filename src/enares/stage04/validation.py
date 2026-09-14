@@ -8,8 +8,8 @@ from collections.abc import Iterable
 from .modules import get_module
 from .repository import IndicatorEstimate
 
-
 VALID_QUALITY_STATES = {
+    "EXACT_ZERO_CV_UNDEFINED",
     "PUBLISHABLE_CANDIDATE",
     "REFERENCE_HIGH_CV",
     "SUPPRESSED_EXERCISE",
@@ -75,20 +75,36 @@ def validate_estimates(rows: Iterable[IndicatorEstimate]) -> None:
         if row.quality_status == "SUPPRESSED_EXERCISE" and not row.suppress_flag:
             raise ValueError("Suppressed quality state requires suppress_flag")
         if row.suppress_flag:
-            if any(getattr(row, field) is not None for field in SUPPRESSED_PROTECTED_FIELDS):
+            if any(
+                getattr(row, field) is not None for field in SUPPRESSED_PROTECTED_FIELDS
+            ):
                 raise ValueError("Suppressed rows must not expose protected statistics")
             if row.quality_status != "SUPPRESSED_EXERCISE":
                 raise ValueError("suppress_flag requires the suppressed quality state")
             continue
 
-        if any(getattr(row, field) is None for field in REQUIRED_STATISTICAL_FIELDS):
+        exact_zero_cv_undefined = (
+            row.quality_status == "EXACT_ZERO_CV_UNDEFINED"
+            and row.estimate == 0
+            and row.standard_error == 0
+            and row.ci95_lower == 0
+            and row.ci95_upper == 0
+            and row.cv is None
+            and row.n_unweighted is not None
+        )
+        missing = [
+            field
+            for field in REQUIRED_STATISTICAL_FIELDS
+            if getattr(row, field) is None
+        ]
+        if missing and not (missing == ["cv"] and exact_zero_cv_undefined):
             raise ValueError("Non-suppressed rows require complete statistics")
         upper = 1 if row.scale == "0_1" else 100 if row.scale == "0_100" else None
         if upper is None or not 0 <= row.estimate <= upper:
             raise ValueError("estimate is outside its declared scale")
         if (
             row.standard_error < 0
-            or row.cv < 0
+            or (row.cv is not None and row.cv < 0)
             or row.n_unweighted < 0
         ):
             raise ValueError("SE, CV and N must be non-negative")

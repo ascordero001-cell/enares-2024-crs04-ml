@@ -11,8 +11,17 @@ de personas. Los ejemplos son seguros y no constituyen nombres de recursos reale
 ## Clasificación de entradas locales
 
 - `demo_indicator_estimates.csv` es un fixture 100 % sintético, didáctico y sin uso institucional.
-- `v0_authorized_indicator_estimates.csv` contiene exclusivamente un corte agregado V0 autorizado,
-  no sintético, sin microdatos y ligado a su manifiesto y al inventario aprobado en el PR #53.
+- `v0_authorized_indicator_estimates.csv` contiene exclusivamente un extracto agregado V0
+  autorizado, no sintético, sin microdatos y ligado a su manifiesto y al inventario aprobado en
+  el PR #53. El SHA del extracto identifica sus bytes; `parent_sha256`/`source_hash` identifica el
+  archivo padre aprobado y debe constar en el registro V0.
+- En el flujo institucional, `synthetic=false` no es un dato aceptado del CSV ni de quien llama.
+  `AuthorizedAggregateRepository` lo deriva únicamente después de verificar el nombre y SHA-256
+  del extracto contra el manifiesto, la clasificación `AUTHORIZED_V0_EXTRACT`, la igualdad entre
+  `parent_sha256` y `source_hash`, y la presencia del hash padre en el registro V0 aprobado. El
+  adaptador institucional exige esa clasificación interna. Una prueba de rederivación contrasta
+  cada estadístico del extracto contra la fila correspondiente del padre; el hash padre por sí
+  solo no acredita que las cifras copiadas estén intactas.
 - Ninguna de estas entradas constituye datos institucionales publicados; publicación y cutover
   permanecen no autorizados.
 - BigQuery, DDL, Cloud Run y todo recurso cloud permanecen `BLOCKED_BY_CLOUD_GATE`.
@@ -70,6 +79,13 @@ La igualdad exacta no activa flags y un estadístico ausente permanece ausente. 
 `n_flag` nunca activan `suppress_flag`; cualquier supresión requiere la política independiente de
 confidencialidad. La tolerancia golden `1e-9` continúa siendo un control técnico, no una regla de
 calidad ni confidencialidad.
+
+Un cero exacto observado con `base_unw` presente, error estándar 0 e intervalo [0, 0] es una
+salida completa aunque `cv` sea `null`: el CV es el cociente 0/0 y por tanto indefinido. Se
+clasifica como `EXACT_ZERO_CV_UNDEFINED`, conserva la estimación cero y recibe una nota explícita.
+No se confunde con una fila incompleta por otra causa. D02 y D10 quedaron autorizados de forma
+explícita en la resolución del Issue #24 y el acta D01–D12; la regla general por sí sola no amplía
+esa autorización a otros indicadores.
 
 La validación genérica no exige que cada catálogo reproduzca los tres estados didácticos. La
 cobertura simultánea de `PUBLISHABLE_CANDIDATE`, `REFERENCE_HIGH_CV` y

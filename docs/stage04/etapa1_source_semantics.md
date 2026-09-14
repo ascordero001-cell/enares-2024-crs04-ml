@@ -1,6 +1,6 @@
 # Etapa 1 — verificaciones de fuente D01, D11 y alias D12
 
-Estado: `SOURCE_SEMANTICS_VERIFIED; ADAPTER_SEPARATION_REVIEW_PENDING`
+Estado: `SOURCE_SEMANTICS_VERIFIED; ADAPTER_SEPARATION_APPROVED`
 
 Alcance: documentación y contratos locales; ninguna cifra nueva conectada.
 
@@ -23,6 +23,18 @@ bloque “Roles de género y división del trabajo en el hogar”, pregunta `C3P
 Las diez tareas, en orden, son: Cocinar; Lavar/planchar ropa; Compras mercado; Dar
 dinero/gastos; Limpieza; Lavar platos/utensilios; Cuidar hermanas/os; Ayudar con tareas
 escolares; Aconsejar y escuchar; Jugar contigo.
+
+La presentación queda dividida por el sentido de la pregunta: los ítems 1–7 son tareas que una
+persona realiza en el hogar; los ítems 8–10 son acciones que una persona realiza con la
+adolescente. No se construye una figura única de diez barras.
+
+La adenda rectificatoria del 2026-09-14 retira `tarea8_nadie`, `tarea9_nadie` y
+`tarea10_nadie`: no existen en el agregado V0 aprobado. Quedan como candidatas para un corte
+posterior con versión nueva; no se calculan ni se conectan en este corte.
+
+`predominio_femenino_tareas` permanece fuera. Su categoría 0 agrupa predominio masculino,
+empate y ausencia de ambos; su proporción usa los diez ítems. La etiqueta V0 no se reescribe y la
+discrepancia fue devuelta al productor.
 
 ## D11 — `C3P213 == 5`
 
@@ -49,16 +61,16 @@ impresión y exportación. La metadata conserva, sin mostrarlos como etiquetas d
 
 Los alias no amplían indicadores, dimensiones ni categorías autorizadas.
 
-## Punto de parada: separación de adaptadores
+## Separación de adaptadores aprobada
 
 Se prepararon dos fronteras incompatibles en `adapter_boundaries.py`; la propuesta completa está
 en [adapter_separation_review.md](adapter_separation_review.md):
 
 1. `SyntheticCandidateAdapter` reutiliza la barrera existente y acepta únicamente filas con
    `synthetic=true`. Su alcance es prueba local.
-2. `InstitutionalAuthorizedAggregateAdapter` exige `synthetic=false`, tiene identidad y versión
-   propias y permanece en `REVIEW_REQUIRED_BEFORE_FIRST_AGGREGATE`. Su método de adaptación se
-   detiene deliberadamente antes de transformar datos.
+2. `InstitutionalAuthorizedAggregateAdapter` exige la clasificación interna derivada por
+   `AuthorizedAggregateRepository`, tiene identidad y versión propias y comparte únicamente las
+   reglas estadísticas puras posteriores a la frontera.
 
 La aplicación no importa ni instancia el adaptador institucional. Ningún dato real se marca como
-sintético y ningún agregado nuevo se conecta antes de la revisión supervisora de esta separación.
+sintético y no se ha conectado un agregado nuevo desde esta frontera.

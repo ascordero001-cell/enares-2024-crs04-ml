@@ -1,7 +1,6 @@
 """Application-facing aliases for the single Stage 04 module registry."""
 
-from enares.stage04.modules import DIMENSIONS, MODULES, get_module, module_for_page
-
+from enares.stage04.modules import DIMENSIONS, MODULES
 
 NAVIGATION = (
     "Resumen",
@@ -15,6 +14,7 @@ FUTURE_DIMENSIONS = DIMENSIONS
 SUPPORTED_FILTER = ("Nacional", "Total")
 
 QUALITY_LABELS = {
+    "EXACT_ZERO_CV_UNDEFINED": "Cero observado — CV indefinido",
     "PUBLISHABLE_CANDIDATE": "Candidato — revisión pendiente",
     "REFERENCE_HIGH_CV": "Referencial — precisión limitada",
     "SUPPRESSED_EXERCISE": "Suprimido — confidencialidad protegida",

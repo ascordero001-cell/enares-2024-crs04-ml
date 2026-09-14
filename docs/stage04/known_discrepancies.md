@@ -66,10 +66,28 @@ es el siguiente:
 | Caso | Evidencia nueva | Estado vigente |
 |---|---|---|
 | D01 | Semántica de `tarea1_fem`–`tarea10_fem` contrastada contra la sintaxis CRS04 y registrada en [etapa1_source_semantics.md](etapa1_source_semantics.md) | SOURCE_SEMANTICS_VERIFIED; ADAPTER_REVIEW_PENDING |
-| D02 | Consulta de procedencia enviada al productor Stage 03 en [Issue #24](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/24#issuecomment-5657225304) | PRODUCER_RESPONSE_PENDING; NON_NUMERIC_CONTEXT |
-| D10 | Misma consulta, con los cuatro indicadores y dominios enumerados, en [Issue #24](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/24#issuecomment-5657225304) | PRODUCER_RESPONSE_PENDING; NON_NUMERIC_CONTEXT |
+| D02 | Ceros observados y significado conjuntivo confirmados en [Issue #24](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/24#issuecomment-5657767214) | RESOLVED; AUTHORIZED_VISIBLE_ZERO_CV_UNDEFINED |
+| D10 | Ceros observados y linaje del bloque CRS04 resueltos en [Issue #24](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/24#issuecomment-5657767214) | RESOLVED; AUTHORIZED_VISIBLE_ZERO_CV_UNDEFINED |
 | D11 | Valor 5 y etiqueta exacta de `C3P213` contrastados contra la sintaxis y registrados en [etapa1_source_semantics.md](etapa1_source_semantics.md) | SOURCE_SEMANTICS_VERIFIED; ADAPTER_REVIEW_PENDING |
 | D12 | Alias aprobados centralizados para seis superficies, conservando nombre y código fuente en metadata | UI_ALIAS_CONTRACT_IMPLEMENTED |
+
+### Respuesta de producción y verificaciones del 2026-09-14 UTC
+
+- **D02:** producción confirmó ceros observados de `VP_VF_VS_HOGAR` en Cusco y Huancavelica.
+  Significan que no concurren las tres violencias; una o dos formas siguen contándose en sus
+  indicadores propios. Se corrige el módulo de 3.4 a **3.2**. Estado:
+  `RESOLVED; AUTHORIZED_VISIBLE_ZERO_CV_UNDEFINED`.
+- **D10:** producción confirmó que los cuatro ceros son observados en dominios condicionados y
+  que no existe conversión general de ausencia a cero. El CV nulo es 0/0 para un cero exacto.
+  El linaje está resuelto: la base de 9 a 11 años no está disponible en el entorno de trabajo,
+  por lo que el bloque CRS03 emparejado no produjo filas; `C3P242_5` y `C3P242_10` provienen del
+  bloque CRS04 de la línea 2416. Estado:
+  `RESOLVED; AUTHORIZED_VISIBLE_ZERO_CV_UNDEFINED`.
+- **D01 / `predominio_femenino_tareas`:** la sintaxis
+  `07_CRS04_3.1_Caracteristicas_violencia_Percepciones_ver6.sps`, líneas 1730–1762, confirma que
+  la categoría 0 reúne predominio masculino, empate y ausencia de ambos, y que el denominador de
+  las proporciones reúne los diez ítems. La etiqueta V0 «tareas del hogar» no se modifica en
+  Stage 04. Estado: `PRODUCER_REVIEW_REQUIRED`; indicador fuera del alcance D01.
 
 ## Correcciones técnicas R01–R05 del PR #59
 
