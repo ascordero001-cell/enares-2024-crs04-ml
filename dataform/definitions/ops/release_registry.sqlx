@@ -1,0 +1,23 @@
+config {
+  type: "operations",
+  hasOutput: true,
+  schema: dataform.projectConfig.vars.opsDataset,
+  name: "release_registry",
+  description: "Append-only registry for Stage 04 candidate aggregate releases.",
+  tags: ["stage04", "ops", "release", "shadow"]
+}
+
+CREATE TABLE IF NOT EXISTS ${self()} (
+  release_id STRING NOT NULL,
+  run_id STRING NOT NULL,
+  source_version STRING NOT NULL,
+  source_hash STRING NOT NULL,
+  git_commit_sha STRING NOT NULL,
+  container_image_digest STRING,
+  validation_status STRING NOT NULL,
+  created_at TIMESTAMP NOT NULL,
+  approved_at TIMESTAMP,
+  approval_reference STRING
+)
+PARTITION BY DATE(created_at)
+CLUSTER BY release_id, run_id;
