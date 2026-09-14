@@ -2,14 +2,18 @@
 
 from .stage04_dashboard import (
     EXPORT_ENABLED,
+    build_d01_task_groups,
     build_numeric_card,
     build_suppressed_card,
+    d09_category_label,
     filter_estimates,
 )
 
 __all__ = [
     "EXPORT_ENABLED",
+    "build_d01_task_groups",
     "build_numeric_card",
     "build_suppressed_card",
+    "d09_category_label",
     "filter_estimates",
 ]

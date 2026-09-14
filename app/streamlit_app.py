@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import streamlit as st
 
@@ -15,24 +15,36 @@ if str(SRC) not in sys.path:
 from app.config import FUTURE_DIMENSIONS, MODULES, NAVIGATION, module_for_page
 from app.views.stage04_dashboard import (
     EXPORT_ENABLED,
+    build_d01_task_groups,
     build_numeric_card,
     build_state_cards,
+    d09_category_label,
     filter_estimates,
     load_validated_estimates,
 )
 from enares.stage04.repository import (
     AuthorizedAggregateRepository,
+    CompositeRepository,
     DemoRepository,
     IndicatorRepository,
 )
 
+
 def local_repositories():
     """Create only repositories backed by checked-in aggregate or synthetic fixtures."""
     data = ROOT / "app" / "data"
-    authorized = AuthorizedAggregateRepository(
-        data / "v0_authorized_indicator_estimates.csv",
-        data / "v0_authorized_indicator_estimates.manifest.json",
-        ROOT / "docs" / "stage04" / "v0_drive_hash_manifest.md",
+    registry = ROOT / "docs" / "stage04" / "v0_drive_hash_manifest.md"
+    authorized = CompositeRepository(
+        AuthorizedAggregateRepository(
+            data / "v0_authorized_indicator_estimates.csv",
+            data / "v0_authorized_indicator_estimates.manifest.json",
+            registry,
+        ),
+        AuthorizedAggregateRepository(
+            data / "v0_authorized_etapa1_indicator_estimates.csv",
+            data / "v0_authorized_etapa1_indicator_estimates.manifest.json",
+            registry,
+        ),
     )
     demo = DemoRepository(data / "demo_indicator_estimates.csv")
     return authorized, demo
@@ -94,6 +106,7 @@ def _numeric_summary(card: dict, heading: str | None = None) -> None:
     st.caption(
         f"{card['indicator_id']} · {card['disaggregation']} / {card['category']}"
     )
+    st.write(card["indicator_name"])
     a, b, c, d = st.columns(4)
     a.metric("Estimación", card["estimate_text"])
     b.metric("Error estándar", card["standard_error_text"])
@@ -110,17 +123,16 @@ def _state_gallery(cards: list[dict]) -> None:
     st.subheader("Estados visuales didácticos")
     columns = st.columns(3)
     for column, card in zip(columns, cards, strict=True):
-        with column:
-            with st.container(border=True):
-                st.caption("DEMO SINTÉTICO")
-                st.subheader(card["category"])
-                st.text(card["quality_label"])
-                st.caption(card["quality_note"])
-                if card["quality_status"] == "SUPPRESSED_EXERCISE":
-                    st.text("Los campos protegidos no llegan a la interfaz.")
-                else:
-                    st.text(f"{card['estimate_text']} · {card['interval_text']}")
-                st.caption("Estado: SHADOW")
+        with column, st.container(border=True):
+            st.caption("DEMO SINTÉTICO")
+            st.subheader(card["category"])
+            st.text(card["quality_label"])
+            st.caption(card["quality_note"])
+            if card["quality_status"] == "SUPPRESSED_EXERCISE":
+                st.text("Los campos protegidos no llegan a la interfaz.")
+            else:
+                st.text(f"{card['estimate_text']} · {card['interval_text']}")
+            st.caption("Estado: SHADOW")
 
 
 def _validated_state_gallery(
@@ -134,6 +146,38 @@ def _validated_state_gallery(
         st.error("Los resultados no superaron la validación estadística.")
         return
     _state_gallery(cards)
+
+
+def _d01_table(cards: list[dict]) -> None:
+    st.table(
+        [
+            {
+                "Indicador": card["indicator_name"],
+                "Estimación": card["estimate_text"],
+                "N no ponderado": card["n_text"].replace("N no ponderado: ", ""),
+                "Calidad": card["quality_label"],
+            }
+            for card in cards
+        ]
+    )
+
+
+def _render_d01_groups(repository: IndicatorRepository) -> None:
+    try:
+        task_execution, relationship = build_d01_task_groups(repository)
+    except (ValueError, OSError, KeyError, TypeError):
+        st.error("Los resultados no superaron la validación estadística.")
+        return
+    st.subheader("Quién realiza tareas en el hogar · ítems 1–7")
+    st.caption(
+        "La medida identifica si la tarea la realiza principalmente una mujer del hogar."
+    )
+    _d01_table(task_execution)
+    st.subheader("Quién acompaña a la adolescente · ítems 8–10")
+    st.caption(
+        "La medida identifica si quien acompaña es principalmente una mujer del hogar."
+    )
+    _d01_table(relationship)
 
 
 def render() -> None:
@@ -161,8 +205,12 @@ def render() -> None:
         if requested_dimension in FUTURE_DIMENSIONS
         else 0
     )
-    dimension = st.sidebar.selectbox("Dimensión", FUTURE_DIMENSIONS, index=dimension_index)
-    st.sidebar.button("Exportar", disabled=not EXPORT_ENABLED, help="Exportación no autorizada")
+    dimension = st.sidebar.selectbox(
+        "Dimensión", FUTURE_DIMENSIONS, index=dimension_index
+    )
+    st.sidebar.button(
+        "Exportar", disabled=not EXPORT_ENABLED, help="Exportación no autorizada"
+    )
     st.sidebar.caption("Cloud: NOT_AUTHORIZED · Tope autorizado: USD 20/mes total")
 
     if page == "Resumen":
@@ -202,6 +250,8 @@ def render() -> None:
 
         if source == "Demo sintético":
             _validated_state_gallery(demo)
+        elif module.module_id == "3.1" and dimension == "Nacional":
+            _render_d01_groups(authorized)
         else:
             if dimension not in module.authorized_dimensions:
                 st.info(
@@ -227,7 +277,17 @@ def render() -> None:
                 )
                 return
             categories = tuple(row.category for row in dimension_rows)
-            category = st.selectbox("Categoría", categories)
+            category = st.selectbox(
+                "Categoría",
+                categories,
+                format_func=(
+                    lambda value: (
+                        d09_category_label(dimension, value)
+                        if module.module_id == "3.5"
+                        else value
+                    )
+                ),
+            )
             matches = filter_estimates(
                 authorized,
                 module.module_id,
@@ -241,12 +301,16 @@ def render() -> None:
             _numeric_summary(card, f"Resultado agregado · {module.full_label}")
     elif page == "Metodología":
         st.subheader("Metodología y límites")
-        st.write("Las cifras V0 se consumen como agregados aprobados; la aplicación no recalcula Stage 03.")
+        st.write(
+            "Las cifras V0 se consumen como agregados aprobados; la aplicación no recalcula Stage 03."
+        )
         st.warning(
             "En 3.1–3.6, CV > 15 % es visible y referencial; base_unw < 30 "
             "es visible con alerta. Ninguna regla activa supresión."
         )
-        st.write("SHADOW permite evaluación local. APPROVED requiere revisión formal. PUBLISHED requiere un gate institucional separado.")
+        st.write(
+            "SHADOW permite evaluación local. APPROVED requiere revisión formal. PUBLISHED requiere un gate institucional separado."
+        )
     else:
         st.subheader("Estado del release")
         st.code(summary["release_id"])
@@ -259,7 +323,7 @@ def render() -> None:
 
     st.divider()
     coverage = " · ".join(
-        f"{module.module_id}: {len(module.authorized_dimensions)}/9 dimensiones autorizadas"
+        f"{module.module_id}: {len(module.authorized_dimensions)} alcances autorizados"
         for module in MODULES
     )
     st.caption(f"Cobertura local: {coverage}")
