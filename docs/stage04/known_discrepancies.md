@@ -37,9 +37,10 @@ La tolerancia absoluta `1e-9` está en estado
 `PROPOSED_REQUIRES_SUPERVISORY_APPROVAL`. Solo cubre serialización de punto flotante y no puede
 usarse para ocultar una discrepancia sustantiva.
 
-La reconstrucción aditiva simple tiene prueba automatizada. Los cruces multitabla o multirelease y
-el enlace externo permanecen `TEST_PENDIENTE`; logs, errores, caché y exports permanecen
-`PRUEBA_DE_INTEGRACIÓN_PENDIENTE`. La decisión del 2026-09-13 resolvió `CV > 0.15` y
+La reconstrucción aditiva simple tiene prueba automatizada. Los cruces multitabla y multirelease,
+la exposición histórica y la frontera común de UI, export, caché y logs tienen pruebas sintéticas
+automatizadas; la política que gobierna esos controles está `SUPERVISORY_APPROVAL_PENDING`. La
+decisión del 2026-09-13 resolvió `CV > 0.15` y
 `base_unw < 30` como alertas visibles sin supresión automática. La tolerancia `1e-9`, la política
 de confidencialidad y los alcances numéricos continúan pendientes de aprobación formal.
 
@@ -97,4 +98,12 @@ es el siguiente:
 | R02 | NaN, infinitos, texto y booleanos rechazados; `None` solo donde incomplete lo permite | RESOLVED_ENGINEERING | No imputa IC/CV ni crea regla metodológica |
 | R03 | Alcance como pares exactos dimensión/categoría | RESOLVED_ENGINEERING | No modifica `authorized_dimensions` ni activa cifras |
 | R04 | D01–D12 y anexos de alcance/opciones precisados desde baseline por hash | RESOLVED_DOCUMENTED | Todas las decisiones indicadas siguen PENDING |
-| R05 | Ejemplo renombrado como un total con dos componentes ocultos | RESOLVED_DOCUMENTED | Cruces con márgenes múltiples, multitabla y multirelease siguen TEST_PENDING |
+| R05 | Ejemplo renombrado como un total con dos componentes ocultos | RESOLVED_DOCUMENTED | Márgenes múltiples, multitabla y multirelease están probados sintéticamente; política pendiente de aprobación |
+
+## Etapa 2 — control de confidencialidad propuesto
+
+El código de esta etapa detecta reconstrucción única usando todas las ecuaciones disponibles,
+impide decisiones contradictorias para una misma celda dentro del release, bloquea la supresión
+retroactiva de una celda históricamente visible y materializa una única salida segura para todos los
+canales. Estas pruebas no autorizan cifras: D06 y D07 permanecen
+`ADAPTER_TESTED_SYNTHETIC; REAL_VALUES_BLOCKED` hasta la aprobación explícita de la política.

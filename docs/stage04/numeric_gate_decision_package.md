@@ -170,7 +170,7 @@ el resto del catálogo permanecen fuera del próximo corte hasta una solicitud c
 | Total/margen con una celda oculta | TESTED_SYNTHETIC_REJECTED | mismo archivo |
 | Un total con dos componentes ocultos | TESTED_SYNTHETIC_NO_UNIQUE_SOLUTION_FROM_ONE_EQUATION | mismo archivo; no representa una tabla cruzada |
 | Mezcla de releases en un catálogo | TESTED_SYNTHETIC_REJECTED | `tests/test_stage04_module_coverage.py`; no demuestra protección contra reconstrucción entre publicaciones |
-| Cruces con márgenes de filas/columnas, multitabla o multirelease | TEST_PENDING | Requiere escenarios y política de vínculo aprobados |
+| Cruces con márgenes de filas/columnas, multitabla o multirelease | TESTED_SYNTHETIC_POLICY_REVIEW_PENDING | Los escenarios bloquean reconstrucción combinada; requiere aprobación de la política |
 | AppTest: combinaciones pendientes/ausentes sin métricas | TESTED | `tests/test_stage04_ui_guards.py` |
 | AppTest: demo sintético separado de V0 autorizado | TESTED | `tests/test_stage04_ui_guards.py` |
 | CV menor/igual/mayor a 15 %, N=29/30/31 y alertas combinadas en 3.1–3.6 | TESTED_SYNTHETIC | `tests/test_stage04_candidate_adapter.py` |
