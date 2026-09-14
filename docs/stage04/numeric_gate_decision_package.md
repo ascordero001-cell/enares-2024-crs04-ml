@@ -185,6 +185,17 @@ el resto del catálogo permanecen fuera del próximo corte hasta una solicitud c
    acta.
 5. Mantener publicación, promoción, cutover y exportación fuera del golden bloqueados.
 
+## Inicio de Etapa 1
+
+- D02/D10: consulta de procedencia enviada al productor Stage 03 en el
+  [Issue #24](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/24#issuecomment-5657225304);
+  la respuesta continúa pendiente y las filas permanecen como contexto no numérico.
+- D01/D11: semántica de fuente verificada y registrada en
+  [etapa1_source_semantics.md](etapa1_source_semantics.md).
+- D12: contrato de alias implementado con nombre y código fuente conservados en metadata.
+- Adaptadores: esqueletos sintético e institucional separados y detenidos en
+  [revisión supervisora](adapter_separation_review.md) antes del primer agregado.
+
 El golden 3.2 / `VF_HOGAR` / Nacional / Total continúa vigente e intacto. La solicitud histórica
 que originó el acta se conserva en
 [numeric_authorization_review_20260913.md](numeric_authorization_review_20260913.md).
