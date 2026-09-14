@@ -20,3 +20,9 @@
 | Agent Engine | No creado | — | learning-lab | no |
 
 Los números anteriores usados por las plantillas locales son referencias temáticas y no identificadores reales de GitHub. Los laboratorios opcionales se crearán únicamente si existe una decisión posterior documentada.
+
+## Orden rector corregido
+
+La plantilla local stage04_43.md declara como dependencia el «#42» en numeración local, que corresponde a «Automatizar ejecución por release y código en shadow» y en GitHub es el issue #45, hoy abierto. No debe confundirse con el PR #42 de GitHub, que actualizó el README y se fusionó el 2026-08-24.
+
+Esa dependencia quedó superada por el reordenamiento del rector: la aplicación se valida primero en Sprint 04.2 mediante #46, #47 y #48, y la automatización #45 pertenece a Sprint 04.3, después de esa validación. Local 43 no está bloqueado por local 42, y no existe relación GitHub blocked by entre estos issues.

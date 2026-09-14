@@ -1,9 +1,9 @@
 # Paquete de decisiones — gate numérico de Sprint 04.2
 
-**Estado:** `QUALITY_RULES_APPROVED; NUMERIC_SCOPE_REVIEW_PENDING`
-**Alcance:** preparación local desconectada; no autoriza cifras nuevas, exportación ni cloud
+**Estado:** `NUMERIC_SCOPE_PARTIALLY_AUTHORIZED; PUBLICATION_NOT_AUTHORIZED`
+**Alcance:** implementación y conexión local shadow solo dentro de los pares autorizados
 **Issues:** [#48](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/48) y [#49](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/49)
-**Revisora requerida:** `ritaricaldi-cpu`
+**Revisora:** `ritaricaldi-cpu`
 **Fecha del paquete:** `2026-09-13`
 
 La conciliación directa posterior contra las sintaxis primarias entregadas está en
@@ -11,6 +11,8 @@ La conciliación directa posterior contra las sintaxis primarias entregadas est�
 por hash en [spss_source_manifest.md](spss_source_manifest.md). La decisión independiente posterior
 está registrada en [supervisory_decisions_20260913.md](supervisory_decisions_20260913.md). La fuente
 histórica SPSS se conserva, pero la presentación Stage 04 aplica la decisión vigente de Rita.
+El alcance vinculante y sus condiciones están en el
+[acta D01–D12 del PR #60](acta_decision_d01_d12_20260913.md).
 
 ## Fuentes congeladas
 
@@ -33,15 +35,34 @@ sustituye.
 - En 3.1–3.6, `base_unw < 30` conserva la prevalencia visible y añade la alerta de N pequeño.
   `target_unw` jamás sustituye el denominador. La igualdad exacta a 30 no activa la alerta.
 - `cv_flag` y `n_flag` se derivan centralmente. Ninguno activa `suppress_flag`; la confidencialidad
-  mantiene política y aprobación independientes. La tolerancia `1e-9` sigue pendiente.
+  mantiene política y aprobación independientes.
 - La autorización debe enumerar `indicator_id`, dimensión y categorías o una regla de alcance
   inequívoca. Un centinela no autoriza el módulo.
 - Una estadística ausente permanece `null`. Una salida incompleta se muestra solo como contexto,
   sin tarjeta, tabla numérica ni exportación.
-- `Área × sexo` de UI solo podría mapear a `Área y sexo` de V0, e `Idioma del hogar` a `Lengua
-  materna`, después de aprobación semántica explícita. Mientras tanto quedan bloqueadas.
+- La tolerancia `1e-9` está aprobada solo para la misma celda, indicador y escala entre `v0_csv`
+  y la carga candidata; no cubre diferencias metodológicas.
+- D12 autoriza `Área × sexo` e `Idioma del hogar` como etiquetas UI, conservando `AREA BY SEXO`,
+  `Área y sexo`, `Lengua materna` e `idiomaHogar` en metadata.
 
-## Tabla de decisiones por familia y excepción
+## Resolución vigente D01–D12
+
+| Caso | Estado vigente | Gate restante |
+|---|---|---|
+| D01 | `AUTHORIZED_CONDITIONAL` | Documentar universo, sujeto y referencia de `_fem` antes de conectar cifras |
+| D02 | `NON_NUMERIC_CONTEXT` | Confirmar con Stage 03 el origen de los ceros; no mostrar `0 %` |
+| D03 | `AUTHORIZED` | Denominador explícito; sin comparación CRS03 |
+| D04 | `AUTHORIZED_CONDITIONAL_ROWS; NON_NUMERIC_CONTEXT_ROWS` | Dos condicionales numéricas; dos contextos sin métricas |
+| D05 | `AUTHORIZED_CONDITIONAL_ROWS; NON_NUMERIC_CONTEXT_ROWS` | Adaptador de hogar separado del de escuela |
+| D06 | `STRUCTURE_AUTHORIZED; REAL_VALUES_BLOCKED` | Política de confidencialidad aprobada |
+| D07 | `STRUCTURE_AUTHORIZED; REAL_VALUES_BLOCKED` | Política y evidencia propias, sin herencia de D06 |
+| D08 | `AUTHORIZED_DISTRIBUTION` | Total de distribución, nunca prevalencia |
+| D09 | `AUTHORIZED_22_EXACT_PAIRS` | Dominio `CONS_ALGUNA = 1` visible; Departamento excluido |
+| D10 | `NON_NUMERIC_CONTEXT` | Confirmar con Stage 03 el origen de los ceros |
+| D11 | `AUTHORIZED_CONDITIONAL` | Registrar etiqueta exacta de `C3P213 == 5` antes de conectarlo |
+| D12 | `AUTHORIZED_UI_ALIASES` | Conservar nombres y códigos fuente en metadata; no ampliar pares |
+
+## Tabla histórica sometida a decisión
 
 Las fuentes de todas las filas son `V0-TAB + V0-DIC`. “Campos” enumera la expectativa del contrato;
 la evidencia puntual está enlazada en la última columna.
@@ -114,7 +135,7 @@ un producto cartesiano ni una autorización vigente.
   `Idioma del hogar`; pendiente por cada indicador y sus categorías. Ningún alias se registra como
   par permitido antes de la decisión.
 
-## Anexo B — opciones, recomendación y registro de decisión
+## Anexo B — opciones y recomendaciones históricas sometidas
 
 | Casos | Opciones para revisión | Recomendación preparatoria | quality_note propuesta | Estado / revisora / fecha / evidencia |
 |---|---|---|---|---|
@@ -154,17 +175,16 @@ el resto del catálogo permanecen fuera del próximo corte hasta una solicitud c
 | CV menor/igual/mayor a 15 %, N=29/30/31 y alertas combinadas en 3.1–3.6 | TESTED_SYNTHETIC | `tests/test_stage04_candidate_adapter.py` |
 | D09 condicionado a `CONS_ALGUNA = 1`, con válidos y ausencias | TESTED_SYNTHETIC_AND_V0_STRUCTURAL | mismo archivo y [evidencia D09](d09_cons_atencion_salud_domain_evidence.md) |
 
-## Decisiones concretas solicitadas
+## Decisiones y verificaciones todavía requeridas
 
-1. Aprobar, ajustar o rechazar los adaptadores D01 y D03–D08, incluidos tipo y categorías.
-2. Definir el tratamiento UI de D02, D04, D05 y D10 sin imputar estadísticas.
-3. Aprobar o reemplazar la tolerancia `1e-9`; no forma parte de la decisión CV/N.
-4. Definir la política independiente de confidencialidad, `suppress_flag` y precedencias.
-5. Autorizar alcances exactos por indicador/dimensión/categorías; no por módulo implícito.
-6. Resolver las equivalencias de etiquetas de D12.
-7. Definir política contra reconstrucción multitabla y multirelease.
+1. Aprobar la política independiente de confidencialidad, incluida reconstrucción multitabla y
+   multirelease; hasta entonces D06/D07 no conectan cifras reales.
+2. Confirmar con el productor Stage 03 el origen de los ceros de D02/D10.
+3. Resolver la documentación condicionante de D01 y la etiqueta exacta de D11.
+4. Mantener `NUMERIC_DATA_GATE_OPEN` para todo indicador/dimensión/categoría no enumerado en el
+   acta.
+5. Mantener publicación, promoción, cutover y exportación fuera del golden bloqueados.
 
-Las reglas de calidad están resueltas, pero `NUMERIC_DATA_GATE_OPEN` continúa para cifras nuevas.
-Solo 3.2 / `VF_HOGAR` / Nacional / Total permanece como golden numérico local autorizado. La tabla
-completa para la siguiente decisión está en
+El golden 3.2 / `VF_HOGAR` / Nacional / Total continúa vigente e intacto. La solicitud histórica
+que originó el acta se conserva en
 [numeric_authorization_review_20260913.md](numeric_authorization_review_20260913.md).
