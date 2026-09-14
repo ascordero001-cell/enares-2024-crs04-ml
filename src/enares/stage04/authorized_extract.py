@@ -8,7 +8,11 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
-from .authorized_scopes import D09_PAIRS
+from .authorized_scopes import (
+    D09_PAIRS,
+    VS_MATRIX_SOURCE_PAIRS,
+    normalize_vs_matrix_category,
+)
 from .indicator_semantics import C3P213_DISPLAY_LABEL, D01_TASKS
 from .quality_rules import derive_statistical_quality
 
@@ -102,7 +106,9 @@ DENOMINATOR_BY_INDICATOR = {
 }
 
 
-def _selected_etapa1_parent_rows(parent_rows: list[dict[str, str]]) -> list[dict[str, str]]:
+def _selected_etapa1_parent_rows(
+    parent_rows: list[dict[str, str]],
+) -> list[dict[str, str]]:
     task_categories = {item.task for item in D01_TASKS}
     selected = []
     for row in parent_rows:
@@ -120,7 +126,8 @@ def _selected_etapa1_parent_rows(parent_rows: list[dict[str, str]]) -> list[dict
             if (display_dimension, row["categoria"]) in D09_PAIRS:
                 selected.append(row)
         elif indicator in DISPLAY_NAME_BY_D11_INDICATOR and (
-            row["dimension"], row["categoria"]
+            row["dimension"],
+            row["categoria"],
         ) == ("Nacional", "Total"):
             selected.append(row)
     return selected
@@ -141,20 +148,27 @@ def build_etapa1_authorized_extract(
     manifest_path = Path(manifest_path)
     actual_parent_sha = hashlib.sha256(parent_path.read_bytes()).hexdigest().upper()
     if actual_parent_sha != expected_parent_sha256.upper():
-        raise ValueError("Parent aggregate SHA-256 does not match the approved baseline")
+        raise ValueError(
+            "Parent aggregate SHA-256 does not match the approved baseline"
+        )
     with parent_path.open(encoding="utf-8", newline="") as handle:
         selected = _selected_etapa1_parent_rows(list(csv.DictReader(handle)))
     if len(selected) != 35:
-        raise ValueError(f"Etapa 1 scope must contain exactly 35 rows, found {len(selected)}")
+        raise ValueError(
+            f"Etapa 1 scope must contain exactly 35 rows, found {len(selected)}"
+        )
 
     task_names = {item.task: item.display_label for item in D01_TASKS}
-    generated_at = generated_at_utc or datetime.now(UTC).isoformat().replace("+00:00", "Z")
+    generated_at = generated_at_utc or datetime.now(UTC).isoformat().replace(
+        "+00:00", "Z"
+    )
     output_rows: list[dict[str, object]] = []
     for source in selected:
         indicator = source["indicator_id"]
-        dimension = {"Área y sexo": "Área × sexo", "Lengua materna": "Idioma del hogar"}.get(
-            source["dimension"], source["dimension"]
-        )
+        dimension = {
+            "Área y sexo": "Área × sexo",
+            "Lengua materna": "Idioma del hogar",
+        }.get(source["dimension"], source["dimension"])
         quality = derive_statistical_quality(
             estimate=float(source["pct"]),
             cv=float(source["cv"]),
@@ -240,6 +254,116 @@ def build_etapa1_authorized_extract(
     return manifest
 
 
+def build_d06_d07_authorized_extract(
+    parent_path: Path,
+    output_path: Path,
+    manifest_path: Path,
+    *,
+    expected_parent_sha256: str,
+    git_commit_sha: str,
+    generated_at_utc: str,
+) -> dict[str, object]:
+    """Build the exact two approved eight-row VS matrices from V0."""
+    parent_path = Path(parent_path)
+    output_path = Path(output_path)
+    manifest_path = Path(manifest_path)
+    actual_parent_sha = hashlib.sha256(parent_path.read_bytes()).hexdigest().upper()
+    if actual_parent_sha != expected_parent_sha256.upper():
+        raise ValueError(
+            "Parent aggregate SHA-256 does not match the approved baseline"
+        )
+    with parent_path.open(encoding="utf-8", newline="") as handle:
+        selected = [
+            row
+            for row in csv.DictReader(handle)
+            if row["indicator_id"] in {"Solap_VS_12M", "Solap_VS_VIDA"}
+            and (row["dimension"], row["categoria"]) in VS_MATRIX_SOURCE_PAIRS
+        ]
+    counts = {
+        indicator: sum(row["indicator_id"] == indicator for row in selected)
+        for indicator in ("Solap_VS_12M", "Solap_VS_VIDA")
+    }
+    if counts != {"Solap_VS_12M": 8, "Solap_VS_VIDA": 8}:
+        raise ValueError(f"D06/D07 scope must contain two complete matrices: {counts}")
+
+    output_rows = []
+    for source in selected:
+        indicator = source["indicator_id"]
+        quality = derive_statistical_quality(
+            estimate=float(source["pct"]),
+            cv=float(source["cv"]),
+            cv_unit="proportion",
+            n_unweighted=int(source["base_unw"]),
+        )
+        period = "los últimos 12 meses" if indicator == "Solap_VS_12M" else "alguna vez"
+        output_rows.append(
+            {
+                "release_id": "enares2024-crs04-v0-shadow-etapa1-001",
+                "run_id": "d06-d07-authorized-extract-20260914",
+                "source_version": "v0_official_drive_baseline",
+                "source_hash": actual_parent_sha,
+                "git_commit_sha": git_commit_sha,
+                "container_image_digest": "BLOCKED_BY_CLOUD_GATE",
+                "dataform_release": "BLOCKED_BY_CLOUD_GATE",
+                "engine_version": "v0_csv",
+                "scale": "0_100",
+                "indicator_id": indicator,
+                "indicator_name": f"Matriz de solapamiento de violencia sexual: {period}",
+                "module_id": "3.5",
+                "disaggregation": source["dimension"],
+                "category": normalize_vs_matrix_category(source["categoria"]),
+                "estimate": source["pct"],
+                "standard_error": source["es"],
+                "ci95_lower": source["ci_low"],
+                "ci95_upper": source["ci_high"],
+                "cv": source["cv"],
+                "n_unweighted": source["base_unw"],
+                "weighted_population": "",
+                "cv_flag": str(quality.cv_flag).lower(),
+                "n_flag": str(quality.n_flag).lower(),
+                "suppress_flag": "false",
+                "quality_note": " ".join(quality.quality_notes)
+                or "Sin alerta de precisión.",
+                "validation_status": "APPROVED",
+                "created_at": generated_at_utc,
+                "universe": f"Adolescentes de 12 a 17 años con violencia sexual {period}",
+                "denominator": "Casos válidos de la condición indicada después de la barra vertical",
+                "quality_status": quality.quality_status,
+                "synthetic": "false",
+            }
+        )
+    output_rows.sort(
+        key=lambda row: (row["indicator_id"], row["disaggregation"], row["category"])
+    )
+    with output_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=OUTPUT_FIELDS, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(output_rows)
+
+    extract_sha = hashlib.sha256(output_path.read_bytes()).hexdigest()
+    manifest: dict[str, object] = {
+        "file_name": output_path.name,
+        "generated_at_utc": generated_at_utc,
+        "row_count": 16,
+        "schema_version": "stage04-v0-authorized-aggregate-v1",
+        "sha256": extract_sha,
+        "synthetic": False,
+        "data_classification": "AUTHORIZED_AGGREGATE_ONLY",
+        "source_kind": "AUTHORIZED_V0_EXTRACT",
+        "source_hash": actual_parent_sha,
+        "parent_sha256": actual_parent_sha,
+        "source_version": "v0_official_drive_baseline",
+        "scope": {"D06": 8, "D07": 8},
+        "purpose": "D06/D07 local shadow authorized aggregate",
+        "prohibition": "no microdata / no institutional publication",
+        "approval_reference": "PR #66 approval on 2026-09-14",
+    }
+    manifest_path.write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    return manifest
+
+
 def rederive_authorized_extract(
     parent_path: Path,
     template_path: Path,
@@ -283,7 +407,9 @@ def rederive_authorized_extract(
         try:
             parent = parent_by_key[key]
         except KeyError as exc:
-            raise ValueError(f"Authorized row is absent from parent aggregate: {key}") from exc
+            raise ValueError(
+                f"Authorized row is absent from parent aggregate: {key}"
+            ) from exc
         derived = dict(template)
         derived["source_hash"] = approved_parent_sha256.upper()
         for output_field, parent_field in STATISTIC_FIELDS.items():

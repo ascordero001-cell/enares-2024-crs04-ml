@@ -42,7 +42,7 @@ def _visible_text(app: AppTest) -> str:
 
 def test_local_repository_connects_only_the_closed_etapa1_counts():
     authorized, _ = local_repositories()
-    expected = {"3.1": 10, "3.2": 1, "3.3": 1, "3.4": 1, "3.5": 22, "3.6": 1}
+    expected = {"3.1": 10, "3.2": 1, "3.3": 1, "3.4": 1, "3.5": 38, "3.6": 1}
     for module_id, count in expected.items():
         rows = authorized.list_estimates(module_id)
         validate_estimates(rows)
@@ -77,7 +77,11 @@ def test_d01_builds_two_semantically_distinct_groups_in_approved_order():
 
 def test_d09_connects_domain_aliases_labels_and_visible_reference_cells():
     authorized, _ = local_repositories()
-    rows = authorized.list_estimates("3.5")
+    rows = [
+        row
+        for row in authorized.list_estimates("3.5")
+        if row.indicator_id == "CONS_ATENCION_SALUD"
+    ]
     assert len(rows) == 22
     assert sum(row.cv_flag for row in rows) == 13
     assert all(not row.suppress_flag for row in rows)
@@ -117,4 +121,4 @@ def test_apptest_d09_shows_approved_domain_and_no_suppression():
     assert not app.exception
     assert "CONS_ALGUNA = 1" in visible
     assert "Los campos protegidos no llegan a la interfaz" not in visible
-    assert len(app.metric) == 4
+    assert len(app.metric) == 8

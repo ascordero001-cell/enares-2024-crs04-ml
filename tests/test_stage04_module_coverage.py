@@ -200,6 +200,8 @@ def test_real_fixture_coverage_is_distinguished_from_configuration():
             "Discapacidad",
             "Etnicidad",
             "Tipo de hogar",
+            "2×2",
+            "3×3",
         },
         "3.6": {"Nacional"},
     }

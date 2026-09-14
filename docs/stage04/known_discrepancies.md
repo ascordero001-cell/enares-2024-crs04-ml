@@ -110,5 +110,5 @@ El código de esta etapa detecta reconstrucción única usando todas las ecuacio
 impide decisiones contradictorias para una misma celda dentro del release, bloquea la supresión
 retroactiva de una celda históricamente visible y materializa una única salida segura para todos los
 canales. La política aprobada elimina el umbral de recuento y mantiene esa maquinaria inactiva bajo
-la granularidad V0. D06 y D07 quedan `REAL_VALUES_AUTHORIZED_FOR_SEPARATE_CONNECTION_PR`, sin
-cruces nuevos ni mayor granularidad.
+la granularidad V0. D06 y D07 están `CONNECTED_PENDING_SUPERVISORY_REVIEW`, con sus 16 filas
+agregadas, sin cruces nuevos ni mayor granularidad.

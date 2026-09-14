@@ -24,6 +24,12 @@ def escape_dynamic_text(value: object) -> str:
     return escape(str(value), quote=True)
 
 
+def precision_category_label(category: str, cv_flag: bool) -> str:
+    """Derive the visible precision marker from the statistical flag only."""
+    clean_category = category.removesuffix(" [referencial]")
+    return f"{clean_category} [referencial]" if cv_flag else clean_category
+
+
 def load_validated_estimates(
     repository: IndicatorRepository,
     module_id: str,
@@ -68,6 +74,10 @@ def build_numeric_card(row: IndicatorEstimate) -> dict:
         card[field] = escape_dynamic_text(card[field])
     card.update(
         {
+            "category_display": escape_dynamic_text(
+                precision_category_label(row.category, row.cv_flag)
+            ),
+            "cv_flag": row.cv_flag,
             "standard_error_text": f"EE {row.standard_error:.4f}",
             "quality_label": escape_dynamic_text(
                 "Aprobado para shadow — sin alerta"

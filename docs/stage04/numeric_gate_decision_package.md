@@ -54,8 +54,8 @@ sustituye.
 | D03 | `AUTHORIZED` | Denominador explícito; sin comparación CRS03 |
 | D04 | `AUTHORIZED_CONDITIONAL_ROWS; NON_NUMERIC_CONTEXT_ROWS` | Dos condicionales numéricas; dos contextos sin métricas |
 | D05 | `AUTHORIZED_CONDITIONAL_ROWS; NON_NUMERIC_CONTEXT_ROWS` | Adaptador de hogar separado del de escuela |
-| D06 | `REAL_VALUES_AUTHORIZED_FOR_SEPARATE_CONNECTION_PR` | Conservar universo, matriz completa, granularidad V0 y regresión propia |
-| D07 | `REAL_VALUES_AUTHORIZED_FOR_SEPARATE_CONNECTION_PR` | Conservar evidencia propia; no hereda implementación de D06 |
+| D06 | `CONNECTED_PENDING_SUPERVISORY_REVIEW` | Ocho filas; universo 12 meses; matriz completa; granularidad V0 y regresión propia |
+| D07 | `CONNECTED_PENDING_SUPERVISORY_REVIEW` | Ocho filas; universo vida; evidencia propia, sin heredar implementación de D06 |
 | D08 | `AUTHORIZED_DISTRIBUTION` | Total de distribución, nunca prevalencia |
 | D09 | `AUTHORIZED_22_EXACT_PAIRS; ADAPTER_TESTED_SYNTHETIC` | Los 22 pares existentes; Departamento retirado por ausencia en el agregado aprobado |
 | D10 | `RESOLVED; AUTHORIZED_VISIBLE_ZERO_CV_UNDEFINED` | Ceros observados y linaje del bloque CRS04 línea 2416 acreditado en Issue #24 |
