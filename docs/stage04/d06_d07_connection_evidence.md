@@ -11,8 +11,10 @@ La conexión contiene exactamente dos matrices independientes de ocho filas: `So
 dirigidos 3×3 enumerados en el acta D01–D12. No se crearon dimensiones, categorías ni cruces.
 
 `n_unweighted` procede exclusivamente de `base_unw`. Las cuatro celdas con `CV > 15 %` permanecen
-visibles como referenciales; ninguna fila se suprime. El repositorio deriva `synthetic=false` tras
-verificar manifiesto, hash y registro V0: el CSV no puede conferir esa identidad.
+visibles como referenciales; ninguna fila se suprime. El sufijo visual `[referencial]` se deriva
+exclusivamente de `cv_flag` en la interfaz y no forma parte del texto almacenado de la categoría.
+El repositorio deriva `synthetic=false` tras verificar manifiesto, hash y registro V0: el CSV no
+puede conferir esa identidad.
 
 La validación ejecutable recibe los cruces reales:
 
@@ -30,7 +32,7 @@ incluye microdatos, rutas personales, IDs de Drive, enlaces públicos ni credenc
 
 - Archivo: `v0_authorized_d06_d07_indicator_estimates.csv`
 - Filas: 16 agregadas
-- SHA-256: `1359e725b21877cac649ab24f196c0f6f727ebd264264489acd7a35fd7aca42c`
+- SHA-256: `e29e39a378bb9488a8b82a760ee952e7d0badf6648986c503fa85644c08236b5`
 - Padre V0 SHA-256: `15B845DA4A886FDCF54A96D8B8471B6F6BE618AE18B43024488C6BD6B23D0BB4`
 - D06: 8 filas; D07: 8 filas
 - CV > 15 %: 4 filas visibles y referenciales

@@ -9,6 +9,7 @@ import pytest
 from streamlit.testing.v1 import AppTest
 
 from app.streamlit_app import local_repositories
+from app.views.stage04_dashboard import precision_category_label
 from enares.stage04.authorized_extract import build_d06_d07_authorized_extract
 from enares.stage04.authorized_scopes import VS_MATRIX_PAIRS, VS_MATRIX_V0_CROSSES
 from enares.stage04.repository import is_verified_authorized_estimate
@@ -48,6 +49,25 @@ def test_d06_d07_contain_two_complete_independent_v0_matrices():
     assert all(row["synthetic"] == "false" for row in rows)
     assert all(row["suppress_flag"] == "false" for row in rows)
     assert sum(row["cv_flag"] == "true" for row in rows) == 4
+    assert all("[referencial]" not in row["category"] for row in rows)
+
+
+def test_reference_marker_is_derived_exclusively_from_cv_flag():
+    authorized, _ = local_repositories()
+    rows = [
+        row
+        for row in authorized.list_estimates("3.5")
+        if row.indicator_id in {"Solap_VS_12M", "Solap_VS_VIDA"}
+    ]
+    for row in rows:
+        label = precision_category_label(row.category, row.cv_flag)
+        assert ("[referencial]" in label) is row.cv_flag
+
+    d07_rows = [row for row in rows if row.indicator_id == "Solap_VS_VIDA"]
+    assert all(
+        "[referencial]" not in precision_category_label(row.category, row.cv_flag)
+        for row in d07_rows
+    )
 
 
 def test_d06_d07_repositories_derive_real_provenance_and_validate_crosses():

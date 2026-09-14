@@ -21,6 +21,7 @@ from app.views.stage04_dashboard import (
     d09_category_label,
     filter_estimates,
     load_validated_estimates,
+    precision_category_label,
 )
 from enares.stage04.repository import (
     AuthorizedAggregateRepository,
@@ -109,7 +110,7 @@ def _header(release_id: str, created_at: str) -> None:
 def _numeric_summary(card: dict, heading: str | None = None) -> None:
     st.subheader(heading or "Resumen nacional · Módulo 3.2")
     st.caption(
-        f"{card['indicator_id']} · {card['disaggregation']} / {card['category']}"
+        f"{card['indicator_id']} · {card['disaggregation']} / {card['category_display']}"
     )
     st.write(card["indicator_name"])
     a, b, c, d = st.columns(4)
@@ -201,8 +202,13 @@ def _render_vs_matrices(repository: IndicatorRepository) -> None:
         for row in rows
         if row.indicator_id == indicator and row.disaggregation == matrix
     ]
+    by_category = {row.category: row for row in matrix_rows}
     category = st.selectbox(
-        "Categoría matricial", tuple(row.category for row in matrix_rows)
+        "Categoría matricial",
+        tuple(by_category),
+        format_func=lambda value: precision_category_label(
+            value, by_category[value].cv_flag
+        ),
     )
     selected = [row for row in matrix_rows if row.category == category]
     if len(selected) != 1:

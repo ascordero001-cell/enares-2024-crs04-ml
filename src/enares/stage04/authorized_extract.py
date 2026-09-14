@@ -8,7 +8,11 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
-from .authorized_scopes import D09_PAIRS, VS_MATRIX_PAIRS
+from .authorized_scopes import (
+    D09_PAIRS,
+    VS_MATRIX_SOURCE_PAIRS,
+    normalize_vs_matrix_category,
+)
 from .indicator_semantics import C3P213_DISPLAY_LABEL, D01_TASKS
 from .quality_rules import derive_statistical_quality
 
@@ -273,7 +277,7 @@ def build_d06_d07_authorized_extract(
             row
             for row in csv.DictReader(handle)
             if row["indicator_id"] in {"Solap_VS_12M", "Solap_VS_VIDA"}
-            and (row["dimension"], row["categoria"]) in VS_MATRIX_PAIRS
+            and (row["dimension"], row["categoria"]) in VS_MATRIX_SOURCE_PAIRS
         ]
     counts = {
         indicator: sum(row["indicator_id"] == indicator for row in selected)
@@ -307,7 +311,7 @@ def build_d06_d07_authorized_extract(
                 "indicator_name": f"Matriz de solapamiento de violencia sexual: {period}",
                 "module_id": "3.5",
                 "disaggregation": source["dimension"],
-                "category": source["categoria"],
+                "category": normalize_vs_matrix_category(source["categoria"]),
                 "estimate": source["pct"],
                 "standard_error": source["es"],
                 "ci95_lower": source["ci_low"],
