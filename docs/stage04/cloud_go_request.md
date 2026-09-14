@@ -14,13 +14,14 @@ publicación institucional, cutover, sustitución de V0 ni nuevas cifras.
 
 | Control | Evidencia | Resultado |
 |---|---|---|
-| Imagen construible | [Container CI del PR #68](https://github.com/ascordero001-cell/enares-2024-crs04-ml/actions/runs/34904684299) | `SUCCESS` |
+| Imagen construible | [Container CI corregido del PR #68](https://github.com/ascordero001-cell/enares-2024-crs04-ml/actions/runs/34906554621), fusionado en `main` mediante `3c7b4d3212d360e4dd940800c99f1f8b5ec2f1c2` | `SUCCESS` |
+| Tamaño de imagen | Medido mediante `docker image inspect --format='{{.Size}}'` en el mismo run | `1,273,620,610 bytes` (aprox. 1.19 GiB) |
 | Aplicación dentro del contenedor | Inicio y respuesta HTTP en el mismo run | `SUCCESS` |
 | Streamlit fijado | Verificación dentro de la imagen | `1.63.0` |
 | Health superficial | `/_stcore/health` dentro del contenedor | `200 / ok` |
-| Diagnóstico profundo | Manifiestos, release y módulos 3.1–3.6 | `SUCCESS` |
+| Diagnóstico profundo | Todas las filas autorizadas: release único, `source_version` único y ningún módulo 3.1–3.6 vacío | `SUCCESS` |
 | Estado Docker | Healthcheck de la imagen | `healthy` |
-| Regresión local | Suite con padre V0 privado | `396 passed; 0 failed` |
+| Regresión local | Suite con padre V0 privado | `405 passed; 0 failed` |
 
 La ejecución se realizó en GitHub Actions porque el host local de desarrollo no dispone de Docker
 ni Podman. No se presenta como evidencia local una ejecución que no ocurrió.
@@ -41,18 +42,30 @@ Tras un GO formal, y no antes, se solicita autorización para configurar y verif
 No se solicita autorización para buckets, GKE, Airflow, Agent Engine/Platform, acceso público,
 microdatos, `raw`, `cleaned`, `analytical`, `survey_input`, publicación ni cutover.
 
-## 3. Presupuesto y parada
+## 3. Capa gratuita, límites de consumo y parada
 
-- Tope aprobado: **USD 20 por mes para todo Stage 04**, no por servicio.
-- Alertas requeridas: USD 5, 10, 15 y 20, para gasto real y previsto cuando la plataforma lo
-  permita.
-- Las alertas no se describen como un límite automático: Google Cloud advierte que un presupuesto
-  basado solo en alertas no detiene el consumo.
-- A USD 15: se congelan nuevas revisiones/despliegues y las administradoras revisan el gasto.
-- A USD 20 o ante gasto anómalo: se detienen tráfico y consultas de la Etapa 7 hasta decisión
-  conjunta; no se elimina evidencia ni releases previos.
-- No se añaden Pub/Sub ni funciones automáticas de parada en este gate, porque serían recursos
-  adicionales no incluidos en el alcance mínimo.
+El modelo operativo es permanecer dentro de la capa gratuita de Google Cloud. Los **USD 20 al
+mes** son un margen máximo de contingencia para pruebas controladas, no el presupuesto previsto
+ni una meta de gasto. El agregado autorizado contiene 52 filas y el servicio tendrá seis personas
+usuarias; cualquier coste positivo requiere investigación.
+
+Controles obligatorios antes de habilitar tráfico:
+
+- toda consulta, sin excepción, debe enviar `maximum_bytes_billed`; el valor inicial propuesto es
+  **10 MiB (10,485,760 bytes) por consulta** y una consulta que lo exceda debe fallar cerrada;
+- BigQuery debe tener una cuota diaria personalizada de consulta en el proyecto de **1 GiB por
+  día**, que limita el máximo teórico mensual muy por debajo del 1 TiB gratuito;
+- Cloud Run debe conservar `min-instances=0` y `max-instances=1`;
+- Artifact Registry debe conservar **una sola imagen viva**. Tras validar la nueva revisión y su
+  ventana de rollback, se elimina la imagen anterior; el historial de digest y la revisión de
+  Cloud Run permanecen en auditoría;
+- alertas de gasto real y previsto en **USD 1, 5, 10 y 20**.
+
+Las alertas no detienen consumo. A USD 1 se congelan nuevas pruebas y se investiga la salida de la
+capa gratuita. A USD 5 se detienen tráfico y consultas candidatas. USD 10 exige revisión conjunta
+de billing/IAM antes de cualquier reanudación. USD 20 es el límite de contingencia: todo Stage 04
+cloud permanece detenido hasta una nueva autorización. No se añaden Pub/Sub ni funciones de
+parada, porque serían recursos fuera del alcance mínimo.
 
 Referencia oficial: [presupuestos y alertas de Cloud Billing](https://docs.cloud.google.com/billing/docs/how-to/budgets).
 
@@ -65,8 +78,8 @@ en privado los principales exactos y obtener GO.
 |---|---|---|
 | Desplegadora (Ana; principal exacto privado) | `roles/run.developer` sobre Cloud Run, `roles/artifactregistry.writer` sobre el repositorio y `roles/iam.serviceAccountUser` sobre la identidad de ejecución | `PENDING_GO` |
 | Identidad de ejecución de la app | `roles/bigquery.jobUser` en el proyecto y `roles/bigquery.dataViewer` solo sobre `published` | `PENDING_CREATION_AND_GO` |
-| Revisora (Rita; principal exacto privado) | Visibilidad de servicio, logs, gasto y políticas necesaria para verificar; roles exactos sujetos a revisión antes del binding | `PENDING_SUPERVISORY_CONFIRMATION` |
-| Seis personas usuarias | Solo invocación autenticada del servicio; lista y principales se mantienen fuera del repositorio | `PENDING_PRIVATE_LIST_AND_GO` |
+| Revisora (Rita; principal exacto privado) | `roles/run.viewer`, `roles/logging.viewer` y `roles/monitoring.viewer` sobre el proyecto; `roles/billing.viewer` sobre la cuenta de billing | `APPROVED_FOR_STAGE7_CONFIGURATION` |
+| Seis personas usuarias | Una persona de protección de UNICEF, una de la Dirección de Niñez del MIMP, Ana, Rita y dos reservas; solo invocación autenticada. Cargo y principal exacto se mantienen en el registro privado | `COMPOSITION_APPROVED; PRINCIPALS_PRIVATE` |
 
 Google documenta que el despliegue de un contenedor requiere permisos sobre Cloud Run, lectura de
 la imagen y capacidad de actuar como la identidad del servicio; Artifact Registry permite limitar
@@ -95,18 +108,17 @@ Referencias oficiales:
 
 | Gate | Estado actual | Evidencia requerida |
 |---|---|---|
-| Responsable real de billing | `PENDIENTE / NO ASIGNADO` | confirmación privada del principal y capacidad de recuperación |
-| Responsable real de IAM | `PENDIENTE / NO ASIGNADO` | confirmación privada del principal que aplicará/revocará bindings |
+| Responsable real de billing | `ASIGNADO: RITA` | Rita confirma que la cuenta y el medio de pago son propios |
+| Responsable real de IAM | `ASIGNADO: ANA; REVISIÓN: RITA` | Ana aplica o revoca; Rita revisa antes de cada binding; ninguna clave JSON |
 | Cuenta de billing | `PENDING` | identificador verificado en canal privado y vínculo con el proyecto |
 | Proyecto | `PENDING_VERIFICATION` | ID/número y propiedad verificados |
-| Seis identidades | `PENDING_PRIVATE_LIST` | lista privada, autenticación y procedimiento de revocación |
-| Roles exactos de Rita | `PENDING_SUPERVISORY_CONFIRMATION` | decisión de mínimo privilegio |
-| Condición de parada | `PROPOSED` | responsable ejecutor y prueba supervisada |
+| Seis identidades | `COMPOSITION_APPROVED` | los cargos están registrados arriba; los principales exactos se verifican solo por canal privado |
+| Roles exactos de Rita | `APPROVED` | `run.viewer`, `logging.viewer`, `monitoring.viewer` y `billing.viewer` en los alcances indicados |
+| Condición de parada | `APPROVED_NOT_EXECUTED` | Ana ejecuta y Rita supervisa los escalones USD 1/5/10/20 |
 | GO de Etapa 7 | `PENDING` | revisión formal sobre este paquete |
 
-Ana y Rita están designadas como administradoras del presupuesto y del proceso, pero esa
-designación no se convierte aquí en una asignación inventada de responsabilidades de billing o
-IAM. Esos dos campos bloquean el GO hasta su confirmación explícita.
+Los únicos campos aún bloqueantes son la verificación privada del proyecto y de la cuenta de
+billing. Las identidades exactas nunca se incorporan al repositorio.
 
 ## 7. Decisión solicitada a Rita
 

@@ -6,26 +6,28 @@
 
 | Campo | Estado verificable |
 |---|---|
-| Presupuesto | Máximo USD 20/mes para el total de Stage 04, no por servicio |
+| Modelo de coste | Operación prevista dentro de la capa gratuita; USD 20/mes es margen máximo de contingencia, no gasto objetivo |
 | Administradoras | Ana y Rita; identidades exactas pendientes de registro privado |
 | Proyecto previsto | `enares-2024-crs04`; existencia y coincidencia pendientes de verificación |
 | Ubicaciones previstas | BigQuery `US`; Cloud Run `us-central1`; pendientes de verificación |
-| Billing | `PENDING`; cuenta, responsable y recuperación no verificados |
-| IAM | `PENDING`; roles mínimos y seis identidades no configurados ni probados |
+| Billing | Responsable: Rita; cuenta y medio de pago propios, pendientes de verificación privada |
+| IAM | Ana aplica bindings y Rita revisa cada uno; sin claves JSON; configuración aún no ejecutada |
 | Recursos permitidos tras GO | BigQuery candidato `outputs/published/ops`, Artifact Registry y Cloud Run Service |
 | Recursos ejecutados por este PR | Ninguno |
-| Datos autorizados | Solo baseline/golden ya aprobados; nuevas cifras y pares pendientes |
-| Acceso | Seis personas previstas; lista privada, autenticación y revocación pendientes |
-| Parada | Ana ejecuta y Rita supervisa; procedimiento efectivo pendiente |
+| Datos autorizados | Solo las 52 filas agregadas autorizadas y fijadas por manifiesto; no se autorizan cifras nuevas |
+| Acceso | Seis personas: protección UNICEF, Dirección de Niñez del MIMP, Ana, Rita y dos reservas; principales exactos solo por canal privado |
+| Parada | Política aprobada: Ana ejecuta y Rita supervisa; prueba efectiva solo después del GO |
 | Decisión técnica | `NO_GO_UNTIL_VERIFIED` |
 
-Antes de cualquier primer despliegue deben verificarse billing, identidades, roles, alertas
-USD 5/10/15/20, límites de consulta y cómputo, máximo una instancia inicial, acceso positivo y
-negativo, seis sesiones, health y rollback. Las alertas de presupuesto no son un tope automático.
+Antes de cualquier primer despliegue deben verificarse la cuenta de billing, el proyecto,
+identidades, roles, alertas USD 1/5/10/20, `maximum_bytes_billed` en cada consulta, cuota diaria
+personalizada de BigQuery, mínimo cero y máximo una instancia, limpieza de Artifact Registry,
+acceso positivo y negativo, seis sesiones, health y rollback. Las alertas de presupuesto no son
+un tope automático; los límites técnicos son obligatorios.
 
 Este PR no ejecuta `gcloud`, no crea cuentas, bindings, datasets, buckets, imágenes ni servicios.
 
 La solicitud operativa de los pasos 40–41, con alcance mínimo, IAM propuesto, controles de coste,
 rollback y campos bloqueantes, está en [cloud_go_request.md](cloud_go_request.md). Mientras los
-responsables reales de billing/IAM, la cuenta, el proyecto y las identidades no estén verificados,
-la decisión continúa como `NO_GO / CLOUD_NOT_AUTHORIZED`.
+cuenta de billing y el proyecto no estén verificados, la decisión continúa como
+`NO_GO / CLOUD_NOT_AUTHORIZED`.
