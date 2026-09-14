@@ -1,0 +1,87 @@
+name: Container CI
+
+on:
+  pull_request:
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - requirements.txt
+      - app/**
+      - src/**
+      - scripts/container_healthcheck.py
+      - scripts/release_diagnostic.py
+      - .github/workflows/container-ci.yml
+  push:
+    branches: [main]
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - requirements.txt
+      - app/**
+      - src/**
+      - scripts/container_healthcheck.py
+      - scripts/release_diagnostic.py
+      - .github/workflows/container-ci.yml
+
+permissions:
+  contents: read
+
+jobs:
+  docker-build-and-smoke:
+    name: Docker build and smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build local image
+        run: docker build --tag enares-stage04:ci .
+
+      - name: Confirm pinned Streamlit version
+        run: |
+          docker run --rm enares-stage04:ci python -c \
+            "import streamlit; assert streamlit.__version__ == '1.63.0'; print(streamlit.__version__)"
+
+      - name: Start application container
+        run: docker run --detach --name enares-stage04-ci --publish 8080:8080 enares-stage04:ci
+
+      - name: Wait for shallow health
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8080/_stcore/health | grep --quiet '^ok$'; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs enares-stage04-ci
+          exit 1
+
+      - name: Verify application response
+        run: curl --fail --silent --show-error http://127.0.0.1:8080/ > /dev/null
+
+      - name: Diagnose manifest-bound release
+        run: |
+          docker exec enares-stage04-ci python scripts/release_diagnostic.py \
+            --expected-release enares2024-crs04-v0-shadow-001
+
+      - name: Confirm Docker health status
+        run: |
+          for attempt in $(seq 1 10); do
+            status=$(docker inspect --format='{{.State.Health.Status}}' enares-stage04-ci)
+            if [ "$status" = healthy ]; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker inspect enares-stage04-ci
+          exit 1
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker logs enares-stage04-ci
+
+      - name: Stop application container
+        if: always()
+        run: docker rm --force enares-stage04-ci || true
