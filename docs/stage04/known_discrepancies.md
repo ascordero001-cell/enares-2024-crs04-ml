@@ -39,7 +39,8 @@ usarse para ocultar una discrepancia sustantiva.
 
 La reconstrucción aditiva simple tiene prueba automatizada. Los cruces multitabla y multirelease,
 la exposición histórica y la frontera común de UI, export, caché y logs tienen pruebas sintéticas
-automatizadas; la política que gobierna esos controles está `SUPERVISORY_APPROVAL_PENDING`. La
+automatizadas. La política fue aprobada sin umbral de recuento: estos controles quedan inactivos
+mientras no se autorice granularidad más fina que departamento o un cruce ausente de V0. La
 decisión del 2026-09-13 resolvió `CV > 0.15` y
 `base_unw < 30` como alertas visibles sin supresión automática. La tolerancia `1e-9`, la política
 de confidencialidad y los alcances numéricos continúan pendientes de aprobación formal.
@@ -105,5 +106,6 @@ es el siguiente:
 El código de esta etapa detecta reconstrucción única usando todas las ecuaciones disponibles,
 impide decisiones contradictorias para una misma celda dentro del release, bloquea la supresión
 retroactiva de una celda históricamente visible y materializa una única salida segura para todos los
-canales. Estas pruebas no autorizan cifras: D06 y D07 permanecen
-`ADAPTER_TESTED_SYNTHETIC; REAL_VALUES_BLOCKED` hasta la aprobación explícita de la política.
+canales. La política aprobada elimina el umbral de recuento y mantiene esa maquinaria inactiva bajo
+la granularidad V0. D06 y D07 quedan `REAL_VALUES_AUTHORIZED_FOR_SEPARATE_CONNECTION_PR`, sin
+cruces nuevos ni mayor granularidad.

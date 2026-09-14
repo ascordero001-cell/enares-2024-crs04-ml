@@ -1,6 +1,8 @@
 import pytest
 
 from enares.stage04.privacy import (
+    PRIMARY_SUPPRESSION_ACTIVE,
+    PRODUCER_DOMINANCE_SIGNAL_AVAILABLE,
     PUBLICATION_CHANNELS,
     apply_published_suppression,
     assert_consistent_suppression_within_release,
@@ -8,9 +10,10 @@ from enares.stage04.privacy import (
     assert_no_retroactive_suppression,
     assert_no_unique_additive_reconstruction,
     assert_suppressed_fields_are_null,
-    derive_primary_confidentiality,
+    assert_v0_granularity_boundary,
     materialize_safe_channel_payloads,
     plan_complementary_suppression,
+    requires_primary_suppression_controls,
 )
 
 
@@ -97,38 +100,58 @@ def test_visual_only_suppression_fails_published_contract():
 
 
 @pytest.mark.parametrize(
-    ("target", "base", "dominance", "expected"),
-    (
-        (2, 100, False, ("SENSITIVE_EVENT_COUNT_1_TO_4",)),
-        (97, 100, False, ("SENSITIVE_COMPLEMENT_COUNT_1_TO_4",)),
-        (20, 25, False, ()),
-        (0, 20, False, ()),
-        (20, 100, True, ("PRODUCER_DOMINANCE_FLAG",)),
-    ),
+    ("finer", "new_cross", "expected"),
+    ((False, False, False), (True, False, True), (False, True, True)),
 )
-def test_primary_rule_is_independent_of_precision_thresholds(
-    target, base, dominance, expected
+def test_dormant_controls_activate_only_for_authorized_scope_expansion(
+    finer, new_cross, expected
 ):
     assert (
-        derive_primary_confidentiality(
-            target_unweighted=target,
-            base_unweighted=base,
-            producer_dominance_flag=dominance,
+        requires_primary_suppression_controls(
+            authorized_finer_than_department=finer,
+            authorized_non_v0_cross=new_cross,
         )
-        == expected
+        is expected
     )
 
 
-@pytest.mark.parametrize(
-    "kwargs",
-    (
-        {"target_unweighted": -1, "base_unweighted": 10},
-        {"target_unweighted": 11, "base_unweighted": 10},
-    ),
-)
-def test_primary_rule_fails_closed_on_invalid_counts(kwargs):
-    with pytest.raises(ValueError, match="valid base"):
-        derive_primary_confidentiality(**kwargs)
+def test_granularity_activation_rejects_non_boolean_inputs():
+    with pytest.raises(TypeError, match="must be boolean"):
+        requires_primary_suppression_controls(
+            authorized_finer_than_department=None,
+            authorized_non_v0_cross=False,
+        )
+
+
+def test_existing_v0_dimensions_and_crosses_pass_boundary():
+    assert PRIMARY_SUPPRESSION_ACTIVE is False
+    assert PRODUCER_DOMINANCE_SIGNAL_AVAILABLE is False
+    assert_v0_granularity_boundary(
+        requested_dimensions={"Nacional", "Departamento"},
+        v0_dimensions={"Nacional", "Departamento"},
+        requested_crosses={("Área", "Sexo")},
+        v0_crosses={("Área", "Sexo")},
+    )
+
+
+def test_finer_dimension_than_v0_is_blocked():
+    with pytest.raises(ValueError, match="granularity boundary"):
+        assert_v0_granularity_boundary(
+            requested_dimensions={"Distrito"},
+            v0_dimensions={"Nacional", "Departamento"},
+            requested_crosses=set(),
+            v0_crosses=set(),
+        )
+
+
+def test_cross_not_present_in_v0_is_blocked():
+    with pytest.raises(ValueError, match="granularity boundary"):
+        assert_v0_granularity_boundary(
+            requested_dimensions={"Departamento"},
+            v0_dimensions={"Nacional", "Departamento"},
+            requested_crosses={("Departamento", "Sexo", "Área")},
+            v0_crosses={("Área", "Sexo")},
+        )
 
 
 def protected_cell(

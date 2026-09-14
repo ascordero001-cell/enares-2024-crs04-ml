@@ -54,8 +54,8 @@ sustituye.
 | D03 | `AUTHORIZED` | Denominador explícito; sin comparación CRS03 |
 | D04 | `AUTHORIZED_CONDITIONAL_ROWS; NON_NUMERIC_CONTEXT_ROWS` | Dos condicionales numéricas; dos contextos sin métricas |
 | D05 | `AUTHORIZED_CONDITIONAL_ROWS; NON_NUMERIC_CONTEXT_ROWS` | Adaptador de hogar separado del de escuela |
-| D06 | `ADAPTER_TESTED_SYNTHETIC; REAL_VALUES_BLOCKED` | Política de confidencialidad aprobada |
-| D07 | `ADAPTER_TESTED_SYNTHETIC; REAL_VALUES_BLOCKED` | Política y evidencia propias, sin herencia de D06 |
+| D06 | `REAL_VALUES_AUTHORIZED_FOR_SEPARATE_CONNECTION_PR` | Conservar universo, matriz completa, granularidad V0 y regresión propia |
+| D07 | `REAL_VALUES_AUTHORIZED_FOR_SEPARATE_CONNECTION_PR` | Conservar evidencia propia; no hereda implementación de D06 |
 | D08 | `AUTHORIZED_DISTRIBUTION` | Total de distribución, nunca prevalencia |
 | D09 | `AUTHORIZED_22_EXACT_PAIRS; ADAPTER_TESTED_SYNTHETIC` | Los 22 pares existentes; Departamento retirado por ausencia en el agregado aprobado |
 | D10 | `RESOLVED; AUTHORIZED_VISIBLE_ZERO_CV_UNDEFINED` | Ceros observados y linaje del bloque CRS04 línea 2416 acreditado en Issue #24 |
@@ -142,14 +142,14 @@ un producto cartesiano ni una autorización vigente.
 |---|---|---|---|---|
 | D01, D03 | rechazar; aceptar como prevalencia con semántica especial; pedir rediseño | Validar primero significado/categorías; un `adapter_id` solo identifica trabajo futuro | `SPECIAL_SOURCE_TYPE_REQUIRES_APPROVED_ADAPTER` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
 | D04, D05 | excluir contexto; mostrar contexto no numérico; autorizar presentación parcial | Contexto no numérico, sin métricas, hasta decisión | `CONTEXT_ROW_MISSING_SE_CI_CV` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
-| D06, D07 | excluir; adaptar matriz completa; autorizar subconjunto explícito | Revisar matriz y categorías como una unidad; no reinterpretar pares | `SPECIAL_MATRIX_SEMANTICS_PENDING` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
+| D06, D07 | conectar cada matriz completa por separado | No reinterpretar pares, crear cruces ni ampliar granularidad V0 | `AUTHORIZED_AFTER_CONFIDENTIALITY_DECISION` | APPROVED / `ritaricaldi-cpu` / 2026-09-14 / PR #66 |
 | D08 | excluir; adaptar distribución; tratar erróneamente como prevalencia | Adaptador de distribución y navegación Consecuencias | `SPECIAL_DISTRIBUTION_ADAPTER_PENDING` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
 | D02, D10 | excluir métricas; contexto no numérico; presentación parcial señalizada | Conservar cero y nulos; contexto no numérico hasta definir CV/calidad | `ZERO_EVENT_CV_UNDEFINED_PENDING` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
 | D09, D11 | rechazar; autorizar pares enumerados; autorizar subconjunto | D09 ya tiene dominio aprobado; decidir indicador por indicador y par por par | `EXACT_SCOPE_AUTHORIZATION_PENDING` | DOMAIN_APPROVED_SCOPE_PENDING / `ritaricaldi-cpu` / 2026-09-13 / revisión PR #60 |
 | D12a, D12b | conservar original; aprobar alias; pedir validación de comprensión | La sintaxis respalda `Área × sexo` para `AREA BY SEXO` e `Idioma del hogar` para `idiomaHogar`; conservar también el código fuente en metadata | `SEMANTIC_ALIAS_SPSS_EVIDENCE_READY` | PENDING / `ritaricaldi-cpu` / — / conciliación SPSS |
 | Transversal precisión | conservar valor y mostrar alertas aprobadas | CV alto referencial; N pequeño visible; N proviene de `base_unw`; sin supresión automática | notas aprobadas de CV/N | APPROVED / `ritaricaldi-cpu` / 2026-09-13 / revisión PR #60 |
 | Transversal paridad | mantener; cambiar; retirar tolerancia absoluta `1e-9` | Limitarla a serialización del mismo indicador/celda/escala, nunca a diferencias sustantivas | `PARITY_TOLERANCE_PENDING` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
-| Transversal confidencialidad | definir supresión independientemente de precisión | No inferir `suppress_flag` desde CV/N; esperar política de confidencialidad | `CONFIDENTIALITY_POLICY_PENDING` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
+| Transversal confidencialidad | limitar salida a granularidad y cruces V0 | Sin umbral por recuento; CV/N nunca suprimen; maquinaria inactiva salvo futura ampliación autorizada | `NO_PRIMARY_SUPPRESSION_ACTIVE` | APPROVED / `ritaricaldi-cpu` / 2026-09-14 / PR #66 |
 
 Los indicadores ordinarios prevalence con campos completos pueden reutilizar las validaciones
 transversales técnicas, pero siguen fuera de autorización numérica salvo que aparezcan en D09 o
@@ -170,7 +170,7 @@ el resto del catálogo permanecen fuera del próximo corte hasta una solicitud c
 | Total/margen con una celda oculta | TESTED_SYNTHETIC_REJECTED | mismo archivo |
 | Un total con dos componentes ocultos | TESTED_SYNTHETIC_NO_UNIQUE_SOLUTION_FROM_ONE_EQUATION | mismo archivo; no representa una tabla cruzada |
 | Mezcla de releases en un catálogo | TESTED_SYNTHETIC_REJECTED | `tests/test_stage04_module_coverage.py`; no demuestra protección contra reconstrucción entre publicaciones |
-| Cruces con márgenes de filas/columnas, multitabla o multirelease | TESTED_SYNTHETIC_POLICY_REVIEW_PENDING | Los escenarios bloquean reconstrucción combinada; requiere aprobación de la política |
+| Cruces con márgenes de filas/columnas, multitabla o multirelease | TESTED_SYNTHETIC_DORMANT | Controles conservados e inactivos; se reabren solo ante una ampliación autorizada de granularidad o cruces V0 |
 | AppTest: combinaciones pendientes/ausentes sin métricas | TESTED | `tests/test_stage04_ui_guards.py` |
 | AppTest: demo sintético separado de V0 autorizado | TESTED | `tests/test_stage04_ui_guards.py` |
 | CV menor/igual/mayor a 15 %, N=29/30/31 y alertas combinadas en 3.1–3.6 | TESTED_SYNTHETIC | `tests/test_stage04_candidate_adapter.py` |
@@ -178,8 +178,8 @@ el resto del catálogo permanecen fuera del próximo corte hasta una solicitud c
 
 ## Decisiones y verificaciones todavía requeridas
 
-1. Aprobar la política independiente de confidencialidad, incluida reconstrucción multitabla y
-   multirelease; hasta entonces D06/D07 no conectan cifras reales.
+1. Política de confidencialidad aprobada sin umbral de recuento. D06/D07 pueden conectarse en un PR
+   posterior sin cruces nuevos ni granularidad más fina que V0.
 2. Confirmar con el productor Stage 03 el origen de los ceros de D02/D10.
 3. Resolver la documentación condicionante de D01 y la etiqueta exacta de D11.
 4. Mantener `NUMERIC_DATA_GATE_OPEN` para todo indicador/dimensión/categoría no enumerado en el

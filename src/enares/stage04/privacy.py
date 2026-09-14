@@ -15,34 +15,37 @@ PROTECTED_FIELDS = (
     "weighted_population",
 )
 PUBLICATION_CHANNELS = ("ui", "export", "cache", "log")
-PRIMARY_CONFIDENTIALITY_THRESHOLD = 5
+PRIMARY_SUPPRESSION_ACTIVE = False
+PRODUCER_DOMINANCE_SIGNAL_AVAILABLE = False
 
 
-def derive_primary_confidentiality(
+def requires_primary_suppression_controls(
     *,
-    target_unweighted: int,
-    base_unweighted: int,
-    producer_dominance_flag: bool = False,
-) -> tuple[str, ...]:
-    """Derive privacy reasons from contributor counts, never from precision alerts."""
-    if isinstance(target_unweighted, bool) or isinstance(base_unweighted, bool):
-        raise TypeError("Confidentiality counts must be integers")
-    if not isinstance(target_unweighted, int) or not isinstance(base_unweighted, int):
-        raise TypeError("Confidentiality counts must be integers")
-    if not isinstance(producer_dominance_flag, bool):
-        raise TypeError("producer_dominance_flag must be boolean")
-    if not 0 <= target_unweighted <= base_unweighted:
-        raise ValueError("target_unweighted must be within the valid base")
+    authorized_finer_than_department: bool,
+    authorized_non_v0_cross: bool,
+) -> bool:
+    """Activate dormant controls only for an explicitly authorized scope expansion."""
+    if not isinstance(authorized_finer_than_department, bool) or not isinstance(
+        authorized_non_v0_cross, bool
+    ):
+        raise TypeError("Granularity activation inputs must be boolean")
+    return authorized_finer_than_department or authorized_non_v0_cross
 
-    reasons = []
-    complement = base_unweighted - target_unweighted
-    if 0 < target_unweighted < PRIMARY_CONFIDENTIALITY_THRESHOLD:
-        reasons.append("SENSITIVE_EVENT_COUNT_1_TO_4")
-    if 0 < complement < PRIMARY_CONFIDENTIALITY_THRESHOLD:
-        reasons.append("SENSITIVE_COMPLEMENT_COUNT_1_TO_4")
-    if producer_dominance_flag:
-        reasons.append("PRODUCER_DOMINANCE_FLAG")
-    return tuple(reasons)
+
+def assert_v0_granularity_boundary(
+    *,
+    requested_dimensions: set[str],
+    v0_dimensions: set[str],
+    requested_crosses: set[tuple[str, ...]],
+    v0_crosses: set[tuple[str, ...]],
+) -> None:
+    """Block dimensions and crosses that do not already exist in official V0."""
+    extra_dimensions = requested_dimensions - v0_dimensions
+    extra_crosses = requested_crosses - v0_crosses
+    if extra_dimensions or extra_crosses:
+        raise ValueError(
+            "Requested output exceeds the approved V0 granularity boundary"
+        )
 
 
 def apply_published_suppression(rows: list[dict]) -> list[dict]:
@@ -74,12 +77,12 @@ def assert_consistent_suppression_within_release(rows: list[dict]) -> None:
 
 def assert_no_retroactive_suppression(
     candidate_rows: list[dict],
-    accessible_history_rows: list[dict],
+    all_published_history_rows: list[dict],
 ) -> None:
-    """Block attempts to protect a stable cell after it was already published."""
+    """Block attempts to hide a stable cell after any prior publication."""
     historically_visible = {
         row["cell_id"]
-        for row in accessible_history_rows
+        for row in all_published_history_rows
         if not row.get("suppress_flag")
     }
     newly_hidden = {
