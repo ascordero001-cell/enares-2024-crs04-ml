@@ -49,17 +49,17 @@ sustituye.
 
 | Caso | Estado vigente | Gate restante |
 |---|---|---|
-| D01 | `AUTHORIZED_CONDITIONAL` | Documentar universo, sujeto y referencia de `_fem` antes de conectar cifras |
-| D02 | `NON_NUMERIC_CONTEXT` | Confirmar con Stage 03 el origen de los ceros; no mostrar `0 %` |
+| D01 | `AUTHORIZED_SCOPE_IMPLEMENTED_SYNTHETIC` | Dos grupos, textos y adenda `tarea8_nadie`–`tarea10_nadie`; sin cifra nueva conectada |
+| D02 | `ZERO_CHARACTERIZED; NON_NUMERIC_CONTEXT` | Cero observado con recodificación de SYSMIS; decisión de presentación aún pendiente |
 | D03 | `AUTHORIZED` | Denominador explícito; sin comparación CRS03 |
 | D04 | `AUTHORIZED_CONDITIONAL_ROWS; NON_NUMERIC_CONTEXT_ROWS` | Dos condicionales numéricas; dos contextos sin métricas |
 | D05 | `AUTHORIZED_CONDITIONAL_ROWS; NON_NUMERIC_CONTEXT_ROWS` | Adaptador de hogar separado del de escuela |
-| D06 | `STRUCTURE_AUTHORIZED; REAL_VALUES_BLOCKED` | Política de confidencialidad aprobada |
-| D07 | `STRUCTURE_AUTHORIZED; REAL_VALUES_BLOCKED` | Política y evidencia propias, sin herencia de D06 |
+| D06 | `ADAPTER_TESTED_SYNTHETIC; REAL_VALUES_BLOCKED` | Política de confidencialidad aprobada |
+| D07 | `ADAPTER_TESTED_SYNTHETIC; REAL_VALUES_BLOCKED` | Política y evidencia propias, sin herencia de D06 |
 | D08 | `AUTHORIZED_DISTRIBUTION` | Total de distribución, nunca prevalencia |
-| D09 | `AUTHORIZED_22_EXACT_PAIRS` | Dominio `CONS_ALGUNA = 1` visible; Departamento excluido |
-| D10 | `NON_NUMERIC_CONTEXT` | Confirmar con Stage 03 el origen de los ceros |
-| D11 | `AUTHORIZED_CONDITIONAL` | Registrar etiqueta exacta de `C3P213 == 5` antes de conectarlo |
+| D09 | `AUTHORIZED_22_EXACT_PAIRS; ADAPTER_TESTED_SYNTHETIC` | Agregado autoritativo recuperable de Drive antes de conectar; Departamento excluido |
+| D10 | `ZERO_CHARACTERIZED; LINEAGE_BLOCK_PENDING; NON_NUMERIC_CONTEXT` | Acreditar bloque CRS04 línea 2416 para las filas V0 `C3P242_*` |
+| D11 | `SOURCE_SEMANTICS_VERIFIED` | Alcance Nacional/Total; sin cifra nueva conectada |
 | D12 | `AUTHORIZED_UI_ALIASES` | Conservar nombres y códigos fuente en metadata; no ampliar pares |
 
 ## Tabla histórica sometida a decisión

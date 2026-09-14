@@ -13,6 +13,10 @@ de personas. Los ejemplos son seguros y no constituyen nombres de recursos reale
 - `demo_indicator_estimates.csv` es un fixture 100 % sintético, didáctico y sin uso institucional.
 - `v0_authorized_indicator_estimates.csv` contiene exclusivamente un corte agregado V0 autorizado,
   no sintético, sin microdatos y ligado a su manifiesto y al inventario aprobado en el PR #53.
+- En el flujo institucional, `synthetic=false` no es un dato aceptado del CSV ni de quien llama.
+  `AuthorizedAggregateRepository` lo deriva únicamente después de verificar el nombre y SHA-256
+  del agregado contra el manifiesto, la clasificación del manifiesto y la presencia del hash de
+  origen en el registro V0 aprobado. El adaptador institucional exige esa clasificación interna.
 - Ninguna de estas entradas constituye datos institucionales publicados; publicación y cutover
   permanecen no autorizados.
 - BigQuery, DDL, Cloud Run y todo recurso cloud permanecen `BLOCKED_BY_CLOUD_GATE`.
@@ -70,6 +74,12 @@ La igualdad exacta no activa flags y un estadístico ausente permanece ausente. 
 `n_flag` nunca activan `suppress_flag`; cualquier supresión requiere la política independiente de
 confidencialidad. La tolerancia golden `1e-9` continúa siendo un control técnico, no una regla de
 calidad ni confidencialidad.
+
+Un cero exacto observado con `base_unw` presente, error estándar 0 e intervalo [0, 0] es una
+salida completa aunque `cv` sea `null`: el CV es el cociente 0/0 y por tanto indefinido. Se
+clasifica como `EXACT_ZERO_CV_UNDEFINED`, conserva la estimación cero y recibe una nota explícita.
+No se confunde con una fila incompleta por otra causa. Esta regla contractual no levanta por sí
+sola los gates D02/D10 ni autoriza su presentación numérica.
 
 La validación genérica no exige que cada catálogo reproduzca los tres estados didácticos. La
 cobertura simultánea de `PUBLISHABLE_CANDIDATE`, `REFERENCE_HIGH_CV` y

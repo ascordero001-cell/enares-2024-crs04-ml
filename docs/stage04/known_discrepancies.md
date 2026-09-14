@@ -71,6 +71,25 @@ es el siguiente:
 | D11 | Valor 5 y etiqueta exacta de `C3P213` contrastados contra la sintaxis y registrados en [etapa1_source_semantics.md](etapa1_source_semantics.md) | SOURCE_SEMANTICS_VERIFIED; ADAPTER_REVIEW_PENDING |
 | D12 | Alias aprobados centralizados para seis superficies, conservando nombre y código fuente en metadata | UI_ALIAS_CONTRACT_IMPLEMENTED |
 
+### Respuesta de producción y verificaciones del 2026-09-14 UTC
+
+- **D02:** producción confirmó ceros observados de `VP_VF_VS_HOGAR` en Cusco y Huancavelica.
+  La definición está en `08_CRS04_3.2 Violencia en el hogar_ver6.sps`, líneas 2214–2223, y
+  recodifica explícitamente `SYSMIS` a 0. Se corrige el módulo de 3.4 a **3.2**. Estado:
+  `ZERO_ORIGIN_CHARACTERIZED; NON_NUMERIC_CONTEXT`.
+- **D10:** producción confirmó que los cuatro ceros son observados en dominios condicionados y
+  que no existe conversión general de ausencia a cero. El CV nulo es 0/0 para un cero exacto.
+  La regla general ya está en el contrato. Para `C3P242_5` y `C3P242_10` aún no existe evidencia
+  recuperable que ate las filas V0 congeladas al bloque CRS04 de
+  `12_CRS03_CRS04_3.6_BusquedaAyuda_Hogar_Escuela_ver5.sps`, línea 2416, con
+  `2crs04_trietapico.csaplan`; el bloque CRS03 paralelo está en la línea 2222. Estado:
+  `ZERO_ORIGIN_CHARACTERIZED; LINEAGE_BLOCK_PENDING; NON_NUMERIC_CONTEXT`.
+- **D01 / `predominio_femenino_tareas`:** la sintaxis
+  `07_CRS04_3.1_Caracteristicas_violencia_Percepciones_ver6.sps`, líneas 1730–1762, confirma que
+  la categoría 0 reúne predominio masculino, empate y ausencia de ambos, y que el denominador de
+  las proporciones reúne los diez ítems. La etiqueta V0 «tareas del hogar» no se modifica en
+  Stage 04. Estado: `PRODUCER_REVIEW_REQUIRED`; indicador fuera del alcance D01.
+
 ## Correcciones técnicas R01–R05 del PR #59
 
 | Revisión | Corrección | Estado técnico | Límite conservado |

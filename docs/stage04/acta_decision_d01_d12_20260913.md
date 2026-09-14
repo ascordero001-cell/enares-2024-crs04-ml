@@ -121,3 +121,34 @@ ajusta la tolerancia para que un test pase.
 
 Decisiones tomadas sobre la evidencia del head `cff8faf3`. Si alguna cifra, etiqueta o dominio
 cambia respecto de esa evidencia, la autorización correspondiente caduca y vuelve a revisión.
+
+## 5. Adenda supervisora de Etapa 1 — 2026-09-14 UTC
+
+La [revisión formal del PR #62](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/62#pullrequestreview-5192999425)
+aprobó la separación de adaptadores. Antes de conectar el primer
+agregado, las reglas de CV, N, notas y `quality_status` deben ser funciones puras compartidas por
+ambos caminos, y `synthetic=false` debe ser derivado por `AuthorizedAggregateRepository` desde la
+procedencia verificada; nunca se acepta de quien llama ni se fija manualmente.
+
+### D01 — textos, agrupación y ampliación cerrada
+
+- Ítems 1–7: «Porcentaje en que [tarea] la realiza principalmente una mujer del hogar».
+- Ítems 8–10: «Porcentaje en que quien [ayuda con las tareas escolares / aconseja y escucha /
+  juega con ella] es principalmente una mujer del hogar».
+- Los dos bloques representan preguntas distintas y no se combinan en una figura de diez barras.
+- Se autorizan además `tarea8_nadie`, `tarea9_nadie` y `tarea10_nadie`, sin desagregaciones nuevas,
+  con el texto «Porcentaje de adolescentes con quienes nadie [ayuda con las tareas escolares /
+  conversa y escucha / juega]» y el mismo denominador `n_tareas_validas_8_10` de la serie `_fem`.
+
+`predominio_femenino_tareas` permanece fuera de D01. La sintaxis CRS04 confirma que su categoría
+0 agrupa predominio masculino, empate y ausencia de ambos, y que la proporción usa los diez ítems
+aunque la etiqueta V0 diga «tareas del hogar». Se conserva la etiqueta V0 sin reescribirla y la
+discrepancia vuelve al productor.
+
+### Corrección D02 y respuesta D10
+
+D02 pertenece a 3.2, no a 3.4. Producción Stage 03 confirmó que sus dos ceros son observados bajo
+una definición que recodifica `SYSMIS` a 0. También confirmó que los cuatro ceros D10 son
+observados y no provienen de conversión de ausencia. D02 y D10 permanecen
+`NON_NUMERIC_CONTEXT`: todavía falta acreditar para las dos filas `C3P242_*` que el V0 congelado
+proviene del bloque CRS04 con `2crs04_trietapico.csaplan` y no del bloque CRS03 emparejado.

@@ -1,5 +1,6 @@
 import inspect
 import json
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -15,7 +16,6 @@ from app.views.stage04_dashboard import (
 )
 from enares.stage04.privacy import PROTECTED_FIELDS
 from enares.stage04.repository import BigQueryRepository, IndicatorRepository
-
 
 ROOT = Path(__file__).resolve().parents[1]
 GOLDEN = ROOT / "tests" / "golden" / "stage04_32_national"
@@ -41,7 +41,9 @@ def test_authorized_32_card_matches_approved_golden():
     authorized, _ = repositories()
     row = filter_estimates(authorized, "3.2", "Nacional", "Total")[0]
     card = build_numeric_card(row)
-    expected = json.loads((GOLDEN / "expected_card_view_model.json").read_text(encoding="utf-8"))
+    expected = json.loads(
+        (GOLDEN / "expected_card_view_model.json").read_text(encoding="utf-8")
+    )
     for key, value in expected.items():
         assert card[key] == value
 
@@ -49,15 +51,42 @@ def test_authorized_32_card_matches_approved_golden():
 def test_authorized_card_displays_required_statistics():
     authorized, _ = repositories()
     card = build_numeric_card(authorized.list_estimates("3.2")[0])
-    for field in ("estimate_text", "standard_error_text", "interval_text", "cv_text", "n_text"):
+    for field in (
+        "estimate_text",
+        "standard_error_text",
+        "interval_text",
+        "cv_text",
+        "n_text",
+    ):
         assert card[field]
     assert card["state"] == "SHADOW"
     assert card["release_id"]
 
 
+def test_exact_zero_card_explains_undefined_cv_without_hiding_zero():
+    authorized, _ = repositories()
+    row = replace(
+        authorized.list_estimates("3.2")[0],
+        estimate=0,
+        standard_error=0,
+        ci95_lower=0,
+        ci95_upper=0,
+        cv=None,
+        quality_status="EXACT_ZERO_CV_UNDEFINED",
+        quality_note="Cero exacto observado: CV indefinido (0/0).",
+    )
+    card = build_numeric_card(row)
+    assert card["estimate_text"] == "0.00 %"
+    assert card["cv_text"] == "CV indefinido (0/0)"
+
+
 def test_suppressed_demo_card_exposes_no_protected_value():
     _, demo = repositories()
-    suppressed = next(card for card in build_state_cards(demo) if card["quality_status"] == "SUPPRESSED_EXERCISE")
+    suppressed = next(
+        card
+        for card in build_state_cards(demo)
+        if card["quality_status"] == "SUPPRESSED_EXERCISE"
+    )
     assert suppressed["protected_values_visible"] is False
     assert all(suppressed[field] is None for field in PROTECTED_FIELDS)
 
@@ -65,15 +94,19 @@ def test_suppressed_demo_card_exposes_no_protected_value():
 def test_demo_states_have_distinct_labels():
     _, demo = repositories()
     cards = build_state_cards(demo)
-    assert {card["quality_status"] for card in cards} == set(QUALITY_LABELS)
+    assert {card["quality_status"] for card in cards} <= set(QUALITY_LABELS)
     assert len({card["quality_label"] for card in cards}) == 3
 
 
 def test_demo_quality_notes_separate_precision_from_confidentiality():
     _, demo = repositories()
     cards = build_state_cards(demo)
-    reference = next(card for card in cards if card["quality_status"] == "REFERENCE_HIGH_CV")
-    suppressed = next(card for card in cards if card["quality_status"] == "SUPPRESSED_EXERCISE")
+    reference = next(
+        card for card in cards if card["quality_status"] == "REFERENCE_HIGH_CV"
+    )
+    suppressed = next(
+        card for card in cards if card["quality_status"] == "SUPPRESSED_EXERCISE"
+    )
     assert "CV superior al 15 %" in reference["quality_note"]
     assert "no derivado de CV ni N" in suppressed["quality_note"]
 

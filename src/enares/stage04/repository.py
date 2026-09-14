@@ -7,8 +7,8 @@ import hashlib
 import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
-
 
 SENSITIVE_COLUMNS = {
     "respondent_id",
@@ -24,6 +24,8 @@ SENSITIVE_COLUMNS = {
     "longitude",
     "raw_record",
 }
+
+
 @dataclass(frozen=True)
 class IndicatorEstimate:
     release_id: str
@@ -59,6 +61,11 @@ class IndicatorEstimate:
     synthetic: bool
 
 
+@dataclass(frozen=True)
+class _ProvenanceVerifiedIndicatorEstimate(IndicatorEstimate):
+    """Internal type emitted only after the institutional provenance gate."""
+
+
 class IndicatorRepository(ABC):
     """Read-only interface consumed by the future local view."""
 
@@ -77,8 +84,23 @@ def _bool(value: str) -> bool:
     return value.lower() == "true"
 
 
-def _to_estimate(row: dict[str, str]) -> IndicatorEstimate:
-    return IndicatorEstimate(
+class _VerifiedSourceClassification(Enum):
+    SYNTHETIC_TEST = True
+    AUTHORIZED_INSTITUTIONAL_AGGREGATE = False
+
+
+def _to_estimate(
+    row: dict[str, str],
+    *,
+    source_classification: _VerifiedSourceClassification,
+) -> IndicatorEstimate:
+    estimate_type = (
+        _ProvenanceVerifiedIndicatorEstimate
+        if source_classification
+        is _VerifiedSourceClassification.AUTHORIZED_INSTITUTIONAL_AGGREGATE
+        else IndicatorEstimate
+    )
+    return estimate_type(
         release_id=row["release_id"],
         run_id=row["run_id"],
         source_version=row["source_version"],
@@ -109,7 +131,15 @@ def _to_estimate(row: dict[str, str]) -> IndicatorEstimate:
         universe=row["universe"],
         denominator=row["denominator"],
         quality_status=row["quality_status"],
-        synthetic=_bool(row.get("synthetic", "")),
+        # This flag is provenance output. It is never copied from a CSV field.
+        synthetic=source_classification.value,
+    )
+
+
+def is_verified_authorized_estimate(row: IndicatorEstimate) -> bool:
+    """Return true only for rows classified by the authorized repository gate."""
+    return row.synthetic is False and isinstance(
+        row, _ProvenanceVerifiedIndicatorEstimate
     )
 
 
@@ -129,8 +159,16 @@ class DemoRepository(IndicatorRepository):
             raw_rows = list(reader)
             if any(not _bool(row.get("synthetic", "")) for row in raw_rows):
                 raise ValueError("DemoRepository accepts only synthetic=true rows")
-            rows = [_to_estimate(row) for row in raw_rows if row["module_id"] == module_id]
+            rows = [
+                _to_estimate(
+                    row,
+                    source_classification=_VerifiedSourceClassification.SYNTHETIC_TEST,
+                )
+                for row in raw_rows
+                if row["module_id"] == module_id
+            ]
         return rows
+
 
 class AuthorizedAggregateRepository(IndicatorRepository):
     """Read one manifest-bound, authorized aggregate input for local golden tests."""
@@ -145,13 +183,20 @@ class AuthorizedAggregateRepository(IndicatorRepository):
         self.manifest_path = Path(manifest_path)
         self.approval_registry_path = Path(approval_registry_path)
 
-    def list_estimates(self, module_id: str) -> list[IndicatorEstimate]:
+    def _verify_provenance(
+        self,
+    ) -> tuple[dict[str, object], _VerifiedSourceClassification]:
         manifest = json.loads(self.manifest_path.read_text(encoding="utf-8"))
         digest = hashlib.sha256(self.fixture_path.read_bytes()).hexdigest()
-        if manifest.get("file_name") != self.fixture_path.name or manifest.get("sha256") != digest:
+        if (
+            manifest.get("file_name") != self.fixture_path.name
+            or manifest.get("sha256") != digest
+        ):
             raise ValueError("Authorized aggregate manifest does not match its CSV")
         if manifest.get("synthetic") is not False:
-            raise ValueError("Authorized aggregate manifest must declare synthetic=false")
+            raise ValueError(
+                "Authorized aggregate manifest must declare synthetic=false"
+            )
         if manifest.get("data_classification") != "AUTHORIZED_AGGREGATE_ONLY":
             raise ValueError("Authorized aggregate classification is required")
         source_hash = manifest.get("source_hash")
@@ -161,6 +206,14 @@ class AuthorizedAggregateRepository(IndicatorRepository):
             or source_hash not in approval_registry
         ):
             raise ValueError("Manifest source_hash is not in the approved V0 registry")
+        return (
+            manifest,
+            _VerifiedSourceClassification.AUTHORIZED_INSTITUTIONAL_AGGREGATE,
+        )
+
+    def list_estimates(self, module_id: str) -> list[IndicatorEstimate]:
+        manifest, source_classification = self._verify_provenance()
+        source_hash = manifest["source_hash"]
 
         with self.fixture_path.open(encoding="utf-8", newline="") as handle:
             reader = csv.DictReader(handle)
@@ -171,11 +224,15 @@ class AuthorizedAggregateRepository(IndicatorRepository):
             raw_rows = list(reader)
         if manifest.get("row_count") != len(raw_rows):
             raise ValueError("Authorized aggregate row_count does not match its CSV")
-        if any(_bool(row.get("synthetic", "")) for row in raw_rows):
-            raise ValueError("Authorized aggregate rows must declare synthetic=false")
         if any(row.get("source_hash") != source_hash for row in raw_rows):
-            raise ValueError("Authorized aggregate row source_hash does not match the manifest")
-        return [_to_estimate(row) for row in raw_rows if row["module_id"] == module_id]
+            raise ValueError(
+                "Authorized aggregate row source_hash does not match the manifest"
+            )
+        return [
+            _to_estimate(row, source_classification=source_classification)
+            for row in raw_rows
+            if row["module_id"] == module_id
+        ]
 
 
 class BigQueryRepository(IndicatorRepository):
