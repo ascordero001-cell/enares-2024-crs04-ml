@@ -45,6 +45,11 @@ def local_repositories():
             data / "v0_authorized_etapa1_indicator_estimates.manifest.json",
             registry,
         ),
+        AuthorizedAggregateRepository(
+            data / "v0_authorized_d06_d07_indicator_estimates.csv",
+            data / "v0_authorized_d06_d07_indicator_estimates.manifest.json",
+            registry,
+        ),
     )
     demo = DemoRepository(data / "demo_indicator_estimates.csv")
     return authorized, demo
@@ -180,6 +185,31 @@ def _render_d01_groups(repository: IndicatorRepository) -> None:
     _d01_table(relationship)
 
 
+def _render_vs_matrices(repository: IndicatorRepository) -> None:
+    rows = [
+        row
+        for row in load_validated_estimates(repository, "3.5")
+        if row.indicator_id in {"Solap_VS_12M", "Solap_VS_VIDA"}
+    ]
+    if len(rows) != 16:
+        raise ValueError("D06/D07 authorized matrices must contain exactly 16 rows")
+    st.subheader("Matrices de solapamiento de violencia sexual")
+    indicator = st.selectbox("Indicador matricial", ("Solap_VS_12M", "Solap_VS_VIDA"))
+    matrix = st.selectbox("Matriz", ("2×2", "3×3"))
+    matrix_rows = [
+        row
+        for row in rows
+        if row.indicator_id == indicator and row.disaggregation == matrix
+    ]
+    category = st.selectbox(
+        "Categoría matricial", tuple(row.category for row in matrix_rows)
+    )
+    selected = [row for row in matrix_rows if row.category == category]
+    if len(selected) != 1:
+        raise ValueError("The selected D06/D07 V0 matrix cell is not unique")
+    _numeric_summary(build_numeric_card(selected[0]), f"{indicator} · matriz {matrix}")
+
+
 def render() -> None:
     st.set_page_config(page_title="ENARES 2024 · Shadow", page_icon="◉", layout="wide")
     _styles()
@@ -276,6 +306,16 @@ def render() -> None:
                     "No se fabrican resultados."
                 )
                 return
+            indicator_ids = tuple(
+                dict.fromkeys(row.indicator_id for row in dimension_rows)
+            )
+            if len(indicator_ids) > 1:
+                selected_indicator = st.selectbox("Indicador", indicator_ids)
+                dimension_rows = [
+                    row
+                    for row in dimension_rows
+                    if row.indicator_id == selected_indicator
+                ]
             categories = tuple(row.category for row in dimension_rows)
             category = st.selectbox(
                 "Categoría",
@@ -288,17 +328,17 @@ def render() -> None:
                     )
                 ),
             )
-            matches = filter_estimates(
-                authorized,
-                module.module_id,
-                dimension,
-                category,
-            )
+            matches = [row for row in dimension_rows if row.category == category]
             if len(matches) != 1:
                 st.error("La combinación autorizada no está disponible de forma única.")
                 return
             card = build_numeric_card(matches[0])
             _numeric_summary(card, f"Resultado agregado · {module.full_label}")
+            if module.module_id == "3.5" and dimension == "Nacional":
+                try:
+                    _render_vs_matrices(authorized)
+                except (ValueError, OSError, KeyError, TypeError):
+                    st.error("Las matrices D06/D07 no superaron la validación.")
     elif page == "Metodología":
         st.subheader("Metodología y límites")
         st.write(

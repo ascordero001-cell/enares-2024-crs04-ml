@@ -1,0 +1,20 @@
+{
+  "file_name": "v0_authorized_d06_d07_indicator_estimates.csv",
+  "generated_at_utc": "2026-09-14T21:45:00Z",
+  "row_count": 16,
+  "schema_version": "stage04-v0-authorized-aggregate-v1",
+  "sha256": "1359e725b21877cac649ab24f196c0f6f727ebd264264489acd7a35fd7aca42c",
+  "synthetic": false,
+  "data_classification": "AUTHORIZED_AGGREGATE_ONLY",
+  "source_kind": "AUTHORIZED_V0_EXTRACT",
+  "source_hash": "15B845DA4A886FDCF54A96D8B8471B6F6BE618AE18B43024488C6BD6B23D0BB4",
+  "parent_sha256": "15B845DA4A886FDCF54A96D8B8471B6F6BE618AE18B43024488C6BD6B23D0BB4",
+  "source_version": "v0_official_drive_baseline",
+  "scope": {
+    "D06": 8,
+    "D07": 8
+  },
+  "purpose": "D06/D07 local shadow authorized aggregate",
+  "prohibition": "no microdata / no institutional publication",
+  "approval_reference": "PR #66 approval on 2026-09-14"
+}

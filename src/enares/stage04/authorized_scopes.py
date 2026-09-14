@@ -18,6 +18,11 @@ VS_MATRIX_PAIRS = frozenset(
     (("2×2", category) if index < 2 else ("3×3", category))
     for index, category in enumerate(VS_MATRIX_CATEGORIES)
 )
+VS_MATRIX_CROSS_BY_DIMENSION = {
+    "2×2": ("VS_301_OR_302", "VS_303"),
+    "3×3": ("VS_301", "VS_302", "VS_303"),
+}
+VS_MATRIX_V0_CROSSES = frozenset(VS_MATRIX_CROSS_BY_DIMENSION.values())
 
 D06_SCOPE = CandidateScope(
     module_id="3.5",

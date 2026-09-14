@@ -38,6 +38,9 @@ celdas D09 tienen CV superior a 15 % y permanecen visibles como referenciales.
 - D09 no incluye Departamento.
 - La política de confidencialidad fue aprobada sin umbral de recuento. D06 y D07 pueden conectarse
   mediante un PR posterior, sin cruces nuevos ni granularidad más fina que V0.
+- D06 y D07 se conectaron como dos matrices independientes de ocho filas, en estado
+  `SUPERVISORY_REVIEW_PENDING`; los cruces 2×2 y 3×3 se validan contra el catálogo V0 en la ruta
+  ejecutable.
 - Las combinaciones ausentes devuelven «sin datos» y nunca se fabrican.
 - Exportación permanece deshabilitada y `BigQueryRepository` sigue bloqueado.
 - Cloud: `NOT_AUTHORIZED`; presupuesto máximo registrado: USD 20 mensuales en total.

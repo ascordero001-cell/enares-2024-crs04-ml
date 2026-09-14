@@ -5,6 +5,11 @@ from __future__ import annotations
 import re
 from collections.abc import Iterable
 
+from .authorized_scopes import (
+    VS_MATRIX_CROSS_BY_DIMENSION,
+    VS_MATRIX_PAIRS,
+    VS_MATRIX_V0_CROSSES,
+)
 from .modules import get_module
 from .privacy import assert_v0_granularity_boundary
 from .repository import IndicatorEstimate
@@ -46,11 +51,22 @@ def validate_estimates(rows: Iterable[IndicatorEstimate]) -> None:
         if not row.source_version:
             raise ValueError("source_version is required")
         module = get_module(row.module_id)
+        matrix_indicator = row.indicator_id in {"Solap_VS_12M", "Solap_VS_VIDA"}
+        if (
+            matrix_indicator
+            and (row.disaggregation, row.category) not in VS_MATRIX_PAIRS
+        ):
+            raise ValueError("D06/D07 row is outside the approved V0 matrix")
+        requested_crosses = (
+            {VS_MATRIX_CROSS_BY_DIMENSION[row.disaggregation]}
+            if matrix_indicator and row.disaggregation in VS_MATRIX_CROSS_BY_DIMENSION
+            else set()
+        )
         assert_v0_granularity_boundary(
             requested_dimensions={row.disaggregation},
             v0_dimensions=set(module.available_dimensions),
-            requested_crosses=set(),
-            v0_crosses=set(),
+            requested_crosses=requested_crosses,
+            v0_crosses=set(VS_MATRIX_V0_CROSSES),
             synthetic=row.synthetic,
         )
         if not row.synthetic and row.indicator_id not in module.indicator_ids:
