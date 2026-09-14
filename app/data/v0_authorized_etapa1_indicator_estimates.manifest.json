@@ -1,0 +1,22 @@
+{
+  "file_name": "v0_authorized_etapa1_indicator_estimates.csv",
+  "generated_at_utc": "2026-09-14T17:18:31Z",
+  "row_count": 35,
+  "schema_version": "stage04-v0-authorized-aggregate-v1",
+  "sha256": "208bc654029e40ce5271519939258b59d69bd3dfd0c1c5b537d8ec4cebeb7332",
+  "synthetic": false,
+  "data_classification": "AUTHORIZED_AGGREGATE_ONLY",
+  "source_kind": "AUTHORIZED_V0_EXTRACT",
+  "source_hash": "15B845DA4A886FDCF54A96D8B8471B6F6BE618AE18B43024488C6BD6B23D0BB4",
+  "parent_sha256": "15B845DA4A886FDCF54A96D8B8471B6F6BE618AE18B43024488C6BD6B23D0BB4",
+  "source_version": "v0_official_drive_baseline",
+  "scope": {
+    "D01": 10,
+    "D09": 22,
+    "D11": 3,
+    "D12": "aliases_applied"
+  },
+  "purpose": "Etapa 1 local shadow authorized aggregate",
+  "prohibition": "no microdata / no institutional publication",
+  "approval_reference": "PR #63 and acta D01-D12"
+}
