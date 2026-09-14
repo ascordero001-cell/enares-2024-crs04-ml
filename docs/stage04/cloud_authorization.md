@@ -24,3 +24,8 @@ USD 5/10/15/20, límites de consulta y cómputo, máximo una instancia inicial, 
 negativo, seis sesiones, health y rollback. Las alertas de presupuesto no son un tope automático.
 
 Este PR no ejecuta `gcloud`, no crea cuentas, bindings, datasets, buckets, imágenes ni servicios.
+
+La solicitud operativa de los pasos 40–41, con alcance mínimo, IAM propuesto, controles de coste,
+rollback y campos bloqueantes, está en [cloud_go_request.md](cloud_go_request.md). Mientras los
+responsables reales de billing/IAM, la cuenta, el proyecto y las identidades no estén verificados,
+la decisión continúa como `NO_GO / CLOUD_NOT_AUTHORIZED`.
