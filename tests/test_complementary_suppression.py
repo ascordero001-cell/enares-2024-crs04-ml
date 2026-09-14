@@ -132,6 +132,13 @@ def test_existing_v0_dimensions_and_crosses_pass_boundary():
         requested_crosses={("Área", "Sexo")},
         v0_crosses={("Área", "Sexo")},
     )
+    assert_v0_granularity_boundary(
+        requested_dimensions={"Grupo sintético"},
+        v0_dimensions={"Nacional", "Departamento"},
+        requested_crosses=set(),
+        v0_crosses=set(),
+        synthetic=True,
+    )
 
 
 def test_finer_dimension_than_v0_is_blocked():

@@ -31,19 +31,22 @@ ampliar tolerancias.
 
 | KD-ID | Fecha | Componente | Fuente A | Fuente B | Valor A | Valor B | Magnitud | Explicación | Impacto | Responsable | Estado | Evidencia | Decisión supervisora requerida |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| — | 2026-09-04 | Piloto 3.2 | CSV V0 por hash | Golden local | Coincide | Coincide | 0 | Sin diferencia observada | Ninguno | Ana Silvia Cordero Ricaldi | CLOSED_NO_DIFFERENCE | Test golden local | Aprobar o ajustar la tolerancia propuesta de `1e-9` |
+| — | 2026-09-04 | Piloto 3.2 | CSV V0 por hash | Golden local | Coincide | Coincide | 0 | Sin diferencia observada | Ninguno | Ana Silvia Cordero Ricaldi | CLOSED_NO_DIFFERENCE | Test golden local | Resuelta — `1e-9` aprobada el 2026-09-13, alcance restringido |
 
-La tolerancia absoluta `1e-9` está en estado
-`PROPOSED_REQUIRES_SUPERVISORY_APPROVAL`. Solo cubre serialización de punto flotante y no puede
-usarse para ocultar una discrepancia sustantiva.
+La tolerancia absoluta `1e-9` está aprobada desde el 2026-09-13 (revisión del PR #60, sección 2.5),
+en estado `APPROVED_SERIALIZATION_SCOPE_ONLY`. Solo cubre serialización de punto flotante del mismo
+indicador, celda y escala, y no puede usarse para ocultar una discrepancia sustantiva ni para
+comparar magnitudes distintas.
 
 La reconstrucción aditiva simple tiene prueba automatizada. Los cruces multitabla y multirelease,
 la exposición histórica y la frontera común de UI, export, caché y logs tienen pruebas sintéticas
 automatizadas. La política fue aprobada sin umbral de recuento: estos controles quedan inactivos
 mientras no se autorice granularidad más fina que departamento o un cruce ausente de V0. La
-decisión del 2026-09-13 resolvió `CV > 0.15` y
-`base_unw < 30` como alertas visibles sin supresión automática. La tolerancia `1e-9`, la política
-de confidencialidad y los alcances numéricos continúan pendientes de aprobación formal.
+decisión del 2026-09-13 resolvió `CV > 0.15` y `base_unw < 30` como alertas visibles sin supresión
+automática, aprobó la tolerancia `1e-9` con alcance restringido y fijó los alcances numéricos
+D01–D12 en el acta de decisión. La política de confidencialidad quedó aprobada el 2026-09-14 sin
+umbral de recuento. Lo que continúa abierto es la conexión de cifras reales de D06 y D07, que va
+en un PR posterior.
 
 ## Corte 2 — discrepancias detectadas antes de publicación
 

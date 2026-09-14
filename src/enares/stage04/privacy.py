@@ -38,8 +38,13 @@ def assert_v0_granularity_boundary(
     v0_dimensions: set[str],
     requested_crosses: set[tuple[str, ...]],
     v0_crosses: set[tuple[str, ...]],
+    synthetic: bool = False,
 ) -> None:
     """Block dimensions and crosses that do not already exist in official V0."""
+    if not isinstance(synthetic, bool):
+        raise TypeError("synthetic must be boolean")
+    if synthetic:
+        return
     extra_dimensions = requested_dimensions - v0_dimensions
     extra_crosses = requested_crosses - v0_crosses
     if extra_dimensions or extra_crosses:
