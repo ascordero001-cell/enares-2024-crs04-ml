@@ -2,26 +2,8 @@ name: Container CI
 
 on:
   pull_request:
-    paths:
-      - Dockerfile
-      - .dockerignore
-      - requirements.txt
-      - app/**
-      - src/**
-      - scripts/container_healthcheck.py
-      - scripts/release_diagnostic.py
-      - .github/workflows/container-ci.yml
   push:
     branches: [main]
-    paths:
-      - Dockerfile
-      - .dockerignore
-      - requirements.txt
-      - app/**
-      - src/**
-      - scripts/container_healthcheck.py
-      - scripts/release_diagnostic.py
-      - .github/workflows/container-ci.yml
 
 permissions:
   contents: read
@@ -38,6 +20,13 @@ jobs:
 
       - name: Build local image
         run: docker build --tag enares-stage04:ci .
+
+      - name: Record image size
+        run: |
+          size_bytes=$(docker image inspect --format='{{.Size}}' enares-stage04:ci)
+          echo "Image size (bytes): $size_bytes"
+          echo "### Container evidence" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Image size: \`$size_bytes bytes\`" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Confirm pinned Streamlit version
         run: |
