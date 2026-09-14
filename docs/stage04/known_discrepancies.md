@@ -58,6 +58,19 @@ de confidencialidad y los alcances numéricos continúan pendientes de aprobaci�
 | KD-C2-09 | `VP_VF_VS_HOGAR`, Cusco/Huancavelica, con CV vacío | Estadística incompleta 3.4 | Presentación completa bloqueada | Conservar vacío; propuesta [D02](numeric_gate_decision_package.md) | `ritaricaldi-cpu` | METHODOLOGICAL_DECISION_PENDING |
 | KD-C2-10 | `Área × sexo`/`Área y sexo` e `Idioma del hogar`/`Lengua materna` | Equivalencia de etiqueta no aprobada | Alias UI bloqueado | Mantener nombre original hasta decisión; [D12](numeric_gate_decision_package.md) | `ritaricaldi-cpu` | METHODOLOGICAL_DECISION_PENDING |
 
+## Seguimiento de Etapa 1
+
+La tabla anterior conserva el estado histórico previo al acta D01–D12. El estado rector vigente
+es el siguiente:
+
+| Caso | Evidencia nueva | Estado vigente |
+|---|---|---|
+| D01 | Semántica de `tarea1_fem`–`tarea10_fem` contrastada contra la sintaxis CRS04 y registrada en [etapa1_source_semantics.md](etapa1_source_semantics.md) | SOURCE_SEMANTICS_VERIFIED; ADAPTER_REVIEW_PENDING |
+| D02 | Consulta de procedencia enviada al productor Stage 03 en [Issue #24](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/24#issuecomment-5657225304) | PRODUCER_RESPONSE_PENDING; NON_NUMERIC_CONTEXT |
+| D10 | Misma consulta, con los cuatro indicadores y dominios enumerados, en [Issue #24](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/24#issuecomment-5657225304) | PRODUCER_RESPONSE_PENDING; NON_NUMERIC_CONTEXT |
+| D11 | Valor 5 y etiqueta exacta de `C3P213` contrastados contra la sintaxis y registrados en [etapa1_source_semantics.md](etapa1_source_semantics.md) | SOURCE_SEMANTICS_VERIFIED; ADAPTER_REVIEW_PENDING |
+| D12 | Alias aprobados centralizados para seis superficies, conservando nombre y código fuente en metadata | UI_ALIAS_CONTRACT_IMPLEMENTED |
+
 ## Correcciones técnicas R01–R05 del PR #59
 
 | Revisión | Corrección | Estado técnico | Límite conservado |

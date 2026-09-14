@@ -4,13 +4,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from .presentation import AREA_SEX_DISPLAY_NAME, HOME_LANGUAGE_DISPLAY_NAME
+
 
 DIMENSIONS = (
     "Nacional",
     "Sexo",
     "Área",
-    "Área × sexo",
-    "Idioma del hogar",
+    AREA_SEX_DISPLAY_NAME,
+    HOME_LANGUAGE_DISPLAY_NAME,
     "Discapacidad",
     "Etnicidad",
     "Tipo de hogar",
