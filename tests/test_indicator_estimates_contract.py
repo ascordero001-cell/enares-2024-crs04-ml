@@ -27,6 +27,21 @@ def test_demo_catalog_satisfies_aggregate_contract():
     validate_estimates(demo_rows())
 
 
+def test_validation_executes_v0_granularity_boundary(monkeypatch):
+    calls = []
+
+    def record_boundary(**kwargs):
+        calls.append(kwargs)
+
+    monkeypatch.setattr(
+        "enares.stage04.validation.assert_v0_granularity_boundary", record_boundary
+    )
+    rows = demo_rows()
+    validate_estimates(rows)
+    assert len(calls) == len(rows)
+    assert calls[0]["requested_dimensions"] == {rows[0].disaggregation}
+
+
 def test_duplicate_key_fails():
     rows = demo_rows()
     with pytest.raises(ValueError, match="Duplicate"):

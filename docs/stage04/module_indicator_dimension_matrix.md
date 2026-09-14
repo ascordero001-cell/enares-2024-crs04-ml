@@ -36,7 +36,8 @@ celdas D09 tienen CV superior a 15 % y permanecen visibles como referenciales.
 
 - D01 no incluye `predominio_femenino_tareas` ni las tres series «nadie».
 - D09 no incluye Departamento.
-- D06 y D07 no conectan cifras mientras no se apruebe la política de confidencialidad.
+- La política de confidencialidad fue aprobada sin umbral de recuento. D06 y D07 pueden conectarse
+  mediante un PR posterior, sin cruces nuevos ni granularidad más fina que V0.
 - Las combinaciones ausentes devuelven «sin datos» y nunca se fabrican.
 - Exportación permanece deshabilitada y `BigQueryRepository` sigue bloqueado.
 - Cloud: `NOT_AUTHORIZED`; presupuesto máximo registrado: USD 20 mensuales en total.

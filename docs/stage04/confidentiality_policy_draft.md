@@ -1,57 +1,84 @@
-# Política de confidencialidad de agregados — borrador operativo
+# Política de confidencialidad de agregados
 
-- Fecha de inicio: 2026-09-14 UTC
-- Estado: `DRAFT_IMPLEMENTATION_STARTED; PRIMARY_CRITERION_PENDING_APPROVAL`
+- Fecha de decisión: 2026-09-14 UTC
+- Estado: `APPROVED; NO_PRIMARY_SUPPRESSION_ACTIVE`
 - Alcance: `LOCAL_SHADOW_ONLY`
 - Cloud: `NOT_AUTHORIZED`
+- Revisión supervisora: aprobación de `ritaricaldi-cpu` en el PR #66
 
-Este documento inicia el paso 16 y convierte el riesgo de reconstrucción en controles verificables.
-No autoriza cifras de D06/D07, publicación, exportación institucional ni un umbral primario nuevo.
+Esta política protege la confidencialidad manteniendo exactamente la granularidad de los tabulados
+oficiales V0. No define un umbral por recuento y no autoriza publicación institucional, cutover ni
+despliegue.
 
-## 1. Entradas y parada segura
+## 1. Regla vigente: límite de granularidad
 
-La decisión de confidencialidad es independiente de las alertas de precisión. `CV > 15 %` y
-`base_unw < 30` mantienen la prevalencia visible y nunca activan `suppress_flag`.
+La base ENARES es anónima y el agregado V0 no presenta cortes por distrito, escuela o conglomerado.
+Por ello, el recuento de una celda no constituye aquí un criterio de supresión. No existe regla
+1–4, ni para la aplicación ni para sus exportaciones.
 
-La marca de supresión primaria debe provenir de un proceso institucional aprobado y auditable;
-no se deriva de CV/N, no se acepta de la interfaz y no se completa por defecto con `false`. Si una
-fila sujeta a control no trae una decisión válida, el release falla cerrado antes de `published`.
-El criterio institucional que origina esa marca permanece pendiente de aprobación explícita.
+La aplicación:
 
-## 2. Supresión complementaria
+1. no muestra ningún corte más fino que el contenido en V0;
+2. no fabrica cruces ausentes de los tabulados oficiales; y
+3. conserva las cifras de V0 sin recalcularlas, redefinirlas o suprimirlas selectivamente.
 
-Para cada ecuación aditiva —total, márgenes de fila y márgenes de columna— una única celda oculta
-es reconstruible. Antes de emitir el release deben quedar al menos dos incógnitas en cada ecuación
-que contenga una celda primaria. La selección complementaria será determinista, registrada y
-procurará minimizar pérdida de información sin revelar la celda primaria. Ningún total o margen
-queda exceptuado de este análisis.
+`CV > 15 %` y `base_unw < 30` mantienen la prevalencia visible con sus alertas. Nunca activan
+`suppress_flag`. Una cifra oficial con evento igual a cero también permanece visible y conserva el
+CV ausente cuando corresponda.
 
-## 3. Protección entre tablas y releases
+## 2. Maquinaria de supresión inactiva
 
-Todas las tablas del mismo release se analizan como un único sistema de ecuaciones usando una
-identidad estable de celda basada en indicador, universo, dimensión, categoría y periodo. Una
-tabla segura por separado puede ser insegura al combinarse con otra.
+No existe supresión primaria activa en el alcance actual. Tampoco existe hoy un campo, cálculo o
+señal de dominancia en V0; por tanto, la dominancia no se presenta como regla aplicable.
 
-Antes de un release nuevo se repite el análisis contra todos los releases todavía accesibles. Si
-la combinación permite resolver una celda protegida, el release se bloquea hasta añadir supresión
-complementaria, retirar una tabla o retirar formalmente una versión anterior. Cambiar una etiqueta
-no crea una identidad distinta para evadir el control.
+Se conserva la maquinaria de supresión complementaria y verificación de márgenes, multitabla y
+multirelease, con sus pruebas sintéticas, pero permanece inactiva mientras no exista una supresión
+primaria. Solo se reabrirá este gate si se propone y autoriza expresamente:
 
-## 4. Precedencia y materialización
+- un corte más fino que departamento; o
+- un cruce que no exista en los tabulados oficiales V0.
 
-La confidencialidad prevalece sobre calidad y utilidad. Si concurren alerta CV, alerta N y
-supresión, la salida es suprimida; las notas de precisión no justifican exponer el valor. La capa
-`published` nulifica estimate, error estándar, IC, CV, N y población ponderada antes de UI,
-exportación, caché o log. La supresión exclusivamente visual está prohibida.
+Una propuesta así requerirá antes de conectarse una nueva política supervisada, señal primaria
+explícita, análisis de riesgo y evidencia de no reconstrucción. No puede activarse desde la interfaz
+ni mediante valores escritos manualmente por quien llama.
 
-## 5. Evidencia necesaria para pasar a aprobación
+## 3. Márgenes, tablas y releases
 
-- casos sintéticos con márgenes de fila y columna;
-- dos tablas del mismo release que juntas reconstruyen una celda;
-- dos releases que juntos reconstruyen una celda;
-- prueba de nulificación antes de UI, export, caché y logs;
-- registro de decisiones primarias y complementarias reproducible;
-- criterio primario, excepciones y riesgo residual aprobados.
+La maquinaria inactiva conserva una identidad estable de celda basada en indicador, universo,
+dimensión, categoría y periodo. Si llegara a activarse, todas las ecuaciones y tablas se evaluarían
+como un único sistema y las complementarias se seleccionarían de forma determinista. Un release se
+bloquearía si una primaria pudiera reconstruirse o no existiera un plan seguro.
 
-Hasta completar y aprobar esa evidencia, D06 y D07 permanecen sin cifras reales. El código y las
-pruebas sintéticas pueden avanzar, pero no se conecta ni publica ningún agregado de esos casos.
+Todo lo que haya sido publicado se considera permanentemente expuesto, aunque el release deje de
+estar accesible. Una celda estable visible en cualquier release anterior no puede protegerse de
+forma retroactiva ocultándola después. Retirar acceso no equivale a despublicar.
+
+## 4. Precedencia y materialización de la maquinaria inactiva
+
+Si un gate futuro activara supresión primaria, la confidencialidad prevalecería sobre calidad y
+utilidad. Una única frontera `published` nulificaría `estimate`, error estándar, IC, CV, N y
+población ponderada antes de UI, exportación, caché o log. Se conservarían etiquetas, tipo y razón
+de supresión para auditoría. La supresión exclusivamente visual seguiría prohibida.
+
+Esta precedencia no suprime hoy ninguna cifra V0: no existe señal primaria activa.
+
+## 5. Evidencia automatizada conservada
+
+Las veinte pruebas específicas cubren:
+
+- el límite de dimensiones y cruces de V0;
+- la activación exclusivamente ante una futura ampliación autorizada;
+- márgenes aditivos y selección complementaria determinista;
+- reconstrucción combinada entre tablas;
+- reconstrucción combinada entre releases;
+- imposibilidad de ocultar retroactivamente una celda ya publicada; y
+- nulificación común antes de UI, export, caché y logs.
+
+Estas pruebas mantienen preparado el control futuro sin alterar ninguna cifra oficial actual.
+
+## 6. D06 y D07
+
+La aprobación supervisora retira el bloqueo que dependía de esta política. D06 y D07 pueden
+conectarse con sus cifras reales mediante un PR posterior, conservando por separado sus universos,
+adaptadores, matrices completas, evidencia V0 y regresión. Esta autorización no permite crear
+cruces nuevos ni ampliar la granularidad existente.
