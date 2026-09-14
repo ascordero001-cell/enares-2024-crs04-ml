@@ -1,0 +1,37 @@
+config {
+  type: "view",
+  schema: "enares2024_crs04_published",
+  name: "v_dashboard_current",
+  description: "Safe aggregate projection for the single approved current release.",
+  tags: ["stage04", "published", "aggregate", "shadow"],
+  dependencies: ["current_release"]
+}
+
+SELECT
+  estimates.release_id,
+  estimates.run_id,
+  estimates.source_version,
+  estimates.indicator_id,
+  estimates.indicator_name,
+  estimates.module_id,
+  estimates.disaggregation,
+  estimates.category,
+  IF(estimates.suppress_flag, NULL, estimates.estimate) AS estimate,
+  IF(estimates.suppress_flag, NULL, estimates.standard_error) AS standard_error,
+  IF(estimates.suppress_flag, NULL, estimates.ci95_lower) AS ci95_lower,
+  IF(estimates.suppress_flag, NULL, estimates.ci95_upper) AS ci95_upper,
+  IF(estimates.suppress_flag, NULL, estimates.cv) AS cv,
+  IF(estimates.suppress_flag, NULL, estimates.n_unweighted) AS n_unweighted,
+  IF(estimates.suppress_flag, NULL, estimates.weighted_population) AS weighted_population,
+  estimates.cv_flag,
+  estimates.n_flag,
+  estimates.suppress_flag,
+  estimates.quality_note,
+  estimates.validation_status,
+  estimates.created_at
+FROM `${dataform.projectConfig.defaultDatabase}.${dataform.projectConfig.vars.outputsDataset}.indicator_estimates` AS estimates
+INNER JOIN ${ref("current_release")} AS current
+  ON estimates.release_id = current.release_id
+ AND estimates.run_id = current.run_id
+WHERE current.singleton = TRUE
+  AND estimates.validation_status = "APPROVED"
