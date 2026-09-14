@@ -1,0 +1,19 @@
+config {
+  type: "operations",
+  hasOutput: true,
+  schema: dataform.projectConfig.vars.opsDataset,
+  name: "current_release",
+  description: "Single controlled pointer to an approved Stage 04 release and run.",
+  tags: ["stage04", "ops", "release", "promotion", "rollback"]
+}
+
+CREATE TABLE IF NOT EXISTS ${self()} (
+  singleton BOOL NOT NULL,
+  release_id STRING NOT NULL,
+  run_id STRING NOT NULL,
+  previous_release_id STRING,
+  previous_run_id STRING,
+  promoted_at TIMESTAMP NOT NULL,
+  promoted_by STRING NOT NULL,
+  reason STRING NOT NULL
+);
