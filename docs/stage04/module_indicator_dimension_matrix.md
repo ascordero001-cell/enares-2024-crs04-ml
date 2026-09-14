@@ -1,81 +1,44 @@
-# Matriz detallada módulo × indicador × dimensión — Corte 2
+# Matriz módulo × indicador × dimensión — Etapa 1 conectada
 
-Estado de la matriz: cobertura técnica local. No equivale a publicación ni aprobación metodológica.
-Run de evidencia: `sprint042-corte2-local-coverage-001`. Fuente: baseline V0 aprobada por hash en Drive privado.
+Estado: `AUTHORIZED_ETAPA1_LOCAL_SHADOW`.
 
-| Módulo | Indicador | Dimensión configurada | Presencia en V0 | Estado local | Comportamiento UI | Prueba/evidencia |
-|---|---|---|---|---|---|---|
-| 3.1 | justifica_castigo_parental | Nacional | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.1 | justifica_castigo_parental | Sexo | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.1 | justifica_castigo_parental | Área | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.1 | justifica_castigo_parental | Área × sexo | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.1 | justifica_castigo_parental | Idioma del hogar | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.1 | justifica_castigo_parental | Discapacidad | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.1 | justifica_castigo_parental | Etnicidad | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.1 | justifica_castigo_parental | Tipo de hogar | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.1 | justifica_castigo_parental | Departamento | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.1 | justifica_castigo_docente | Nacional | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.1 | justifica_castigo_docente | Sexo | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.1 | justifica_castigo_docente | Área | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.1 | justifica_castigo_docente | Área × sexo | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.1 | justifica_castigo_docente | Idioma del hogar | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.1 | justifica_castigo_docente | Discapacidad | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.1 | justifica_castigo_docente | Etnicidad | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.1 | justifica_castigo_docente | Tipo de hogar | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.1 | justifica_castigo_docente | Departamento | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.2 | VF_HOGAR | Nacional | Sí | AUTHORIZED_GOLDEN | Tarjeta numérica validada | Golden 3.2 + AppTest |
-| 3.2 | VF_HOGAR | Sexo | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.2 | VF_HOGAR | Área | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.2 | VF_HOGAR | Área × sexo | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.2 | VF_HOGAR | Idioma del hogar | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.2 | VF_HOGAR | Discapacidad | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.2 | VF_HOGAR | Etnicidad | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.2 | VF_HOGAR | Tipo de hogar | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.2 | VF_HOGAR | Departamento | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.3 | C3P223_10_1 | Nacional | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.3 | C3P223_10_1 | Sexo | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.3 | C3P223_10_1 | Área | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.3 | C3P223_10_1 | Área × sexo | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.3 | C3P223_10_1 | Idioma del hogar | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.3 | C3P223_10_1 | Discapacidad | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.3 | C3P223_10_1 | Etnicidad | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.3 | C3P223_10_1 | Tipo de hogar | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.3 | C3P223_10_1 | Departamento | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.4 | Agresor_VS_12M__AG_01 | Nacional | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.4 | Agresor_VS_12M__AG_01 | Sexo | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.4 | Agresor_VS_12M__AG_01 | Área | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.4 | Agresor_VS_12M__AG_01 | Área × sexo | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.4 | Agresor_VS_12M__AG_01 | Idioma del hogar | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.4 | Agresor_VS_12M__AG_01 | Discapacidad | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.4 | Agresor_VS_12M__AG_01 | Etnicidad | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.4 | Agresor_VS_12M__AG_01 | Tipo de hogar | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.4 | Agresor_VS_12M__AG_01 | Departamento | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.5 | PV_hogar_escuela | Nacional | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.5 | PV_hogar_escuela | Sexo | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.5 | PV_hogar_escuela | Área | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.5 | PV_hogar_escuela | Área × sexo | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.5 | PV_hogar_escuela | Idioma del hogar | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.5 | PV_hogar_escuela | Discapacidad | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.5 | PV_hogar_escuela | Etnicidad | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.5 | PV_hogar_escuela | Tipo de hogar | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.5 | PV_hogar_escuela | Departamento | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.6 | C3P213 | Nacional | Sí | PENDING_QUALITY_SUPPRESSION | Sin datos; no fabrica cifras | Conciliación Drive + AppTest fail-closed |
-| 3.6 | C3P213 | Sexo | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.6 | C3P213 | Área | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.6 | C3P213 | Área × sexo | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.6 | C3P213 | Idioma del hogar | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.6 | C3P213 | Discapacidad | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.6 | C3P213 | Etnicidad | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.6 | C3P213 | Tipo de hogar | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
-| 3.6 | C3P213 | Departamento | No | SOURCE_COMBINATION_ABSENT | Sin datos; no fabrica cifras | Registro de dimensión + AppTest sin datos |
+Esta matriz registra lo que la aplicación local puede leer después de validar CSV,
+manifiesto, SHA-256 del extracto, SHA-256 del padre y registro V0. No autoriza
+publicación, exportación, cutover ni recursos cloud.
 
-## Lectura de la matriz
+| Módulo | Indicador | Alcance conectado | Filas | Comportamiento local |
+|---|---|---|---:|---|
+| 3.1 | `Componentes` | `Tareas del hogar`: diez tareas autorizadas | 10 | Dos tablas estáticas: ítems 1–7 e ítems 8–10; sin descarga |
+| 3.2 | `VF_HOGAR` | Nacional / Total | 1 | Golden autorizado, sin cambios |
+| 3.3 | `C3P223_10_1` | Nacional / Total | 1 | Tarjeta individual validada |
+| 3.4 | `Agresor_VS_12M__AG_01` | Nacional / Total | 1 | Tarjeta individual validada |
+| 3.5 | `CONS_ATENCION_SALUD` | 22 pares exactos en ocho dimensiones, sin Departamento | 22 | Dominio `CONS_ALGUNA = 1` visible; CV/N no suprimen |
+| 3.6 | `C3P213` | Nacional / Total | 1 | Tarjeta individual; valor 5 y dominio documentados |
 
-- `Presencia en V0` describe disponibilidad observada; no concede autorización de uso.
-- Una fila no sintética debe superar tres comprobaciones independientes: indicador registrado
-  en el módulo, dimensión disponible y dimensión incluida en `authorized_dimensions`.
-- `AUTHORIZED_GOLDEN` solo aplica a VF_HOGAR / Nacional en el CSV autorizado ya aprobado.
-- `PENDING_QUALITY_SUPPRESSION` identifica una combinación existente en V0 cuyo estado de calidad/supresión no está aprobado para la nueva ejecución local.
-- `SOURCE_COMBINATION_ABSENT` impide ofrecer la dimensión y no genera categorías ni estimaciones.
-- Las dimensiones configuradas no se presentan como cubiertas cuando no existe una fila autorizada.
-- Exportación deshabilitada; Cloud NOT_AUTHORIZED; V0 continúa oficial.
+## Pares conectados de D09
+
+| Dimensión | Categorías |
+|---|---|
+| Nacional | Total |
+| Sexo | 1, 2 |
+| Área | 1, 2 |
+| Área × sexo | Rural Hombre, Rural Mujer, Urbano Hombre, Urbano Mujer |
+| Idioma del hogar | 1, 3, 4 |
+| Discapacidad | 0, 1 |
+| Etnicidad | 1, 3, 5, 6, 9 |
+| Tipo de hogar | 1, 2, 3 |
+
+Los alias D12 se aplican en la interfaz sin alterar los nombres fuente. Las etiquetas
+aprobadas de las categorías codificadas se resuelven en presentación. Trece de las 22
+celdas D09 tienen CV superior a 15 % y permanecen visibles como referenciales.
+
+## Exclusiones y parada segura
+
+- D01 no incluye `predominio_femenino_tareas` ni las tres series «nadie».
+- D09 no incluye Departamento.
+- D06 y D07 no conectan cifras mientras no se apruebe la política de confidencialidad.
+- Las combinaciones ausentes devuelven «sin datos» y nunca se fabrican.
+- Exportación permanece deshabilitada y `BigQueryRepository` sigue bloqueado.
+- Cloud: `NOT_AUTHORIZED`; presupuesto máximo registrado: USD 20 mensuales en total.
+
+Pruebas: `tests/test_stage04_etapa1_connection.py`, suite general y golden 3.2.

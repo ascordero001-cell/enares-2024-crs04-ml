@@ -6,11 +6,15 @@ from dataclasses import asdict
 from html import escape
 
 from app.config import QUALITY_LABELS, get_module
+from enares.stage04.authorized_scopes import D09_CATEGORY_LABELS
+from enares.stage04.indicator_semantics import (
+    D01_RELATIONSHIP_GROUP,
+    D01_TASK_EXECUTION_GROUP,
+)
 from enares.stage04.privacy import PROTECTED_FIELDS, apply_published_suppression
 from enares.stage04.repository import IndicatorEstimate, IndicatorRepository
 from enares.stage04.validation import validate_estimates
 from enares.stage04.view_model import to_card_view_model
-
 
 EXPORT_ENABLED = False
 
@@ -65,7 +69,12 @@ def build_numeric_card(row: IndicatorEstimate) -> dict:
     card.update(
         {
             "standard_error_text": f"EE {row.standard_error:.4f}",
-            "quality_label": escape_dynamic_text(QUALITY_LABELS[row.quality_status]),
+            "quality_label": escape_dynamic_text(
+                "Aprobado para shadow — sin alerta"
+                if row.validation_status == "APPROVED"
+                and row.quality_status == "PUBLISHABLE_CANDIDATE"
+                else QUALITY_LABELS[row.quality_status]
+            ),
             "quality_note": escape_dynamic_text(row.quality_note),
             "denominator": escape_dynamic_text(row.denominator),
             "created_at": escape_dynamic_text(row.created_at),
@@ -108,5 +117,37 @@ def build_state_cards(
     """Build the three documented demo states through the Repository interface."""
     cards = []
     for row in load_validated_estimates(repository, module_id):
-        cards.append(build_suppressed_card(row) if row.suppress_flag else build_numeric_card(row))
+        cards.append(
+            build_suppressed_card(row) if row.suppress_flag else build_numeric_card(row)
+        )
     return cards
+
+
+def build_d01_task_groups(
+    repository: IndicatorRepository,
+) -> tuple[list[dict], list[dict]]:
+    """Build the two approved D01 groups without conflating their questions."""
+    rows = load_validated_estimates(repository, "3.1")
+    by_category = {
+        row.category: row
+        for row in rows
+        if row.indicator_id == "Componentes"
+        and row.disaggregation == "Tareas del hogar"
+    }
+    expected = {
+        item.task for item in (*D01_TASK_EXECUTION_GROUP, *D01_RELATIONSHIP_GROUP)
+    }
+    if set(by_category) != expected or len(rows) != len(expected):
+        raise ValueError(
+            "D01 authorized task scope is incomplete or contains extra rows"
+        )
+
+    def cards_for(group) -> list[dict]:
+        return [build_numeric_card(by_category[item.task]) for item in group]
+
+    return cards_for(D01_TASK_EXECUTION_GROUP), cards_for(D01_RELATIONSHIP_GROUP)
+
+
+def d09_category_label(disaggregation: str, category: str) -> str:
+    """Resolve approved D09 labels while preserving uncoded source categories."""
+    return D09_CATEGORY_LABELS.get((disaggregation, category), category)

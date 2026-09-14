@@ -2,6 +2,7 @@
 
 from .repository import (
     AuthorizedAggregateRepository,
+    CompositeRepository,
     DemoRepository,
     IndicatorEstimate,
     IndicatorRepository,
@@ -9,6 +10,7 @@ from .repository import (
 
 __all__ = [
     "AuthorizedAggregateRepository",
+    "CompositeRepository",
     "DemoRepository",
     "IndicatorEstimate",
     "IndicatorRepository",

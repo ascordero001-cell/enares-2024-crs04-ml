@@ -74,6 +74,21 @@ class IndicatorRepository(ABC):
         """Return safe aggregate estimates for one module."""
 
 
+class CompositeRepository(IndicatorRepository):
+    """Expose several independently verified aggregate catalogs as one source."""
+
+    def __init__(self, *repositories: IndicatorRepository) -> None:
+        if not repositories:
+            raise ValueError("CompositeRepository requires at least one source")
+        self.repositories = repositories
+
+    def list_estimates(self, module_id: str) -> list[IndicatorEstimate]:
+        rows = []
+        for repository in self.repositories:
+            rows.extend(repository.list_estimates(module_id))
+        return rows
+
+
 def _optional_float(value: str) -> float | None:
     return None if value == "" else float(value)
 
@@ -203,7 +218,9 @@ class AuthorizedAggregateRepository(IndicatorRepository):
             raise ValueError("Authorized aggregate must declare AUTHORIZED_V0_EXTRACT")
         source_hash = manifest.get("source_hash")
         if manifest.get("parent_sha256") != source_hash:
-            raise ValueError("Extract parent_sha256 must equal its registered source_hash")
+            raise ValueError(
+                "Extract parent_sha256 must equal its registered source_hash"
+            )
         approval_registry = self.approval_registry_path.read_text(encoding="utf-8")
         if (
             "APPROVED_FOR_STAGE04_BASELINE" not in approval_registry

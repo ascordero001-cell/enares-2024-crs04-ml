@@ -6,7 +6,6 @@ from dataclasses import dataclass
 
 from .presentation import AREA_SEX_DISPLAY_NAME, HOME_LANGUAGE_DISPLAY_NAME
 
-
 DIMENSIONS = (
     "Nacional",
     "Sexo",
@@ -21,6 +20,7 @@ DIMENSIONS = (
 
 LOCAL_COVERAGE_RUN_ID = "sprint042-corte2-local-coverage-001"
 AUTHORIZED_GOLDEN = "AUTHORIZED_GOLDEN"
+AUTHORIZED_ETAPA1 = "AUTHORIZED_ETAPA1_LOCAL_SHADOW"
 PENDING_QUALITY_SUPPRESSION = "PENDING_QUALITY_SUPPRESSION"
 
 
@@ -48,14 +48,14 @@ class ModuleDefinition:
 MODULES = (
     ModuleDefinition(
         "3.1",
-        "Mitos sobre el castigo",
+        "Roles y tareas en el hogar",
         1,
-        ("justifica_castigo_parental", "justifica_castigo_docente"),
+        ("Componentes",),
         "Adolescentes de CRS04 con respuesta válida según el indicador; ENARES 2024",
         "casos válidos del diseño muestral",
-        DIMENSIONS,
-        (),
-        PENDING_QUALITY_SUPPRESSION,
+        ("Nacional", "Tareas del hogar"),
+        ("Tareas del hogar",),
+        AUTHORIZED_ETAPA1,
     ),
     ModuleDefinition(
         "3.2",
@@ -76,8 +76,8 @@ MODULES = (
         "Adolescentes de 12 a 17 años con VP_ESCUELA == 1; ENARES 2024",
         "VP_ESCUELA == 1",
         ("Nacional",),
-        (),
-        PENDING_QUALITY_SUPPRESSION,
+        ("Nacional",),
+        AUTHORIZED_ETAPA1,
     ),
     ModuleDefinition(
         "3.4",
@@ -87,19 +87,19 @@ MODULES = (
         "Adolescentes de 12 a 17 años con VS_12M == 1; ENARES 2024",
         "VS_12M == 1",
         ("Nacional",),
-        (),
-        PENDING_QUALITY_SUPPRESSION,
+        ("Nacional",),
+        AUTHORIZED_ETAPA1,
     ),
     ModuleDefinition(
         "3.5",
-        "Acumulación de violencia",
+        "Acumulación y consecuencias de violencia",
         5,
-        ("PV_hogar_escuela",),
-        "Adolescentes de 12 a 17 años con respuesta válida; ENARES 2024",
-        "casos válidos del diseño muestral",
+        ("PV_hogar_escuela", "CONS_ATENCION_SALUD"),
+        "Adolescentes de 12 a 17 años en el dominio del indicador; ENARES 2024",
+        "casos válidos dentro del dominio declarado",
         DIMENSIONS,
-        (),
-        PENDING_QUALITY_SUPPRESSION,
+        DIMENSIONS[:-1],
+        AUTHORIZED_ETAPA1,
     ),
     ModuleDefinition(
         "3.6",
@@ -109,8 +109,8 @@ MODULES = (
         "Adolescentes de 12 a 17 años con dom_no_recibio_hogar == 1; ENARES 2024",
         "dom_no_recibio_hogar == 1",
         ("Nacional",),
-        (),
-        PENDING_QUALITY_SUPPRESSION,
+        ("Nacional",),
+        AUTHORIZED_ETAPA1,
     ),
 )
 
