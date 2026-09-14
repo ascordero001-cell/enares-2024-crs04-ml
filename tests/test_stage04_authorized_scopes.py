@@ -4,6 +4,7 @@ from enares.stage04.adapter_boundaries import SyntheticCandidateAdapter
 from enares.stage04.authorized_scopes import (
     D06_SCOPE,
     D07_SCOPE,
+    D09_DEPARTMENT_CATEGORIES,
     D09_DOMAIN,
     D09_PAIRS,
     D09_SCOPE,
@@ -46,10 +47,13 @@ def test_d06_and_d07_do_not_inherit_adapter_identity():
     assert D06_SCOPE.adapter_id != D07_SCOPE.adapter_id
 
 
-def test_d09_scope_is_closed_to_22_pairs_and_excludes_department():
+def test_d09_scope_is_closed_to_48_pairs_and_includes_all_departments():
     assert D09_SCOPE.allowed_pairs == D09_PAIRS
-    assert len(D09_PAIRS) == 22
-    assert "Departamento" not in {dimension for dimension, _ in D09_PAIRS}
+    assert len(D09_PAIRS) == 48
+    assert len(D09_DEPARTMENT_CATEGORIES) == 26
+    assert {
+        category for dimension, category in D09_PAIRS if dimension == "Departamento"
+    } == set(D09_DEPARTMENT_CATEGORIES)
     assert D09_DOMAIN == "CONS_ALGUNA = 1"
     adapter = SyntheticCandidateAdapter()
     for pair in D09_PAIRS:
@@ -57,3 +61,16 @@ def test_d09_scope_is_closed_to_22_pairs_and_excludes_department():
             adapter.adapt(_row(D09_SCOPE, pair), D09_SCOPE).indicator_id
             == "CONS_ATENCION_SALUD"
         )
+
+
+def test_d09_department_cell_with_low_n_and_high_cv_remains_visible_with_both_warnings():
+    row = _row(D09_SCOPE, ("Departamento", "Amazonas"))
+    row.update(cv=0.20, base_unw=20, target_unw=3)
+
+    adapted = SyntheticCandidateAdapter().adapt(row, D09_SCOPE)
+
+    assert adapted.estimate == 12.5
+    assert adapted.cv_flag is True
+    assert adapted.n_flag is True
+    assert adapted.suppress_flag is None
+    assert len(adapted.quality_notes) == 2

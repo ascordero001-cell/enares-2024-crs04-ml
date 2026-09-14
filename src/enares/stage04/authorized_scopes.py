@@ -36,6 +36,35 @@ D07_SCOPE = CandidateScope(
     adapter_id="solap-vs-vida-special-prevalence-v1",
 )
 
+D09_DEPARTMENT_CATEGORIES = (
+    "Amazonas",
+    "Apurímac",
+    "Arequipa",
+    "Ayacucho",
+    "Cajamarca",
+    "Callao",
+    "Cusco",
+    "Huancavelica",
+    "Huánuco",
+    "Ica",
+    "Junín",
+    "La Libertad",
+    "Lambayeque",
+    "Lima Metropolitana",
+    "Loreto",
+    "Madre de Dios",
+    "Moquegua",
+    "Pasco",
+    "Piura",
+    "Puno",
+    "Región Lima",
+    "San Martín",
+    "Tacna",
+    "Tumbes",
+    "Ucayali",
+    "Áncash",
+)
+
 D09_PAIRS = frozenset(
     [("Discapacidad", value) for value in ("0", "1")]
     + [("Etnicidad", value) for value in ("1", "3", "5", "6", "9")]
@@ -48,6 +77,7 @@ D09_PAIRS = frozenset(
         ("Área × sexo", value)
         for value in ("Rural Hombre", "Rural Mujer", "Urbano Hombre", "Urbano Mujer")
     ]
+    + [("Departamento", value) for value in D09_DEPARTMENT_CATEGORIES]
 )
 D09_SCOPE = CandidateScope(
     module_id="3.5",

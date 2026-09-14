@@ -50,15 +50,15 @@ sustituye.
 | Caso | Estado vigente | Gate restante |
 |---|---|---|
 | D01 | `AUTHORIZED_SCOPE_IMPLEMENTED_SYNTHETIC` | Dos grupos, textos y adenda `tarea8_nadie`–`tarea10_nadie`; sin cifra nueva conectada |
-| D02 | `ZERO_CHARACTERIZED; NON_NUMERIC_CONTEXT` | Cero observado con recodificación de SYSMIS; decisión de presentación aún pendiente |
+| D02 | `RESOLVED; AUTHORIZED_VISIBLE_ZERO_CV_UNDEFINED` | Ceros observados; etiqueta conjuntiva aprobada y módulo corregido a 3.2 |
 | D03 | `AUTHORIZED` | Denominador explícito; sin comparación CRS03 |
 | D04 | `AUTHORIZED_CONDITIONAL_ROWS; NON_NUMERIC_CONTEXT_ROWS` | Dos condicionales numéricas; dos contextos sin métricas |
 | D05 | `AUTHORIZED_CONDITIONAL_ROWS; NON_NUMERIC_CONTEXT_ROWS` | Adaptador de hogar separado del de escuela |
 | D06 | `ADAPTER_TESTED_SYNTHETIC; REAL_VALUES_BLOCKED` | Política de confidencialidad aprobada |
 | D07 | `ADAPTER_TESTED_SYNTHETIC; REAL_VALUES_BLOCKED` | Política y evidencia propias, sin herencia de D06 |
 | D08 | `AUTHORIZED_DISTRIBUTION` | Total de distribución, nunca prevalencia |
-| D09 | `AUTHORIZED_22_EXACT_PAIRS; ADAPTER_TESTED_SYNTHETIC` | Agregado autoritativo recuperable de Drive antes de conectar; Departamento excluido |
-| D10 | `ZERO_CHARACTERIZED; LINEAGE_BLOCK_PENDING; NON_NUMERIC_CONTEXT` | Acreditar bloque CRS04 línea 2416 para las filas V0 `C3P242_*` |
+| D09 | `AUTHORIZED_48_EXACT_PAIRS; ADAPTER_TESTED_SYNTHETIC` | 22 pares originales más 26 departamentos; agregado autoritativo recuperable antes de conectar |
+| D10 | `RESOLVED; AUTHORIZED_VISIBLE_ZERO_CV_UNDEFINED` | Ceros observados y linaje del bloque CRS04 línea 2416 acreditado en Issue #24 |
 | D11 | `SOURCE_SEMANTICS_VERIFIED` | Alcance Nacional/Total; sin cifra nueva conectada |
 | D12 | `AUTHORIZED_UI_ALIASES` | Conservar nombres y códigos fuente en metadata; no ampliar pares |
 
@@ -70,14 +70,14 @@ la evidencia puntual está enlazada en la última columna.
 | Caso | Módulo e indicator_id | Alcance: dimensión/categoría | Universo, dominio, numerador y denominador | Tipo diccionario → salida | Campos | Propuesta de calidad y UI | Pruebas preparadas | Decisión requerida y evidencia |
 |---|---|---|---|---|---|---|---|---|
 | D01 | 3.1 `Componentes` | `Tareas del hogar`; 10 categorías observadas | CRS04 válido; sin dominio adicional; `special(tarea1_fem)` / casos válidos | special → prevalence | completos por fila | Adaptador `components-special-prevalence-v1`; mantener bloqueado y sin métricas hasta validar semántica de categorías | acepta adaptador nombrado; rechaza discrepancia sin adaptador | Aprobar tipo, categorías y adaptador. [Conciliación 3.1](reconciliation_module_31.md) |
-| D02 | 3.4 `VP_VF_VS_HOGAR` | Departamento / Cusco y Huancavelica | CRS04 válido; sin dominio adicional; indicador == 1 / casos válidos | prevalence → prevalence | `CV` ausente; demás presentes | Conservar `CV=null`; estado incompleto; mostrar contexto sin métrica | conserva ausencias; rechaza salida completa con campos nulos | Decidir si se excluye o admite presentación parcial. [Conciliación 3.4](reconciliation_module_34.md) |
+| D02 | 3.2 `VP_VF_VS_HOGAR` | Departamento / Cusco y Huancavelica | CRS04 válido; las tres violencias simultáneamente / casos válidos | prevalence → prevalence | Cero observado, `CV` indefinido y `base_unw` presente | Mostrar `0 %` con la etiqueta conjuntiva aprobada y nota de CV indefinido | conserva el cero y no imputa CV | Resuelto y autorizado en Issue #24 y acta D01–D12. |
 | D03 | 3.5 `PV_condicional_con_VS` | Condicional; 2 categorías | CRS04 válido; sin dominio adicional; `special(PV_hogar_escuela1)` / casos válidos | special → prevalence | completos | Adaptador específico; bloqueado hasta aprobar interpretación | discrepancia exige adaptador nombrado | Aprobar adaptador/alcance. [Conciliación 3.5](reconciliation_module_35.md) |
 | D04 | 3.5 `Solap_VP_VF_E` | Condicional y Prevalencia (contexto); 4 filas | CRS04 válido; sin dominio adicional; `special(VP_VF_E)` / casos válidos | special → prevalence/incomplete | 2 filas de contexto sin SE/IC/CV | Separar contexto de estimación completa; contexto no numérico | conserva nulos y evita métricas | Aprobar taxonomía y tratamiento de contexto. [Conciliación 3.5](reconciliation_module_35.md) |
 | D05 | 3.5 `Solap_VP_VF_H` | Condicional y Prevalencia (contexto); 4 filas | CRS04 válido; sin dominio adicional; `special(VP_VF_HOGAR)` / casos válidos | special → prevalence/incomplete | 2 filas de contexto sin SE/IC/CV | Igual a D04, con adaptador propio | conserva nulos y evita métricas | Aprobar taxonomía y tratamiento de contexto. [Conciliación 3.5](reconciliation_module_35.md) |
 | D06 | 3.5 `Solap_VS_12M` | 2×2 y 3×3; 8 categorías | CRS04 válido; sin dominio adicional; `special(VS_ICVAC_301)` / casos válidos | special → prevalence | completos | Adaptador matricial propio; no reinterpretar celdas | discrepancia exige adaptador nombrado | Aprobar semántica de celdas/alcance. [Conciliación 3.5](reconciliation_module_35.md) |
 | D07 | 3.5 `Solap_VS_VIDA` | 2×2 y 3×3; 8 categorías | CRS04 válido; sin dominio adicional; `special(VS_ICVAC_301_VIDA)` / casos válidos | special → prevalence | completos | Adaptador matricial propio; no reinterpretar celdas | discrepancia exige adaptador nombrado | Aprobar semántica de celdas/alcance. [Conciliación 3.5](reconciliation_module_35.md) |
 | D08 | 3.5 `num_consecuencias_fisicas` | Nacional; 7 categorías | CRS04 válido; sin dominio adicional; `special(CONS_NUM_CONSECUENCIAS)` / casos válidos | special → distribution | completos | Adaptador de distribución; ubicar en Consecuencias, no Acumulación | tipo completo separado y adaptador requerido | Aprobar categorías y navegación. [Conciliación 3.5](reconciliation_module_35.md) |
-| D09 | 3.5 `CONS_ATENCION_SALUD` (atención de salud por consecuencias) | 22 pares exactos del anexo; sin Departamento | `CONS_ALGUNA = 1`; numerador `CONS_ATENCION_SALUD = 1`; denominador de respuestas válidas dentro del dominio; N=`base_unw` condicionado | prevalence → prevalence | completos | Mantener en Consecuencias con dominio visible; no hereda autorización del centinela de Acumulación | equivalencia sintética y contraste estructural R/V0; alcance exacto continúa cerrado | Dominio aprobado; autorizar pares por separado. [Evidencia D09](d09_cons_atencion_salud_domain_evidence.md) |
+| D09 | 3.5 `CONS_ATENCION_SALUD` (atención de salud por consecuencias) | 48 pares exactos: 22 del anexo más 26 departamentos | `CONS_ALGUNA = 1`; numerador `CONS_ATENCION_SALUD = 1`; denominador de respuestas válidas dentro del dominio; N=`base_unw` condicionado | prevalence → prevalence | completos; N/CV departamental puede activar ambas alertas | Mantener en Consecuencias con dominio visible; prevalencia visible y sin supresión automática por precisión | equivalencia sintética, contraste estructural R/V0 y prueba de alcance de 48 pares | Alcance aprobado en la adenda del acta. [Evidencia D09](d09_cons_atencion_salud_domain_evidence.md) |
 | D10 | 3.6, cuatro indicadores separados en el anexo | Nacional / Total en cada indicador | Dominio, numerador y denominador específicos del anexo | prevalence → incomplete | estimate=0, SE=0, IC=0–0, target=0 y CV ausente; `base_unw` presente | Conservar cero y `CV=null`; estado candidato `ZERO_EVENT_CV_UNDEFINED_PENDING`; sin métricas | nulo conservado; cero no se convierte en ausencia ni CV=0 | Aprobar estado y presentación. [Conciliación 3.6](reconciliation_module_36.md) |
 | D11 | 3.3 `C3P223_10_1`; 3.4 `Agresor_VS_12M__AG_01`; 3.6 `C3P213` | Solo Nacional / Total; ningún otro indicador incluido | Tres definiciones específicas del anexo; `C3P213 == 5`, no regla universal `== 1` | prevalence → prevalence | completos | No fabricar otras dimensiones; alcance cerrado a tres indicadores | pruebas de pares e indicador ajeno | Aprobar cada uno por separado. Informes 3.3, 3.4 y 3.6 |
 | D12 | Familias con `Área y sexo` o `Lengua materna` | Posibles etiquetas UI `Área × sexo` e `Idioma del hogar` | Sin cambio estadístico; equivalencia solo de presentación | mismo tipo | según familia | Mantener etiqueta original o bloquear alias hasta revisión semántica | alcance exacto rechaza alias no autorizado | Aprobar o rechazar cada equivalencia. [Matriz de módulos](module_indicator_dimension_matrix.md) |
@@ -117,7 +117,8 @@ un producto cartesiano ni una autorización vigente.
   consecuencias; Ninguna; Total; Tres consecuencias; Una consecuencia.
 - **D09 / CONS_ATENCION_SALUD:** Discapacidad: 0, 1; Etnicidad: 1, 3, 5, 6, 9; Lengua materna:
   1, 3, 4; Nacional: Total; Sexo: 1, 2; Tipo de hogar: 1, 2, 3; Área: 1, 2; Área y sexo: Rural
-  Hombre, Rural Mujer, Urbano Hombre, Urbano Mujer. Son 22 pares; Departamento está excluido.
+  Hombre, Rural Mujer, Urbano Hombre, Urbano Mujer; más las 26 categorías departamentales del
+  acta. Son 48 pares exactos.
 - **D10 / cuatro solicitudes independientes:** `C3P242_10`: Nacional / Total, numerador
   `C3P242_10 == 1`, dominio y denominador `dom_institucion_escuela == 1`; `C3P242_5`: Nacional /
   Total, numerador `C3P242_5 == 1`, dominio y denominador `dom_institucion_escuela == 1`;

@@ -171,7 +171,7 @@ class DemoRepository(IndicatorRepository):
 
 
 class AuthorizedAggregateRepository(IndicatorRepository):
-    """Read one manifest-bound, authorized aggregate input for local golden tests."""
+    """Read a manifest-bound authorized V0 extract for local shadow use."""
 
     def __init__(
         self,
@@ -199,7 +199,11 @@ class AuthorizedAggregateRepository(IndicatorRepository):
             )
         if manifest.get("data_classification") != "AUTHORIZED_AGGREGATE_ONLY":
             raise ValueError("Authorized aggregate classification is required")
+        if manifest.get("source_kind") != "AUTHORIZED_V0_EXTRACT":
+            raise ValueError("Authorized aggregate must declare AUTHORIZED_V0_EXTRACT")
         source_hash = manifest.get("source_hash")
+        if manifest.get("parent_sha256") != source_hash:
+            raise ValueError("Extract parent_sha256 must equal its registered source_hash")
         approval_registry = self.approval_registry_path.read_text(encoding="utf-8")
         if (
             "APPROVED_FOR_STAGE04_BASELINE" not in approval_registry
