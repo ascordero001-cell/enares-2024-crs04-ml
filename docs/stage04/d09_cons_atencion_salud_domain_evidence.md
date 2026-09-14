@@ -54,7 +54,6 @@ L663–675 y L748–762. Por tanto, el productor R excluye fuera de dominio medi
 ## Límite
 
 La equivalencia del denominador quedó demostrada sobre los 22 pares presentes en el agregado
-recuperado. La adenda supervisora del 2026-09-14 amplió el alcance autorizado a 48 pares al añadir
-26 departamentos. El archivo padre aprobado por hash disponible durante esta implementación aún
-no contiene esas 26 filas, por lo que el extracto completo falla cerrado y no se fabrican cifras.
+recuperado. La adenda rectificatoria del 2026-09-14 retiró Departamento porque esas filas no
+existen en el V0 aprobado. El alcance queda autorizado y cerrado en los 22 pares existentes;
 Stage 04 no recalcula D09 en la interfaz ni sobrescribe la baseline.

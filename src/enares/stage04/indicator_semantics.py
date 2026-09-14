@@ -12,13 +12,6 @@ class HouseholdTaskFemaleSemantic:
     display_label: str
 
 
-@dataclass(frozen=True)
-class HouseholdTaskNobodySemantic:
-    variable: str
-    task: str
-    display_label: str
-
-
 D01_UNIVERSE = (
     "Adolescentes de 12 a 17 años de CRS04 incluidos en la base analítica, "
     "con respuesta válida al ítem C3P302 correspondiente"
@@ -81,23 +74,12 @@ D01_TASKS = (
 )
 D01_TASK_EXECUTION_GROUP = D01_TASKS[:7]
 D01_RELATIONSHIP_GROUP = D01_TASKS[7:]
-D01_NOBODY_SERIES = (
-    HouseholdTaskNobodySemantic(
-        "tarea8_nadie",
-        "Ayudar con tareas escolares",
-        "Porcentaje de adolescentes con quienes nadie ayuda con las tareas escolares",
-    ),
-    HouseholdTaskNobodySemantic(
-        "tarea9_nadie",
-        "Conversar y escuchar",
-        "Porcentaje de adolescentes con quienes nadie conversa y escucha",
-    ),
-    HouseholdTaskNobodySemantic(
-        "tarea10_nadie", "Jugar", "Porcentaje de adolescentes con quienes nadie juega"
-    ),
+D01_DEFERRED_INDICATORS = frozenset(
+    {"tarea8_nadie", "tarea9_nadie", "tarea10_nadie"}
 )
-D01_NOBODY_DENOMINATOR = "n_tareas_validas_8_10"
-D01_EXCLUDED_INDICATORS = frozenset({"predominio_femenino_tareas"})
+D01_EXCLUDED_INDICATORS = frozenset(
+    {"predominio_femenino_tareas", *D01_DEFERRED_INDICATORS}
+)
 
 C3P213_TARGET_VALUE = 5
 C3P213_TARGET_VALUE_LABEL = "No supieron cómo ayudarme"

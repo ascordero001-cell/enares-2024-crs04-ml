@@ -39,7 +39,7 @@ Leyenda de estado: **AUTORIZADO** (puede implementarse y conectarse dentro del a
 | **D06** · 3.5 `Solap_VS_12M` | AUTORIZADO CONDICIONADO — estructura sí, cifras no | Matriz dirigida completa como unidad: 2 pares 2×2 y 6 pares dirigidos 3×3 | El adaptador y las pruebas pueden construirse ahora con datos sintéticos. **La conexión de cifras reales queda suspendida hasta que exista la política de confidencialidad del punto 2.4.** Una matriz dirigida sobre violencia sexual con celdas pequeñas es el caso de reconstrucción de mayor riesgo del catálogo; no se abre antes que la política. |
 | **D07** · 3.5 `Solap_VS_VIDA` | Igual que D06, autorizado por separado | Mismo conjunto cerrado aplicado a vida | No hereda nada de D06. Universo, adaptador, pruebas y evidencia propios. Misma suspensión de cifras. |
 | **D08** · 3.5 `num_consecuencias_fisicas` | AUTORIZADO | Adaptador de distribución; 7 categorías: Ninguna, Una, Dos, Tres, Cuatro, Cinco consecuencias, Total | Se ubica en **Consecuencias**, no en Acumulación. La fila `Total` se presenta como total de la distribución, nunca como una prevalencia. |
-| **D09** · 3.5 `CONS_ATENCION_SALUD` | AUTORIZADO — los 48 pares exactos | Los 22 pares originales más Departamento: las 26 categorías enumeradas en la adenda de 2026-09-14. | Dominio `CONS_ALGUNA = 1` ya aprobado y su equivalencia estructural R/V0 verificada. El dominio se muestra junto a la cifra. Las celdas departamentales con `base_unw < 30` o `CV > 15 %` siguen visibles con sus alertas; ninguna se suprime por precisión. |
+| **D09** · 3.5 `CONS_ATENCION_SALUD` | AUTORIZADO — los 22 pares exactos | Discapacidad 0,1 · Etnicidad 1,3,5,6,9 · Idioma del hogar 1,3,4 · Nacional Total · Sexo 1,2 · Tipo de hogar 1,2,3 · Área 1,2 · Área × sexo (Rural Hombre, Rural Mujer, Urbano Hombre, Urbano Mujer). Departamento excluido. | Dominio `CONS_ALGUNA = 1` aprobado y equivalencia estructural R/V0 verificada. El dominio se muestra junto a la cifra. Las 13 celdas con `CV > 15 %` siguen visibles y referenciales; la precisión no activa supresión. Las etiquetas de código constan en la adenda. |
 | **D10** · 3.6 `C3P242_10`, `C3P242_5`, `C4P258_7`, `ayuda_vs_car` | AUTORIZADO | Nacional / Total en cada indicador | Los cuatro ceros son observados. Se publican con `base_unw` presente y `CV` indefinido por aritmética. El linaje de `C3P242_5` y `C3P242_10` está resuelto en Issue #24. |
 | **D11** · 3.3 `C3P223_10_1` · 3.4 `Agresor_VS_12M__AG_01` · 3.6 `C3P213` | AUTORIZADO CONDICIONADO, uno por uno | Solo Nacional / Total en cada indicador | `C3P213` usa numerador `== 5`, no la regla binaria `== 1`. Antes de conectarlo, Ana registra la etiqueta exacta del valor 5 y el texto del indicador que se mostrará. Ningún otro indicador de esos módulos queda incluido. |
 | **D12a** · alias `Área y sexo` → `Área × sexo` | AUTORIZADO | Todas las familias que ya usan la dimensión | Cambio tipográfico sobre el mismo constructo. `AREA BY SEXO` y el nombre V0 `Área y sexo` se conservan en metadata. No amplía pares ni habilita combinaciones nuevas. |
@@ -130,15 +130,12 @@ agregado, las reglas de CV, N, notas y `quality_status` deben ser funciones pura
 ambos caminos, y `synthetic=false` debe ser derivado por `AuthorizedAggregateRepository` desde la
 procedencia verificada; nunca se acepta de quien llama ni se fija manualmente.
 
-### D01 — textos, agrupación y ampliación cerrada
+### D01 — textos y agrupación cerrada
 
 - Ítems 1–7: «Porcentaje en que [tarea] la realiza principalmente una mujer del hogar».
 - Ítems 8–10: «Porcentaje en que quien [ayuda con las tareas escolares / aconseja y escucha /
   juega con ella] es principalmente una mujer del hogar».
 - Los dos bloques representan preguntas distintas y no se combinan en una figura de diez barras.
-- Se autorizan además `tarea8_nadie`, `tarea9_nadie` y `tarea10_nadie`, sin desagregaciones nuevas,
-  con el texto «Porcentaje de adolescentes con quienes nadie [ayuda con las tareas escolares /
-  conversa y escucha / juega]» y el mismo denominador `n_tareas_validas_8_10` de la serie `_fem`.
 
 `predominio_femenino_tareas` permanece fuera de D01. La sintaxis CRS04 confirma que su categoría
 0 agrupa predominio masculino, empate y ausencia de ambos, y que la proporción usa los diez ítems
@@ -159,15 +156,33 @@ D02 y D10 salen de `NON_NUMERIC_CONTEXT` y se publican con su valor visible y CV
 aritmética. La etiqueta de D02 hace explícita la conjunción: «Porcentaje que sufrió violencia
 psicológica, física y sexual en el hogar, las tres simultáneamente».
 
-### D09 — ampliación cerrada a 48 pares
+### Retiro de ampliaciones sin respaldo en V0 — 2026-09-14 UTC
 
-La decisión supervisora del 2026-09-14 añade a los 22 pares previamente autorizados la dimensión
-`Departamento` con estas 26 categorías: Amazonas, Apurímac, Arequipa, Ayacucho, Cajamarca,
-Callao, Cusco, Huancavelica, Huánuco, Ica, Junín, La Libertad, Lambayeque, Lima Metropolitana,
-Loreto, Madre de Dios, Moquegua, Pasco, Piura, Puno, Región Lima, San Martín, Tacna, Tumbes,
-Ucayali y Áncash.
+- **D09 Departamento:** se retira la ampliación de 26 categorías. El agregado aprobado contiene
+  exactamente 22 filas de `CONS_ATENCION_SALUD` y ninguna dimensión `Departamento`. Esa apertura
+  no fue tabulada porque el dominio condicionado dejaba muy pocos casos por celda. D09 queda
+  cerrado a los 22 pares existentes y no se reabre la baseline.
+- **D01 «nadie»:** se retiran `tarea8_nadie`, `tarea9_nadie` y `tarea10_nadie` de este corte porque
+  no existen en el agregado. Quedan registradas como candidatas para un corte posterior que cree
+  una versión nueva; Stage 04 no las calcula ni modifica V0.
 
-El alcance D09 queda cerrado en 48 pares. Por el dominio `CONS_ALGUNA = 1`, una celda
-departamental puede tener simultáneamente `base_unw < 30` y `CV > 15 %`; en ese caso la
-prevalencia sigue visible, referencial y con ambas notas. Estas alertas de precisión no activan
-supresión.
+Etiquetas aprobadas para D09:
+
+| Dimensión | Código | Etiqueta |
+|---|---:|---|
+| Idioma del hogar | 1 | Castellano |
+| Idioma del hogar | 3 | Quechua/Aymara |
+| Idioma del hogar | 4 | Otra lengua nativa |
+| Etnicidad | 1 | Indígena andino |
+| Etnicidad | 3 | Indígena amazónico/nativo |
+| Etnicidad | 5 | Afrodescendiente |
+| Etnicidad | 6 | No indígena ni afrodescendiente |
+| Etnicidad | 9 | No sabe |
+| Tipo de hogar | 1 | Biparental |
+| Tipo de hogar | 2 | Monoparental |
+| Tipo de hogar | 3 | Sin figuras parentales |
+| Discapacidad | 0 | No |
+| Discapacidad | 1 | Sí |
+
+Trece de las 22 celdas D09 tienen `CV > 15 %`: se muestran visibles, referenciales y con nota.
+La alerta de precisión no activa `suppress_flag`.

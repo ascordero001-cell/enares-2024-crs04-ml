@@ -26,9 +26,11 @@ escolares; Aconsejar y escuchar; Jugar contigo.
 
 La presentación queda dividida por el sentido de la pregunta: los ítems 1–7 son tareas que una
 persona realiza en el hogar; los ítems 8–10 son acciones que una persona realiza con la
-adolescente. No se construye una figura única de diez barras. La adenda del 2026-09-14 incorpora
-`tarea8_nadie`, `tarea9_nadie` y `tarea10_nadie`, con el mismo denominador
-`n_tareas_validas_8_10` y sin desagregaciones nuevas.
+adolescente. No se construye una figura única de diez barras.
+
+La adenda rectificatoria del 2026-09-14 retira `tarea8_nadie`, `tarea9_nadie` y
+`tarea10_nadie`: no existen en el agregado V0 aprobado. Quedan como candidatas para un corte
+posterior con versión nueva; no se calculan ni se conectan en este corte.
 
 `predominio_femenino_tareas` permanece fuera. Su categoría 0 agrupa predominio masculino,
 empate y ausencia de ambos; su proporción usa los diez ítems. La etiqueta V0 no se reescribe y la

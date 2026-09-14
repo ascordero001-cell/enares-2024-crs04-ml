@@ -36,35 +36,6 @@ D07_SCOPE = CandidateScope(
     adapter_id="solap-vs-vida-special-prevalence-v1",
 )
 
-D09_DEPARTMENT_CATEGORIES = (
-    "Amazonas",
-    "Apurímac",
-    "Arequipa",
-    "Ayacucho",
-    "Cajamarca",
-    "Callao",
-    "Cusco",
-    "Huancavelica",
-    "Huánuco",
-    "Ica",
-    "Junín",
-    "La Libertad",
-    "Lambayeque",
-    "Lima Metropolitana",
-    "Loreto",
-    "Madre de Dios",
-    "Moquegua",
-    "Pasco",
-    "Piura",
-    "Puno",
-    "Región Lima",
-    "San Martín",
-    "Tacna",
-    "Tumbes",
-    "Ucayali",
-    "Áncash",
-)
-
 D09_PAIRS = frozenset(
     [("Discapacidad", value) for value in ("0", "1")]
     + [("Etnicidad", value) for value in ("1", "3", "5", "6", "9")]
@@ -77,8 +48,22 @@ D09_PAIRS = frozenset(
         ("Área × sexo", value)
         for value in ("Rural Hombre", "Rural Mujer", "Urbano Hombre", "Urbano Mujer")
     ]
-    + [("Departamento", value) for value in D09_DEPARTMENT_CATEGORIES]
 )
+D09_CATEGORY_LABELS = {
+    ("Discapacidad", "0"): "No",
+    ("Discapacidad", "1"): "Sí",
+    ("Etnicidad", "1"): "Indígena andino",
+    ("Etnicidad", "3"): "Indígena amazónico/nativo",
+    ("Etnicidad", "5"): "Afrodescendiente",
+    ("Etnicidad", "6"): "No indígena ni afrodescendiente",
+    ("Etnicidad", "9"): "No sabe",
+    ("Idioma del hogar", "1"): "Castellano",
+    ("Idioma del hogar", "3"): "Quechua/Aymara",
+    ("Idioma del hogar", "4"): "Otra lengua nativa",
+    ("Tipo de hogar", "1"): "Biparental",
+    ("Tipo de hogar", "2"): "Monoparental",
+    ("Tipo de hogar", "3"): "Sin figuras parentales",
+}
 D09_SCOPE = CandidateScope(
     module_id="3.5",
     indicator_id="CONS_ATENCION_SALUD",

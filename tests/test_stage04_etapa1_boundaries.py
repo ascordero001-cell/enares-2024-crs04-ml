@@ -16,10 +16,9 @@ from enares.stage04.indicator_semantics import (
     C3P213_DOMAIN,
     C3P213_TARGET_VALUE,
     C3P213_TARGET_VALUE_LABEL,
+    D01_DEFERRED_INDICATORS,
     D01_EXCLUDED_INDICATORS,
     D01_FEMALE_REFERENCE,
-    D01_NOBODY_DENOMINATOR,
-    D01_NOBODY_SERIES,
     D01_RELATIONSHIP_GROUP,
     D01_REPORTING_SUBJECT,
     D01_TASK_EXECUTION_GROUP,
@@ -142,18 +141,16 @@ def test_d01_is_presented_as_two_distinct_question_groups():
     assert all("quien" in item.display_label for item in D01_RELATIONSHIP_GROUP)
 
 
-def test_d01_nobody_addendum_is_closed_to_items_8_to_10():
-    assert tuple(item.variable for item in D01_NOBODY_SERIES) == (
+def test_d01_nobody_series_is_explicitly_deferred_outside_this_cut():
+    assert D01_DEFERRED_INDICATORS == {
         "tarea8_nadie",
         "tarea9_nadie",
         "tarea10_nadie",
-    )
-    assert all(
-        item.display_label.startswith("Porcentaje de adolescentes con quienes nadie")
-        for item in D01_NOBODY_SERIES
-    )
-    assert D01_NOBODY_DENOMINATOR == "n_tareas_validas_8_10"
-    assert D01_EXCLUDED_INDICATORS == {"predominio_femenino_tareas"}
+    }
+    assert D01_EXCLUDED_INDICATORS == {
+        "predominio_femenino_tareas",
+        *D01_DEFERRED_INDICATORS,
+    }
 
 
 def test_d11_records_exact_value_label_display_text_and_domain():

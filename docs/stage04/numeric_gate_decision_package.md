@@ -49,7 +49,7 @@ sustituye.
 
 | Caso | Estado vigente | Gate restante |
 |---|---|---|
-| D01 | `AUTHORIZED_SCOPE_IMPLEMENTED_SYNTHETIC` | Dos grupos, textos y adenda `tarea8_nadie`–`tarea10_nadie`; sin cifra nueva conectada |
+| D01 | `AUTHORIZED_SCOPE_IMPLEMENTED_SYNTHETIC` | Dos grupos y diez tareas; serie «nadie» retirada por ausencia en V0 y diferida a una versión futura |
 | D02 | `RESOLVED; AUTHORIZED_VISIBLE_ZERO_CV_UNDEFINED` | Ceros observados; etiqueta conjuntiva aprobada y módulo corregido a 3.2 |
 | D03 | `AUTHORIZED` | Denominador explícito; sin comparación CRS03 |
 | D04 | `AUTHORIZED_CONDITIONAL_ROWS; NON_NUMERIC_CONTEXT_ROWS` | Dos condicionales numéricas; dos contextos sin métricas |
@@ -57,7 +57,7 @@ sustituye.
 | D06 | `ADAPTER_TESTED_SYNTHETIC; REAL_VALUES_BLOCKED` | Política de confidencialidad aprobada |
 | D07 | `ADAPTER_TESTED_SYNTHETIC; REAL_VALUES_BLOCKED` | Política y evidencia propias, sin herencia de D06 |
 | D08 | `AUTHORIZED_DISTRIBUTION` | Total de distribución, nunca prevalencia |
-| D09 | `AUTHORIZED_48_EXACT_PAIRS; ADAPTER_TESTED_SYNTHETIC` | 22 pares originales más 26 departamentos; agregado autoritativo recuperable antes de conectar |
+| D09 | `AUTHORIZED_22_EXACT_PAIRS; ADAPTER_TESTED_SYNTHETIC` | Los 22 pares existentes; Departamento retirado por ausencia en el agregado aprobado |
 | D10 | `RESOLVED; AUTHORIZED_VISIBLE_ZERO_CV_UNDEFINED` | Ceros observados y linaje del bloque CRS04 línea 2416 acreditado en Issue #24 |
 | D11 | `SOURCE_SEMANTICS_VERIFIED` | Alcance Nacional/Total; sin cifra nueva conectada |
 | D12 | `AUTHORIZED_UI_ALIASES` | Conservar nombres y códigos fuente en metadata; no ampliar pares |
@@ -77,7 +77,7 @@ la evidencia puntual está enlazada en la última columna.
 | D06 | 3.5 `Solap_VS_12M` | 2×2 y 3×3; 8 categorías | CRS04 válido; sin dominio adicional; `special(VS_ICVAC_301)` / casos válidos | special → prevalence | completos | Adaptador matricial propio; no reinterpretar celdas | discrepancia exige adaptador nombrado | Aprobar semántica de celdas/alcance. [Conciliación 3.5](reconciliation_module_35.md) |
 | D07 | 3.5 `Solap_VS_VIDA` | 2×2 y 3×3; 8 categorías | CRS04 válido; sin dominio adicional; `special(VS_ICVAC_301_VIDA)` / casos válidos | special → prevalence | completos | Adaptador matricial propio; no reinterpretar celdas | discrepancia exige adaptador nombrado | Aprobar semántica de celdas/alcance. [Conciliación 3.5](reconciliation_module_35.md) |
 | D08 | 3.5 `num_consecuencias_fisicas` | Nacional; 7 categorías | CRS04 válido; sin dominio adicional; `special(CONS_NUM_CONSECUENCIAS)` / casos válidos | special → distribution | completos | Adaptador de distribución; ubicar en Consecuencias, no Acumulación | tipo completo separado y adaptador requerido | Aprobar categorías y navegación. [Conciliación 3.5](reconciliation_module_35.md) |
-| D09 | 3.5 `CONS_ATENCION_SALUD` (atención de salud por consecuencias) | 48 pares exactos: 22 del anexo más 26 departamentos | `CONS_ALGUNA = 1`; numerador `CONS_ATENCION_SALUD = 1`; denominador de respuestas válidas dentro del dominio; N=`base_unw` condicionado | prevalence → prevalence | completos; N/CV departamental puede activar ambas alertas | Mantener en Consecuencias con dominio visible; prevalencia visible y sin supresión automática por precisión | equivalencia sintética, contraste estructural R/V0 y prueba de alcance de 48 pares | Alcance aprobado en la adenda del acta. [Evidencia D09](d09_cons_atencion_salud_domain_evidence.md) |
+| D09 | 3.5 `CONS_ATENCION_SALUD` (atención de salud por consecuencias) | 22 pares exactos del agregado; sin Departamento | `CONS_ALGUNA = 1`; numerador `CONS_ATENCION_SALUD = 1`; denominador de respuestas válidas dentro del dominio; N=`base_unw` condicionado | prevalence → prevalence | completos; 13 celdas con CV alto | Mantener en Consecuencias con dominio visible; prevalencia visible y referencial sin supresión automática por precisión | equivalencia sintética, contraste estructural R/V0 y prueba de alcance de 22 pares | Alcance rectificado y aprobado en el acta. [Evidencia D09](d09_cons_atencion_salud_domain_evidence.md) |
 | D10 | 3.6, cuatro indicadores separados en el anexo | Nacional / Total en cada indicador | Dominio, numerador y denominador específicos del anexo | prevalence → incomplete | estimate=0, SE=0, IC=0–0, target=0 y CV ausente; `base_unw` presente | Conservar cero y `CV=null`; estado candidato `ZERO_EVENT_CV_UNDEFINED_PENDING`; sin métricas | nulo conservado; cero no se convierte en ausencia ni CV=0 | Aprobar estado y presentación. [Conciliación 3.6](reconciliation_module_36.md) |
 | D11 | 3.3 `C3P223_10_1`; 3.4 `Agresor_VS_12M__AG_01`; 3.6 `C3P213` | Solo Nacional / Total; ningún otro indicador incluido | Tres definiciones específicas del anexo; `C3P213 == 5`, no regla universal `== 1` | prevalence → prevalence | completos | No fabricar otras dimensiones; alcance cerrado a tres indicadores | pruebas de pares e indicador ajeno | Aprobar cada uno por separado. Informes 3.3, 3.4 y 3.6 |
 | D12 | Familias con `Área y sexo` o `Lengua materna` | Posibles etiquetas UI `Área × sexo` e `Idioma del hogar` | Sin cambio estadístico; equivalencia solo de presentación | mismo tipo | según familia | Mantener etiqueta original o bloquear alias hasta revisión semántica | alcance exacto rechaza alias no autorizado | Aprobar o rechazar cada equivalencia. [Matriz de módulos](module_indicator_dimension_matrix.md) |
@@ -117,8 +117,8 @@ un producto cartesiano ni una autorización vigente.
   consecuencias; Ninguna; Total; Tres consecuencias; Una consecuencia.
 - **D09 / CONS_ATENCION_SALUD:** Discapacidad: 0, 1; Etnicidad: 1, 3, 5, 6, 9; Lengua materna:
   1, 3, 4; Nacional: Total; Sexo: 1, 2; Tipo de hogar: 1, 2, 3; Área: 1, 2; Área y sexo: Rural
-  Hombre, Rural Mujer, Urbano Hombre, Urbano Mujer; más las 26 categorías departamentales del
-  acta. Son 48 pares exactos.
+  Hombre, Rural Mujer, Urbano Hombre, Urbano Mujer. Son 22 pares exactos; Departamento no está
+  en el agregado y queda fuera del corte.
 - **D10 / cuatro solicitudes independientes:** `C3P242_10`: Nacional / Total, numerador
   `C3P242_10 == 1`, dominio y denominador `dom_institucion_escuela == 1`; `C3P242_5`: Nacional /
   Total, numerador `C3P242_5 == 1`, dominio y denominador `dom_institucion_escuela == 1`;
