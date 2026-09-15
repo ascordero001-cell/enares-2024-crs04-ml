@@ -52,7 +52,7 @@ certificación WCAG ni una auditoría formal con lector de pantalla.
 La CI ejecuta Axe sobre las nueve vistas de navegación con las etiquetas WCAG 2 A/AA, 2.1 A/AA
 y 2.2 AA. El job falla si encuentra una infracción automática nueva. La primera ejecución detectó
 y corrigió el contraste de captions, encabezados tabulares, números en bloques de código y alertas
-de éxito.
+de éxito, advertencia y error.
 
 Permanece un único residual generado por Streamlit 1.63.0: el elemento raíz del sidebar recibe
 `aria-expanded=true` aunque ese atributo no está permitido para su rol. La prueba admite solo esa

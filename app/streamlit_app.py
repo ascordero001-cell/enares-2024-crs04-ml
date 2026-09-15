@@ -108,6 +108,12 @@ def _styles() -> None:
         [data-testid="stAppViewContainer"] [data-testid="stAlertContentSuccess"] p {
             color: #116c2e;
         }
+        [data-testid="stAppViewContainer"] [data-testid="stAlertContentWarning"] p {
+            color: #765500;
+        }
+        [data-testid="stAppViewContainer"] [data-testid="stAlertContentError"] p {
+            color: #92272b;
+        }
         </style>
         """,
         unsafe_allow_html=True,
