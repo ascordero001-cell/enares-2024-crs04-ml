@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import yaml
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -32,3 +34,33 @@ def test_mypy_checks_stage04_across_module_boundaries() -> None:
     assert "follow_imports = normal" in config
     assert "[mypy-scripts.*]" in config
     assert "Legacy Stage 03 generator scripts" in config
+
+
+def test_security_ci_audits_dependencies_and_complete_git_history() -> None:
+    workflow_path = ROOT / ".github" / "workflows" / "security-ci.yml"
+    workflow = workflow_path.read_text(encoding="utf-8")
+    parsed = yaml.safe_load(workflow)
+
+    assert parsed["permissions"] == {"contents": "read"}
+    for required in (
+        "pypa/gh-action-pip-audit@v1.1.0",
+        "inputs: requirements.txt requirements-dev.txt",
+        "gitleaks/gitleaks-action@v3",
+        "fetch-depth: 0",
+        'GITLEAKS_ENABLE_COMMENTS: "false"',
+    ):
+        assert required in workflow
+
+
+def test_dependabot_monitors_python_and_github_actions_weekly() -> None:
+    config = yaml.safe_load(
+        (ROOT / ".github" / "dependabot.yml").read_text(encoding="utf-8")
+    )
+    updates = config["updates"]
+
+    assert {entry["package-ecosystem"] for entry in updates} == {
+        "pip",
+        "github-actions",
+    }
+    assert all(entry["directory"] == "/" for entry in updates)
+    assert all(entry["schedule"]["interval"] == "weekly" for entry in updates)
