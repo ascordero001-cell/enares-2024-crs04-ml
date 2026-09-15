@@ -183,7 +183,7 @@ def build_etapa1_authorized_extract(
             indicator_name = DISPLAY_NAME_BY_D11_INDICATOR[indicator]
         output_rows.append(
             {
-                "release_id": "enares2024-crs04-v0-shadow-etapa1-001",
+                "release_id": "enares2024-crs04-v0-shadow-001",
                 "run_id": "etapa1-authorized-extract-20260914",
                 "source_version": "v0_official_drive_baseline",
                 "source_hash": actual_parent_sha,
@@ -298,7 +298,7 @@ def build_d06_d07_authorized_extract(
         period = "los últimos 12 meses" if indicator == "Solap_VS_12M" else "alguna vez"
         output_rows.append(
             {
-                "release_id": "enares2024-crs04-v0-shadow-etapa1-001",
+                "release_id": "enares2024-crs04-v0-shadow-001",
                 "run_id": "d06-d07-authorized-extract-20260914",
                 "source_version": "v0_official_drive_baseline",
                 "source_hash": actual_parent_sha,

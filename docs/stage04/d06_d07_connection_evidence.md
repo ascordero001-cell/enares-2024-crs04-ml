@@ -32,7 +32,7 @@ incluye microdatos, rutas personales, IDs de Drive, enlaces públicos ni credenc
 
 - Archivo: `v0_authorized_d06_d07_indicator_estimates.csv`
 - Filas: 16 agregadas
-- SHA-256: `e29e39a378bb9488a8b82a760ee952e7d0badf6648986c503fa85644c08236b5`
+- SHA-256: `b2af74416bd58d0b3a7ad2c8ebea67b80a45580519aa3ca23eda606adeb3bc95`
 - Padre V0 SHA-256: `15B845DA4A886FDCF54A96D8B8471B6F6BE618AE18B43024488C6BD6B23D0BB4`
 - D06: 8 filas; D07: 8 filas
 - CV > 15 %: 4 filas visibles y referenciales

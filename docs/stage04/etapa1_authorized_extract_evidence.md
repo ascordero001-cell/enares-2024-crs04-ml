@@ -7,7 +7,7 @@ Fecha UTC: 2026-09-14
 - Fuente aprobada: `tabulados_crs04_long.csv`.
 - SHA-256 de la fuente: `15B845DA4A886FDCF54A96D8B8471B6F6BE618AE18B43024488C6BD6B23D0BB4`.
 - Extracto: `app/data/v0_authorized_etapa1_indicator_estimates.csv`.
-- SHA-256 del extracto: `208bc654029e40ce5271519939258b59d69bd3dfd0c1c5b537d8ec4cebeb7332`.
+- SHA-256 del extracto: `d280c9f3d211db2b5087fe38627f2ce1978bb5d027b86735a64fbc6bed5c87d2`.
 - Filas: 35, distribuidas en D01 (10), D09 (22) y D11 (3).
 - D12 no agrega filas: aplica los alias aprobados `Área × sexo` e `Idioma del hogar`.
 - Quedan fuera de este corte las tres series «nadie», D06 y D07.

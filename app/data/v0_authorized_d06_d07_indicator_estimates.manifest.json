@@ -3,7 +3,7 @@
   "generated_at_utc": "2026-09-14T21:45:00Z",
   "row_count": 16,
   "schema_version": "stage04-v0-authorized-aggregate-v1",
-  "sha256": "e29e39a378bb9488a8b82a760ee952e7d0badf6648986c503fa85644c08236b5",
+  "sha256": "b2af74416bd58d0b3a7ad2c8ebea67b80a45580519aa3ca23eda606adeb3bc95",
   "synthetic": false,
   "data_classification": "AUTHORIZED_AGGREGATE_ONLY",
   "source_kind": "AUTHORIZED_V0_EXTRACT",
