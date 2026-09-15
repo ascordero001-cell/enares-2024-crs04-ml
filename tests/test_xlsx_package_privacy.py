@@ -44,7 +44,16 @@ def test_xlsx_has_no_external_relationships_formulas_or_metadata():
 
 @pytest.mark.parametrize(
     "private_locator",
-    [r"C:\Users\private", "file:///private", "https://drive.google.com/private"],
+    [
+        r"C:\Users\private",
+        "/Users/private",
+        "/home/private",
+        r"D:\private",
+        r"\\server\share",
+        "file:///private",
+        "https://drive.google.com/private",
+        "https://docs.google.com/private",
+    ],
 )
 def test_export_rejects_personal_or_drive_locators(private_locator):
     authorized, _ = local_repositories()
