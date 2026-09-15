@@ -47,7 +47,9 @@ microdatos, `raw`, `cleaned`, `analytical`, `survey_input`, publicación ni cuto
 El modelo operativo es permanecer dentro de la capa gratuita de Google Cloud. Los **USD 20 al
 mes** son un margen máximo de contingencia para pruebas controladas, no el presupuesto previsto
 ni una meta de gasto. El agregado autorizado contiene 52 filas y el servicio tendrá seis personas
-usuarias; cualquier coste positivo requiere investigación.
+usuarias. Artifact Registry puede generar un cargo pequeño e inevitable de centavos cuando la
+imagen almacenada exceda 0.5 GiB; la alerta de USD 1 señala un gasto anómalo que sí requiere
+investigación.
 
 Controles obligatorios antes de habilitar tráfico:
 

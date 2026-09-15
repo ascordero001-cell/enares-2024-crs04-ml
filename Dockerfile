@@ -6,9 +6,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-COPY requirements.txt ./requirements.txt
+COPY requirements-runtime.txt ./requirements-runtime.txt
 
-RUN python -m pip install --no-cache-dir --disable-pip-version-check -r requirements.txt \
+RUN python -m pip install --no-cache-dir --disable-pip-version-check -r requirements-runtime.txt \
     && addgroup --system app \
     && adduser --system --ingroup app app
 
