@@ -49,6 +49,12 @@ certificación WCAG ni una auditoría formal con lector de pantalla.
 
 ## Gate pendiente
 
+Los cinco escenarios y criterios de éxito están definidos en
+[`task_scenarios.md`](../hci/task_scenarios.md). La revisión heurística y la plantilla de registro
+para 3 a 5 sesiones independientes están en
+[`usability_evaluation.md`](../hci/usability_evaluation.md). Esas sesiones continúan en
+`PENDING_INDEPENDENT_PARTICIPANTS`; no se han fabricado resultados, tiempos ni participantes.
+
 La CI ejecuta Axe sobre las nueve vistas de navegación con las etiquetas WCAG 2 A/AA, 2.1 A/AA
 y 2.2 AA. El job falla si encuentra una infracción automática nueva. La primera ejecución detectó
 y corrigió el contraste de captions, encabezados tabulares, números en bloques de código y alertas
