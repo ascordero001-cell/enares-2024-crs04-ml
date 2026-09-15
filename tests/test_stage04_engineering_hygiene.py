@@ -25,3 +25,10 @@ def test_quality_tools_are_pinned() -> None:
     requirements = (ROOT / "requirements-dev.txt").read_text(encoding="utf-8")
     assert "mypy==1.18.2" in requirements
     assert "ruff==0.16.7" in requirements
+
+
+def test_mypy_checks_stage04_across_module_boundaries() -> None:
+    config = (ROOT / "mypy.ini").read_text(encoding="utf-8")
+    assert "follow_imports = normal" in config
+    assert "[mypy-scripts.*]" in config
+    assert "Legacy Stage 03 generator scripts" in config
