@@ -16,7 +16,7 @@ from enares.stage04.repository import IndicatorEstimate, IndicatorRepository
 from enares.stage04.validation import validate_estimates
 from enares.stage04.view_model import to_card_view_model
 
-EXPORT_ENABLED = False
+EXPORT_ENABLED = True
 
 
 def escape_dynamic_text(value: object) -> str:

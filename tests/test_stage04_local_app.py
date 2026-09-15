@@ -130,10 +130,10 @@ def test_application_does_not_open_private_or_individual_sources():
     assert "respondent_id" not in source
 
 
-def test_export_is_disabled_and_stage03_is_not_recalculated():
+def test_safe_export_is_enabled_and_stage03_is_not_recalculated():
     import app.views.stage04_dashboard as dashboard
 
-    assert EXPORT_ENABLED is False
+    assert EXPORT_ENABLED is True
     assert "stage03" not in inspect.getsource(dashboard).lower()
 
 
