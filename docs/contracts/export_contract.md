@@ -31,12 +31,17 @@ conteo real no ponderado del denominador, no una población expandida.
 ## Controles de archivo
 
 1. Todo texto que empieza por `=`, `+`, `-` o `@` se escribe como literal con prefijo de
-   apóstrofo en ambos formatos. Los números negativos genuinos conservan tipo y valor.
+   apóstrofo en ambos formatos. Ese apóstrofo se añade durante la exportación y no forma parte del
+   texto V0 original; cualquier script que lea el CSV debe interpretarlo como neutralización de
+   fórmula. Los valores numéricos, incluidos los negativos genuinos, conservan tipo y valor sin
+   añadir el apóstrofo.
 2. El XLSX es un paquete OOXML mínimo, determinista y sin fórmulas, propiedades de autor,
    timestamps variables, relaciones externas, hipervínculos, comentarios, notas, objetos
    incrustados, macros, hojas ocultas ni filas/columnas ocultas.
-3. Rutas personales, URI `file:///` y enlaces de Drive se rechazan antes de producir una
-   descarga.
+3. Se rechazan antes de producir una descarga las rutas personales de Windows bajo `C:\Users\`,
+   las rutas en la unidad `D:\`, las rutas UNC `\\servidor\recurso`, las rutas de macOS bajo
+   `/Users/`, las rutas Linux bajo `/home/`, las URI `file:///` y los enlaces de
+   `drive.google.com` o `docs.google.com`.
 4. El nombre descargado se normaliza a caracteres seguros y no incorpora valores de datos.
 5. `.streamlit/config.toml` mantiene `disableDataExport = true`: bloquea la exportación genérica
    incorporada de componentes y obliga a usar únicamente este camino validado.

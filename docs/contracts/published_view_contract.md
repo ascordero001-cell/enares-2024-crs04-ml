@@ -27,6 +27,26 @@ campos estadísticos protegidos, flags, `quality_note`, `validation_status` y `c
 
 La creación de una vista real en BigQuery permanece `BLOCKED_BY_CLOUD_GATE`.
 
+## Origen de `outputs.indicator_estimates`
+
+`outputs.indicator_estimates` se carga exclusivamente desde el extracto agregado V0 autorizado,
+encadenado mediante SHA-256 al padre congelado y a los manifiestos aprobados. Nunca se deriva de
+`analytical`, `cleaned`, `raw` ni `survey_input`.
+
+La razón de autoridad es que V0 constituye la salida oficial congelada. La reproducción SQL de
+`analytical` continúa en revisión de sintaxis fuente y su cobertura no equivale a los 516
+indicadores. Por ello, `analytical` sirve únicamente para verificación de migración, y las
+aserciones `*_v0_parity` comprueban la construcción exacta de variables fila por fila, no los
+estimadores ponderados.
+
+Todavía no existe en Dataform una comparación agregada de porcentaje, error estándar e intervalo
+de confianza contra las tabulaciones V0 congeladas. Si `analytical` se usa como contraste, primero
+debe existir esa aserción. Toda diferencia se registra en `known_discrepancies.md` y vuelve al
+productor; nunca sustituye la cifra V0.
+
+Cambiar este origen requiere una decisión supervisora explícita. No puede hacerse mediante
+configuración, una variable de Dataform ni la interfaz.
+
 La nulificación de campos protegidos es un control técnico local implementado. Para 3.1–3.6,
 `CV > 15 %` produce una estimación visible, referencial y con nota; `base_unw < 30` produce una
 estimación visible con alerta. Ninguna de estas señales activa `suppress_flag`. La publicación de
