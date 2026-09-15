@@ -91,6 +91,29 @@ def _styles() -> None:
             outline: 3px solid #f3c44e !important;
             outline-offset: 2px;
         }
+        [data-testid="stAppViewContainer"] [data-testid="stCaptionContainer"] {
+            opacity: 1 !important;
+        }
+        [data-testid="stAppViewContainer"] [data-testid="stCaptionContainer"] p,
+        [data-testid="stAppViewContainer"] table thead
+        [data-testid="stMarkdownContainer"] p {
+            color: #565f5b !important;
+        }
+        [data-testid="stSidebar"] [data-testid="stCaptionContainer"] p {
+            color: #f6fbf8 !important;
+        }
+        [data-testid="stAppViewContainer"] [data-testid="stCode"] .number {
+            color: #0b6f63;
+        }
+        [data-testid="stAppViewContainer"] [data-testid="stAlertContentSuccess"] p {
+            color: #116c2e;
+        }
+        [data-testid="stAppViewContainer"] [data-testid="stAlertContentWarning"] p {
+            color: #765500;
+        }
+        [data-testid="stAppViewContainer"] [data-testid="stAlertContentError"] p {
+            color: #92272b;
+        }
         </style>
         """,
         unsafe_allow_html=True,

@@ -1,6 +1,6 @@
 # Evidencia HCI y accesibilidad — Corte 2
 
-Estado: `LOCAL_MANUAL_REVIEW_COMPLETE; INDEPENDENT_REVIEW_PENDING`.
+Estado: `LOCAL_MANUAL_REVIEW_COMPLETE; AUTOMATED_WCAG22_AA_IMPLEMENTED; INDEPENDENT_REVIEW_PENDING`.
 Fecha de ejecución y renovación: 2026-09-11.
 
 ## Controles implementados
@@ -48,6 +48,24 @@ certificación WCAG ni una auditoría formal con lector de pantalla.
 - [Resumen y métricas en vista estrecha](evidence/sprint042_corte2_narrow_summary.png)
 
 ## Gate pendiente
+
+Los cinco escenarios y criterios de éxito están definidos en
+[`task_scenarios.md`](../hci/task_scenarios.md). La revisión heurística y la plantilla de registro
+para 3 a 5 sesiones independientes están en
+[`usability_evaluation.md`](../hci/usability_evaluation.md). Esas sesiones continúan en
+`PENDING_INDEPENDENT_PARTICIPANTS`; no se han fabricado resultados, tiempos ni participantes.
+
+La CI ejecuta Axe sobre las nueve vistas de navegación con las etiquetas WCAG 2 A/AA, 2.1 A/AA
+y 2.2 AA. El job falla si encuentra una infracción automática nueva. La primera ejecución detectó
+y corrigió el contraste de captions, encabezados tabulares, números en bloques de código y alertas
+de éxito, advertencia y error.
+
+Permanece un único residual generado por Streamlit 1.63.0: el elemento raíz del sidebar recibe
+`aria-expanded=true` aunque ese atributo no está permitido para su rol. La prueba admite solo esa
+combinación exacta de regla, selector y atributo; no desactiva la regla para otros elementos. El
+residual se revisará al actualizar Streamlit y no se declara corregido. Esta comprobación
+complementa, pero no reemplaza, la revisión manual ni las pruebas con tecnologías de asistencia y
+personas.
 
 La aprobación general del checkpoint de ingeniería no acredita una sesión independiente de
 teclado, lector de pantalla o prueba con personas usuarias. La comprensión de etiquetas por una
