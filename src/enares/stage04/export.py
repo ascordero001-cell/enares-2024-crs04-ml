@@ -43,7 +43,7 @@ EXPORT_COLUMNS = (
 )
 
 _FORMULA_PREFIXES = ("=", "+", "-", "@")
-_FORBIDDEN_TEXT_PATTERNS = ("c:\\users\\", "file:///", "drive.google.com")
+_FORBIDDEN_TEXT_PATTERNS = ("c:\\users\\", "/users/", "/home/", "d:\\", "\\\\", "file:///", "drive.google.com", "docs.google.com")
 _XML_NS = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
 _REL_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 _PACKAGE_REL_NS = "http://schemas.openxmlformats.org/package/2006/relationships"
