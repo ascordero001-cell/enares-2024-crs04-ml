@@ -7,7 +7,6 @@ import pytest
 from enares.stage04.repository import AuthorizedAggregateRepository
 from enares.stage04.view_model import to_card_view_model, to_indicator_contract
 
-
 ROOT = Path(__file__).resolve().parents[1]
 GOLDEN = ROOT / "tests" / "golden" / "stage04_32_national"
 V0_FIXTURE = ROOT / "app" / "data" / "v0_authorized_indicator_estimates.csv"

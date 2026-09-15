@@ -1,7 +1,7 @@
 """Explicit denominator mapping for a future approved V0 aggregate adapter."""
 
-from collections.abc import Mapping
 import re
+from collections.abc import Mapping
 
 
 def denominator_count(row: Mapping[str, str]) -> int:

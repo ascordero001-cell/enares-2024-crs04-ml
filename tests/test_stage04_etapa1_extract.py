@@ -37,7 +37,7 @@ def test_etapa1_extract_manifest_binds_exact_file_and_parent():
 
 def test_etapa1_extract_contains_only_closed_d01_d09_d11_scope():
     rows = _rows()
-    by_indicator = {}
+    by_indicator: dict[str, list[dict[str, str]]] = {}
     for row in rows:
         by_indicator.setdefault(row["indicator_id"], []).append(row)
 
@@ -84,6 +84,7 @@ def test_etapa1_extract_rederives_byte_for_byte_from_private_parent(tmp_path):
     parent_value = os.environ.get("ENARES_V0_PARENT_AGGREGATE")
     if not parent_value:
         pytest.skip("Private V0 parent path is not available in CI")
+    assert parent_value is not None
     parent = Path(parent_value)
     output = tmp_path / "rederived.csv"
     rederive_authorized_extract(

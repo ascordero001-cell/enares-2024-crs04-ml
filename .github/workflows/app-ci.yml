@@ -1,0 +1,54 @@
+name: App CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  app-quality:
+    name: App quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Install development dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-dev.txt
+
+      - name: Ruff
+        run: ruff check src app tests
+
+      - name: Mypy
+        run: mypy --config-file mypy.ini src app tests
+
+      - name: Pytest
+        run: python -m pytest -q
+
+  docker-build:
+    name: App image build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build image without publishing
+        run: docker build --tag enares-stage04:app-ci .

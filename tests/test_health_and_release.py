@@ -80,7 +80,7 @@ def test_release_diagnostic_fails_closed_on_multiple_authorized_release_ids():
 
 
 def test_all_authorized_extracts_share_the_golden_release_id():
-    release_ids = set()
+    release_ids: set[str] = set()
     for file_name in AUTHORIZED_EXTRACTS:
         path = ROOT / "app" / "data" / file_name
         with path.open(encoding="utf-8", newline="") as handle:

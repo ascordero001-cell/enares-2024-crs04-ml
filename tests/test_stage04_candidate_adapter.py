@@ -412,14 +412,14 @@ def test_golden_32_and_manifest_hash_remain_bound():
 
 
 def test_suppression_nulls_every_protected_field_before_presentation():
-    synthetic = {field: 1 for field in PROTECTED_FIELDS}
+    synthetic: dict[str, object] = {field: 1 for field in PROTECTED_FIELDS}
     synthetic.update({"cell_id": "hidden", "suppress_flag": True})
     published = apply_published_suppression([synthetic])[0]
     assert all(published[field] is None for field in PROTECTED_FIELDS)
 
 
 def test_synthetic_total_margin_reconstruction_is_rejected():
-    rows = [
+    rows: list[dict[str, object]] = [
         {"cell_id": "total", "estimate": 30, "suppress_flag": False},
         {
             "cell_id": "visible",
@@ -439,7 +439,7 @@ def test_synthetic_total_margin_reconstruction_is_rejected():
 
 
 def test_one_total_with_two_hidden_components_has_no_unique_solution_from_that_equation():
-    rows = [
+    rows: list[dict[str, object]] = [
         {"cell_id": "total", "estimate": 30, "suppress_flag": False},
         {
             "cell_id": "hidden-a",

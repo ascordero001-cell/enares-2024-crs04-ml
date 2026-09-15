@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-
 PRESENTATION_SURFACES = frozenset(
     {"card", "table", "chart", "tooltip", "print", "export"}
 )

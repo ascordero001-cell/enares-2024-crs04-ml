@@ -1,9 +1,9 @@
-from dataclasses import replace
 import inspect
+from dataclasses import replace
 from pathlib import Path
-import tomllib
 
 import pytest
+import tomllib
 from streamlit.testing.v1 import AppTest
 
 from app.streamlit_app import local_repositories
@@ -14,7 +14,6 @@ from app.views.stage04_dashboard import (
     load_validated_estimates,
 )
 from enares.stage04.repository import IndicatorEstimate, IndicatorRepository
-
 
 ROOT = Path(__file__).resolve().parents[1]
 SENTINEL = "<img src=x onerror=alert(1)>"
