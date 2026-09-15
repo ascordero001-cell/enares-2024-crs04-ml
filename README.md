@@ -61,14 +61,17 @@ Un `PASS` técnico o metodológico no equivale a autorización de publicación i
 
 ## Módulos de vigilancia
 
-| Módulo | Contenido | Estado numérico local |
-|---|---|---|
-| 3.1 | Características, percepciones y normas; la selección actual registra `justifica_castigo_parental` y `justifica_castigo_docente` | Pendiente |
-| 3.2 | Violencia psicológica y física en el hogar | Solo `VF_HOGAR` / Nacional / Total autorizado |
-| 3.3 | Violencia psicológica y física en la escuela | Pendiente |
-| 3.4 | Violencia sexual | Pendiente |
-| 3.5 | Polivictimización y acumulación de violencias | Pendiente |
-| 3.6 | Búsqueda de ayuda | Pendiente |
+| Módulo | Contenido | Filas V0 autorizadas | Filas conectadas localmente |
+|---|---|---:|---:|
+| 3.1 | Características, percepciones y normas | 1.170 | 10 |
+| 3.2 | Violencia psicológica y física en el hogar | 389 | 1 |
+| 3.3 | Violencia psicológica y física en la escuela | 123 | 1 |
+| 3.4 | Violencia sexual | 749 | 1 |
+| 3.5 | Polivictimización y acumulación de violencias | 457 | 38 |
+| 3.6 | Búsqueda de ayuda | 126 | 1 |
+
+Las 3.014 filas están autorizadas únicamente para implementación local en shadow; 52 están
+conectadas. La conexión cloud y la publicación de resultados continúan sin autorización.
 
 La etiqueta 3.1 no cambia el significado original de sus indicadores. El bloque oficial 3.6
 corresponde a **Búsqueda de ayuda**; las denominaciones históricas se conservan únicamente para

@@ -6,6 +6,10 @@
   desde Drive privado y fijados por `docs/stage04/v0_drive_hash_manifest.md`
 - **Indicador piloto:** `VF_HOGAR`, Nacional, Total
 
+> **CHECKPOINT HISTÓRICO.** Este documento conserva la evidencia de PUERTA B. Las referencias a
+> autorizaciones pendientes describen ese checkpoint y fueron sustituidas por la autorización
+> integral de las 3.014 filas V0 para implementación local shadow del 2026-09-15.
+
 Los valores de V0 que aparecen aquí son evidencia agregada para revisión shadow; no constituyen
 publicación institucional. No se consultaron microdatos ni se recalcularon estimaciones.
 

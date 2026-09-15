@@ -105,8 +105,9 @@ la categoria **en el propio V0**. La correccion aplicada en Stage 04 es correcta
 pero el origen es un defecto de V0: un marcador de presentacion no pertenece a una etiqueta de
 identidad, y ya provoco un error detectado en el PR #67.
 
-Registrar en `known_discrepancies.md` con indicador, dimension y las ocho categorias, y devolver
-al productor para correccion en la proxima version de V0. No se corrige en Stage 04.
+Registrado en `known_discrepancies.md` con indicador, dimension y las ocho categorias, y devuelto
+al productor mediante el Issue #101 para correccion en la proxima version de V0. No se corrige en
+Stage 04; el registro queda efectivo cuando se fusione el PR #100.
 
 ## E. Ubicacion e implementacion
 
@@ -389,9 +390,9 @@ El plan rector nunca contemplo estas cuatro cosas. No llevan numero y no renumer
 | Trabajo | Que es | Donde | Estado |
 |---|---|---|---|
 | Contrato de origen de `outputs` | Edicion de contrato | `docs/contracts/published_view_contract.md` | HECHO, PR #90 |
-| Versionar este documento | Registro de las decisiones | `docs/stage04/` | PENDIENTE |
+| Versionar este documento | Registro de las decisiones | `docs/stage04/` | ENTREGADO_EN_PR_100; EFECTIVO_AL_MERGE |
 | Conectar la clase A | 2.995 filas mas las 19 excepciones | `authorized_scopes.py`, `app/data/` | PENDIENTE |
-| Discrepancia del `[referencial]` | Registro y devolucion al productor | `known_discrepancies.md` | PENDIENTE |
+| Discrepancia del `[referencial]` | Registro y devolucion al productor | `known_discrepancies.md`, Issue #101 | ENTREGADO_EN_PR_100; EFECTIVO_AL_MERGE |
 
 ---
 
@@ -399,9 +400,8 @@ El plan rector nunca contemplo estas cuatro cosas. No llevan numero y no renumer
 
 ## Sin depender de nadie, desde ya
 
-1. **Versionar este documento** y actualizar los estados que cambia: clase A en el paquete
-   numerico, tratamiento de las clases C, D y E, la discrepancia, y la columna de pendientes de
-   la matriz de cobertura separada en dos estados. Ruta protegida: si.
+1. **Cerrar el PR #100:** este documento, los estados de las clases A/C/D/E, la discrepancia y la
+   matriz de cobertura ya están entregados; quedan efectivos al aprobarse y fusionarse el PR.
 2. **Conectar la clase A.** El trabajo mas grande. Con la condicion de parada de la seccion E: si
    la navegacion no aguanta, detenerse y escribir antes de dar el paso por cerrado.
 3. **Paso 36:** el job de CI del quickstart.

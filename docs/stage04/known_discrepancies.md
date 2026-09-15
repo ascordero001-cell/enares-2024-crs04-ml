@@ -1,5 +1,8 @@
 # Discrepancias conocidas del corte vertical 3.2
 
+**Estado vigente al 2026-09-15:** las 3.014 filas V0 están autorizadas para implementación local
+shadow, 52 están conectadas y ninguna está autorizada para conexión cloud o publicación.
+
 ## Actualización 2026-09-13 — dominio D09
 
 El V0 deja vacíos `domain_variable/domain_value` de `CONS_ATENCION_SALUD`, mientras la decisión
@@ -7,8 +10,8 @@ vigente exige `CONS_ALGUNA = 1`. El contraste de Drive no encontró una diferenc
 dominio: en los 22 pares, `base_unw(CONS_ATENCION_SALUD)` coincide con
 `target_unw(CONS_ALGUNA)`. La equivalencia se explica porque la variable queda `NULL` fuera del
 dominio y R usa respuestas válidas. Estado: `STRUCTURAL_EQUIVALENCE_VERIFIED`; se recomienda
-versionar metadata explícita en el próximo productor, sin sobrescribir V0. Los pares y cifras
-continúan pendientes de autorización. Véase
+versionar metadata explícita en el próximo productor, sin sobrescribir V0. Los 22 pares y sus
+cifras están autorizados y conectados en alcance local shadow. Véase
 [d09_cons_atencion_salud_domain_evidence.md](d09_cons_atencion_salud_domain_evidence.md).
 
 **Estado al 2026-09-04:** No existen discrepancias abiertas para el corte vertical 3.2 a la
@@ -45,10 +48,14 @@ mientras no se autorice granularidad más fina que departamento o un cruce ausen
 decisión del 2026-09-13 resolvió `CV > 0.15` y `base_unw < 30` como alertas visibles sin supresión
 automática, aprobó la tolerancia `1e-9` con alcance restringido y fijó los alcances numéricos
 D01–D12 en el acta de decisión. La política de confidencialidad quedó aprobada el 2026-09-14 sin
-umbral de recuento. Lo que continúa abierto es la conexión de cifras reales de D06 y D07, que va
-en un PR posterior.
+umbral de recuento. D06 y D07 quedaron conectados y aprobados; solo sigue abierto el retorno al
+productor de la discrepancia `[referencial]` mediante el Issue #101.
 
 ## Corte 2 — discrepancias detectadas antes de publicación
+
+> **HISTÓRICO / NO NORMATIVO.** La tabla siguiente conserva los estados observados antes del acta
+> D01–D12. Sus textos `PENDING` no representan gates vigentes; la autorización integral del
+> 2026-09-15 y las secciones de estado vigente de este documento son las fuentes actuales.
 
 | ID | Comparación | Clasificación | Efecto | Tratamiento | Revisor | Estado |
 |---|---|---|---|---|---|---|
@@ -95,10 +102,10 @@ es el siguiente:
 
 | Caso | Evidencia nueva | Estado vigente |
 |---|---|---|
-| D01 | Semántica de `tarea1_fem`–`tarea10_fem` contrastada contra la sintaxis CRS04 y registrada en [etapa1_source_semantics.md](etapa1_source_semantics.md) | SOURCE_SEMANTICS_VERIFIED; ADAPTER_REVIEW_PENDING |
+| D01 | Semántica de `tarea1_fem`–`tarea10_fem` contrastada contra la sintaxis CRS04 y registrada en [etapa1_source_semantics.md](etapa1_source_semantics.md) | CONNECTED_APPROVED_LOCAL_SCOPE |
 | D02 | Ceros observados y significado conjuntivo confirmados en [Issue #24](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/24#issuecomment-5657767214) | RESOLVED; AUTHORIZED_VISIBLE_ZERO_CV_UNDEFINED |
 | D10 | Ceros observados y linaje del bloque CRS04 resueltos en [Issue #24](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/24#issuecomment-5657767214) | RESOLVED; AUTHORIZED_VISIBLE_ZERO_CV_UNDEFINED |
-| D11 | Valor 5 y etiqueta exacta de `C3P213` contrastados contra la sintaxis y registrados en [etapa1_source_semantics.md](etapa1_source_semantics.md) | SOURCE_SEMANTICS_VERIFIED; ADAPTER_REVIEW_PENDING |
+| D11 | Valor 5 y etiqueta exacta de `C3P213` contrastados contra la sintaxis y registrados en [etapa1_source_semantics.md](etapa1_source_semantics.md) | CONNECTED_APPROVED_LOCAL_SCOPE |
 | D12 | Alias aprobados centralizados para seis superficies, conservando nombre y código fuente en metadata | UI_ALIAS_CONTRACT_IMPLEMENTED |
 
 ### Respuesta de producción y verificaciones del 2026-09-14 UTC
@@ -119,15 +126,17 @@ es el siguiente:
   las proporciones reúne los diez ítems. La etiqueta V0 «tareas del hogar» no se modifica en
   Stage 04. Estado: `PRODUCER_REVIEW_REQUIRED`; indicador fuera del alcance D01.
 
-## Correcciones técnicas R01–R05 del PR #59
+## Correcciones técnicas históricas R01–R05 del PR #59
+
+> Esta tabla registra límites del momento del PR #59; no sustituye las aprobaciones posteriores.
 
 | Revisión | Corrección | Estado técnico | Límite conservado |
 |---|---|---|---|
 | R01 | Catálogos runtime de tipo, escala y unidad CV; adaptador solo como identificador candidato | RESOLVED_ENGINEERING | No concede autorización ni acredita implementación futura |
 | R02 | NaN, infinitos, texto y booleanos rechazados; `None` solo donde incomplete lo permite | RESOLVED_ENGINEERING | No imputa IC/CV ni crea regla metodológica |
 | R03 | Alcance como pares exactos dimensión/categoría | RESOLVED_ENGINEERING | No modifica `authorized_dimensions` ni activa cifras |
-| R04 | D01–D12 y anexos de alcance/opciones precisados desde baseline por hash | RESOLVED_DOCUMENTED | Todas las decisiones indicadas siguen PENDING |
-| R05 | Ejemplo renombrado como un total con dos componentes ocultos | RESOLVED_DOCUMENTED | Márgenes múltiples, multitabla y multirelease están probados sintéticamente; política pendiente de aprobación |
+| R04 | D01–D12 y anexos de alcance/opciones precisados desde baseline por hash | RESOLVED_DOCUMENTED | Estado histórico sustituido por el acta y la autorización integral del 2026-09-15 |
+| R05 | Ejemplo renombrado como un total con dos componentes ocultos | RESOLVED_DOCUMENTED | Márgenes múltiples, multitabla y multirelease están probados sintéticamente; política aprobada el 2026-09-14 |
 
 ## Etapa 2 — control de confidencialidad propuesto
 
@@ -135,5 +144,6 @@ El código de esta etapa detecta reconstrucción única usando todas las ecuacio
 impide decisiones contradictorias para una misma celda dentro del release, bloquea la supresión
 retroactiva de una celda históricamente visible y materializa una única salida segura para todos los
 canales. La política aprobada elimina el umbral de recuento y mantiene esa maquinaria inactiva bajo
-la granularidad V0. D06 y D07 están `CONNECTED_PENDING_SUPERVISORY_REVIEW`, con sus 16 filas
-agregadas, sin cruces nuevos ni mayor granularidad.
+la granularidad V0. D06 y D07 están `CONNECTED_APPROVED_LOCAL_SHADOW`, con sus 16 filas
+agregadas, sin cruces nuevos ni mayor granularidad. La conexión cloud y la publicación siguen
+fuera de esta autorización.

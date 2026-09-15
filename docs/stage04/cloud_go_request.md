@@ -6,7 +6,7 @@
 
 **Estado operativo vigente:** `GO_FOR_STAGE7_CONTROLLED_SHADOW; PRIVATE_PROJECT_BILLING_VERIFICATION_PENDING`
 
-Esta solicitud no habilita servicios, billing ni IAM. Su aprobación permitiría iniciar únicamente
+Esta solicitud no habilita por sí sola servicios, billing ni IAM. El GO ya aprobado permite iniciar únicamente
 la Etapa 7 controlada en shadow, con los recursos y límites enumerados aquí. No autoriza
 publicación institucional, cutover, sustitución de V0 ni nuevas cifras.
 
@@ -46,7 +46,7 @@ microdatos, `raw`, `cleaned`, `analytical`, `survey_input`, publicación ni cuto
 
 El modelo operativo es permanecer dentro de la capa gratuita de Google Cloud. Los **USD 20 al
 mes** son un margen máximo de contingencia para pruebas controladas, no el presupuesto previsto
-ni una meta de gasto. El agregado autorizado contiene 52 filas y el servicio tendrá seis personas
+ni una meta de gasto. Hay 52 filas conectadas de las 3.014 autorizadas y el servicio tendrá seis personas
 usuarias. Artifact Registry puede generar un cargo pequeño e inevitable de centavos cuando la
 imagen almacenada exceda 0.5 GiB; la alerta de USD 1 señala un gasto anómalo que sí requiere
 investigación.
@@ -80,8 +80,8 @@ en privado los principales exactos y obtener GO.
 |---|---|---|
 | Desplegadora (Ana; principal exacto privado) | `roles/run.developer` sobre Cloud Run, `roles/artifactregistry.writer` sobre el repositorio y `roles/iam.serviceAccountUser` sobre la identidad de ejecución | `PENDING_GO` |
 | Identidad de ejecución de la app | `roles/bigquery.jobUser` en el proyecto y `roles/bigquery.dataViewer` solo sobre `published` | `PENDING_CREATION_AND_GO` |
-| Revisora (Rita; principal exacto privado) | `roles/run.viewer`, `roles/logging.viewer` y `roles/monitoring.viewer` sobre el proyecto; `roles/billing.viewer` sobre la cuenta de billing | `APPROVED_FOR_STAGE7_CONFIGURATION` |
-| Seis personas usuarias | Una persona de protección de UNICEF, una de la Dirección de Niñez del MIMP, Ana, Rita y dos reservas; solo invocación autenticada. Cargo y principal exacto se mantienen en el registro privado | `COMPOSITION_APPROVED; PRINCIPALS_PRIVATE` |
+| Revisora (Rita; principal exacto privado) | `roles/run.viewer`, `roles/logging.viewer` y `roles/monitoring.viewer` sobre el proyecto; sin propiedad ni administración de billing | `APPROVED_FOR_STAGE7_CONFIGURATION` |
+| Personas usuarias | Ana, Rita y las etiquetas privadas `viewer_01`–`viewer_04`; las seis reciben solo `roles/run.invoker` para invocación autenticada. Los principales exactos se mantienen en el registro privado | `COMPOSITION_APPROVED; PRINCIPALS_PRIVATE` |
 
 Google documenta que el despliegue de un contenedor requiere permisos sobre Cloud Run, lectura de
 la imagen y capacidad de actuar como la identidad del servicio; Artifact Registry permite limitar
@@ -114,7 +114,7 @@ Referencias oficiales:
 | Responsable real de IAM | `ASIGNADO: ANA; REVISIÓN: RITA` | Ana aplica o revoca; Rita revisa antes de cada binding; ninguna clave JSON |
 | Cuenta de billing | `PENDING` | identificador verificado en canal privado y vínculo con el proyecto |
 | Proyecto | `PENDING_VERIFICATION` | ID/número y propiedad verificados |
-| Seis identidades | `COMPOSITION_APPROVED` | los cargos están registrados arriba; los principales exactos se verifican solo por canal privado |
+| Seis identidades | `COMPOSITION_APPROVED` | Ana, Rita y `viewer_01`–`viewer_04`; los principales exactos se verifican solo por canal privado |
 | Roles exactos de Rita | `APPROVED` | `run.viewer`, `logging.viewer` y `monitoring.viewer`; sin propiedad ni administración de billing |
 | Condición de parada | `APPROVED_NOT_EXECUTED` | Ana ejecuta y Rita supervisa los escalones USD 1/5/10/20 |
 | GO de Etapa 7 | `GO_FOR_STAGE7_CONTROLLED_SHADOW` | Aprobado el 2026-09-14 en la [revisión formal del PR #69](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/69#pullrequestreview-5203865560) |

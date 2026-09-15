@@ -66,8 +66,8 @@ sustituye.
 | D03 | `AUTHORIZED` | Denominador explícito; sin comparación CRS03 |
 | D04 | `AUTHORIZED_CONDITIONAL_ROWS; NON_NUMERIC_CONTEXT_ROWS` | Dos condicionales numéricas; dos contextos sin métricas |
 | D05 | `AUTHORIZED_CONDITIONAL_ROWS; NON_NUMERIC_CONTEXT_ROWS` | Adaptador de hogar separado del de escuela |
-| D06 | `CONNECTED_PENDING_SUPERVISORY_REVIEW` | Ocho filas; universo 12 meses; matriz completa; granularidad V0 y regresión propia |
-| D07 | `CONNECTED_PENDING_SUPERVISORY_REVIEW` | Ocho filas; universo vida; evidencia propia, sin heredar implementación de D06 |
+| D06 | `CONNECTED_APPROVED_LOCAL_SHADOW` | Ocho filas; universo 12 meses; matriz completa; granularidad V0 y regresión propia |
+| D07 | `CONNECTED_APPROVED_LOCAL_SHADOW` | Ocho filas; universo vida; evidencia propia, sin heredar implementación de D06 |
 | D08 | `AUTHORIZED_DISTRIBUTION` | Total de distribución, nunca prevalencia |
 | D09 | `AUTHORIZED_22_EXACT_PAIRS; ADAPTER_TESTED_SYNTHETIC` | Los 22 pares existentes; Departamento retirado por ausencia en el agregado aprobado |
 | D10 | `RESOLVED; AUTHORIZED_VISIBLE_ZERO_CV_UNDEFINED` | Ceros observados y linaje del bloque CRS04 línea 2416 acreditado en Issue #24 |
@@ -75,6 +75,10 @@ sustituye.
 | D12 | `AUTHORIZED_UI_ALIASES` | Conservar nombres y códigos fuente en metadata; no ampliar pares |
 
 ## Tabla histórica sometida a decisión
+
+> **HISTÓRICO / NO NORMATIVO.** Esta tabla conserva la solicitud previa a las decisiones
+> supervisoras. Los verbos «aprobar», «bloquear» y «pendiente» describen el estado en que se
+> sometió la evidencia; el estado vigente es el de «Resolución vigente D01–D12» y su adenda.
 
 Las fuentes de todas las filas son `V0-TAB + V0-DIC`. “Campos” enumera la expectativa del contrato;
 la evidencia puntual está enlazada en la última columna.
@@ -150,6 +154,10 @@ un producto cartesiano ni una autorización vigente.
 
 ## Anexo B — opciones y recomendaciones históricas sometidas
 
+> **HISTÓRICO / NO NORMATIVO.** Los estados `PENDING` siguientes son evidencia de la propuesta
+> original y no gates vigentes. Las decisiones D01–D12 quedaron cerradas por el acta y la
+> autorización integral del 2026-09-15.
+
 | Casos | Opciones para revisión | Recomendación preparatoria | quality_note propuesta | Estado / revisora / fecha / evidencia |
 |---|---|---|---|---|
 | D01, D03 | rechazar; aceptar como prevalencia con semántica especial; pedir rediseño | Validar primero significado/categorías; un `adapter_id` solo identifica trabajo futuro | `SPECIAL_SOURCE_TYPE_REQUIRES_APPROVED_ADAPTER` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
@@ -188,26 +196,29 @@ del padre V0.
 | CV menor/igual/mayor a 15 %, N=29/30/31 y alertas combinadas en 3.1–3.6 | TESTED_SYNTHETIC | `tests/test_stage04_candidate_adapter.py` |
 | D09 condicionado a `CONS_ALGUNA = 1`, con válidos y ausencias | TESTED_SYNTHETIC_AND_V0_STRUCTURAL | mismo archivo y [evidencia D09](d09_cons_atencion_salud_domain_evidence.md) |
 
-## Decisiones y verificaciones todavía requeridas
+## Implementación y gates todavía requeridos
 
-1. Política de confidencialidad aprobada sin umbral de recuento. D06/D07 pueden conectarse en un PR
-   posterior sin cruces nuevos ni granularidad más fina que V0.
-2. Confirmar con el productor Stage 03 el origen de los ceros de D02/D10.
-3. Resolver la documentación condicionante de D01 y la etiqueta exacta de D11.
-4. Implementar únicamente filas presentes en el padre V0 y cubiertas por la adenda; cualquier
-   categoría, dimensión o cruce nuevo reabre el gate numérico.
-5. Mantener publicación, promoción, cutover y exportación fuera del golden bloqueados.
+1. Conectar las 2.962 filas autorizadas restantes mediante extracto, manifiesto, rederivación,
+   pruebas y navegación; la autorización numérica no equivale a conexión técnica.
+2. Aplicar los tratamientos aprobados para las clases C y D y conservar las ocho filas E ya
+   conectadas; no queda una decisión D01–D12 pendiente.
+3. Dar seguimiento a la corrección del productor en el
+   [Issue #101](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/101), sin reescribir V0.
+4. Implementar únicamente filas presentes en el padre V0: cualquier categoría, dimensión o cruce
+   ausente del catálogo autorizado reabre el gate numérico.
+5. Mantener conexión cloud, publicación, promoción y cutover bajo sus gates independientes.
 
-## Inicio de Etapa 1
+## Estado vigente de Etapa 1
 
-- D02/D10: consulta de procedencia enviada al productor Stage 03 en el
-  [Issue #24](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/24#issuecomment-5657225304);
-  la respuesta continúa pendiente y las filas permanecen como contexto no numérico.
-- D01/D11: semántica de fuente verificada y registrada en
+- D02/D10: procedencia y ceros observados resueltos en el
+  [Issue #24](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/24#issuecomment-5657767214);
+  las filas conservan cero visible y CV indefinido.
+- D01/D11: semántica de fuente verificada, alcance local autorizado y registrada en
   [etapa1_source_semantics.md](etapa1_source_semantics.md).
+- D06/D07: matrices completas conectadas y aprobadas en alcance local shadow.
+- D09: los 22 pares exactos están autorizados y conectados.
 - D12: contrato de alias implementado con nombre y código fuente conservados en metadata.
-- Adaptadores: esqueletos sintético e institucional separados y detenidos en
-  [revisión supervisora](adapter_separation_review.md) antes del primer agregado.
+- Adaptadores: separación sintético/institucional aprobada y reglas estadísticas compartidas.
 
 El golden 3.2 / `VF_HOGAR` / Nacional / Total continúa vigente e intacto. La solicitud histórica
 que originó el acta se conserva en

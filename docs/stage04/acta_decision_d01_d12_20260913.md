@@ -10,6 +10,9 @@
 **Estado resultante:** `NUMERIC_SCOPE_PARTIALLY_AUTHORIZED; PUBLICATION_NOT_AUTHORIZED`
 **Estado vigente tras adenda del 2026-09-15:** `FULL_V0_NUMERIC_SCOPE_AUTHORIZED_FOR_LOCAL_SHADOW; IMPLEMENTATION_PENDING; PUBLICATION_NOT_AUTHORIZED`
 
+> Las secciones 1–3 conservan el estado histórico decidido el 2026-09-13. Sus gates parciales
+> fueron sustituidos por la adenda del 2026-09-15 indicada arriba y no son el estado operativo actual.
+
 Esta acta responde a las decisiones solicitadas en el paquete del gate numérico. No autoriza
 publicación, cutover, conexión cloud ni ampliación de presupuesto. No modifica V0, sus hashes,
 las sintaxis SPSS ni el golden aprobado.
