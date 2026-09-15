@@ -17,21 +17,25 @@ manifiestos independientes. V0 continúa oficial y no se recalcula en Stage 04.
 
 ## Cobertura por módulo
 
-| Módulo | Trabajo local | Alcance numérico autorizado | Cloud ejecutado | Pendiente |
-|---|---|---|---|---|
-| 3.1 Roles y tareas en el hogar | 10 filas de la serie `_fem` de `Componentes`; dos grupos de presentación para ítems 1–7 y 8–10; exportación del mismo corte | D01: 10 filas `_fem` conectadas | No; 0 filas cargadas o publicadas | Las tres filas `_nadie` se retiraron porque no existen en el agregado V0; cualquier corte posterior exige nueva versión y adenda supervisora |
-| 3.2 Violencia en el hogar | Golden `VF_HOGAR / Nacional / Total` conectado y probado | 1 fila del golden V0 | No; 0 filas cargadas o publicadas | Resto del catálogo 3.2 sujeto a decisión posterior |
-| 3.3 Violencia en la escuela | `C3P223_10_1 / Nacional / Total` conectado y probado | D11: 1 fila V0 | No; 0 filas cargadas o publicadas | Resto del catálogo 3.3 sujeto a decisión posterior |
-| 3.4 Violencia sexual | `Agresor_VS_12M__AG_01 / Nacional / Total` conectado y probado | D11: 1 fila V0 | No; 0 filas cargadas o publicadas | Resto del catálogo 3.4 sujeto a decisión posterior |
-| 3.5 Acumulación y consecuencias | D09 con 22 pares; D06 y D07 con dos matrices completas de 8 filas cada una | 38 filas: 22 de `CONS_ATENCION_SALUD`, 8 de `Solap_VS_12M` y 8 de `Solap_VS_VIDA` | No; 0 filas cargadas o publicadas | Formas de contexto y distribución, y cualquier ampliación, requieren tratamiento/adenda específica |
-| 3.6 Búsqueda de ayuda | `C3P213 / Nacional / Total` conectado y probado | D11: 1 fila V0 | No; 0 filas cargadas o publicadas | Resto del catálogo 3.6 sujeto a decisión posterior |
+La autorización supervisora del 2026-09-15 cubre las 3014 filas del padre V0. La tabla mantiene
+separado lo decidido de lo efectivamente conectado.
+
+| Módulo | Trabajo local actual | Decisión supervisora vigente | Cloud ejecutado | Autorizado, pendiente de conectar | Sin decisión supervisora |
+|---|---|---|---|---:|---|
+| 3.1 Roles y tareas en el hogar | 10 filas `_fem` conectadas en dos grupos de presentación | 1170 filas V0 cubiertas por D01 y la autorización de clase A | No; 0 filas | 1160 | Ninguna fila V0. Las tres candidatas `_nadie`, ausentes del padre, requieren nueva versión y adenda |
+| 3.2 Violencia en el hogar | Golden `VF_HOGAR / Nacional / Total` conectado | 389 filas V0 autorizadas; D02 absorbido por la ampliación | No; 0 filas | 388 | Ninguna fila V0 |
+| 3.3 Violencia en la escuela | `C3P223_10_1 / Nacional / Total` conectado | 123 filas V0 autorizadas; D11 incluido | No; 0 filas | 122 | Ninguna fila V0 |
+| 3.4 Violencia sexual | `Agresor_VS_12M__AG_01 / Nacional / Total` conectado | 749 filas V0 autorizadas; D11 incluido | No; 0 filas | 748 | Ninguna fila V0 |
+| 3.5 Acumulación y consecuencias | 38 filas conectadas: D09 y matrices D06/D07 | 457 filas V0 cubiertas: 438 A, 4 C, 7 D y 8 E | No; 0 filas | 419 | Ninguna fila V0 |
+| 3.6 Búsqueda de ayuda | `C3P213 / Nacional / Total` conectado | 126 filas V0 autorizadas; D10/D11 absorbidos por la ampliación | No; 0 filas | 125 | Ninguna fila V0 |
 
 ## Totales por estado
 
 | Estado | Resultado verificable |
 |---|---:|
 | Agregados conectados y probados localmente | 52 filas |
-| Agregados con autorización numérica dentro de ese corte local | 52 filas |
+| Filas V0 con decisión supervisora | 3014 filas |
+| Filas autorizadas todavía no conectadas | 2962 filas |
 | Agregados ejecutados o cargados en cloud | 0 filas |
 | Recursos cloud creados por este trabajo local | 0 |
 
@@ -50,8 +54,8 @@ ejecutado.
   verificar en privado el proyecto y billing.
 - La primera ejecución cloud debe proteger identidades y límites antes de desplegar el fixture
   sintético. Conectar cifras reales requiere la autorización separada del paso 47.
-- El inventario integral del padre V0 y cualquier adenda de ampliación son gates separados; no
-  alteran automáticamente esta matriz.
+- El inventario integral y la adenda del 2026-09-15 autorizan el catálogo, pero no lo declaran
+  conectado. El nuevo extracto, manifiesto, rederivación, pruebas y navegación siguen pendientes.
 
 Sprint 04.2 permanece abierto. Esta actualización completa el registro local del paso 50, pero
 no declara ejecutada la Etapa 7 ni satisface por sí sola el paquete de cierre del paso 53.

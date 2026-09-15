@@ -5,6 +5,10 @@ El checkpoint de ingeniería fue aprobado y fusionado mediante PR #57; Sprint 04
 Alcance: LOCAL_SHADOW_ONLY. Cloud NOT_AUTHORIZED. Presupuesto USD 0.
 Exportación deshabilitada; publicación, cutover y sustitución de V0 no autorizados.
 
+> **CHECKPOINT HISTÓRICO / NO NORMATIVO.** `NUMERIC_DATA_GATE_OPEN` y la autorización limitada a
+> 3.2 describen el estado del PR #57. Fueron sustituidos el 2026-09-15 por la autorización de las
+> 3.014 filas V0 para implementación local shadow; cloud y publicación continúan fuera de alcance.
+
 ## Avance verificable
 
 - Rama creada desde el merge del PR #56: 10692b160bcc8a0998c2b4ea622c74c066b5a952.

@@ -4,6 +4,10 @@
 **Resuelto:** reglas CV/N, origen de N y dominio D09.
 **No resuelto:** pares numéricos, estadísticas incompletas, confidencialidad y tolerancia.
 
+> **SOLICITUD HISTÓRICA / NO NORMATIVA.** Los `PENDING` de esta tabla son el estado sometido a
+> decisión el 2026-09-13. La adenda del 2026-09-15 autorizó las 3.014 filas V0 para implementación
+> local shadow; no autorizó conexión cloud ni publicación.
+
 La tabla no contiene prevalencias ni incorpora nuevos agregados. Las categorías proceden del V0
 congelado y la conciliación SPSS del PR #60.
 

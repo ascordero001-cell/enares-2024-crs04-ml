@@ -1,7 +1,7 @@
 # Inventario integral de publicabilidad del padre V0
 
 - **Fecha UTC del análisis:** `2026-09-15`
-- **Estado:** `REPORT_ONLY_PENDING_SUPERVISORY_DECISION`
+- **Estado:** `APPROVED_FOR_LOCAL_SHADOW_IMPLEMENTATION`
 - **Fuente:** padre agregado V0 privado contrastado directamente en Drive
 - **Filas evaluadas:** `3,014`
 - **Indicadores distintos:** `516`
@@ -10,8 +10,8 @@
 - **SHA-256 del diccionario:** `F5FD6979A19EBC9F510C307705B1E7DE12556A8F5A81DDBC566E97347337BD2C`
 
 Este informe no contiene valores de estimación, errores estándar, intervalos ni conteos de
-personas. No modifica alcances autorizados, extractos, manifiestos ni cifras. La clase A es
-una clasificación técnica para decisión supervisora posterior; no concede autorización.
+personas. No modifica extractos, manifiestos ni cifras. La decisión supervisora posterior quedó
+registrada en la revisión del PR #91 y en la adenda del acta D01–D12.
 
 ## Criterio reproducido
 
@@ -31,7 +31,7 @@ marcador de precisión escrito a mano.
 
 | Clase | Filas | Interpretación |
 |---|---:|---|
-| A | 2995 | Publicable directa bajo el contrato estadístico; pendiente de autorización supervisora |
+| A | 2995 | Autorizada para implementación local shadow bajo el contrato estadístico |
 | B | 0 | Estadísticas incompletas |
 | C | 4 | Contexto no apto como estimación completa |
 | D | 7 | Requiere adaptador por forma estadística |
@@ -109,12 +109,12 @@ marcador de precisión escrito a mano.
 | E | 3.5 | `Solap_VS_VIDA` | 3×3 | P(violación (301) \| agresión con contacto (302)): de agresión con contacto (302), % con violación (301) [referencial] | la categoría contiene [referencial]; el marcador debe derivarse de cv_flag |
 | E | 3.5 | `Solap_VS_VIDA` | 3×3 | P(violación (301) \| no física (303)): de no física (303), % con violación (301) [referencial] | la categoría contiene [referencial]; el marcador debe derivarse de cv_flag |
 
-## Resultado y siguiente gate
+## Resultado y decisión supervisora
 
-Las 2995 filas A pasaron `validate_estimates`; las demás quedaron
-enumeradas sin imputación ni transformación. El resultado se entrega para que la revisora
-decida qué conjunto A autoriza mediante adenda fechada y en qué sprint se incorpora.
-Hasta esa decisión no se conectan nuevas cifras reales ni se modifica la publicación.
+Las 2995 filas A pasaron `validate_estimates`; las demás quedaron enumeradas sin imputación ni
+transformación. La [revisión formal del PR #91](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/91#pullrequestreview-5215637752)
+autorizó la clase A completa y fijó los tratamientos C, D y E para Sprint 04.2.
 
-La Etapa 7 y cualquier recurso cloud continúan bloqueados por el gate cloud. Este informe
-no autoriza publicación institucional, cutover ni sustitución de V0.
+La implementación, el nuevo extracto, el manifiesto y la navegación continúan pendientes. La
+Etapa 7 y cualquier recurso cloud conservan su gate propio. Esta decisión no autoriza publicación
+institucional, cutover ni sustitución de V0.

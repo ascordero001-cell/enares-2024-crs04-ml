@@ -13,7 +13,8 @@ redactadas.
 
 ## Precondiciones
 
-- [ ] Proyecto y cuenta de billing confirmados privadamente con Rita.
+- [ ] Ana confirma proyecto, cuenta de billing, vínculo y medio de pago; Rita revisa privadamente
+      la evidencia.
 - [ ] GO `GO_FOR_STAGE7_CONTROLLED_SHADOW` vigente.
 - [ ] Servicio autenticado sin `allUsers` ni `allAuthenticatedUsers`.
 - [ ] Revisión y digest de imagen registrados.

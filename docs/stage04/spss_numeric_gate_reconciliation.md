@@ -5,6 +5,10 @@
 **Manifiesto:** [spss_source_manifest.md](spss_source_manifest.md)
 **Revisora requerida:** `ritaricaldi-cpu`
 
+> **EVIDENCIA HISTÓRICA / NO NORMATIVA.** Los estados y gates de solicitud que siguen documentan
+> la conciliación previa. El estado vigente es la autorización de las 3.014 filas V0 para
+> implementación local shadow del 2026-09-15; cloud y publicación continúan separados.
+
 Esta conciliación contrasta el paquete D01–D12 con las sintaxis CRS04 entregadas y con el
 diccionario y los agregados V0 congelados. Las referencias `Lx–Ly` son líneas del archivo lógico
 identificado por SHA-256 en el manifiesto; no son rutas locales.

@@ -8,6 +8,10 @@
 **CI de main:** [run 34777073136 — success](https://github.com/ascordero001-cell/enares-2024-crs04-ml/actions/runs/34777073136)
 **Documentos evaluados:** `numeric_authorization_review_20260913.md`, `numeric_gate_decision_package.md`, `spss_numeric_gate_reconciliation.md`, `d09_cons_atencion_salud_domain_evidence.md`
 **Estado resultante:** `NUMERIC_SCOPE_PARTIALLY_AUTHORIZED; PUBLICATION_NOT_AUTHORIZED`
+**Estado vigente tras adenda del 2026-09-15:** `FULL_V0_NUMERIC_SCOPE_AUTHORIZED_FOR_LOCAL_SHADOW; IMPLEMENTATION_PENDING; PUBLICATION_NOT_AUTHORIZED`
+
+> Las secciones 1–3 conservan el estado histórico decidido el 2026-09-13. Sus gates parciales
+> fueron sustituidos por la adenda del 2026-09-15 indicada arriba y no son el estado operativo actual.
 
 Esta acta responde a las decisiones solicitadas en el paquete del gate numérico. No autoriza
 publicación, cutover, conexión cloud ni ampliación de presupuesto. No modifica V0, sus hashes,
@@ -186,3 +190,30 @@ Etiquetas aprobadas para D09:
 
 Trece de las 22 celdas D09 tienen `CV > 15 %`: se muestran visibles, referenciales y con nota.
 La alerta de precisión no activa `suppress_flag`.
+
+## 6. Adenda supervisora — catálogo V0 completo — 2026-09-15 UTC
+
+La [revisión formal del PR #91](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/91#pullrequestreview-5215637752)
+aprobó el inventario integral del padre V0 y autorizó la clase A como clase. Esta adenda amplía
+el alcance numérico local, pero no modifica V0, no autoriza cloud y no autoriza publicación.
+
+| Clase | Filas | Decisión vigente |
+|---|---:|---|
+| A | 2995 | Autorizadas para conexión `LOCAL_SHADOW_ONLY` bajo las reglas transversales aprobadas |
+| B | 0 | No aplica |
+| C | 4 | Contexto no numérico: visible, sin tarjeta, tabla numérica ni exportación |
+| D | 7 | Distribución `num_consecuencias_fisicas`; adaptador D08, total nunca presentado como prevalencia |
+| E | 8 | D06/D07 ya conectadas; `[referencial]` se deriva de `cv_flag` y la discrepancia vuelve a Stage 03 |
+| **Total** | **3014** | Catálogo V0 cubierto por una decisión explícita |
+
+Las 2995 filas A conservan el valor con `CV > 15 %` o `base_unw < 30` y muestran la alerta
+correspondiente sin supresión. `N` procede exclusivamente de `base_unw`; un cero exacto con CV
+indefinido por aritmética es válido; no se supera la granularidad de V0 ni se fabrican cruces.
+
+La implementación requiere un nuevo extracto y manifiesto encadenados al SHA-256 del padre,
+rederivación byte a byte, regresión completa y actualización de `authorized_scopes.py`. Si la
+navegación no permite localizar un indicador entre los 516 sin recorrer una lista completa, el
+trabajo se detiene y vuelve a revisión supervisora.
+
+Continúan separados y bloqueados: recursos y gasto cloud, conexión de cifras reales en cloud
+(paso 47), publicación institucional, cutover y sustitución de V0.
