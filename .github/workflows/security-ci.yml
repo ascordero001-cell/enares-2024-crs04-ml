@@ -33,6 +33,25 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+      - name: Prove a synthetic canary blocks the scanner
+        shell: bash
+        run: |
+          canary_dir="${RUNNER_TEMP}/gitleaks-canary"
+          mkdir -p "${canary_dir}"
+          printf '%s%s\n' 'STAGE04_CANARY_' '0123456789ABCDEF0123456789ABCDEF' \
+            > "${canary_dir}/synthetic-canary.txt"
+          set +e
+          docker run --rm \
+            --volume "${canary_dir}:/scan:ro" \
+            --volume "${GITHUB_WORKSPACE}/.gitleaks.toml:/config/.gitleaks.toml:ro" \
+            ghcr.io/gitleaks/gitleaks:v8.24.3 \
+            dir /scan --config /config/.gitleaks.toml --exit-code 23 --no-banner --redact
+          scan_status=$?
+          set -e
+          if [ "${scan_status}" -ne 23 ]; then
+            echo "Expected Gitleaks to reject the synthetic canary with exit code 23."
+            exit 1
+          fi
       - name: Scan repository history for secrets
         uses: gitleaks/gitleaks-action@v3
         env:

@@ -48,6 +48,10 @@ def test_security_ci_audits_dependencies_and_complete_git_history() -> None:
         "gitleaks/gitleaks-action@v3",
         "fetch-depth: 0",
         'GITLEAKS_ENABLE_COMMENTS: "false"',
+        "Prove a synthetic canary blocks the scanner",
+        "ghcr.io/gitleaks/gitleaks:v8.24.3",
+        "--exit-code 23",
+        '--redact',
     ):
         assert required in workflow
 
@@ -64,3 +68,11 @@ def test_dependabot_monitors_python_and_github_actions_weekly() -> None:
     }
     assert all(entry["directory"] == "/" for entry in updates)
     assert all(entry["schedule"]["interval"] == "weekly" for entry in updates)
+
+
+def test_gitleaks_configuration_extends_defaults_with_safe_canary() -> None:
+    config = (ROOT / ".gitleaks.toml").read_text(encoding="utf-8")
+
+    assert "useDefault = true" in config
+    assert 'id = "stage04-synthetic-canary"' in config
+    assert "STAGE04_CANARY_[A-Z0-9]{32}" in config

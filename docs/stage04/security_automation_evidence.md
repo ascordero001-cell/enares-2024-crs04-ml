@@ -23,6 +23,12 @@ hallazgos sensibles a una conversación del PR. Un hallazgo bloquea el job y deb
 los logs públicos: revocación o rotación primero y saneamiento del historial solo mediante un plan
 aprobado.
 
+Antes de revisar el repositorio, el mismo job genera en `${RUNNER_TEMP}` un canario completamente
+sintético y comprueba que Gitleaks termina con el código bloqueante 23. El valor se construye en
+tiempo de ejecución, nunca se versiona, se muestra redactado y el job falla si el detector lo
+acepta o si termina con un error distinto. La configuración extiende las reglas predeterminadas;
+el canario añade una prueba negativa sin sustituir la cobertura normal.
+
 ## Límites
 
 Estos controles no habilitan cloud, IAM, facturación ni despliegues. No sustituyen revisión humana,
