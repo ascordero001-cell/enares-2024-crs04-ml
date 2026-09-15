@@ -66,6 +66,7 @@ en un PR posterior.
 ## KD-C2-11 — marcador de precisión incrustado en categorías V0
 
 **Fecha:** 2026-09-15. **Estado:** `RETURNED_TO_STAGE03_PRODUCER`.
+**Seguimiento de producción:** [Issue #101](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/101).
 
 El padre V0 contiene `[referencial]` dentro del texto de ocho categorías. El marcador describe
 presentación/calidad, no identidad, y debe derivarse exclusivamente de `cv_flag`. Stage 04 ya lo
