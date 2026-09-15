@@ -117,7 +117,7 @@ Referencias oficiales:
 | Seis identidades | `COMPOSITION_APPROVED` | los cargos están registrados arriba; los principales exactos se verifican solo por canal privado |
 | Roles exactos de Rita | `APPROVED` | `run.viewer`, `logging.viewer`, `monitoring.viewer` y `billing.viewer` en los alcances indicados |
 | Condición de parada | `APPROVED_NOT_EXECUTED` | Ana ejecuta y Rita supervisa los escalones USD 1/5/10/20 |
-| GO de Etapa 7 | `PENDING` | revisión formal sobre este paquete |
+| GO de Etapa 7 | `GO_FOR_STAGE7_CONTROLLED_SHADOW` | Aprobado el 2026-09-14 en la [revisión formal del PR #69](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/69#pullrequestreview-5203865560) |
 
 Los únicos campos aún bloqueantes son la verificación privada del proyecto y de la cuenta de
 billing. Las identidades exactas nunca se incorporan al repositorio.
