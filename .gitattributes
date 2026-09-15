@@ -6,3 +6,5 @@ requirements*.txt text eol=lf
 /.gitattributes text eol=lf
 *.py text eol=lf
 *.md text eol=lf
+/LICENSE text eol=lf
+/NOTICE text eol=lf

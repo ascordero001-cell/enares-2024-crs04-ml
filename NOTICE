@@ -1,0 +1,14 @@
+ENARES 2024 CRS04 — software Stage 04
+Copyright 2026 Ana Silvia Cordero Ricaldi
+
+Licensed under the Apache License, Version 2.0. The license covers the original software,
+synthetic fixtures, and original technical documentation created for this repository,
+including contracts, decision records, runbooks, coverage matrices, and engineering evidence.
+
+The license does not cover ENARES data or aggregates, dictionaries, tabulations, survey
+instruments, syntax, specifications, or other materials originating from INEI or any third
+party. It does not grant permission to use the names, emblems, logos, or trademarks of INEI
+or any third party. Third-party dependencies and components remain subject to their own
+licenses. Materials whose ownership or redistribution permission is uncertain are excluded.
+
+No institutional attribution or endorsement is implied.
