@@ -348,6 +348,6 @@ def test_ui_uses_one_generic_module_renderer_and_keeps_cloud_blocked():
     assert "module_for_page(page)" in source
     assert "_module_31" not in source
     assert "_module_36" not in source
-    assert EXPORT_ENABLED is False
+    assert EXPORT_ENABLED is True
     with pytest.raises(RepositoryUnavailableError):
         BigQueryRepository().list_estimates("3.6")

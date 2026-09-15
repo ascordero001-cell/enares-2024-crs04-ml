@@ -13,7 +13,7 @@ poblacional basada únicamente en agregados validados.
 > `SHADOW — NOT PUBLISHED`. PRE-STAGE04 está cerrado y el checkpoint de ingeniería
 > local del Corte 2 fue aprobado y fusionado mediante el [PR #57](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/57).
 > Sprint 04.2 sigue en curso con `NUMERIC_DATA_GATE_OPEN`. La aplicación está autorizada
-> exclusivamente como `LOCAL_SHADOW_ONLY`; Cloud continúa `NOT_AUTHORIZED`. El tope aprobado
+> exclusivamente como `LOCAL_SHADOW_ONLY`; Cloud continúa pendiente de verificación privada. El tope aprobado
 > es USD 20 mensuales en total,
 > con Ana y Rita como administradoras; la configuración y el primer despliegue cloud continúan
 > sujetos a verificación y todavía no autorizan publicar resultados.
@@ -35,8 +35,9 @@ Los demás módulos tienen navegación, contratos y evidencia de ausencia, pero 
 habilitadas. Una dimensión presente en V0 o disponible técnicamente no queda autorizada hasta
 que supere los gates de calidad, supresión y revisión independiente.
 
-No están autorizados la exportación, publicación institucional, promoción, cutover, sustitución
-de V0, autenticación cloud, cambios IAM ni despliegues.
+La exportación técnica del mismo corte agregado V0 visible está habilitada en CSV y Excel con
+controles contra fórmulas y metadata. No están autorizados la publicación institucional,
+promoción, cutover, sustitución de V0, autenticación cloud, cambios IAM ni despliegues.
 
 ## Estado del proyecto
 
@@ -176,7 +177,7 @@ enares-2024-crs04-ml/
 - [PRE-STAGE04](PRE_STAGE04.md) · [Documento rector](CRS04_STAGE04_CORREGIDO_VER6_NUEVA_METODOLOGIA.md) · [Hoja arquitectónica](CRS04_STAGE04_HOJA_ARQUITECTONICA_APP_VIGILANCIA.md)
 - [Mapa real de issues](docs/stage04/issue_map.md) · [Issue paraguas #43](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/43)
 - [Checkpoint Corte 2](docs/stage04/sprint042_corte2_module_coverage.md) · [Matriz de cobertura](docs/stage04/module_coverage_matrix.md) · [Evidencia HCI](docs/stage04/hci_accessibility_corte2.md)
-- [Contrato de estimaciones](docs/contracts/indicator_estimates_contract.md) · [Discrepancias Stage 04](docs/stage04/known_discrepancies.md)
+- [Contrato de estimaciones](docs/contracts/indicator_estimates_contract.md) · [Contrato de exportación](docs/contracts/export_contract.md) · [Discrepancias Stage 04](docs/stage04/known_discrepancies.md)
 - [Stage 03 PASS](docs/stage03/stage3_pass.md) · [Handoff a Stage 04](docs/stage03/stage04_handoff.md) · [Guía de contribución](CONTRIBUTING.md)
 
 ## Privacidad y uso responsable

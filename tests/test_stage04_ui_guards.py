@@ -155,7 +155,12 @@ def test_apptest_summary_shows_local_status_release_and_golden_statistics():
         "CV",
         "N no ponderado",
     }
-    assert {metric.value for metric in app.metric} == {"16.74 %", "EE 0.5115", "0.03055", "18,807"}
+    assert {metric.value for metric in app.metric} == {
+        "16.74 %",
+        "EE 0.5115",
+        "0.03055",
+        "18,807",
+    }
     assert "IC95 %: 15.74 %–17.75 %" in visible
 
 
@@ -186,14 +191,24 @@ def test_apptest_unsupported_dimension_shows_no_data_without_a_number():
     assert "16.74 %" not in visible
 
 
-def test_apptest_controls_remain_local_and_export_is_disabled():
+def test_apptest_controls_remain_local_and_safe_export_is_available():
     app = _run_application()
-    assert next(button for button in app.button if button.label == "Exportar").disabled is True
+    visible = _visible_text(app)
+    assert "Exportación agregada: 1 fila(s)" in visible
+    assert len(app.get("download_button")) == 2
     assert "Cloud: NOT_AUTHORIZED" in _visible_text(app)
     app.sidebar.radio[0].set_value("Estado del release").run(timeout=15)
     visible = _visible_text(app)
     assert "PUBLISHED: NOT_AUTHORIZED" in visible
     assert "búsqueda individual" in visible
+
+
+def test_apptest_demo_does_not_offer_institutional_export():
+    app = _run_application()
+    app.sidebar.radio[0].set_value("Módulo 3.2").run(timeout=15)
+    source = next(radio for radio in app.radio if radio.label == "Fuente local")
+    source.set_value("Demo sintético").run(timeout=15)
+    assert not app.get("download_button")
 
 
 def test_streamlit_local_hardening_is_versioned():
@@ -241,7 +256,9 @@ def test_apptest_invalid_statistic_never_reaches_a_metric():
     invalid = StaticRepository([replace(valid_v0_row(), standard_error=-1.0)])
     app = AppTest.from_function(guarded_application, args=(invalid,)).run(timeout=15)
     assert not app.exception
-    assert app.error[0].value == "Los resultados no superaron la validación estadística."
+    assert (
+        app.error[0].value == "Los resultados no superaron la validación estadística."
+    )
     assert not app.metric
 
 

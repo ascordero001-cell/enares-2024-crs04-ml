@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+from collections.abc import Iterable
 from pathlib import Path
 
 import streamlit as st
@@ -23,10 +24,12 @@ from app.views.stage04_dashboard import (
     load_validated_estimates,
     precision_category_label,
 )
+from enares.stage04.export import build_export_bundle
 from enares.stage04.repository import (
     AuthorizedAggregateRepository,
     CompositeRepository,
     DemoRepository,
+    IndicatorEstimate,
     IndicatorRepository,
 )
 
@@ -103,7 +106,8 @@ def _header(release_id: str, created_at: str) -> None:
     )
     st.warning(
         "No es una publicación institucional. V0 continúa oficial; este prototipo "
-        "no habilita búsquedas individuales, exportación ni acceso cloud."
+        "no habilita búsquedas individuales ni acceso cloud. Las descargas reproducen "
+        "únicamente el corte agregado V0 visible."
     )
 
 
@@ -123,6 +127,35 @@ def _numeric_summary(card: dict, heading: str | None = None) -> None:
     st.caption(card["quality_note"])
     st.text(card["universe_text"])
     st.caption(card["denominator_text"])
+
+
+def _download_cut(rows: Iterable[IndicatorEstimate], basename: str) -> None:
+    """Offer two equivalent formats only after the institutional aggregate gate."""
+    if not EXPORT_ENABLED:
+        return
+    try:
+        bundle = build_export_bundle(rows, basename=basename)
+    except (ValueError, OSError, KeyError, TypeError):
+        st.error("El corte no superó la validación para exportación.")
+        return
+    csv_column, xlsx_column = st.columns(2)
+    csv_column.download_button(
+        "Descargar CSV",
+        data=bundle.csv_bytes,
+        file_name=f"{bundle.basename}.csv",
+        mime="text/csv",
+        on_click="ignore",
+    )
+    xlsx_column.download_button(
+        "Descargar Excel",
+        data=bundle.xlsx_bytes,
+        file_name=f"{bundle.basename}.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        on_click="ignore",
+    )
+    st.caption(
+        f"Exportación agregada: {bundle.row_count} fila(s) · mismo corte en CSV y Excel"
+    )
 
 
 def _state_gallery(cards: list[dict]) -> None:
@@ -184,6 +217,13 @@ def _render_d01_groups(repository: IndicatorRepository) -> None:
         "La medida identifica si quien acompaña es principalmente una mujer del hogar."
     )
     _d01_table(relationship)
+    rows = [
+        row
+        for row in load_validated_estimates(repository, "3.1")
+        if row.indicator_id == "Componentes"
+        and row.disaggregation == "Tareas del hogar"
+    ]
+    _download_cut(rows, "enares-stage04-31-nacional")
 
 
 def _render_vs_matrices(repository: IndicatorRepository) -> None:
@@ -214,6 +254,7 @@ def _render_vs_matrices(repository: IndicatorRepository) -> None:
     if len(selected) != 1:
         raise ValueError("The selected D06/D07 V0 matrix cell is not unique")
     _numeric_summary(build_numeric_card(selected[0]), f"{indicator} · matriz {matrix}")
+    _download_cut(selected, f"enares-stage04-35-{indicator}-{matrix}")
 
 
 def render() -> None:
@@ -244,8 +285,8 @@ def render() -> None:
     dimension = st.sidebar.selectbox(
         "Dimensión", FUTURE_DIMENSIONS, index=dimension_index
     )
-    st.sidebar.button(
-        "Exportar", disabled=not EXPORT_ENABLED, help="Exportación no autorizada"
+    st.sidebar.caption(
+        "Exportación segura: disponible solo en cortes agregados V0 autorizados"
     )
     st.sidebar.caption("Cloud: NOT_AUTHORIZED · Tope autorizado: USD 20/mes total")
 
@@ -257,6 +298,7 @@ def render() -> None:
             )
             return
         _numeric_summary(summary)
+        _download_cut(authorized_rows, "enares-stage04-resumen-nacional")
         _validated_state_gallery(demo)
     elif module := module_for_page(page):
         st.subheader(module.full_label)
@@ -340,6 +382,10 @@ def render() -> None:
                 return
             card = build_numeric_card(matches[0])
             _numeric_summary(card, f"Resultado agregado · {module.full_label}")
+            _download_cut(
+                matches,
+                f"enares-stage04-{module.module_id.replace('.', '')}-{dimension}",
+            )
             if module.module_id == "3.5" and dimension == "Nacional":
                 try:
                     _render_vs_matrices(authorized)
@@ -373,7 +419,10 @@ def render() -> None:
         for module in MODULES
     )
     st.caption(f"Cobertura local: {coverage}")
-    st.caption("Sin exportación · Sin búsqueda individual · Cloud bloqueado")
+    st.caption(
+        "Exportación limitada al corte agregado V0 visible · "
+        "Sin búsqueda individual · Cloud bloqueado"
+    )
 
 
 if __name__ == "__main__":
