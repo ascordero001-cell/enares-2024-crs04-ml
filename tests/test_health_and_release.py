@@ -90,10 +90,31 @@ def test_all_authorized_extracts_share_the_golden_release_id():
 
 def test_container_contract_starts_pinned_streamlit_with_healthcheck():
     dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
-    requirements = (ROOT / "requirements.txt").read_text(encoding="utf-8")
+    requirements = (ROOT / "requirements-runtime.txt").read_text(encoding="utf-8")
     assert "streamlit==1.63.0" in requirements
+    assert "requirements-runtime.txt" in dockerfile
+    assert "-r requirements.txt" not in dockerfile
     assert "EXPOSE 8080" in dockerfile
     assert "HEALTHCHECK" in dockerfile
     assert "scripts/container_healthcheck.py" in dockerfile
     assert "python -m streamlit run app/streamlit_app.py" in dockerfile
     assert 'CMD ["python", "-m", "compileall"' not in dockerfile
+
+
+def test_runtime_dependencies_exclude_data_and_cloud_clients():
+    requirements = {
+        line.strip()
+        for line in (ROOT / "requirements-runtime.txt").read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    }
+    assert requirements == {"streamlit==1.63.0"}
+    assert not any(
+        package in dependency
+        for dependency in requirements
+        for package in (
+            "pyreadstat",
+            "google-api-python-client",
+            "google-auth-oauthlib",
+            "google-cloud-bigquery",
+        )
+    )
