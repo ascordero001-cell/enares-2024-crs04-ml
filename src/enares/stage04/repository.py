@@ -9,6 +9,11 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
+from typing import Final
+
+REPOSITORY_UNAVAILABLE_MESSAGE: Final = "Repository data is unavailable"
+REPOSITORY_CONTRACT_MESSAGE: Final = "Repository data violates the aggregate contract"
+RELEASE_NOT_FOUND_MESSAGE: Final = "Requested release run is unavailable"
 
 SENSITIVE_COLUMNS = {
     "respondent_id",
@@ -24,6 +29,22 @@ SENSITIVE_COLUMNS = {
     "longitude",
     "raw_record",
 }
+
+
+class RepositoryError(RuntimeError):
+    """Base class for safe repository failures exposed to consumers."""
+
+
+class RepositoryUnavailableError(RepositoryError):
+    """The configured repository cannot currently be reached or read."""
+
+
+class RepositoryContractError(RepositoryError, ValueError):
+    """Repository content violates the approved aggregate contract."""
+
+
+class ReleaseNotFoundError(RepositoryError, LookupError):
+    """A requested release/run pair does not exist in the repository or cache."""
 
 
 @dataclass(frozen=True)
@@ -80,10 +101,10 @@ class CompositeRepository(IndicatorRepository):
     def __init__(self, *repositories: IndicatorRepository) -> None:
         if not repositories:
             raise ValueError("CompositeRepository requires at least one source")
-        self.repositories = repositories
+        self.repositories: tuple[IndicatorRepository, ...] = repositories
 
     def list_estimates(self, module_id: str) -> list[IndicatorEstimate]:
-        rows = []
+        rows: list[IndicatorEstimate] = []
         for repository in self.repositories:
             rows.extend(repository.list_estimates(module_id))
         return rows
@@ -95,7 +116,7 @@ def _optional_float(value: str) -> float | None:
 
 def _bool(value: str) -> bool:
     if value.lower() not in {"true", "false"}:
-        raise ValueError(f"Invalid boolean: {value}")
+        raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE)
     return value.lower() == "true"
 
 
@@ -162,19 +183,19 @@ class DemoRepository(IndicatorRepository):
     """Read a checked synthetic fixture without accessing private sources."""
 
     def __init__(self, fixture_path: Path) -> None:
-        self.fixture_path = Path(fixture_path)
+        self.fixture_path: Path = Path(fixture_path)
 
     def list_estimates(self, module_id: str) -> list[IndicatorEstimate]:
-        with self.fixture_path.open(encoding="utf-8", newline="") as handle:
-            reader = csv.DictReader(handle)
-            columns = set(reader.fieldnames or ())
-            exposed = columns & SENSITIVE_COLUMNS
-            if exposed:
-                raise ValueError(f"Sensitive columns are forbidden: {sorted(exposed)}")
-            raw_rows = list(reader)
+        try:
+            with self.fixture_path.open(encoding="utf-8", newline="") as handle:
+                reader = csv.DictReader(handle)
+                columns = set(reader.fieldnames or ())
+                if columns & SENSITIVE_COLUMNS:
+                    raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE)
+                raw_rows = list(reader)
             if any(not _bool(row.get("synthetic", "")) for row in raw_rows):
-                raise ValueError("DemoRepository accepts only synthetic=true rows")
-            rows = [
+                raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE)
+            return [
                 _to_estimate(
                     row,
                     source_classification=_VerifiedSourceClassification.SYNTHETIC_TEST,
@@ -182,7 +203,12 @@ class DemoRepository(IndicatorRepository):
                 for row in raw_rows
                 if row["module_id"] == module_id
             ]
-        return rows
+        except OSError:
+            raise RepositoryUnavailableError(REPOSITORY_UNAVAILABLE_MESSAGE) from None
+        except RepositoryError:
+            raise
+        except (KeyError, TypeError, ValueError):
+            raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE) from None
 
 
 class AuthorizedAggregateRepository(IndicatorRepository):
@@ -194,39 +220,40 @@ class AuthorizedAggregateRepository(IndicatorRepository):
         manifest_path: Path,
         approval_registry_path: Path,
     ) -> None:
-        self.fixture_path = Path(fixture_path)
-        self.manifest_path = Path(manifest_path)
-        self.approval_registry_path = Path(approval_registry_path)
+        self.fixture_path: Path = Path(fixture_path)
+        self.manifest_path: Path = Path(manifest_path)
+        self.approval_registry_path: Path = Path(approval_registry_path)
 
     def _verify_provenance(
         self,
     ) -> tuple[dict[str, object], _VerifiedSourceClassification]:
-        manifest = json.loads(self.manifest_path.read_text(encoding="utf-8"))
-        digest = hashlib.sha256(self.fixture_path.read_bytes()).hexdigest()
+        try:
+            manifest = json.loads(self.manifest_path.read_text(encoding="utf-8"))
+            digest = hashlib.sha256(self.fixture_path.read_bytes()).hexdigest()
+            approval_registry = self.approval_registry_path.read_text(encoding="utf-8")
+        except OSError:
+            raise RepositoryUnavailableError(REPOSITORY_UNAVAILABLE_MESSAGE) from None
+        except (json.JSONDecodeError, TypeError):
+            raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE) from None
         if (
             manifest.get("file_name") != self.fixture_path.name
             or manifest.get("sha256") != digest
         ):
-            raise ValueError("Authorized aggregate manifest does not match its CSV")
+            raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE)
         if manifest.get("synthetic") is not False:
-            raise ValueError(
-                "Authorized aggregate manifest must declare synthetic=false"
-            )
+            raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE)
         if manifest.get("data_classification") != "AUTHORIZED_AGGREGATE_ONLY":
-            raise ValueError("Authorized aggregate classification is required")
+            raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE)
         if manifest.get("source_kind") != "AUTHORIZED_V0_EXTRACT":
-            raise ValueError("Authorized aggregate must declare AUTHORIZED_V0_EXTRACT")
+            raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE)
         source_hash = manifest.get("source_hash")
-        if manifest.get("parent_sha256") != source_hash:
-            raise ValueError(
-                "Extract parent_sha256 must equal its registered source_hash"
-            )
-        approval_registry = self.approval_registry_path.read_text(encoding="utf-8")
+        if not isinstance(source_hash, str) or manifest.get("parent_sha256") != source_hash:
+            raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE)
         if (
             "APPROVED_FOR_STAGE04_BASELINE" not in approval_registry
             or source_hash not in approval_registry
         ):
-            raise ValueError("Manifest source_hash is not in the approved V0 registry")
+            raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE)
         return (
             manifest,
             _VerifiedSourceClassification.AUTHORIZED_INSTITUTIONAL_AGGREGATE,
@@ -236,28 +263,33 @@ class AuthorizedAggregateRepository(IndicatorRepository):
         manifest, source_classification = self._verify_provenance()
         source_hash = manifest["source_hash"]
 
-        with self.fixture_path.open(encoding="utf-8", newline="") as handle:
-            reader = csv.DictReader(handle)
-            columns = set(reader.fieldnames or ())
-            exposed = columns & SENSITIVE_COLUMNS
-            if exposed:
-                raise ValueError(f"Sensitive columns are forbidden: {sorted(exposed)}")
-            raw_rows = list(reader)
+        try:
+            with self.fixture_path.open(encoding="utf-8", newline="") as handle:
+                reader = csv.DictReader(handle)
+                columns = set(reader.fieldnames or ())
+                if columns & SENSITIVE_COLUMNS:
+                    raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE)
+                raw_rows = list(reader)
+        except OSError:
+            raise RepositoryUnavailableError(REPOSITORY_UNAVAILABLE_MESSAGE) from None
         if manifest.get("row_count") != len(raw_rows):
-            raise ValueError("Authorized aggregate row_count does not match its CSV")
+            raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE)
         if any(row.get("source_hash") != source_hash for row in raw_rows):
-            raise ValueError(
-                "Authorized aggregate row source_hash does not match the manifest"
-            )
-        return [
-            _to_estimate(row, source_classification=source_classification)
-            for row in raw_rows
-            if row["module_id"] == module_id
-        ]
+            raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE)
+        try:
+            return [
+                _to_estimate(row, source_classification=source_classification)
+                for row in raw_rows
+                if row["module_id"] == module_id
+            ]
+        except RepositoryError:
+            raise
+        except (KeyError, TypeError, ValueError):
+            raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE) from None
 
 
 class BigQueryRepository(IndicatorRepository):
     """Non-connected design placeholder; cloud access is not authorized."""
 
     def list_estimates(self, module_id: str) -> list[IndicatorEstimate]:
-        raise RuntimeError("BLOCKED_BY_CLOUD_GATE: BigQuery access is not authorized")
+        raise RepositoryUnavailableError(REPOSITORY_UNAVAILABLE_MESSAGE)

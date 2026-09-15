@@ -123,18 +123,31 @@ def validate_estimates(rows: Iterable[IndicatorEstimate]) -> None:
         ]
         if missing and not (missing == ["cv"] and exact_zero_cv_undefined):
             raise ValueError("Non-suppressed rows require complete statistics")
+        estimate = row.estimate
+        standard_error = row.standard_error
+        ci95_lower = row.ci95_lower
+        ci95_upper = row.ci95_upper
+        n_unweighted = row.n_unweighted
+        if (
+            estimate is None
+            or standard_error is None
+            or ci95_lower is None
+            or ci95_upper is None
+            or n_unweighted is None
+        ):
+            raise ValueError("Non-suppressed rows require complete statistics")
         upper = 1 if row.scale == "0_1" else 100 if row.scale == "0_100" else None
-        if upper is None or not 0 <= row.estimate <= upper:
+        if upper is None or not 0 <= estimate <= upper:
             raise ValueError("estimate is outside its declared scale")
         if (
-            row.standard_error < 0
+            standard_error < 0
             or (row.cv is not None and row.cv < 0)
-            or row.n_unweighted < 0
+            or n_unweighted < 0
         ):
             raise ValueError("SE, CV and N must be non-negative")
         if row.weighted_population is not None and row.weighted_population < 0:
             raise ValueError("weighted_population must be non-negative when present")
-        if not row.ci95_lower <= row.estimate <= row.ci95_upper:
+        if not ci95_lower <= estimate <= ci95_upper:
             raise ValueError("The confidence interval must contain the estimate")
 
     if len({row.release_id for row in materialized}) != 1:

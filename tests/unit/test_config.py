@@ -2,7 +2,6 @@ import pytest
 
 from enares.config import load_config
 
-
 ENVIRONMENT_KEYS = (
     "PROJECT_ID",
     "BQ_LOCATION",

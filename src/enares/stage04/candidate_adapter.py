@@ -10,7 +10,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass
 from math import isfinite
-from typing import Literal
+from typing import Literal, cast
 
 from . import quality_rules
 
@@ -170,11 +170,11 @@ def _adapt_row_after_source_boundary(
         field: None if value is None else _finite_number(value, field)
         for field, value in statistics.items()
     }
-    estimate = numeric["estimate"]
-    standard_error = numeric["standard_error"]
-    ci95_lower = numeric["ci95_lower"]
-    ci95_upper = numeric["ci95_upper"]
-    cv = numeric["cv"]
+    estimate = cast(float | None, numeric["estimate"])
+    standard_error = cast(float | None, numeric["standard_error"])
+    ci95_lower = cast(float | None, numeric["ci95_lower"])
+    ci95_upper = cast(float | None, numeric["ci95_upper"])
+    cv = cast(float | None, numeric["cv"])
     upper = {"0_1": 1, "0_100": 100}[scope.scale]
     if estimate is not None and not 0 <= estimate <= upper:
         raise ValueError("estimate is outside its declared scale")
@@ -184,8 +184,11 @@ def _adapt_row_after_source_boundary(
         raise ValueError("cv must be non-negative")
     if ci95_lower is not None and ci95_upper is not None and ci95_lower > ci95_upper:
         raise ValueError("confidence interval bounds are reversed")
-    if None not in (estimate, ci95_lower, ci95_upper) and not (
-        ci95_lower <= estimate <= ci95_upper
+    if (
+        estimate is not None
+        and ci95_lower is not None
+        and ci95_upper is not None
+        and not ci95_lower <= estimate <= ci95_upper
     ):
         raise ValueError("confidence interval must contain estimate")
 

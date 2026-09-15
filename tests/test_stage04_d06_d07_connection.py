@@ -121,6 +121,7 @@ def test_d06_d07_extract_rebuilds_byte_for_byte_from_private_parent(tmp_path):
     parent_value = os.environ.get("ENARES_V0_PARENT_AGGREGATE")
     if not parent_value:
         pytest.skip("Private V0 parent path is not available in CI")
+    assert parent_value is not None
     output = tmp_path / EXTRACT.name
     manifest = tmp_path / MANIFEST.name
     build_d06_d07_authorized_extract(

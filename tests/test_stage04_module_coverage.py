@@ -25,6 +25,7 @@ from enares.stage04.repository import (
     AuthorizedAggregateRepository,
     BigQueryRepository,
     IndicatorRepository,
+    RepositoryUnavailableError,
 )
 from enares.stage04.validation import validate_estimates
 
@@ -50,7 +51,7 @@ def _visible_text(app: AppTest) -> str:
         app.title,
         app.warning,
     )
-    values = []
+    values: list[str] = []
     for group in groups:
         for element in group:
             values.extend(
@@ -348,5 +349,5 @@ def test_ui_uses_one_generic_module_renderer_and_keeps_cloud_blocked():
     assert "_module_31" not in source
     assert "_module_36" not in source
     assert EXPORT_ENABLED is False
-    with pytest.raises(RuntimeError, match="BLOCKED_BY_CLOUD_GATE"):
+    with pytest.raises(RepositoryUnavailableError):
         BigQueryRepository().list_estimates("3.6")

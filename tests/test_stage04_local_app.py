@@ -15,7 +15,11 @@ from app.views.stage04_dashboard import (
     filter_estimates,
 )
 from enares.stage04.privacy import PROTECTED_FIELDS
-from enares.stage04.repository import BigQueryRepository, IndicatorRepository
+from enares.stage04.repository import (
+    BigQueryRepository,
+    IndicatorRepository,
+    RepositoryUnavailableError,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 GOLDEN = ROOT / "tests" / "golden" / "stage04_32_national"
@@ -133,6 +137,6 @@ def test_export_is_disabled_and_stage03_is_not_recalculated():
     assert "stage03" not in inspect.getsource(dashboard).lower()
 
 
-def test_bigquery_access_remains_blocked():
-    with pytest.raises(RuntimeError, match="BLOCKED_BY_CLOUD_GATE"):
+def test_bigquery_access_remains_unavailable_until_connected():
+    with pytest.raises(RepositoryUnavailableError):
         BigQueryRepository().list_estimates("3.2")

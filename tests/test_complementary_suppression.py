@@ -118,7 +118,7 @@ def test_dormant_controls_activate_only_for_authorized_scope_expansion(
 def test_granularity_activation_rejects_non_boolean_inputs():
     with pytest.raises(TypeError, match="must be boolean"):
         requires_primary_suppression_controls(
-            authorized_finer_than_department=None,
+            authorized_finer_than_department=None,  # type: ignore[arg-type]
             authorized_non_v0_cross=False,
         )
 
@@ -233,7 +233,7 @@ def test_combined_equations_detect_reconstruction_not_visible_table_by_table():
             suppress_flag=True,
         )
     )
-    equations[2]["terms"]["c"] = 1
+    equations[2]["terms"]["c"] = 1  # type: ignore[index]
     assert_no_reconstructable_primary(rows, equations)
 
 

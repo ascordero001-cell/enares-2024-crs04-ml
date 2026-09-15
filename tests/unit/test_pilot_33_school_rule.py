@@ -4,7 +4,6 @@ import pytest
 
 from enares.indicators.school import school_form, vp_escuela
 
-
 ROOT = Path(__file__).resolve().parents[2]
 
 

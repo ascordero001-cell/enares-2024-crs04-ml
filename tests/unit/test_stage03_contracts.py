@@ -4,7 +4,6 @@ from pathlib import Path
 
 import yaml
 
-
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "docs/stage03/contracts/v0"
 CONFIGS = ROOT / "configs"

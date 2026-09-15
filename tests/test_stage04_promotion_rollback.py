@@ -74,7 +74,9 @@ def test_rollback_changes_pointer_and_restores_previous_view():
     backend.promote(second.key, actor="ana", reason="practice")
     backend.rollback(actor="ana", reason="smoke failure")
     assert backend.current == first.key
-    assert backend.visible_record().key == first.key
+    visible = backend.visible_record()
+    assert visible is not None
+    assert visible.key == first.key
     assert backend.pointer_events[-1].action == "ROLLBACK"
     assert backend.pointer_events[-1].previous == second.key
 

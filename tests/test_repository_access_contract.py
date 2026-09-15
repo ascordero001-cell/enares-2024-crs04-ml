@@ -10,6 +10,8 @@ from enares.stage04.repository import (
     BigQueryRepository,
     DemoRepository,
     IndicatorRepository,
+    RepositoryContractError,
+    RepositoryUnavailableError,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -61,8 +63,8 @@ def test_suppressed_demo_row_contains_no_protected_statistics():
     assert suppressed.suppress_flag is True
 
 
-def test_bigquery_repository_is_explicitly_blocked():
-    with pytest.raises(RuntimeError, match="BLOCKED_BY_CLOUD_GATE"):
+def test_bigquery_repository_is_explicitly_unavailable_until_connected():
+    with pytest.raises(RepositoryUnavailableError):
         BigQueryRepository().list_estimates("3.2")
 
 
@@ -84,7 +86,7 @@ def test_demo_repository_rejects_non_synthetic_row(tmp_path):
     modified = content.replace(",true\n", ",false\n", 1)
     fixture = tmp_path / "demo.csv"
     fixture.write_text(modified, encoding="utf-8", newline="\n")
-    with pytest.raises(ValueError, match="only synthetic=true"):
+    with pytest.raises(RepositoryContractError):
         DemoRepository(fixture).list_estimates("3.2")
 
 
@@ -96,7 +98,7 @@ def test_demo_repository_rejects_sensitive_columns(tmp_path):
         encoding="utf-8",
         newline="\n",
     )
-    with pytest.raises(ValueError, match="Sensitive columns"):
+    with pytest.raises(RepositoryContractError):
         DemoRepository(fixture).list_estimates("3.2")
 
 
@@ -106,7 +108,7 @@ def test_authorized_repository_rejects_unapproved_source_hash(tmp_path):
     manifest["parent_sha256"] = "b" * 64
     manifest_path = tmp_path / "manifest.json"
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
-    with pytest.raises(ValueError, match="approved V0 registry"):
+    with pytest.raises(RepositoryContractError):
         AuthorizedAggregateRepository(
             V0_FIXTURE, manifest_path, V0_REGISTRY
         ).list_estimates("3.2")
@@ -117,7 +119,7 @@ def test_authorized_repository_rejects_parent_hash_not_bound_to_source_hash(tmp_
     manifest["parent_sha256"] = "b" * 64
     manifest_path = tmp_path / "manifest.json"
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
-    with pytest.raises(ValueError, match="parent_sha256"):
+    with pytest.raises(RepositoryContractError):
         AuthorizedAggregateRepository(
             V0_FIXTURE, manifest_path, V0_REGISTRY
         ).list_estimates("3.2")
@@ -161,7 +163,7 @@ def test_authorized_repository_rejects_sensitive_columns(tmp_path):
     manifest["sha256"] = hashlib.sha256(fixture.read_bytes()).hexdigest()
     manifest_path = tmp_path / "v0.manifest.json"
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
-    with pytest.raises(ValueError, match="Sensitive columns"):
+    with pytest.raises(RepositoryContractError):
         AuthorizedAggregateRepository(
             fixture, manifest_path, V0_REGISTRY
         ).list_estimates("3.2")
