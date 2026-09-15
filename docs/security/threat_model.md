@@ -1,55 +1,57 @@
-# Modelo de amenazas local — Stage 04, corte 3.2
+# Modelo de amenazas — Stage 04 controlled shadow
 
-- Estado: `REVIEW_REQUIRED`
-- Alcance: `LOCAL_SHADOW_ONLY`
-- Entradas locales: fixture demo 100 % sintético y corte golden V0 agregado autorizado, separados
-- Cloud: `NOT_AUTHORIZED`
+- Fecha de actualización: 2026-09-14 UTC
+- Estado: `CONTROLLED_SHADOW_GO; DEPLOYMENT_NOT_STARTED`
+- Datos: solo agregados V0 aprobados; nunca microdatos
+- Publicación institucional y cutover: `NOT_AUTHORIZED`
+- Recursos cloud: bloqueados hasta verificar privadamente proyecto y cuenta de billing
 
-## Amenazas y controles
+Este modelo aplica a la aplicación, exportaciones, caché, logs y acceso directo. La regla de
+confidencialidad vigente es el límite de granularidad aprobado en el PR #66: Stage 04 no muestra
+cortes más finos que V0 ni fabrica cruces ausentes de los tabulados oficiales.
 
-| Elemento | Evaluación |
+## Activos y fronteras
+
+| Activo o frontera | Control vigente |
 |---|---|
-| Activo protegido | Confidencialidad de NNA y de celdas agregadas que puedan revelar grupos pequeños |
-| Posible atacante | Persona con acceso a una pantalla, export o log que intenta deducir una celda oculta |
-| Vía de exposición | Totales y márgenes visibles, cruces repetidos, exports, mensajes de error, caché o logs |
-| Reconstrucción por totales | Si `Total = A + B`, ocultar solo A permite calcular `A = Total - B` |
-| Inferencia mediante cruces | Distintas tablas compatibles pueden formar ecuaciones adicionales sobre la misma celda |
-| Enlace externo | Categorías demasiado específicas podrían combinarse con fuentes externas |
-| Logs, errores, caché y exports | Pueden filtrar valores anteriores a la supresión si el control es solo visual |
-| Control preventivo | Aplicar supresión primaria y complementaria en published; eliminar estimate, IC, CV y N antes de cualquier consumidor |
-| Control de detección | Test de reconstrucción, revisión de schema, auditoría de exports y registro de release |
-| Riesgo residual | Más de un cruce o release podría permitir inferencia aun con una tabla aislada protegida |
-| Decisión pendiente | Aprobar propietario, regla institucional, umbrales y análisis multitabla/multirelease |
+| Agregado institucional V0 | Procedencia ligada a manifiesto, SHA-256 y registro aprobado |
+| Aplicación Streamlit | Servicio autenticado, sin acceso público y con máximo una instancia |
+| Datos visibles | Solo filas autorizadas tras validación fail-closed y diagnóstico de release |
+| BigQuery futuro | La identidad de ejecución solo podrá consultar `published`; sin acceso a capas previas |
+| Exportaciones | Deben reproducir V0 y sus notas de CV/N; no crean cruces ni granularidad nueva |
+| Caché y logs | No deben conservar valores anteriores a la frontera validada ni principales privados |
+| Identidades | Seis personas aprobadas; los principales exactos se verifican por canal privado |
 
-El agregado golden V0 no contiene observaciones individuales y se valida contra un manifiesto
-separado. No es una publicación institucional. BigQuery, DDL, Cloud Run y cualquier otro recurso
-cloud continúan `BLOCKED_BY_CLOUD_GATE`.
+## Amenazas y mitigaciones
 
-## Estado de verificación
+| Amenaza | Mitigación obligatoria | Evidencia requerida |
+|---|---|---|
+| Acceso anónimo o de una identidad no autorizada | Cloud Run sin `allUsers`/`allAuthenticatedUsers`; `run.invoker` solo para las seis identidades aprobadas | Pruebas negativa y positiva posteriores al GO |
+| Lectura de microdatos o archivos `.sav` | Imagen runtime sin `pyreadstat`, Drive ni clientes de datos no utilizados; repositorio institucional acepta únicamente agregados con procedencia verificada | CI del contenedor y pruebas de repositorio |
+| Consulta de capas anteriores a `published` | Cuenta de ejecución con `dataViewer` solo en `published` y `jobUser` en el proyecto | Prueba IAM positiva sobre `published` y negativa sobre las demás capas |
+| Exposición mediante enlace o descarga directa | Todas las rutas y descargas heredan autenticación; no existen endpoints públicos alternos | Verificación directa de rutas y archivos |
+| Escalada o permanencia tras una baja | Ana aplica/revoca; Rita revisa cada binding; sin claves JSON | Evidencia de revocación efectiva y registro UTC |
+| Release mezclado o incompleto | Diagnóstico exige un `release_id`, un `source_version` y módulos 3.1–3.6 no vacíos | Health profundo y CI del contenedor |
+| Consulta o coste fuera de control | `maximum_bytes_billed`, cuota diaria BigQuery, Cloud Run min=0/max=1 y una imagen viva | Configuración capturada después de la verificación privada |
+| Inyección de fórmulas en exportaciones | Escapar celdas que comiencen con caracteres de fórmula y validar el paquete OOXML | Pruebas sintéticas de exportación |
 
-| Riesgo o control | Estado de evidencia |
-|---|---|
-| Reconstrucción aditiva simple `Total = A + B` | `TEST_AUTOMATIZADO` |
-| Cruces entre tablas o múltiples releases | `RIESGO_DOCUMENTADO_TEST_PENDIENTE` |
-| Enlace con fuentes externas | `RIESGO_DOCUMENTADO_TEST_PENDIENTE` |
-| Logs, errores, caché y exports | `CONTROLES_ESPECIFICADOS_PRUEBA_DE_INTEGRACION_PENDIENTE` |
+## Confidencialidad estadística vigente
 
-Solo la reconstrucción aditiva simple y la nulificación de campos en la proyección local cuentan
-como pruebas automatizadas en este subbloque. Los demás elementos son riesgos o controles
-documentados y no se presentan como verificados experimentalmente.
+No existe supresión primaria por recuento. `CV > 15 %` y `base_unw < 30` producen alertas
+visibles, nunca supresión. Una celda con un caso no identifica por sí sola a una persona porque V0
+no baja de departamento ni contiene escuela, distrito, conglomerado o identificación nominal.
 
-## Demostración sintética
+La maquinaria de supresión complementaria, márgenes, multitabla y multirelease se conserva y se
+prueba, pero permanece inactiva. Solo podrá activarse tras una nueva decisión supervisora si se
+autoriza un corte más fino que departamento o un cruce ausente de V0. Una cifra publicada se
+considera permanentemente expuesta aunque un release deje de estar accesible.
 
-La tabla de prueba usa `Total = 100`, `grupo A = 7` y `grupo B = 93`. Ninguna cifra representa
-un territorio, grupo o resultado ENARES.
+## Riesgo residual y condiciones de parada
 
-1. Supresión primaria: se oculta A, pero Total y B quedan visibles. Entonces A se reconstruye de
-   forma única como `100 - 93 = 7`.
-2. Supresión complementaria: también se oculta B. Con dos incógnitas y solo el total, A ya no se
-   determina de forma única.
-3. La capa published candidata reemplaza estimate, SE, IC95 %, CV y N por NULL para ambas celdas
-   suprimidas. La interfaz no recibe el valor oculto.
+El riesgo residual principal es una configuración IAM incorrecta, una ruta de descarga que eluda
+la autenticación o una ampliación accidental de granularidad. Cualquiera de estos hallazgos detiene
+la prueba: no se publica, se revoca el acceso o se restaura la revisión previa y se registra el
+evento. El GO vigente autoriza configurar y verificar; no autoriza publicar cifras.
 
-Desde la decisión supervisora del 2026-09-13, `CV > 15 %` y `base_unw < 30` son alertas de
-calidad visibles para 3.1–3.6. No activan `suppress_flag` ni sustituyen los controles de
-confidencialidad descritos aquí.
+La plantilla operativa está en [access_verification.md](access_verification.md) y el reparto de
+roles en [access_control_plan.md](access_control_plan.md).
