@@ -12,11 +12,11 @@ poblacional basada únicamente en agregados validados.
 > **Estado real:** V0 continúa siendo la versión oficial. V0.5 permanece en
 > `SHADOW — NOT PUBLISHED`. PRE-STAGE04 está cerrado y el checkpoint de ingeniería
 > local del Corte 2 fue aprobado y fusionado mediante el [PR #57](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/57).
-> Sprint 04.2 sigue en curso con `NUMERIC_DATA_GATE_OPEN`. La aplicación está autorizada
-> exclusivamente como `LOCAL_SHADOW_ONLY`; Cloud continúa pendiente de verificación privada. El tope aprobado
-> es USD 20 mensuales en total,
-> con Ana y Rita como administradoras; la configuración y el primer despliegue cloud continúan
-> sujetos a verificación y todavía no autorizan publicar resultados.
+> Sprint 04.2 sigue en curso. El catálogo V0 completo está autorizado para implementación
+> `LOCAL_SHADOW_ONLY`, pero solo 52 de sus 3,014 filas están conectadas. Cloud continúa pendiente
+> de verificación privada. El tope aprobado es USD 20 mensuales en total; Ana es propietaria y
+> operadora, y Rita supervisa mediante lectura, alertas y gates. Todavía no se autoriza publicar
+> resultados ni conectar cifras reales en cloud.
 
 ![Demostración sintética de estados candidato, referencia y suprimido](docs/stage04/evidence/sprint042_corte2_states.png)
 
@@ -26,14 +26,14 @@ poblacional basada únicamente en agregados validados.
 
 | Capa | Cobertura verificable | Significado |
 |---|---:|---|
-| Catálogo conciliado documentalmente | 516 indicadores / 3,014 filas agregadas | Definiciones y presencia contrastadas; no implica autorización numérica |
+| Catálogo V0 autorizado para implementación local | 516 indicadores / 3,014 filas agregadas | Decisión supervisora registrada; implementación pendiente |
 | Registro de navegación de la app | 7 `indicator_id` seleccionados en 3.1–3.6 | Configuración técnica y comportamiento fail-closed |
-| Resultado V0 visible | 3.2 / `VF_HOGAR` / Nacional / Total | Único golden numérico local autorizado |
+| Resultados V0 conectados | 52 filas en los módulos 3.1–3.6 | Agregados locales ligados a manifiestos; no publicados |
 | Demo visual | candidato, referencial y suprimido | Fixture 100 % sintético, separado de V0 |
 
-Los demás módulos tienen navegación, contratos y evidencia de ausencia, pero no cifras nuevas
-habilitadas. Una dimensión presente en V0 o disponible técnicamente no queda autorizada hasta
-que supere los gates de calidad, supresión y revisión independiente.
+Las 2,962 filas restantes están autorizadas pero todavía no conectadas. La implementación debe
+crear un extracto y manifiesto nuevos, probar rederivación y mantener una navegación utilizable;
+ninguna autorización permite inventar dimensiones o cruces ausentes de V0.
 
 La exportación técnica del mismo corte agregado V0 visible está habilitada en CSV y Excel con
 controles contra fórmulas y metadata. No están autorizados la publicación institucional,
@@ -174,6 +174,7 @@ enares-2024-crs04-ml/
 
 ## Documentación principal
 
+- [Estado único de Stage 04 — 2026-09-15](docs/stage04/stage04_documento_unico_20260915.md)
 - [PRE-STAGE04](PRE_STAGE04.md) · [Documento rector](CRS04_STAGE04_CORREGIDO_VER6_NUEVA_METODOLOGIA.md) · [Hoja arquitectónica](CRS04_STAGE04_HOJA_ARQUITECTONICA_APP_VIGILANCIA.md)
 - [Mapa real de issues](docs/stage04/issue_map.md) · [Issue paraguas #43](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/43)
 - [Checkpoint Corte 2](docs/stage04/sprint042_corte2_module_coverage.md) · [Matriz de cobertura](docs/stage04/module_coverage_matrix.md) · [Evidencia HCI](docs/stage04/hci_accessibility_corte2.md)

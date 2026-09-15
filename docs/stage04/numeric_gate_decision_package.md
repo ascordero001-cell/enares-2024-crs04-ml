@@ -1,7 +1,7 @@
 # Paquete de decisiones — gate numérico de Sprint 04.2
 
-**Estado:** `NUMERIC_SCOPE_PARTIALLY_AUTHORIZED; PUBLICATION_NOT_AUTHORIZED`
-**Alcance:** implementación y conexión local shadow solo dentro de los pares autorizados
+**Estado:** `FULL_V0_NUMERIC_SCOPE_AUTHORIZED_FOR_LOCAL_SHADOW; IMPLEMENTATION_PENDING; PUBLICATION_NOT_AUTHORIZED`
+**Alcance:** catálogo V0 completo bajo la adenda supervisora del 2026-09-15; conexión cloud separada
 **Issues:** [#48](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/48) y [#49](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/49)
 **Revisora:** `ritaricaldi-cpu`
 **Fecha del paquete:** `2026-09-13`
@@ -13,6 +13,18 @@ está registrada en [supervisory_decisions_20260913.md](supervisory_decisions_20
 histórica SPSS se conserva, pero la presentación Stage 04 aplica la decisión vigente de Rita.
 El alcance vinculante y sus condiciones están en el
 [acta D01–D12 del PR #60](acta_decision_d01_d12_20260913.md).
+
+## Ampliación supervisora del 2026-09-15
+
+La [revisión del PR #91](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/91#pullrequestreview-5215637752)
+autorizó las 2995 filas de clase A como clase. Las 19 excepciones tienen tratamiento cerrado:
+4 filas C como contexto no numérico según D04/D05; 7 filas D con el adaptador de distribución de
+D08; y 8 filas E ya conectadas mediante D06/D07, con el marcador derivado de `cv_flag`.
+
+La autorización cubre las 3014 filas del padre V0 dentro de `LOCAL_SHADOW_ONLY`. La conexión sigue
+pendiente de implementación, extracto, manifiesto, rederivación y pruebas; no concede autorización
+cloud, publicación ni cutover. La condición de parada es la navegación: si 516 indicadores no
+pueden encontrarse sin recorrer una lista completa, el trabajo vuelve a revisión supervisora.
 
 ## Fuentes congeladas
 
@@ -151,10 +163,10 @@ un producto cartesiano ni una autorización vigente.
 | Transversal paridad | mantener; cambiar; retirar tolerancia absoluta `1e-9` | Limitarla a serialización del mismo indicador/celda/escala, nunca a diferencias sustantivas | `PARITY_TOLERANCE_PENDING` | PENDING / `ritaricaldi-cpu` / — / revisión del PR |
 | Transversal confidencialidad | limitar salida a granularidad y cruces V0 | Sin umbral por recuento; CV/N nunca suprimen; maquinaria inactiva salvo futura ampliación autorizada | `NO_PRIMARY_SUPPRESSION_ACTIVE` | APPROVED / `ritaricaldi-cpu` / 2026-09-14 / PR #66 |
 
-Los indicadores ordinarios prevalence con campos completos pueden reutilizar las validaciones
-transversales técnicas, pero siguen fuera de autorización numérica salvo que aparezcan en D09 o
-D11 y se aprueben sus pares exactos. Distribution, special, incompletos, nuevas categorías y todo
-el resto del catálogo permanecen fuera del próximo corte hasta una solicitud cerrada posterior.
+Los indicadores ordinarios `prevalence` con campos completos pertenecen a la clase A autorizada.
+Las formas `distribution`, `special` e incompletas no pasan por el adaptador ordinario: conservan
+los tratamientos C, D y E de la adenda. Esta ampliación no autoriza categorías ni cruces ausentes
+del padre V0.
 
 ## Cobertura de pruebas preparatorias
 
@@ -182,8 +194,8 @@ el resto del catálogo permanecen fuera del próximo corte hasta una solicitud c
    posterior sin cruces nuevos ni granularidad más fina que V0.
 2. Confirmar con el productor Stage 03 el origen de los ceros de D02/D10.
 3. Resolver la documentación condicionante de D01 y la etiqueta exacta de D11.
-4. Mantener `NUMERIC_DATA_GATE_OPEN` para todo indicador/dimensión/categoría no enumerado en el
-   acta.
+4. Implementar únicamente filas presentes en el padre V0 y cubiertas por la adenda; cualquier
+   categoría, dimensión o cruce nuevo reabre el gate numérico.
 5. Mantener publicación, promoción, cutover y exportación fuera del golden bloqueados.
 
 ## Inicio de Etapa 1

@@ -2,9 +2,9 @@
 
 **Fecha:** 2026-09-14 UTC
 
-**Estado de esta solicitud:** `SUBMITTED_FOR_SUPERVISORY_DECISION`
+**Estado de esta solicitud:** `APPROVED_2026-09-14`
 
-**Estado operativo mientras no exista respuesta formal:** `NO_GO / CLOUD_NOT_AUTHORIZED`
+**Estado operativo vigente:** `GO_FOR_STAGE7_CONTROLLED_SHADOW; PRIVATE_PROJECT_BILLING_VERIFICATION_PENDING`
 
 Esta solicitud no habilita servicios, billing ni IAM. Su aprobación permitiría iniciar únicamente
 la Etapa 7 controlada en shadow, con los recursos y límites enumerados aquí. No autoriza
@@ -110,25 +110,24 @@ Referencias oficiales:
 
 | Gate | Estado actual | Evidencia requerida |
 |---|---|---|
-| Responsable real de billing | `ASIGNADO: RITA` | Rita confirma que la cuenta y el medio de pago son propios |
+| Responsable real de billing | `ASIGNADO: ANA` | Ana confirma que la cuenta y el medio de pago son propios |
 | Responsable real de IAM | `ASIGNADO: ANA; REVISIÓN: RITA` | Ana aplica o revoca; Rita revisa antes de cada binding; ninguna clave JSON |
 | Cuenta de billing | `PENDING` | identificador verificado en canal privado y vínculo con el proyecto |
 | Proyecto | `PENDING_VERIFICATION` | ID/número y propiedad verificados |
 | Seis identidades | `COMPOSITION_APPROVED` | los cargos están registrados arriba; los principales exactos se verifican solo por canal privado |
-| Roles exactos de Rita | `APPROVED` | `run.viewer`, `logging.viewer`, `monitoring.viewer` y `billing.viewer` en los alcances indicados |
+| Roles exactos de Rita | `APPROVED` | `run.viewer`, `logging.viewer` y `monitoring.viewer`; sin propiedad ni administración de billing |
 | Condición de parada | `APPROVED_NOT_EXECUTED` | Ana ejecuta y Rita supervisa los escalones USD 1/5/10/20 |
 | GO de Etapa 7 | `GO_FOR_STAGE7_CONTROLLED_SHADOW` | Aprobado el 2026-09-14 en la [revisión formal del PR #69](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/69#pullrequestreview-5203865560) |
 
 Los únicos campos aún bloqueantes son la verificación privada del proyecto y de la cuenta de
 billing. Las identidades exactas nunca se incorporan al repositorio.
 
-## 7. Decisión solicitada a Rita
+## 7. Decisión registrada
 
-Registrar una de estas decisiones sobre el SHA revisado:
-
-- `GO_FOR_STAGE7_CONTROLLED_SHADOW`, una vez completados todos los campos bloqueantes;
-- `CHANGES_REQUIRED`, enumerando los ajustes;
-- `NO_GO`, manteniendo el alcance local.
+Rita registró `GO_FOR_STAGE7_CONTROLLED_SHADOW` el 2026-09-14. El GO no inicia por sí solo la
+Etapa 7: primero Ana debe confirmar privadamente cuenta de facturación activa, proyecto exacto,
+vínculo, alertas y los roles de lectura de Rita. La titularidad de Ana corrige la propuesta
+histórica de administración compartida sin borrar esa evidencia.
 
 Incluso con `GO_FOR_STAGE7_CONTROLLED_SHADOW`, el estado de publicación seguirá siendo
 `NOT_AUTHORIZED`. Cada creación, binding y despliegue deberá quedar registrado con fecha UTC,

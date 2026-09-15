@@ -1,18 +1,16 @@
 # Evaluación de usabilidad — Sprint 04.2
 
-Estado: `HEURISTIC_REVIEW_COMPLETE; INDEPENDENT_SYNTHETIC_TEST_PENDING`.
+Estado: `INITIAL_HEURISTIC_REVIEW_COMPLETE; FULL_CATALOG_REEVALUATION_PENDING`.
 Fecha de corte: 2026-09-15.
 
 ## Alcance y evidencia disponible
 
-Esta evaluación reúne la revisión heurística de la interfaz local, las pruebas funcionales con
-AppTest y el control automatizado WCAG 2.2 AA descrito en
-[`hci_accessibility_corte2.md`](../stage04/hci_accessibility_corte2.md). No acredita todavía una
-prueba independiente con personas usuarias ni una auditoría formal con lector de pantalla.
-
-La prueba formativa pendiente se realizará con 3 a 5 personas de perfil institucional y una demo
-reproducible que use únicamente datos sintéticos. No se conectarán nuevas cifras reales, cloud ni
-microdatos para ejecutarla.
+Esta evaluación reúne la revisión heurística inicial de la interfaz local, las pruebas funcionales
+con AppTest y el control automatizado WCAG 2.2 AA descrito en
+[`hci_accessibility_corte2.md`](../stage04/hci_accessibility_corte2.md). La decisión supervisora del
+2026-09-15 sustituye la prueba con participantes externos por revisión manual de accesibilidad,
+evaluación heurística y recorrido cognitivo. Los tres métodos deben repetirse después de conectar
+la clase A; esta evaluación de 52 filas no acredita la navegación del catálogo completo.
 
 ## Escala de severidad
 
@@ -43,29 +41,22 @@ El `DEFER` anterior no desactiva una familia completa de controles: la CI admite
 combinación exacta de regla, selector y atributo documentada. Cualquier otra infracción automática
 hace fallar el job.
 
-## Prueba formativa independiente
+## Evaluaciones pendientes sobre el catálogo completo
 
-Estado de participantes: `PENDING_INDEPENDENT_PARTICIPANTS`.
+1. **Revisión manual de accesibilidad:** teclado exclusivo, lector de pantalla, contraste manual y
+   zoom al 200 % sin pérdida de contenido o función.
+2. **Evaluación heurística:** repetir las diez heurísticas y clasificar cada hallazgo con la escala
+   S0–S4 y decisión `FIX`, `DEFER` o `REJECT`.
+3. **Recorrido cognitivo:** recorrer cada paso de los cinco escenarios de
+   [`task_scenarios.md`](task_scenarios.md) y registrar si se sabría qué hacer, si se encontraría el
+   control y si se entendería el resultado.
 
-Se usarán los cinco escenarios de [`task_scenarios.md`](task_scenarios.md). Antes de iniciar cada
-sesión se comprobará que la instancia sea sintética, local y sin acceso a fuentes privadas. La
-persona facilitadora no dirigirá el recorrido salvo que la participante pida ayuda; esa ayuda se
-registrará.
-
-| Sesión | Perfil | T1 | T2 | T3 | T4 | T5 | Hallazgos / decisión |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Pendiente | — | — | — | — | — | Pendiente |
-| 2 | Pendiente | — | — | — | — | — | Pendiente |
-| 3 | Pendiente | — | — | — | — | — | Pendiente |
-| 4 (opcional) | Pendiente | — | — | — | — | — | Pendiente |
-| 5 (opcional) | Pendiente | — | — | — | — | — | Pendiente |
-
-Para cada celda de tarea se anotará resultado, tiempo aproximado, errores y dudas. Los hallazgos se
-clasificarán por severidad y terminarán en `FIX`, `DEFER` o `REJECT`. No se completarán las filas
-por anticipado ni se atribuirán resultados a participantes inexistentes.
+No se ejecutan antes de conectar la clase A. La falta de observación por una persona nueva se
+conserva como riesgo residual: estos métodos detectan incumplimientos conocidos, pero no sustituyen
+el descubrimiento de problemas por usuarios reales.
 
 ## Condición de cierre
 
-El checkpoint HCI no se declara cerrado hasta ejecutar y documentar al menos tres sesiones
-independientes, revisar los hallazgos y resolver cualquier S3/S4. Un hallazgo S2 solo puede quedar
-en `DEFER` con causa, responsable de seguimiento y condición explícita de reevaluación.
+El checkpoint HCI no se declara cerrado hasta conectar el catálogo autorizado, ejecutar y
+documentar los tres métodos, y resolver cualquier S3/S4. Un hallazgo S2 solo puede quedar en
+`DEFER` con causa, responsable de seguimiento y condición explícita de reevaluación.

@@ -1,6 +1,6 @@
 # Evidencia HCI y accesibilidad — Corte 2
 
-Estado: `LOCAL_MANUAL_REVIEW_COMPLETE; AUTOMATED_WCAG22_AA_IMPLEMENTED; INDEPENDENT_REVIEW_PENDING`.
+Estado: `AUTOMATED_WCAG22_AA_IMPLEMENTED; MANUAL_REEVALUATION_AFTER_CLASS_A_PENDING`.
 Fecha de ejecución y renovación: 2026-09-11.
 
 ## Controles implementados
@@ -50,10 +50,10 @@ certificación WCAG ni una auditoría formal con lector de pantalla.
 ## Gate pendiente
 
 Los cinco escenarios y criterios de éxito están definidos en
-[`task_scenarios.md`](../hci/task_scenarios.md). La revisión heurística y la plantilla de registro
-para 3 a 5 sesiones independientes están en
-[`usability_evaluation.md`](../hci/usability_evaluation.md). Esas sesiones continúan en
-`PENDING_INDEPENDENT_PARTICIPANTS`; no se han fabricado resultados, tiempos ni participantes.
+[`task_scenarios.md`](../hci/task_scenarios.md). La decisión supervisora del 2026-09-15 reemplazó
+la prueba con 3 a 5 participantes por tres métodos sin participantes externos: revisión manual de
+accesibilidad, evaluación heurística y recorrido cognitivo. Se ejecutarán después de conectar la
+clase A completa, porque la evidencia actual corresponde a una navegación de 52 filas.
 
 La CI ejecuta Axe sobre las nueve vistas de navegación con las etiquetas WCAG 2 A/AA, 2.1 A/AA
 y 2.2 AA. El job falla si encuentra una infracción automática nueva. La primera ejecución detectó
@@ -67,7 +67,8 @@ residual se revisará al actualizar Streamlit y no se declara corregido. Esta co
 complementa, pero no reemplaza, la revisión manual ni las pruebas con tecnologías de asistencia y
 personas.
 
-La aprobación general del checkpoint de ingeniería no acredita una sesión independiente de
-teclado, lector de pantalla o prueba con personas usuarias. La comprensión de etiquetas por una
-persona distinta de la autora continúa pendiente. Hasta entonces no se declara cerrado Sprint
+La aprobación general del checkpoint de ingeniería no acredita la revisión manual final con
+teclado, lector de pantalla, contraste y zoom al 200 %, ni el recorrido cognitivo del catálogo
+completo. La ausencia de personas externas queda registrada como riesgo residual, no como evidencia
+simulada. Hasta completar esos tres métodos después de la ampliación, no se declara cerrado Sprint
 04.2.

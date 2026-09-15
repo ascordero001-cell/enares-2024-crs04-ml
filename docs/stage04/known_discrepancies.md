@@ -63,6 +63,30 @@ en un PR posterior.
 | KD-C2-09 | `VP_VF_VS_HOGAR`, Cusco/Huancavelica, con CV vacío | Estadística incompleta 3.4 | Presentación completa bloqueada | Conservar vacío; propuesta [D02](numeric_gate_decision_package.md) | `ritaricaldi-cpu` | METHODOLOGICAL_DECISION_PENDING |
 | KD-C2-10 | `Área × sexo`/`Área y sexo` e `Idioma del hogar`/`Lengua materna` | Equivalencia de etiqueta no aprobada | Alias UI bloqueado | Mantener nombre original hasta decisión; [D12](numeric_gate_decision_package.md) | `ritaricaldi-cpu` | METHODOLOGICAL_DECISION_PENDING |
 
+## KD-C2-11 — marcador de precisión incrustado en categorías V0
+
+**Fecha:** 2026-09-15. **Estado:** `RETURNED_TO_STAGE03_PRODUCER`.
+
+El padre V0 contiene `[referencial]` dentro del texto de ocho categorías. El marcador describe
+presentación/calidad, no identidad, y debe derivarse exclusivamente de `cv_flag`. Stage 04 ya lo
+neutraliza al presentar D06/D07 y no reescribe V0. La corrección corresponde al productor en una
+versión futura.
+
+| Indicador | Dimensión | Categoría exacta observada en V0 |
+|---|---|---|
+| `Solap_VS_12M` | `3×3` | `P(agresión con contacto (302) \| violación (301)): de violación (301), % con agresión con contacto (302) [referencial]` |
+| `Solap_VS_12M` | `3×3` | `P(no física (303) \| violación (301)): de violación (301), % con no física (303) [referencial]` |
+| `Solap_VS_12M` | `3×3` | `P(violación (301) \| agresión con contacto (302)): de agresión con contacto (302), % con violación (301) [referencial]` |
+| `Solap_VS_12M` | `3×3` | `P(violación (301) \| no física (303)): de no física (303), % con violación (301) [referencial]` |
+| `Solap_VS_VIDA` | `3×3` | `P(agresión con contacto (302) \| violación (301)): de violación (301), % con agresión con contacto (302) [referencial]` |
+| `Solap_VS_VIDA` | `3×3` | `P(no física (303) \| violación (301)): de violación (301), % con no física (303) [referencial]` |
+| `Solap_VS_VIDA` | `3×3` | `P(violación (301) \| agresión con contacto (302)): de agresión con contacto (302), % con violación (301) [referencial]` |
+| `Solap_VS_VIDA` | `3×3` | `P(violación (301) \| no física (303)): de no física (303), % con violación (301) [referencial]` |
+
+**Decisión:** no bloquea la conexión porque D06/D07 están autorizados y la interfaz deriva el
+marcador del flag. No se elimina ni se modifica el texto del padre congelado; la discrepancia se
+devuelve a Stage 03 para el próximo V0.
+
 ## Seguimiento de Etapa 1
 
 La tabla anterior conserva el estado histórico previo al acta D01–D12. El estado rector vigente
