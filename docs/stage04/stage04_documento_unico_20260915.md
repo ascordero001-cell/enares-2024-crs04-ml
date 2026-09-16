@@ -16,8 +16,6 @@ la numeracion original. Sustituye a cualquier version parcial anterior de estas 
 | Indicador | Valor |
 |---|---|
 | Pasos del plan cerrados | 43 de 53 |
-| PR fusionados en Stage 04 | 36 |
-| PR abiertos | 0 |
 | Filas del agregado V0 conectadas en la aplicacion | 52 de 3.014 |
 | Recursos creados en Google Cloud | 0 |
 | Consultas ejecutadas en Google Cloud | 0 |
