@@ -13,7 +13,29 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from enares.stage04.c0_fixture import CATALOG_SIZE, build_synthetic_catalog
-from enares.stage04.catalog_navigation import filter_catalog
+from enares.stage04.catalog_navigation import CatalogLocator, filter_catalog
+
+
+def _facet(
+    label: str,
+    values: tuple[str, ...],
+    *,
+    key: str,
+) -> str | None:
+    return st.selectbox(
+        label,
+        values,
+        index=None,
+        placeholder="Todos",
+        key=key,
+    )
+
+
+def _result_label(locator: CatalogLocator) -> str:
+    return (
+        f"{locator.focus.capitalize()} — {locator.population} — "
+        f"{locator.period} — {locator.context}"
+    )
 
 
 def render() -> None:
@@ -34,11 +56,55 @@ def render() -> None:
         st.info("Escriba los términos de la tarea congelada.")
         return
 
+    initial_matches = filter_catalog(
+        catalog,
+        module_id=module_id,
+        dimension=dimension,
+        query=query,
+    )
+    if not initial_matches:
+        st.warning("No se encontró un indicador sintético.")
+        return
+
+    st.subheader("Refinar resultados")
+    st.caption(
+        "Use los datos del enunciado para distinguir candidatos antes de confirmar."
+    )
+    columns = st.columns(4)
+    with columns[0]:
+        focus = _facet(
+            "Tema",
+            tuple(dict.fromkeys(row.focus for row in initial_matches)),
+            key="c0_focus",
+        )
+    with columns[1]:
+        population = _facet(
+            "Población",
+            tuple(dict.fromkeys(row.population for row in initial_matches)),
+            key="c0_population",
+        )
+    with columns[2]:
+        period = _facet(
+            "Periodo",
+            tuple(dict.fromkeys(row.period for row in initial_matches)),
+            key="c0_period",
+        )
+    with columns[3]:
+        context = _facet(
+            "Ámbito",
+            tuple(dict.fromkeys(row.context for row in initial_matches)),
+            key="c0_context",
+        )
+
     matches = filter_catalog(
         catalog,
         module_id=module_id,
         dimension=dimension,
         query=query,
+        focus=focus,
+        population=population,
+        context=context,
+        period=period,
     )
     st.caption(f"Resultados: {len(matches)} de {CATALOG_SIZE}")
     if not matches:
@@ -50,12 +116,17 @@ def render() -> None:
         matches,
         index=None,
         placeholder="Seleccione un indicador",
-        format_func=lambda row: f"{row.label} · {row.category}",
+        format_func=_result_label,
         key="c0_result",
     )
     if selected is None:
         st.info("Revise los candidatos y seleccione uno para continuar.")
         return
+
+    st.info(
+        "Va a confirmar: "
+        f"{selected.focus}; {selected.population}; {selected.period}; {selected.context}."
+    )
 
     if st.button("Confirmar indicador", key="c0_confirm"):
         st.session_state["c0_confirmed_id"] = selected.indicator_id

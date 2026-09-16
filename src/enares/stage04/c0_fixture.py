@@ -25,6 +25,10 @@ class AutomatedNavigationCase:
     dimension: str
     query: str
     expected_indicator_id: str
+    focus: str
+    population: str
+    context: str
+    period: str
 
 
 MODULE_THEMES = {
@@ -89,6 +93,10 @@ def build_synthetic_catalog() -> tuple[CatalogLocator, ...]:
                     label=label,
                     dimension=dimension,
                     category=f"{focus.capitalize()} · {population} · {context} · {period}",
+                    focus=focus,
+                    population=population,
+                    context=context,
+                    period=period,
                 )
             )
     return tuple(rows)
@@ -139,12 +147,93 @@ C0_TASKS = (
     ),
 )
 
+def _automation_case(
+    task_id: str,
+    module_id: str,
+    dimension: str,
+    query: str,
+    expected_indicator_id: str,
+) -> AutomatedNavigationCase:
+    row = next(
+        item
+        for item in build_synthetic_catalog()
+        if item.indicator_id == expected_indicator_id
+    )
+    return AutomatedNavigationCase(
+        task_id,
+        module_id,
+        dimension,
+        query,
+        expected_indicator_id,
+        row.focus,
+        row.population,
+        row.context,
+        row.period,
+    )
+
+
 C0_AUTOMATION_CASES = (
-    AutomatedNavigationCase("C0-01", "3.1", "Nacional", "corresponsabilidad", "SYN_C0_31_031"),
-    AutomatedNavigationCase("C0-02", "3.2", "Nacional", "corresponsabilidad", "SYN_C0_32_032"),
-    AutomatedNavigationCase("C0-03", "3.3", "Nacional", "acompañamiento", "SYN_C0_33_033"),
-    AutomatedNavigationCase("C0-04", "3.4", "Nacional", "acompañamiento", "SYN_C0_34_034"),
-    AutomatedNavigationCase("C0-05", "3.5", "Nacional", "respuesta", "SYN_C0_35_035"),
-    AutomatedNavigationCase("C0-06", "3.6", "Nacional", "respuesta", "SYN_C0_36_036"),
-    AutomatedNavigationCase("C0-07", "3.2", "Departamento", "barreras", "SYN_C0_32_086"),
+    _automation_case("C0-01", "3.1", "Nacional", "corresponsabilidad", "SYN_C0_31_031"),
+    _automation_case("C0-02", "3.2", "Nacional", "corresponsabilidad", "SYN_C0_32_032"),
+    _automation_case("C0-03", "3.3", "Nacional", "acompañamiento", "SYN_C0_33_033"),
+    _automation_case("C0-04", "3.4", "Nacional", "acompañamiento", "SYN_C0_34_034"),
+    _automation_case("C0-05", "3.5", "Nacional", "respuesta", "SYN_C0_35_035"),
+    _automation_case("C0-06", "3.6", "Nacional", "respuesta", "SYN_C0_36_036"),
+    _automation_case("C0-07", "3.2", "Departamento", "barreras", "SYN_C0_32_086"),
+)
+
+
+C3_RETEST_TASKS = (
+    NavigationTask(
+        "C3-01",
+        "En el módulo 3.1 y alcance nacional, localiza el indicador sobre "
+        "consecuencias percibidas en niñas y niños de 9 a 11 años durante los "
+        "últimos 12 meses, para el total del ámbito observado.",
+    ),
+    NavigationTask(
+        "C3-02",
+        "En el módulo 3.2 y alcance nacional, localiza el indicador sobre "
+        "experiencias reportadas en adolescentes de 12 a 17 años, alguna vez, "
+        "para el ámbito rural.",
+    ),
+    NavigationTask(
+        "C3-03",
+        "En el módulo 3.3 y alcance nacional, localiza el indicador sobre "
+        "consecuencias percibidas entre estudiantes que buscaron ayuda durante "
+        "los últimos 12 meses, para el ámbito rural.",
+    ),
+    NavigationTask(
+        "C3-04",
+        "En el módulo 3.4 y alcance nacional, localiza el indicador sobre redes "
+        "de confianza entre estudiantes que no buscaron ayuda, alguna vez, para "
+        "el total del ámbito observado.",
+    ),
+    NavigationTask(
+        "C3-05",
+        "En el módulo 3.5 y alcance nacional, localiza el indicador sobre "
+        "respuesta institucional en hogares con persona adulta de referencia "
+        "durante los últimos 12 meses, para el ámbito rural.",
+    ),
+    NavigationTask(
+        "C3-06",
+        "En el módulo 3.6 y alcance nacional, localiza el indicador sobre "
+        "consecuencias percibidas en hogares con persona adulta de referencia, "
+        "alguna vez, para el total del ámbito observado.",
+    ),
+    NavigationTask(
+        "C3-07",
+        "En el módulo 3.4 y alcance departamental, localiza el indicador sobre "
+        "respuesta institucional en comunidad educativa entrevistada, alguna "
+        "vez, para el ámbito rural.",
+    ),
+)
+
+C3_RETEST_AUTOMATION_CASES = (
+    _automation_case("C3-01", "3.1", "Nacional", "consecuencias", "SYN_C0_31_012"),
+    _automation_case("C3-02", "3.2", "Nacional", "experiencias", "SYN_C0_32_023"),
+    _automation_case("C3-03", "3.3", "Nacional", "consecuencias", "SYN_C0_33_044"),
+    _automation_case("C3-04", "3.4", "Nacional", "redes", "SYN_C0_34_057"),
+    _automation_case("C3-05", "3.5", "Nacional", "respuesta", "SYN_C0_35_068"),
+    _automation_case("C3-06", "3.6", "Nacional", "consecuencias", "SYN_C0_36_075"),
+    _automation_case("C3-07", "3.4", "Departamento", "respuesta", "SYN_C0_34_083"),
 )

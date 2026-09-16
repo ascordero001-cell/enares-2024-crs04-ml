@@ -4,6 +4,8 @@ from enares.stage04.c0_fixture import (
     ALLOWED_HELP,
     C0_AUTOMATION_CASES,
     C0_TASKS,
+    C3_RETEST_AUTOMATION_CASES,
+    C3_RETEST_TASKS,
     CATALOG_SIZE,
     HUMAN_TIME_LIMIT_SECONDS,
     MODULE_THEMES,
@@ -98,6 +100,59 @@ def test_c0_search_is_accent_and_case_insensitive() -> None:
         build_synthetic_catalog(),
         module_id="3.3",
         dimension="Nacional",
-        query="PSICOLOGICA ESCUELA ACOMPAÑAMIENTO",
+        query="ACOMPAÑAMIENTO",
     )
     assert "SYN_C0_33_033" in {row.indicator_id for row in matches}
+
+
+def test_search_ignores_repeated_module_title_that_caused_c0_01() -> None:
+    matches = filter_catalog(
+        build_synthetic_catalog(),
+        module_id="3.1",
+        dimension="Nacional",
+        query="corresponsabilidad",
+    )
+
+    assert len(matches) >= 2
+    assert {row.focus for row in matches} == {"corresponsabilidad cotidiana"}
+
+
+def test_c3_retest_uses_seven_previously_unused_targets() -> None:
+    original_targets = {case.expected_indicator_id for case in C0_AUTOMATION_CASES}
+    retest_targets = {
+        case.expected_indicator_id for case in C3_RETEST_AUTOMATION_CASES
+    }
+
+    assert len(C3_RETEST_TASKS) == len(C3_RETEST_AUTOMATION_CASES) == 7
+    assert not original_targets & retest_targets
+    assert {case.module_id for case in C3_RETEST_AUTOMATION_CASES} == set(
+        MODULE_THEMES
+    )
+    assert sum(
+        case.dimension == "Departamento" for case in C3_RETEST_AUTOMATION_CASES
+    ) == 1
+
+
+def test_semantic_facets_reduce_each_c3_task_to_its_target() -> None:
+    catalog = build_synthetic_catalog()
+    for case in C3_RETEST_AUTOMATION_CASES:
+        matches = filter_catalog(
+            catalog,
+            module_id=case.module_id,
+            dimension=case.dimension,
+            query=case.query,
+            focus=case.focus,
+            population=case.population,
+            context=case.context,
+            period=case.period,
+        )
+        assert [row.indicator_id for row in matches] == [case.expected_indicator_id]
+
+
+def test_c3_seven_new_tasks_run_through_improved_streamlit_navigation() -> None:
+    for task in C3_RETEST_AUTOMATION_CASES:
+        elapsed, found, passed = execute_task(task)
+
+        assert found == task.expected_indicator_id
+        assert elapsed <= HUMAN_TIME_LIMIT_SECONDS
+        assert passed

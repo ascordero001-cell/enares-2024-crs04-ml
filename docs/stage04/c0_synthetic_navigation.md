@@ -1,8 +1,8 @@
 # C0 — preprueba sintética de navegación del catálogo
 
-**Estado:** `C0_ARCHITECTURE_INSUFFICIENT; SUPERVISORY_REVIEW_REQUIRED`
+**Estado:** `BOUNDED_IMPROVEMENTS_FOR_C3; C3_RETEST_PENDING`
 **Alcance:** exclusivamente sintético; no conecta ni reproduce cifras V0
-**Gate posterior:** PR B no comienza hasta clasificar formalmente el resultado C0
+**Gate posterior:** C3 precede a C2; PR B no comienza hasta aprobar el nuevo recorrido
 
 ## Fixture único
 
@@ -27,9 +27,10 @@ C0 y C2 usan las mismas siete tareas, el mismo inicio, el mismo final y el mismo
 - **Fallo:** objetivo incorrecto, más de un resultado sin resolver, excepción o tiempo mayor a 90
   segundos.
 
-C2 repetirá este mismo recorrido manual con revisión de accesibilidad, evaluación heurística y
-recorrido cognitivo. No requiere participantes independientes. AppTest comprueba únicamente que
-la ruta funcional existe y no decide el umbral humano ni la clasificación de C0.
+C2 aplicará este mismo protocolo manual con objetivos no utilizados previamente, revisión de
+accesibilidad, evaluación heurística y recorrido cognitivo. No requiere participantes
+independientes. AppTest comprueba únicamente que la ruta funcional existe y no decide el umbral
+humano ni la clasificación de C0.
 
 Resultados posibles:
 
@@ -100,4 +101,65 @@ Resultado: cuatro tareas PASS y tres FAIL. C0-01 seleccionó un indicador incorr
 C0-01, C0-05 y C0-06 excedieron el límite conservador de 90 segundos. Una tarea incorrecta basta
 para aplicar la salida congelada de retorno a supervisión.
 
-**Clasificación C0:** `ARCHITECTURE_INSUFFICIENT`.
+**Clasificación aplicada al primer recorrido:** `ARCHITECTURE_INSUFFICIENT`.
+
+## Dictamen supervisor y análisis causal
+
+Rita [reclasificó el resultado](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/102#issuecomment-5691319296)
+el 2026-09-16 como `BOUNDED_IMPROVEMENTS_FOR_C3`. La evidencia original no cambia: 4/7 PASS, con selección
+incorrecta en C0-01 y dos tareas correctas pero lentas. El dictamen concluyó que las dificultades
+eran acotadas y ordenó ejecutar C3 antes de C2. PR B permanece detenido.
+
+El análisis de C0-01 separa las tres hipótesis solicitadas:
+
+- **Candidatos demasiado parecidos: confirmado.** «Corresponsabilidad» aparecía en el título
+  general del módulo 3.1 y por ello coincidía con filas cuyo tema diferenciador era otro. La
+  búsqueda incluía texto ya representado por el selector de módulo.
+- **Falta de contexto antes de confirmar: confirmado.** El selector presentaba una etiqueta larga
+  en una sola línea. Población, periodo y ámbito no tenían controles separados, y el resumen de
+  confirmación aparecía solo después de revelar el ID.
+- **Prompt humano: no confirmado como causa.** El prompt contenía tema, población, periodo y
+  ámbito suficientes para distinguir el objetivo. El problema estaba en cómo la interfaz usaba y
+  presentaba esos datos.
+
+Las mejoras acotadas de C3 son:
+
+1. la búsqueda textual opera sobre los campos que distinguen indicadores, sin reutilizar el
+   título del módulo ya seleccionado;
+2. tema, población, periodo y ámbito aparecen como refinadores explícitos;
+3. los resultados omiten el prefijo repetido del módulo y muestran los cuatro atributos en orden
+   estable;
+4. antes de confirmar se presenta un resumen semántico, mientras el `indicator_id` continúa
+   oculto;
+5. la regresión exige múltiples candidatos tras la búsqueda amplia y exactamente uno después de
+   aplicar los refinadores.
+
+## Segundo recorrido posterior a C3
+
+Los siete objetivos originales están quemados y no se reutilizan. El segundo recorrido usa siete
+objetivos distintos —uno por módulo y uno departamental— y conserva el protocolo de 90 segundos,
+sin ayuda externa y desde la pantalla inicial. Los IDs y consultas técnicas permanecen separados
+de estos prompts humanos.
+
+| Tarea | Prompt humano nuevo |
+|---|---|
+| C3-01 | En el módulo 3.1 y alcance nacional, localiza el indicador sobre consecuencias percibidas en niñas y niños de 9 a 11 años durante los últimos 12 meses, para el total del ámbito observado. |
+| C3-02 | En el módulo 3.2 y alcance nacional, localiza el indicador sobre experiencias reportadas en adolescentes de 12 a 17 años, alguna vez, para el ámbito rural. |
+| C3-03 | En el módulo 3.3 y alcance nacional, localiza el indicador sobre consecuencias percibidas entre estudiantes que buscaron ayuda durante los últimos 12 meses, para el ámbito rural. |
+| C3-04 | En el módulo 3.4 y alcance nacional, localiza el indicador sobre redes de confianza entre estudiantes que no buscaron ayuda, alguna vez, para el total del ámbito observado. |
+| C3-05 | En el módulo 3.5 y alcance nacional, localiza el indicador sobre respuesta institucional en hogares con persona adulta de referencia durante los últimos 12 meses, para el ámbito rural. |
+| C3-06 | En el módulo 3.6 y alcance nacional, localiza el indicador sobre consecuencias percibidas en hogares con persona adulta de referencia, alguna vez, para el total del ámbito observado. |
+| C3-07 | En el módulo 3.4 y alcance departamental, localiza el indicador sobre respuesta institucional en comunidad educativa entrevistada, alguna vez, para el ámbito rural. |
+
+| Tarea | Inicio | Fin | Segundos | Seleccionado | PASS/FAIL | Ayuda | Observaciones |
+|---|---|---|---:|---|---|---|---|
+| C3-01 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Ninguna | Recorrido nuevo. |
+| C3-02 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Ninguna | Recorrido nuevo. |
+| C3-03 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Ninguna | Recorrido nuevo. |
+| C3-04 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Ninguna | Recorrido nuevo. |
+| C3-05 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Ninguna | Recorrido nuevo. |
+| C3-06 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Ninguna | Recorrido nuevo. |
+| C3-07 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Ninguna | Recorrido nuevo. |
+
+**Salida C3:** `PENDING_MANUAL_RETEST`. C2 y PR B continúan detenidos hasta registrar y revisar
+este recorrido.
