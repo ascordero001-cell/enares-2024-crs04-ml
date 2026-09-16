@@ -194,3 +194,18 @@ código confirmado e incluye su copia y envío.
 **Salida C3:** `ARCHITECTURE_INSUFFICIENT`. De acuerdo con la clasificación predefinida, el fallo
 de C3-05 devuelve el flujo a supervisión. C2 y PR B continúan detenidos hasta recibir una decisión
 supervisora explícita.
+
+## Corrección acotada posterior a la aprobación del PR #108
+
+La revisión supervisora del 2026-09-16 aprobó el registro técnico, mantuvo la clasificación
+`ARCHITECTURE_INSUFFICIENT` y autorizó una corrección específica antes de repetir únicamente
+C3-05:
+
+1. el orden de candidatos usa evidencia ponderada de la consulta en tema, población, ámbito,
+   periodo y categoría; los empates conservan el orden canónico y nunca se resuelven ordenando
+   alfabéticamente la población;
+2. Tema, Población, Periodo y Ámbito se estrechan progresivamente, por lo que cada elección elimina
+   valores incompatibles de los refinadores siguientes.
+
+**Estado de esta ronda:** `C3_05_THIRD_RUN_PENDING`. La evidencia 6/7 permanece intacta hasta el
+único recorrido manual autorizado. C2 y PR B continúan detenidos.

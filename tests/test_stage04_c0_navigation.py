@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from pathlib import Path
+
+from streamlit.testing.v1 import AppTest
+
 from enares.stage04.c0_fixture import (
     ALLOWED_HELP,
     C0_AUTOMATION_CASES,
@@ -124,6 +128,66 @@ def test_free_search_prioritizes_semantic_match_over_repeated_module_title() -> 
         row.focus == "corresponsabilidad cotidiana"
         for row in matches[:first_generic]
     )
+
+
+def test_relevance_ties_preserve_catalog_order_instead_of_sorting_population() -> None:
+    catalog = build_synthetic_catalog()
+    matches = filter_catalog(
+        catalog,
+        module_id="3.5",
+        dimension="Nacional",
+        query="respuesta",
+    )
+    tied = [row for row in matches if row.focus == "respuesta institucional"]
+    canonical = [
+        row
+        for row in catalog
+        if row.module_id == "3.5"
+        and row.dimension == "Nacional"
+        and row.focus == "respuesta institucional"
+    ]
+
+    assert [row.indicator_id for row in tied] == [
+        row.indicator_id for row in canonical
+    ]
+
+
+def test_facets_narrow_progressively_in_the_streamlit_route() -> None:
+    root = Path(__file__).resolve().parents[1]
+    app = AppTest.from_file(str(root / "app" / "c0_navigation_app.py")).run(
+        timeout=15
+    )
+    next(widget for widget in app.selectbox if widget.label == "Módulo").set_value(
+        "3.5"
+    ).run(timeout=15)
+    next(
+        widget for widget in app.text_input if widget.label == "Buscar indicador"
+    ).set_value("respuesta").run(timeout=15)
+
+    focus_widget = next(
+        widget for widget in app.selectbox if widget.label == "Tema"
+    )
+    focus_widget.set_value("respuesta institucional").run(timeout=15)
+    population_widget = next(
+        widget for widget in app.selectbox if widget.label == "Población"
+    )
+    assert "hogares con persona adulta de referencia" in population_widget.options
+
+    population_widget.set_value("hogares con persona adulta de referencia").run(
+        timeout=15
+    )
+    period_widget = next(
+        widget for widget in app.selectbox if widget.label == "Periodo"
+    )
+    period_widget.set_value("últimos 12 meses").run(timeout=15)
+    context_widget = next(
+        widget for widget in app.selectbox if widget.label == "Ámbito"
+    )
+    context_widget.set_value("ámbito rural").run(timeout=15)
+
+    result = next(widget for widget in app.selectbox if widget.label == "Resultado")
+    assert len(result.options) == 1
+    assert "hogares con persona adulta de referencia" in result.options[0]
 
 
 def test_free_search_finds_visible_module_words_without_facets() -> None:

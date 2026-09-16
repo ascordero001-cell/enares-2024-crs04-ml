@@ -28,6 +28,31 @@ def _search_text(value: str) -> str:
     )
 
 
+def _semantic_relevance(
+    row: CatalogLocator,
+    *,
+    normalized_query: str,
+    tokens: tuple[str, ...],
+) -> int:
+    """Score query evidence in meaningful fields without arbitrary text tie-breaks."""
+    weighted_fields = (
+        (row.focus, 5),
+        (row.population, 4),
+        (row.context, 3),
+        (row.period, 3),
+        (row.category, 1),
+    )
+    score = 0
+    for value, weight in weighted_fields:
+        normalized_value = _search_text(value)
+        score += weight * sum(token in normalized_value for token in tokens)
+        if normalized_query and normalized_query in normalized_value:
+            score += weight * max(len(tokens), 1) * 2
+        if normalized_query and normalized_query == normalized_value:
+            score += weight * max(len(tokens), 1) * 4
+    return score
+
+
 def filter_catalog(
     rows: Iterable[CatalogLocator],
     *,
@@ -40,8 +65,9 @@ def filter_catalog(
     period: str | None = None,
 ) -> tuple[CatalogLocator, ...]:
     """Apply module/scope, semantic search and optional human-readable facets."""
-    tokens = _search_text(query).split()
-    matches: list[tuple[int, int, CatalogLocator]] = []
+    normalized_query = _search_text(query)
+    tokens = tuple(normalized_query.split())
+    matches: list[tuple[int, CatalogLocator]] = []
     for row in rows:
         if row.synthetic is not True:
             raise ValueError("C0 accepts only explicit synthetic=true locators")
@@ -55,40 +81,24 @@ def filter_catalog(
             continue
         if period is not None and row.period != period:
             continue
-        semantic_fields = " ".join(
-            value
-            for value in (
-                row.focus,
-                row.population,
-                row.context,
-                row.period,
-                row.category,
-            )
-            if value
-        )
-        semantic_haystack = _search_text(semantic_fields)
         visible_haystack = _search_text(f"{row.label} {row.category}")
         if all(token in visible_haystack for token in tokens):
-            semantic_token_count = sum(
-                token in semantic_haystack for token in tokens
+            matches.append(
+                (
+                    _semantic_relevance(
+                        row,
+                        normalized_query=normalized_query,
+                        tokens=tokens,
+                    ),
+                    row,
+                )
             )
-            semantic_phrase_match = int(
-                bool(tokens) and _search_text(query) in semantic_haystack
-            )
-            matches.append((semantic_phrase_match, semantic_token_count, row))
+    # sorted() is stable: equally relevant candidates retain canonical catalog order.
+    # In particular, population text is never used as an arbitrary tie-breaker.
     return tuple(
-        item[2]
+        item[1]
         for item in sorted(
             matches,
-            key=lambda item: (
-                -item[0],
-                -item[1],
-                item[2].focus,
-                item[2].population,
-                item[2].period,
-                item[2].context,
-                item[2].label,
-                item[2].indicator_id,
-            ),
+            key=lambda item: -item[0],
         )
     )
