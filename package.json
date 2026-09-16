@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "test:a11y": "node scripts/check_accessibility.mjs",
+    "test:a11y-control": "node scripts/test_accessibility_residual_policy.mjs",
     "test:six-sessions": "node scripts/check_six_sessions.mjs"
   },
   "devDependencies": {

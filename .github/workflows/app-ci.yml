@@ -84,6 +84,9 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
+      - name: Verify accessibility residual control
+        run: npm run test:a11y-control
+
       - name: Start application
         run: |
           python -m streamlit run app/streamlit_app.py \
