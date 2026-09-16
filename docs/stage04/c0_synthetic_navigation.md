@@ -1,6 +1,6 @@
 # C0 — preprueba sintética de navegación del catálogo
 
-**Estado:** `ARCHITECTURE_SUFFICIENT; SUPERVISORY_REVIEW_REQUIRED`
+**Estado:** `C3_ARCHITECTURE_SUFFICIENT; C2_ARCHITECTURE_INSUFFICIENT; SUPERVISORY_REVIEW_REQUIRED`
 **Alcance:** exclusivamente sintético; no conecta ni reproduce cifras V0
 **Gate posterior:** C3 precede a C2; PR B no comienza hasta aprobar el nuevo recorrido
 
@@ -251,17 +251,28 @@ inicial, máximo 90 segundos, sin ID esperado ni ayuda externa.
 
 | Tarea | Inicio UTC | Fin UTC | Segundos | Seleccionado | Esperado | PASS/FAIL | Ayuda | Observaciones |
 |---|---|---|---:|---|---|---|---|---|
-| C2-01 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Reservado | PENDIENTE | Ninguna | — |
-| C2-02 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Reservado | PENDIENTE | Ninguna | — |
-| C2-03 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Reservado | PENDIENTE | Ninguna | — |
-| C2-04 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Reservado | PENDIENTE | Ninguna | — |
-| C2-05 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Reservado | PENDIENTE | Ninguna | — |
-| C2-06 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Reservado | PENDIENTE | Ninguna | — |
-| C2-07 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Reservado | PENDIENTE | Ninguna | — |
+| C2-01 | 20:57:51 | 20:58:37 | 46,5 | `SYN_C0_31_054` | `SYN_C0_31_054` | PASS | Ninguna | Objetivo correcto dentro del límite. |
+| C2-02 | 20:59:13 | 20:59:49 | 36,0 | `SYN_C0_32_050` | `SYN_C0_32_050` | PASS | Ninguna | Objetivo correcto dentro del límite. |
+| C2-03 | 21:00:00 | 21:00:51 | 50,8 | `SYN_C0_33_059` | `SYN_C0_33_059` | PASS | Ninguna | Objetivo correcto dentro del límite. |
+| C2-04 | 21:01:06 | 21:01:35 | 29,5 | `SYN_C0_34_063` | `SYN_C0_34_063` | PASS | Ninguna | Objetivo correcto dentro del límite. |
+| C2-05 | 21:01:49 | 21:02:24 | 34,7 | `SYN_C0_35_072` | `SYN_C0_35_072` | PASS | Ninguna | Objetivo correcto dentro del límite. |
+| C2-06 | 21:02:40 | 21:03:16 | 35,7 | `SYN_C0_36_078` | `SYN_C0_36_078` | PASS | Ninguna | Objetivo correcto dentro del límite. |
+| C2-07 | 21:03:30 | 21:04:01 | 30,1 | `SYN_C0_32_084` | `SYN_C0_31_084` | FAIL | Ninguna durante el intento | Se confirmó el módulo 3.2 aunque el prompt pedía 3.1. |
 
 El primer objetivo reservado para C2-01 quedó anulado antes de una medición válida: la pestaña se
 cerró y, al reabrirla, hubo interacción simultánea mientras se intentaba limpiar el estado previo.
 El código `SYN_C0_31_045` se confirmó correctamente, pero no se clasifica ni se reutiliza porque ya
 quedó revelado. C2-01 se congeló de nuevo sobre un objetivo distinto antes de entregar el prompt.
 
-**Estado C2:** `PENDING_MANUAL_EVALUATION`. PR B continúa detenido.
+Después del cierre del cronómetro se informó que el módulo correcto era 3.1. La respuesta posterior
+`SYN_C0_31_084` coincide con el objetivo, pero ya incorpora esa ayuda y no modifica el FAIL del
+primer código confirmado.
+
+Las siete tareas finalizaron dentro de 90 segundos. Seis localizaron el objetivo exacto sin ayuda;
+C2-07 falló por selección de módulo. La comprobación automatizada de accesibilidad continúa verde,
+pero no sustituye el recorrido humano.
+
+**Resultado C2:** 6/7 PASS.
+
+**Estado C2:** `ARCHITECTURE_INSUFFICIENT; SUPERVISORY_REVIEW_REQUIRED`. PR B continúa detenido
+hasta el dictamen supervisor.
