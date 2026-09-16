@@ -207,5 +207,16 @@ C3-05:
 2. Tema, Población, Periodo y Ámbito se estrechan progresivamente, por lo que cada elección elimina
    valores incompatibles de los refinadores siguientes.
 
-**Estado de esta ronda:** `C3_05_THIRD_RUN_PENDING`. La evidencia 6/7 permanece intacta hasta el
-único recorrido manual autorizado. C2 y PR B continúan detenidos.
+### Tercera ejecución autorizada de C3-05
+
+| Inicio UTC | Fin UTC | Segundos | Seleccionado | Esperado | PASS/FAIL | Ayuda | Observaciones |
+|---|---|---:|---|---|---|---|---|
+| 19:48:37 | 20:29:01 | 2424,7 | `SYN_C0_35_068` | `SYN_C0_35_068` | FAIL | Ninguna | Objetivo correcto; excede el límite congelado de 90 segundos. |
+
+La ruta corregida permitió confirmar el objetivo exacto, pero la ejecución no cumple el umbral
+temporal. La evidencia combinada permanece en 6/7 conforme a la regla congelada y no se
+reclasifica retrospectivamente.
+
+**Estado de esta ronda:** `C3_05_THIRD_RUN_COMPLETED; SUPERVISORY_REVIEW_REQUIRED`. La
+clasificación continúa como `ARCHITECTURE_INSUFFICIENT`. C2 y PR B permanecen detenidos hasta el
+dictamen supervisor.
