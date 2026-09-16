@@ -101,3 +101,6 @@ jobs:
 
       - name: Audit WCAG 2.2 AA
         run: npm run test:a11y
+
+      - name: Exercise six concurrent browser sessions
+        run: npm run test:six-sessions

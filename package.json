@@ -2,7 +2,8 @@
   "name": "enares-stage04-accessibility",
   "private": true,
   "scripts": {
-    "test:a11y": "node scripts/check_accessibility.mjs"
+    "test:a11y": "node scripts/check_accessibility.mjs",
+    "test:six-sessions": "node scripts/check_six_sessions.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
