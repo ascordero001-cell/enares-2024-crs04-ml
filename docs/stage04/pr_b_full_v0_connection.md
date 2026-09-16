@@ -1,7 +1,7 @@
 # PR B — conexión integral V0 local shadow
 
 - **Estado técnico automatizado:** `3014/3014 PASS`
-- **Estado manual:** `PENDING_6_MODULE_TRAVERSALS`
+- **Estado manual:** `6/6 PASS — PENDING_INDEPENDENT_REVIEW`
 - **Alcance:** `LOCAL_SHADOW_ONLY`
 - **Cloud, publicación y cutover:** `NOT_EXECUTED / NOT_AUTHORIZED`
 
@@ -28,7 +28,7 @@ SHA-256 por fila; permite contrastar las 3014 filas sin versionar otra copia del
 - 7 filas D: distribución `num_consecuencias_fisicas`; `Total` no se presenta como prevalencia.
 - 8 filas E: se elimina el texto manual `[referencial]`; la interfaz lo deriva de `cv_flag`.
 
-## Recorrido manual representativo pendiente
+## Recorrido manual representativo completado
 
 Ana ejecutará un recorrido real por módulo. No hay umbral de 90 segundos.
 
@@ -39,7 +39,8 @@ Ana ejecutará un recorrido real por módulo. No hay umbral de 90 segundos.
 | 3.3 | 2026-09-16T23:53:13Z | 2026-09-16T23:54:15Z | 62 | `C3P223_10_1` / Nacional / Total | PASS | Tarjeta completa: estimación 11.49 %, EE 0.6444, CV 0.05607, `N=base_unw` 7,522 e IC95 % 10.29 %–12.82 %; sin alerta ni error visible. |
 | 3.4 | 2026-09-16T23:54:29Z | 2026-09-16T23:57:10Z | 162 | `Agresor_VS_12M__AG_01` / Nacional / Total (`Familiares`) | PASS | Tarjeta completa: estimación 9.26 %, EE 0.8997, CV 0.09712, `N=base_unw` 3,429 e IC95 % 7.64 %–11.20 %; sin alerta ni error visible. |
 | 3.5 | 2026-09-16T23:57:28Z | 2026-09-16T23:58:04Z | 37 | `CONS_ATENCION_SALUD` / Nacional / Total | PASS | Tarjeta completa: estimación 10.00 %, EE 0.8865, CV 0.08866, `N=base_unw` 3,935 e IC95 % 8.26 %–11.74 %; dominio `CONS_ALGUNA = 1` explícito, sin alerta ni error visible. |
-| 3.6 | PENDIENTE | PENDIENTE | — | PENDIENTE | PENDIENTE | — |
+| 3.6 | 2026-09-16T23:58:24Z | 2026-09-16T23:59:10Z | 47 | `C3P213` / Nacional / Total | PASS | Tarjeta referencial completa: estimación 20.19 %, EE 5.9728, CV 0.29583, `N=base_unw` 99 e IC95 % 10.77 %–34.65 %; alerta visible y coherente por CV superior al 15 %, sin error. |
 
-PR B no se declara cerrado hasta completar esta tabla. Ningún resultado de este PR habilita una
-carga cloud, publicación institucional, cutover ni sustitución de V0.
+La evidencia automatizada y el recorrido manual `6/6 PASS` están completos. PR B permanece
+pendiente de revisión independiente y merge. Ningún resultado de este PR habilita una carga cloud,
+publicación institucional, cutover ni sustitución de V0.
