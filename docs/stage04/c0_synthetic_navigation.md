@@ -1,7 +1,7 @@
 # C0 — preprueba sintética de navegación del catálogo
 
-**Estado:** `C0_PROVISIONAL_ARCHITECTURE_SUFFICIENT; SUPERVISORY_REVIEW_REQUIRED`  
-**Alcance:** exclusivamente sintético; no conecta ni reproduce cifras V0  
+**Estado:** `C0_PROVISIONAL_ARCHITECTURE_SUFFICIENT; SUPERVISORY_REVIEW_REQUIRED`
+**Alcance:** exclusivamente sintético; no conecta ni reproduce cifras V0
 **Gate posterior:** PR B no comienza hasta clasificar formalmente el resultado C0
 
 ## Criterio congelado para C0 y C2
