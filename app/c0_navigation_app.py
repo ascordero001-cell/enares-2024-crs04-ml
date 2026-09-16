@@ -22,6 +22,9 @@ def _facet(
     *,
     key: str,
 ) -> str | None:
+    current = st.session_state.get(key)
+    if current is not None and current not in values:
+        del st.session_state[key]
     return st.selectbox(
         label,
         values,
@@ -78,22 +81,46 @@ def render() -> None:
             tuple(dict.fromkeys(row.focus for row in initial_matches)),
             key="c0_focus",
         )
+    focus_matches = filter_catalog(
+        catalog,
+        module_id=module_id,
+        dimension=dimension,
+        query=query,
+        focus=focus,
+    )
     with columns[1]:
         population = _facet(
             "Población",
-            tuple(dict.fromkeys(row.population for row in initial_matches)),
+            tuple(dict.fromkeys(row.population for row in focus_matches)),
             key="c0_population",
         )
+    population_matches = filter_catalog(
+        catalog,
+        module_id=module_id,
+        dimension=dimension,
+        query=query,
+        focus=focus,
+        population=population,
+    )
     with columns[2]:
         period = _facet(
             "Periodo",
-            tuple(dict.fromkeys(row.period for row in initial_matches)),
+            tuple(dict.fromkeys(row.period for row in population_matches)),
             key="c0_period",
         )
+    period_matches = filter_catalog(
+        catalog,
+        module_id=module_id,
+        dimension=dimension,
+        query=query,
+        focus=focus,
+        population=population,
+        period=period,
+    )
     with columns[3]:
         context = _facet(
             "Ámbito",
-            tuple(dict.fromkeys(row.context for row in initial_matches)),
+            tuple(dict.fromkeys(row.context for row in period_matches)),
             key="c0_context",
         )
 
