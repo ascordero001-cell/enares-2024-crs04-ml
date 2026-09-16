@@ -1,6 +1,6 @@
 # C0 — preprueba sintética de navegación del catálogo
 
-**Estado:** `C0_MANUAL_TRAVERSAL_PENDING; SUPERVISORY_REVIEW_REQUIRED`
+**Estado:** `C0_ARCHITECTURE_INSUFFICIENT; SUPERVISORY_REVIEW_REQUIRED`
 **Alcance:** exclusivamente sintético; no conecta ni reproduce cifras V0
 **Gate posterior:** PR B no comienza hasta clasificar formalmente el resultado C0
 
@@ -80,18 +80,24 @@ Ejecución del 2026-09-15 con AppTest sobre el prototipo Streamlit y el fixture 
 
 ## Recorrido manual cronometrado C0
 
-Esta tabla debe completarse durante una ejecución humana desde la pantalla inicial. La persona
-recibe solo el prompt correspondiente, no usa ayuda externa y confirma un indicador. No se deriva
-ninguna clasificación hasta terminar las siete tareas.
+Ejecución realizada por Ana el 2026-09-16 UTC desde la pantalla inicial. Ana recibió únicamente
+cada prompt, no consultó el ID esperado, la consulta técnica ni el fixture y no utilizó ayuda
+externa. El tiempo se midió conservadoramente desde la entrega del prompt hasta la recepción del
+resultado confirmado; por ello incluye el tiempo de copiar y enviar el resultado y constituye una
+cota superior del tiempo de navegación.
 
 | Tarea | Módulo / alcance | Inicio | Fin | Segundos | Seleccionado | Esperado | PASS/FAIL | Ayuda | Observaciones |
 |---|---|---|---|---:|---|---|---|---|---|
-| C0-01 | 3.1 / Nacional | PENDIENTE | PENDIENTE | — | PENDIENTE | `SYN_C0_31_031` | PENDIENTE | Ninguna | PENDIENTE |
-| C0-02 | 3.2 / Nacional | PENDIENTE | PENDIENTE | — | PENDIENTE | `SYN_C0_32_032` | PENDIENTE | Ninguna | PENDIENTE |
-| C0-03 | 3.3 / Nacional | PENDIENTE | PENDIENTE | — | PENDIENTE | `SYN_C0_33_033` | PENDIENTE | Ninguna | PENDIENTE |
-| C0-04 | 3.4 / Nacional | PENDIENTE | PENDIENTE | — | PENDIENTE | `SYN_C0_34_034` | PENDIENTE | Ninguna | PENDIENTE |
-| C0-05 | 3.5 / Nacional | PENDIENTE | PENDIENTE | — | PENDIENTE | `SYN_C0_35_035` | PENDIENTE | Ninguna | PENDIENTE |
-| C0-06 | 3.6 / Nacional | PENDIENTE | PENDIENTE | — | PENDIENTE | `SYN_C0_36_036` | PENDIENTE | Ninguna | PENDIENTE |
-| C0-07 | 3.2 / Departamento | PENDIENTE | PENDIENTE | — | PENDIENTE | `SYN_C0_32_086` | PENDIENTE | Ninguna | PENDIENTE |
+| C0-01 | 3.1 / Nacional | 02:18:15 | 02:19:50 | 94,8 | `SYN_C0_31_017` | `SYN_C0_31_031` | FAIL | Ninguna | Selección incorrecta y tiempo mayor a 90 s. |
+| C0-02 | 3.2 / Nacional | 02:21:35 | 02:23:04 | 89,2 | `SYN_C0_32_032` | `SYN_C0_32_032` | PASS | Ninguna | Objetivo correcto dentro del límite. |
+| C0-03 | 3.3 / Nacional | 02:23:04 | 02:24:09 | 65,2 | `SYN_C0_33_033` | `SYN_C0_33_033` | PASS | Ninguna | Objetivo correcto dentro del límite. |
+| C0-04 | 3.4 / Nacional | 02:24:09 | 02:24:57 | 48,3 | `SYN_C0_34_034` | `SYN_C0_34_034` | PASS | Ninguna | Objetivo correcto dentro del límite. |
+| C0-05 | 3.5 / Nacional | 02:24:57 | 02:27:37 | 159,5 | `SYN_C0_35_035` | `SYN_C0_35_035` | FAIL | Ninguna | Objetivo correcto; tiempo mayor a 90 s. |
+| C0-06 | 3.6 / Nacional | 02:27:37 | 02:29:27 | 109,7 | `SYN_C0_36_036` | `SYN_C0_36_036` | FAIL | Ninguna | Objetivo correcto; tiempo mayor a 90 s. |
+| C0-07 | 3.2 / Departamento | 02:29:27 | 02:30:09 | 42,2 | `SYN_C0_32_086` | `SYN_C0_32_086` | PASS | Ninguna | Objetivo correcto dentro del límite. |
 
-**Clasificación C0:** `PENDIENTE_DE_RECORRIDO_MANUAL`.
+Resultado: cuatro tareas PASS y tres FAIL. C0-01 seleccionó un indicador incorrecto; además,
+C0-01, C0-05 y C0-06 excedieron el límite conservador de 90 segundos. Una tarea incorrecta basta
+para aplicar la salida congelada de retorno a supervisión.
+
+**Clasificación C0:** `ARCHITECTURE_INSUFFICIENT`.
