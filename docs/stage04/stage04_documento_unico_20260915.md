@@ -15,7 +15,7 @@ la numeracion original. Sustituye a cualquier version parcial anterior de estas 
 
 | Indicador | Valor |
 |---|---|
-| Pasos del plan cerrados | 42 de 53 |
+| Pasos del plan cerrados | 43 de 53 |
 | PR fusionados en Stage 04 | 36 |
 | PR abiertos | 0 |
 | Filas del agregado V0 conectadas en la aplicacion | 52 de 3.014 |
@@ -23,8 +23,8 @@ la numeracion original. Sustituye a cualquier version parcial anterior de estas 
 | Consultas ejecutadas en Google Cloud | 0 |
 | Gasto acumulado | USD 0 |
 
-**Ana termino el paso 42 y no puede entrar al 43.** El paso 36 se lo salto porque no tenia a
-quien pedirle la verificacion. Todo lo demas del 1 al 42 esta cerrado, mas el 50, que adelanto.
+**Ana termino los pasos 1 a 42, incluido el paso 36, y no puede entrar al 43.** Tambien esta
+cerrado el paso 50, que se adelanto.
 
 Lo que separa el estado actual de la Etapa 7 es una sola cosa, y no ocurre en GitHub: que exista
 el proyecto de Google Cloud vinculado a una cuenta de facturacion. Esta detallado en la seccion J.
@@ -292,7 +292,7 @@ metodo cambia por la seccion H; el proposito se conserva).
 |---|---|---|
 | 34 | `LICENSE` propuesta y aprobada | CERRADO. Apache-2.0, titular Ana, `NOTICE` sin atribucion institucional |
 | 35 | `CONTRIBUTING.md` | CERRADO |
-| **36** | **REESCRITO** — ver texto abajo | PENDIENTE |
+| **36** | **REESCRITO** — ver texto abajo | CERRADO |
 | 37 | `docs/security/access_control_plan.md` | CERRADO |
 | 38 | `docs/security/access_verification.md` como plantilla con los cinco escenarios | CERRADO |
 | 39 | Exportacion CSV y Excel con `test_export_formats.py` y `test_xlsx_package_privacy.py` | CERRADO |
@@ -310,10 +310,16 @@ Google, de modo que la condicion documental se cumple mecanicamente.
 y el repositorio se desincronicen, el PR falla. Esa desincronizacion es el fallo real de un
 quickstart, y una verificacion humana unica tampoco lo habria cazado.
 
-Cambiar en el documento el estado `PENDING` por la descripcion de este control, y anotar el
-riesgo residual: nadie lee la prosa, solo se comprueba que los comandos funcionan.
+**Evidencia de cierre:** PR #103, merge
+`042bffde5fda22012ac3fb37485372ded1f96016`, y ejecución del quickstart en `main`
+[35042028920](https://github.com/ascordero001-cell/enares-2024-crs04-ml/actions/runs/35042028920),
+con resultado `SUCCESS`.
 
-Se cierra cuando ese job pase en `main`. No es ruta protegida.
+**Riesgo residual:** el control prueba desde un checkout limpio que los comandos documentados se
+ejecutan correctamente, pero no comprueba que una persona haya leido y comprendido la prosa.
+
+El cierre documental de este paso no modifica ningun gate cloud ni autoriza crear recursos,
+conectar cifras reales en cloud, publicar o hacer cutover.
 
 ## Etapa 6 — preparacion y autorizacion de la configuracion cloud
 
