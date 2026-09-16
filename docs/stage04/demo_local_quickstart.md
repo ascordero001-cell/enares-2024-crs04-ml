@@ -4,7 +4,7 @@
 
 **Cloud:** `NOT_AUTHORIZED`
 
-**Verificación independiente desde clon limpio:** `PENDING`
+**Verificación en runner limpio:** `AUTOMATED_BY_QUICKSTART_CI`
 
 Este procedimiento levanta únicamente la aplicación local con agregados V0 autorizados y el
 fixture sintético versionado. No ejecuta `gcloud`, no crea recursos y no publica resultados.
@@ -49,19 +49,36 @@ Resultados esperados:
 - la imagen contiene `streamlit==1.63.0`;
 - el estado cloud continúa `NOT_AUTHORIZED`.
 
-## Registro de verificación independiente
+## Validación automatizada en runner limpio
 
-La persona verificadora debe ejecutar desde un clon nuevo y registrar en el PR:
+El job `Clean-runner quickstart` extrae y ejecuta directamente el siguiente bloque. El workflow no
+mantiene una copia de estos comandos, por lo que una desincronización entre la guía y el repositorio
+hace fallar el PR.
 
-- nombre o usuario GitHub;
-- sistema operativo y versión de Python o Docker;
-- SHA verificado;
-- resultado de instalación/build;
-- resultado de `pytest`;
-- salida del diagnóstico de release;
-- URL local comprobada y resultado del health;
-- fecha UTC.
+```bash quickstart-ci
+python -m pip install --upgrade pip
+python -m pip install -r requirements-dev.txt
+python -c "import streamlit; assert streamlit.__version__ == '1.63.0'"
+python -m pytest tests/test_naming.py -q
+python -m pytest -q
+python scripts/release_diagnostic.py --expected-release enares2024-crs04-v0-shadow-001
+python -m streamlit run app/streamlit_app.py --server.headless=true --server.address=127.0.0.1 --server.port=8501 > /tmp/enares-quickstart.log 2>&1 &
+app_pid=$!
+trap 'kill "$app_pid" 2>/dev/null || true' EXIT
+for attempt in $(seq 1 30); do
+  if curl --fail --silent http://127.0.0.1:8501/_stcore/health | grep --quiet '^ok$'; then
+    break
+  fi
+  if [ "$attempt" -eq 30 ]; then
+    cat /tmp/enares-quickstart.log
+    exit 1
+  fi
+  sleep 1
+done
+curl --fail --silent --show-error http://127.0.0.1:8501/ > /dev/null
+```
 
-No se marca esta verificación como completada hasta recibir esa evidencia de una persona distinta
-de la autora. Fallos de instalación, health o release bloquean el cierre del paso 36, pero no
-autorizan cambios cloud.
+El control se ejecuta en un checkout nuevo, sin credenciales ni cuenta de Google, y cubre
+instalación, pruebas, versión fijada de Streamlit, diagnóstico del release, arranque y health. El
+riesgo residual es que comprueba comandos ejecutables, pero no que una persona lea o comprenda la
+prosa de esta guía. Un fallo bloquea el paso 36 y no autoriza cambios cloud.
