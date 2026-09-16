@@ -15,6 +15,10 @@ class CatalogLocator:
     dimension: str
     category: str
     synthetic: bool = True
+    focus: str = ""
+    population: str = ""
+    context: str = ""
+    period: str = ""
 
 
 def _search_text(value: str) -> str:
@@ -30,16 +34,61 @@ def filter_catalog(
     module_id: str,
     dimension: str,
     query: str,
+    focus: str | None = None,
+    population: str | None = None,
+    context: str | None = None,
+    period: str | None = None,
 ) -> tuple[CatalogLocator, ...]:
-    """Apply the C0 staged path: module, dimension, then token search."""
+    """Apply module/scope, semantic search and optional human-readable facets."""
     tokens = _search_text(query).split()
-    matches = []
+    matches: list[tuple[int, int, CatalogLocator]] = []
     for row in rows:
         if row.synthetic is not True:
             raise ValueError("C0 accepts only explicit synthetic=true locators")
         if row.module_id != module_id or row.dimension != dimension:
             continue
-        haystack = _search_text(f"{row.indicator_id} {row.label} {row.category}")
-        if all(token in haystack for token in tokens):
-            matches.append(row)
-    return tuple(sorted(matches, key=lambda row: (row.label, row.indicator_id)))
+        if focus is not None and row.focus != focus:
+            continue
+        if population is not None and row.population != population:
+            continue
+        if context is not None and row.context != context:
+            continue
+        if period is not None and row.period != period:
+            continue
+        semantic_fields = " ".join(
+            value
+            for value in (
+                row.focus,
+                row.population,
+                row.context,
+                row.period,
+                row.category,
+            )
+            if value
+        )
+        semantic_haystack = _search_text(semantic_fields)
+        visible_haystack = _search_text(f"{row.label} {row.category}")
+        if all(token in visible_haystack for token in tokens):
+            semantic_token_count = sum(
+                token in semantic_haystack for token in tokens
+            )
+            semantic_phrase_match = int(
+                bool(tokens) and _search_text(query) in semantic_haystack
+            )
+            matches.append((semantic_phrase_match, semantic_token_count, row))
+    return tuple(
+        item[2]
+        for item in sorted(
+            matches,
+            key=lambda item: (
+                -item[0],
+                -item[1],
+                item[2].focus,
+                item[2].population,
+                item[2].period,
+                item[2].context,
+                item[2].label,
+                item[2].indicator_id,
+            ),
+        )
+    )

@@ -1,8 +1,8 @@
 # C0 — preprueba sintética de navegación del catálogo
 
-**Estado:** `C0_ARCHITECTURE_INSUFFICIENT; SUPERVISORY_REVIEW_REQUIRED`
+**Estado:** `ARCHITECTURE_INSUFFICIENT; SUPERVISORY_REVIEW_REQUIRED`
 **Alcance:** exclusivamente sintético; no conecta ni reproduce cifras V0
-**Gate posterior:** PR B no comienza hasta clasificar formalmente el resultado C0
+**Gate posterior:** C3 precede a C2; PR B no comienza hasta aprobar el nuevo recorrido
 
 ## Fixture único
 
@@ -27,9 +27,10 @@ C0 y C2 usan las mismas siete tareas, el mismo inicio, el mismo final y el mismo
 - **Fallo:** objetivo incorrecto, más de un resultado sin resolver, excepción o tiempo mayor a 90
   segundos.
 
-C2 repetirá este mismo recorrido manual con revisión de accesibilidad, evaluación heurística y
-recorrido cognitivo. No requiere participantes independientes. AppTest comprueba únicamente que
-la ruta funcional existe y no decide el umbral humano ni la clasificación de C0.
+C2 aplicará este mismo protocolo manual con objetivos no utilizados previamente, revisión de
+accesibilidad, evaluación heurística y recorrido cognitivo. No requiere participantes
+independientes. AppTest comprueba únicamente que la ruta funcional existe y no decide el umbral
+humano ni la clasificación de C0.
 
 Resultados posibles:
 
@@ -100,4 +101,96 @@ Resultado: cuatro tareas PASS y tres FAIL. C0-01 seleccionó un indicador incorr
 C0-01, C0-05 y C0-06 excedieron el límite conservador de 90 segundos. Una tarea incorrecta basta
 para aplicar la salida congelada de retorno a supervisión.
 
-**Clasificación C0:** `ARCHITECTURE_INSUFFICIENT`.
+**Clasificación aplicada al primer recorrido:** `ARCHITECTURE_INSUFFICIENT`.
+
+## Dictamen supervisor y análisis causal
+
+Rita [reclasificó el resultado](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/102#issuecomment-5691319296)
+el 2026-09-16 como `BOUNDED_IMPROVEMENTS_FOR_C3`. La evidencia original no cambia: 4/7 PASS, con selección
+incorrecta en C0-01 y dos tareas correctas pero lentas. El dictamen concluyó que las dificultades
+eran acotadas y ordenó ejecutar C3 antes de C2. PR B permanece detenido.
+
+El análisis de C0-01 separa las tres hipótesis solicitadas:
+
+- **Candidatos demasiado parecidos: confirmado.** «Corresponsabilidad» aparecía en el título
+  general del módulo 3.1 y por ello coincidía con filas cuyo tema diferenciador era otro. La
+  búsqueda incluía texto ya representado por el selector de módulo.
+- **Falta de contexto antes de confirmar: confirmado.** El selector presentaba una etiqueta larga
+  en una sola línea. Población, periodo y ámbito no tenían controles separados, y el resumen de
+  confirmación aparecía solo después de revelar el ID.
+- **Prompt humano: no confirmado como causa.** El prompt contenía tema, población, periodo y
+  ámbito suficientes para distinguir el objetivo. El problema estaba en cómo la interfaz usaba y
+  presentaba esos datos.
+
+Las mejoras acotadas de C3 son:
+
+1. la búsqueda libre vuelve a operar sobre la etiqueta completa visible;
+2. las coincidencias en tema, población, periodo y ámbito se ordenan antes que las coincidencias
+   que proceden únicamente del texto genérico del módulo;
+3. tema, población, periodo y ámbito aparecen como refinadores opcionales;
+4. los resultados omiten el prefijo repetido del módulo y muestran los cuatro atributos en orden
+   estable;
+5. antes de confirmar se presenta un resumen semántico, mientras el `indicator_id` continúa
+   oculto;
+6. la regresión exige múltiples candidatos tras la búsqueda amplia y exactamente uno después de
+   aplicar los refinadores.
+
+## Segundo recorrido posterior a C3
+
+Los siete objetivos originales están quemados y no se reutilizan. El segundo recorrido usa siete
+objetivos distintos —uno por módulo y uno departamental— y conserva el protocolo de 90 segundos,
+sin ayuda externa y desde la pantalla inicial. Los IDs y consultas técnicas permanecen separados
+de estos prompts humanos.
+
+| Tarea | Prompt humano nuevo |
+|---|---|
+| C3-01 | En el módulo 3.1 y alcance nacional, localiza el indicador sobre experiencias reportadas en adolescentes de 12 a 17 años durante los últimos 12 meses, para el total del ámbito observado. |
+| C3-02 | En el módulo 3.2 y alcance nacional, localiza el indicador sobre experiencias reportadas en adolescentes de 12 a 17 años, alguna vez, para el ámbito rural. |
+| C3-03 | En el módulo 3.3 y alcance nacional, localiza el indicador sobre consecuencias percibidas entre estudiantes que buscaron ayuda durante los últimos 12 meses, para el ámbito rural. |
+| C3-04 | En el módulo 3.4 y alcance nacional, localiza el indicador sobre redes de confianza entre estudiantes que no buscaron ayuda, alguna vez, para el total del ámbito observado. |
+| C3-05 | En el módulo 3.5 y alcance nacional, localiza el indicador sobre respuesta institucional en hogares con persona adulta de referencia durante los últimos 12 meses, para el ámbito rural. |
+| C3-06 | En el módulo 3.6 y alcance nacional, localiza el indicador sobre consecuencias percibidas en hogares con persona adulta de referencia, alguna vez, para el total del ámbito observado. |
+| C3-07 | En el módulo 3.4 y alcance departamental, localiza el indicador sobre respuesta institucional en comunidad educativa entrevistada, alguna vez, para el ámbito rural. |
+
+### Corrección supervisora del 2026-09-16
+
+La primera C3-01 quedó anulada porque utilizó la población de 9 a 11 años, exclusiva de CRS03 y
+fuera de la autoridad CRS04. El fixture sustituyó esa población y C3-01 quedó redefinida sobre un
+objetivo 3.1 nuevo y no usado.
+
+C3-05 fue un fallo real de navegación. El código informado pertenecía a 3.4. Como
+`filter_catalog` aplica el módulo antes de construir candidatos, una fila 3.4 no puede aparecer
+bajo el selector 3.5: el error fue no cambiar el selector de módulo antes de confirmar, no una
+fuga de resultados entre módulos. La repetición conserva el mismo objetivo y prompt.
+
+En la repetición autorizada, la persona llegó al módulo, enfoque, periodo y ámbito correctos, pero
+eligió la población «adolescentes de 12 a 17 años» en lugar de «hogares con persona adulta de
+referencia». Este segundo fallo, ahora dentro del módulo correcto, confirma que el problema no se
+limita al selector de módulo y requiere revisión supervisora de la arquitectura de selección.
+
+La evidencia previa se preserva:
+
+| Tarea | Resultado previo | Tratamiento |
+|---|---|---|
+| C3-01 | 52,6 s; `SYN_C0_31_012`; PASS técnico | ANULADO por objetivo fuera de la autoridad CRS04. |
+| C3-05 | 43,2 s; `SYN_C0_34_068`; FAIL | Fallo de selección; repetición autorizada con el mismo objetivo. |
+
+La tabla combinada conserva los cinco primeros intentos válidos e incorpora las dos repeticiones
+autorizadas. El tiempo se mide desde la entrega de cada prompt por chat hasta la recepción del
+código confirmado e incluye su copia y envío.
+
+| Tarea | Inicio UTC | Fin UTC | Segundos | Seleccionado | Esperado | PASS/FAIL | Ayuda | Observaciones |
+|---|---|---|---:|---|---|---|---|---|
+| C3-01 | 19:04:38 | 19:05:03 | 25,0 | `SYN_C0_31_024` | `SYN_C0_31_024` | PASS | Ninguna | Objetivo nuevo correcto dentro del límite. |
+| C3-02 | 03:44:20 | 03:45:27 | 67,2 | `SYN_C0_32_023` | `SYN_C0_32_023` | PASS | Ninguna | Objetivo correcto dentro del límite. |
+| C3-03 | 03:45:32 | 03:46:32 | 59,3 | `SYN_C0_33_044` | `SYN_C0_33_044` | PASS | Ninguna | Objetivo correcto dentro del límite. |
+| C3-04 | 03:46:39 | 03:47:40 | 61,5 | `SYN_C0_34_057` | `SYN_C0_34_057` | PASS | Ninguna | Objetivo correcto dentro del límite. |
+| C3-05 | 19:06:38 | 19:07:17 | 38,9 | `SYN_C0_35_020` | `SYN_C0_35_068` | FAIL | Ninguna | Módulo, enfoque, periodo y ámbito correctos; población incorrecta: adolescentes de 12 a 17 años en vez de hogares con persona adulta de referencia. |
+| C3-06 | 03:48:37 | 03:49:26 | 49,5 | `SYN_C0_36_075` | `SYN_C0_36_075` | PASS | Ninguna | Objetivo correcto dentro del límite. |
+| C3-07 | 03:49:32 | 03:50:17 | 45,7 | `SYN_C0_34_083` | `SYN_C0_34_083` | PASS | Ninguna | Objetivo correcto dentro del límite. |
+
+**Resultado combinado:** 6/7 tareas PASS; las siete finalizaron dentro de 90 segundos y sin ayuda.
+
+**Salida C3:** `ARCHITECTURE_INSUFFICIENT`. De acuerdo con la clasificación predefinida, el fallo
+de C3-05 devuelve el flujo a supervisión. C2 y PR B continúan detenidos hasta recibir una decisión
+supervisora explícita.

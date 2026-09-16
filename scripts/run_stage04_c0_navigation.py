@@ -17,6 +17,7 @@ if str(SRC) not in sys.path:
 
 from enares.stage04.c0_fixture import (
     C0_AUTOMATION_CASES,
+    C3_RETEST_AUTOMATION_CASES,
     AutomatedNavigationCase,
     build_synthetic_catalog,
 )
@@ -35,6 +36,18 @@ def execute_task(task: AutomatedNavigationCase) -> tuple[float, str, bool]:
     next(widget for widget in app.text_input if widget.label == "Buscar indicador").set_value(
         task.query
     ).run(timeout=15)
+    broad_result = next(widget for widget in app.selectbox if widget.label == "Resultado")
+    if len(broad_result.options) < 2:
+        raise AssertionError("the broad query must return plausible alternatives")
+    for label, value in (
+        ("Tema", task.focus),
+        ("Población", task.population),
+        ("Periodo", task.period),
+        ("Ámbito", task.context),
+    ):
+        next(widget for widget in app.selectbox if widget.label == label).set_value(
+            value
+        ).run(timeout=15)
     result = next(widget for widget in app.selectbox if widget.label == "Resultado")
     if result.value is not None:
         raise AssertionError("the result selector must start without a selection")
@@ -45,8 +58,8 @@ def execute_task(task: AutomatedNavigationCase) -> tuple[float, str, bool]:
         for row in build_synthetic_catalog()
         if row.indicator_id == task.expected_indicator_id
     )
-    if len(result.options) < 2:
-        raise AssertionError("the automated query must return plausible alternatives")
+    if len(result.options) != 1:
+        raise AssertionError("the semantic facets must identify one candidate")
     result.set_value(target).run(timeout=15)
     if app.code:
         raise AssertionError("indicator_id became visible before confirmation")
@@ -65,7 +78,7 @@ def execute_task(task: AutomatedNavigationCase) -> tuple[float, str, bool]:
 
 def main() -> None:
     print("task,module,dimension,query,apptest_seconds,result")
-    for task in C0_AUTOMATION_CASES:
+    for task in (*C0_AUTOMATION_CASES, *C3_RETEST_AUTOMATION_CASES):
         elapsed, found, passed = execute_task(task)
         status = "PASS" if passed else f"FAIL:{found or 'NO_UNIQUE_RESULT'}"
         print(
