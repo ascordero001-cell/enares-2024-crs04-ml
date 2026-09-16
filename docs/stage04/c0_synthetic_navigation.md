@@ -1,6 +1,6 @@
 # C0 — preprueba sintética de navegación del catálogo
 
-**Estado:** `ARCHITECTURE_INSUFFICIENT; SUPERVISORY_REVIEW_REQUIRED`
+**Estado:** `ARCHITECTURE_SUFFICIENT; SUPERVISORY_REVIEW_REQUIRED`
 **Alcance:** exclusivamente sintético; no conecta ni reproduce cifras V0
 **Gate posterior:** C3 precede a C2; PR B no comienza hasta aprobar el nuevo recorrido
 
@@ -211,12 +211,24 @@ C3-05:
 
 | Inicio UTC | Fin UTC | Segundos | Seleccionado | Esperado | PASS/FAIL | Ayuda | Observaciones |
 |---|---|---:|---|---|---|---|---|
-| 19:48:37 | 20:29:01 | 2424,7 | `SYN_C0_35_068` | `SYN_C0_35_068` | FAIL | Ninguna | Objetivo correcto; excede el límite congelado de 90 segundos. |
+| 19:48:37 | 20:29:01 | 2424,7 | `SYN_C0_35_068` | `SYN_C0_35_068` | ANULADO | Ninguna | Objetivo correcto; el cronómetro midió una ausencia y no una navegación continua. |
 
-La ruta corregida permitió confirmar el objetivo exacto, pero la ejecución no cumple el umbral
-temporal. La evidencia combinada permanece en 6/7 conforme a la regla congelada y no se
-reclasifica retrospectivamente.
+La decisión supervisora del 2026-09-16 anuló esta medición: no se clasifica como PASS ni FAIL. La
+ruta corregida permitió confirmar el objetivo exacto, pero el tiempo no representa el uso de la
+interfaz. La evidencia combinada permanece en 6/7 hasta una medición continua.
 
-**Estado de esta ronda:** `C3_05_THIRD_RUN_COMPLETED; SUPERVISORY_REVIEW_REQUIRED`. La
-clasificación continúa como `ARCHITECTURE_INSUFFICIENT`. C2 y PR B permanecen detenidos hasta el
-dictamen supervisor.
+### Cuarta ejecución autorizada de C3-05
+
+El inicio técnico de las 20:40:50 UTC se anuló antes de navegar porque la pestaña del prototipo se
+cerró. Tras reabrir `8504` en la pantalla inicial se inició una medición nueva y continua:
+
+| Inicio UTC | Fin UTC | Segundos | Seleccionado | Esperado | PASS/FAIL | Ayuda | Observaciones |
+|---|---|---:|---|---|---|---|---|
+| 20:41:41 | 20:42:23 | 41,8 | `SYN_C0_35_068` | `SYN_C0_35_068` | PASS | Ninguna | Objetivo exacto confirmado dentro del límite de 90 segundos. |
+
+Al sustituir únicamente la medición fallida de C3-05 por el recorrido limpio posterior a la
+corrección, la evidencia combinada queda en **7/7 PASS**. Los cinco primeros intentos válidos,
+C3-01 corregida y C3-05 corregida cumplen el umbral y no utilizaron ayuda externa.
+
+**Salida C3:** `ARCHITECTURE_SUFFICIENT; SUPERVISORY_REVIEW_REQUIRED`. C2 y PR B permanecen
+detenidos hasta que esta evidencia sea revisada y el PR de registro quede aprobado y fusionado.
