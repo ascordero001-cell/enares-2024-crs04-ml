@@ -8,6 +8,8 @@ from enares.stage04.c0_fixture import (
     ALLOWED_HELP,
     C0_AUTOMATION_CASES,
     C0_TASKS,
+    C2_AUTOMATION_CASES,
+    C2_TASKS,
     C3_RETEST_AUTOMATION_CASES,
     C3_RETEST_TASKS,
     CATALOG_SIZE,
@@ -222,6 +224,31 @@ def test_c3_retest_uses_seven_previously_unused_targets() -> None:
     assert sum(
         case.dimension == "Departamento" for case in C3_RETEST_AUTOMATION_CASES
     ) == 1
+
+
+def test_c2_uses_seven_targets_not_seen_in_c0_or_c3() -> None:
+    burned_targets = {
+        case.expected_indicator_id
+        for case in (*C0_AUTOMATION_CASES, *C3_RETEST_AUTOMATION_CASES)
+    }
+    c2_targets = {case.expected_indicator_id for case in C2_AUTOMATION_CASES}
+
+    assert len(C2_TASKS) == len(C2_AUTOMATION_CASES) == 7
+    assert not burned_targets & c2_targets
+    assert {case.module_id for case in C2_AUTOMATION_CASES} == set(MODULE_THEMES)
+    assert sum(case.dimension == "Departamento" for case in C2_AUTOMATION_CASES) == 1
+    assert {task.task_id for task in C2_TASKS} == {
+        case.task_id for case in C2_AUTOMATION_CASES
+    }
+
+
+def test_c2_seven_tasks_run_through_corrected_streamlit_navigation() -> None:
+    for task in C2_AUTOMATION_CASES:
+        elapsed, found, passed = execute_task(task)
+
+        assert found == task.expected_indicator_id
+        assert elapsed <= HUMAN_TIME_LIMIT_SECONDS
+        assert passed
 
 
 def test_semantic_facets_reduce_each_c3_task_to_its_target() -> None:

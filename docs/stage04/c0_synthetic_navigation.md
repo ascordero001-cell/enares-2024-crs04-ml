@@ -232,3 +232,31 @@ C3-01 corregida y C3-05 corregida cumplen el umbral y no utilizaron ayuda extern
 
 **Salida C3:** `ARCHITECTURE_SUFFICIENT; SUPERVISORY_REVIEW_REQUIRED`. C2 y PR B permanecen
 detenidos hasta que esta evidencia sea revisada y el PR de registro quede aprobado y fusionado.
+
+## C2 — evaluación final de la navegación corregida
+
+El merge del PR #110 cerró C3 como `ARCHITECTURE_SUFFICIENT` y autorizó C2. Antes de ejecutar se
+congelaron siete objetivos distintos de los usados en C0 y C3. Se conserva el protocolo de pantalla
+inicial, máximo 90 segundos, sin ID esperado ni ayuda externa.
+
+| Tarea | Prompt humano congelado |
+|---|---|
+| C2-01 | En el módulo 3.1 y alcance nacional, localiza el indicador sobre protección y cuidado entre estudiantes que buscaron ayuda, alguna vez, para el total del ámbito observado. |
+| C2-02 | En el módulo 3.2 y alcance nacional, localiza el indicador sobre apoyo y acompañamiento entre estudiantes que no buscaron ayuda durante los últimos 12 meses, para el ámbito rural. |
+| C2-03 | En el módulo 3.3 y alcance nacional, localiza el indicador sobre consecuencias percibidas entre estudiantes que no buscaron ayuda, alguna vez, para el ámbito rural. |
+| C2-04 | En el módulo 3.4 y alcance nacional, localiza el indicador sobre corresponsabilidad cotidiana entre estudiantes que no buscaron ayuda, alguna vez, para el total del ámbito observado. |
+| C2-05 | En el módulo 3.5 y alcance nacional, localiza el indicador sobre experiencias reportadas en hogares con persona adulta de referencia durante los últimos 12 meses, para el total del ámbito observado. |
+| C2-06 | En el módulo 3.6 y alcance nacional, localiza el indicador sobre protección y cuidado en hogares con persona adulta de referencia durante los últimos 12 meses, para el total del ámbito observado. |
+| C2-07 | En el módulo 3.1 y alcance departamental, localiza el indicador sobre respuesta institucional en comunidad educativa entrevistada durante los últimos 12 meses, para el total del ámbito observado. |
+
+| Tarea | Inicio UTC | Fin UTC | Segundos | Seleccionado | Esperado | PASS/FAIL | Ayuda | Observaciones |
+|---|---|---|---:|---|---|---|---|---|
+| C2-01 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Reservado | PENDIENTE | Ninguna | — |
+| C2-02 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Reservado | PENDIENTE | Ninguna | — |
+| C2-03 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Reservado | PENDIENTE | Ninguna | — |
+| C2-04 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Reservado | PENDIENTE | Ninguna | — |
+| C2-05 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Reservado | PENDIENTE | Ninguna | — |
+| C2-06 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Reservado | PENDIENTE | Ninguna | — |
+| C2-07 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Reservado | PENDIENTE | Ninguna | — |
+
+**Estado C2:** `PENDING_MANUAL_EVALUATION`. PR B continúa detenido.
