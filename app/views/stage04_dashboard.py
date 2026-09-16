@@ -24,7 +24,7 @@ def escape_dynamic_text(value: object) -> str:
     return escape(str(value), quote=True)
 
 
-def precision_category_label(category: str, cv_flag: bool) -> str:
+def precision_category_label(category: str, cv_flag: bool | None) -> str:
     """Derive the visible precision marker from the statistical flag only."""
     clean_category = category.removesuffix(" [referencial]")
     return f"{clean_category} [referencial]" if cv_flag else clean_category
@@ -48,16 +48,18 @@ def filter_estimates(
     category: str,
 ) -> list[IndicatorEstimate]:
     """Return only combinations present in the repository; never synthesize missing results."""
-    return [
+    rows = [
         row
         for row in load_validated_estimates(repository, module_id)
         if row.disaggregation == disaggregation and row.category == category
     ]
+    preferred = {value: index for index, value in enumerate(get_module(module_id).indicator_ids)}
+    return sorted(rows, key=lambda row: (preferred.get(row.indicator_id, len(preferred)), row.indicator_id))
 
 
 def build_numeric_card(row: IndicatorEstimate) -> dict:
     """Extend the approved card view model with details required by the local UI."""
-    if row.suppress_flag:
+    if row.suppress_flag or row.quality_status == "CONTEXT_ONLY":
         raise ValueError("A suppressed row cannot build a numeric card")
     validate_estimates([row])
     card = to_card_view_model(row)
@@ -147,7 +149,7 @@ def build_d01_task_groups(
     expected = {
         item.task for item in (*D01_TASK_EXECUTION_GROUP, *D01_RELATIONSHIP_GROUP)
     }
-    if set(by_category) != expected or len(rows) != len(expected):
+    if set(by_category) != expected or len(by_category) != len(expected):
         raise ValueError(
             "D01 authorized task scope is incomplete or contains extra rows"
         )

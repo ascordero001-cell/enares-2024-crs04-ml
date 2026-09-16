@@ -395,7 +395,7 @@ El plan rector nunca contemplo estas cuatro cosas. No llevan numero y no renumer
 |---|---|---|---|
 | Contrato de origen de `outputs` | Edicion de contrato | `docs/contracts/published_view_contract.md` | HECHO, PR #90 |
 | Versionar este documento | Registro de las decisiones | `docs/stage04/` | ENTREGADO_EN_PR_100; EFECTIVO_AL_MERGE |
-| Conectar la clase A | 2.995 filas mas las 19 excepciones | `authorized_scopes.py`, `app/data/` | PENDIENTE |
+| Conectar el V0 integral | 2.995 filas mas las 19 excepciones | `authorized_extract.py`, `app/data/` | IMPLEMENTADO_EN_PR_B; RECORRIDO_MANUAL_PENDIENTE |
 | Discrepancia del `[referencial]` | Registro y devolucion al productor | `known_discrepancies.md`, Issue #101 | ENTREGADO_EN_PR_100; EFECTIVO_AL_MERGE |
 
 ---

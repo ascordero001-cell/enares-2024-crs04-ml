@@ -14,6 +14,7 @@ FUTURE_DIMENSIONS = DIMENSIONS
 SUPPORTED_FILTER = ("Nacional", "Total")
 
 QUALITY_LABELS = {
+    "CONTEXT_ONLY": "Contexto V0 — sin métrica inferencial",
     "EXACT_ZERO_CV_UNDEFINED": "Cero observado — CV indefinido",
     "PUBLISHABLE_CANDIDATE": "Candidato — revisión pendiente",
     "REFERENCE_HIGH_CV": "Referencial — precisión limitada",

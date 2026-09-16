@@ -53,6 +53,9 @@ __pycache__/
 !app/data/v0_authorized_etapa1_indicator_estimates.manifest.json
 !app/data/v0_authorized_d06_d07_indicator_estimates.csv
 !app/data/v0_authorized_d06_d07_indicator_estimates.manifest.json
+!app/data/v0_authorized_full_indicator_estimates.csv
+!app/data/v0_authorized_full_indicator_estimates.manifest.json
+!app/data/v0_authorized_full_reconciliation_sha256.csv
 !tests/golden/
 !tests/golden/**/
 !tests/golden/**/*.json

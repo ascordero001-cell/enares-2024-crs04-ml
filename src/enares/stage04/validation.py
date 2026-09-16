@@ -13,8 +13,10 @@ from .authorized_scopes import (
 from .modules import get_module
 from .privacy import assert_v0_granularity_boundary
 from .repository import IndicatorEstimate
+from .v0_catalog_registry import V0_MODULE_BY_INDICATOR
 
 VALID_QUALITY_STATES = {
+    "CONTEXT_ONLY",
     "EXACT_ZERO_CV_UNDEFINED",
     "PUBLISHABLE_CANDIDATE",
     "REFERENCE_HIGH_CV",
@@ -51,6 +53,8 @@ def validate_estimates(rows: Iterable[IndicatorEstimate]) -> None:
         if not row.source_version:
             raise ValueError("source_version is required")
         module = get_module(row.module_id)
+        if not row.synthetic and V0_MODULE_BY_INDICATOR.get(row.indicator_id) != row.module_id:
+            raise ValueError("indicator_id is not registered for its module")
         matrix_indicator = row.indicator_id in {"Solap_VS_12M", "Solap_VS_VIDA"}
         if (
             matrix_indicator
@@ -69,8 +73,6 @@ def validate_estimates(rows: Iterable[IndicatorEstimate]) -> None:
             v0_crosses=set(VS_MATRIX_V0_CROSSES),
             synthetic=row.synthetic,
         )
-        if not row.synthetic and row.indicator_id not in module.indicator_ids:
-            raise ValueError("indicator_id is not registered for its module")
         if not row.synthetic and row.disaggregation not in module.available_dimensions:
             raise ValueError("disaggregation is not available for its module")
         if not row.synthetic and row.disaggregation not in module.authorized_dimensions:
@@ -105,6 +107,21 @@ def validate_estimates(rows: Iterable[IndicatorEstimate]) -> None:
                 raise ValueError("Suppressed rows must not expose protected statistics")
             if row.quality_status != "SUPPRESSED_EXERCISE":
                 raise ValueError("suppress_flag requires the suppressed quality state")
+            continue
+
+        if row.quality_status == "CONTEXT_ONLY":
+            if row.estimate is None or row.n_unweighted is None:
+                raise ValueError("Context rows require the V0 estimate and base")
+            if any(
+                value is not None
+                for value in (
+                    row.standard_error,
+                    row.ci95_lower,
+                    row.ci95_upper,
+                    row.cv,
+                )
+            ):
+                raise ValueError("Context rows must preserve absent inferential statistics")
             continue
 
         exact_zero_cv_undefined = (

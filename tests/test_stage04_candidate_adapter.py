@@ -344,7 +344,7 @@ def test_candidate_pair_does_not_change_real_authorized_dimensions():
     before = get_module("3.1").authorized_dimensions
     proposed = scope(allowed_pairs=frozenset({("Sexo", "Mujer")}))
     adapt_candidate_row(row(dimension="Sexo", category="Mujer"), proposed)
-    assert get_module("3.1").authorized_dimensions == before == ("Tareas del hogar",)
+    assert get_module("3.1").authorized_dimensions == before
 
 
 @pytest.mark.parametrize("flag", ["cv_flag", "n_flag", "suppress_flag"])

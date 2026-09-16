@@ -1,0 +1,45 @@
+# PR B — conexión integral V0 local shadow
+
+- **Estado técnico automatizado:** `3014/3014 PASS`
+- **Estado manual:** `PENDING_6_MODULE_TRAVERSALS`
+- **Alcance:** `LOCAL_SHADOW_ONLY`
+- **Cloud, publicación y cutover:** `NOT_EXECUTED / NOT_AUTHORIZED`
+
+## Procedencia y artefactos
+
+La construcción lee directamente de Drive privado el padre agregado V0 oficial y el diccionario
+aprobado. No utiliza microdatos, archivos SAV, credenciales, identificadores internos de Drive,
+enlaces públicos ni rutas personales.
+
+| Artefacto | Filas | SHA-256 |
+|---|---:|---|
+| Padre `tabulados_crs04_long.csv` | 3014 | `15B845DA4A886FDCF54A96D8B8471B6F6BE618AE18B43024488C6BD6B23D0BB4` |
+| `diccionario_indicadores.csv` | 516 | `F5FD6979A19EBC9F510C307705B1E7DE12556A8F5A81DDBC566E97347337BD2C` |
+
+El extracto integral conserva las cifras del padre, usa `base_unw` como `n_unweighted` y deriva
+`synthetic=false` exclusivamente después de que `AuthorizedAggregateRepository` valida archivo,
+manifiesto, SHA del padre y registro V0 aprobado. El ledger contiene solo claves agregadas y un
+SHA-256 por fila; permite contrastar las 3014 filas sin versionar otra copia del padre.
+
+## Tratamientos cerrados
+
+- 2995 filas A: tarjeta/exportación agregada según contrato, con alertas visibles de CV y N.
+- 4 filas C: contexto visible, sin tarjeta, tabla numérica ni exportación; no se imputan SE, IC o CV.
+- 7 filas D: distribución `num_consecuencias_fisicas`; `Total` no se presenta como prevalencia.
+- 8 filas E: se elimina el texto manual `[referencial]`; la interfaz lo deriva de `cv_flag`.
+
+## Recorrido manual representativo pendiente
+
+Ana ejecutará un recorrido real por módulo. No hay umbral de 90 segundos.
+
+| Módulo | Inicio UTC | Fin UTC | Segundos | Indicador/dimensión/categoría | Resultado | Observaciones |
+|---|---|---|---:|---|---|---|
+| 3.1 | PENDIENTE | PENDIENTE | — | PENDIENTE | PENDIENTE | — |
+| 3.2 | PENDIENTE | PENDIENTE | — | PENDIENTE | PENDIENTE | — |
+| 3.3 | PENDIENTE | PENDIENTE | — | PENDIENTE | PENDIENTE | — |
+| 3.4 | PENDIENTE | PENDIENTE | — | PENDIENTE | PENDIENTE | — |
+| 3.5 | PENDIENTE | PENDIENTE | — | PENDIENTE | PENDIENTE | — |
+| 3.6 | PENDIENTE | PENDIENTE | — | PENDIENTE | PENDIENTE | — |
+
+PR B no se declara cerrado hasta completar esta tabla. Ningún resultado de este PR habilita una
+carga cloud, publicación institucional, cutover ni sustitución de V0.

@@ -85,6 +85,7 @@ DISPLAY_NAME_BY_D11_INDICATOR = {
     "C3P213": C3P213_DISPLAY_LABEL,
 }
 UNIVERSE_BY_INDICATOR = {
+    "VF_HOGAR": "Adolescentes de 12 a 17 años de CRS04 con VF_HOGAR válido; ENARES 2024",
     "Componentes": (
         "Adolescentes de 12 a 17 años con respuesta válida al ítem C3P302 correspondiente"
     ),
@@ -96,6 +97,7 @@ UNIVERSE_BY_INDICATOR = {
     "C3P213": "Adolescentes de 12 a 17 años con dom_no_recibio_hogar = 1",
 }
 DENOMINATOR_BY_INDICATOR = {
+    "VF_HOGAR": "casos válidos del diseño muestral",
     "Componentes": "Casos con respuesta válida al ítem C3P302 correspondiente",
     "C3P223_10_1": "Casos con VP_ESCUELA = 1 y respuesta válida",
     "Agresor_VS_12M__AG_01": "Casos con VS_12M = 1 y respuesta válida",
@@ -104,6 +106,202 @@ DENOMINATOR_BY_INDICATOR = {
     ),
     "C3P213": "Casos con dom_no_recibio_hogar = 1 y respuesta válida",
 }
+
+FULL_V0_CONTEXT_KEYS = {
+    (indicator, "Prevalencia (contexto)", category)
+    for indicator in ("Solap_VP_VF_E", "Solap_VP_VF_H")
+    for category in ("VF (física)", "VP (psicológica)")
+}
+
+
+def build_full_v0_authorized_extract(
+    parent_path: Path,
+    dictionary_path: Path,
+    output_path: Path,
+    manifest_path: Path,
+    reconciliation_path: Path,
+    *,
+    expected_parent_sha256: str,
+    expected_dictionary_sha256: str,
+    git_commit_sha: str,
+    generated_at_utc: str,
+) -> dict[str, object]:
+    """Build all 3,014 authorized V0 rows without recalculating Stage 03."""
+    parent_path = Path(parent_path)
+    dictionary_path = Path(dictionary_path)
+    output_path = Path(output_path)
+    manifest_path = Path(manifest_path)
+    reconciliation_path = Path(reconciliation_path)
+    parent_sha = hashlib.sha256(parent_path.read_bytes()).hexdigest().upper()
+    dictionary_sha = hashlib.sha256(dictionary_path.read_bytes()).hexdigest().upper()
+    if parent_sha != expected_parent_sha256.upper():
+        raise ValueError("Parent aggregate SHA-256 does not match the approved baseline")
+    if dictionary_sha != expected_dictionary_sha256.upper():
+        raise ValueError("Indicator dictionary SHA-256 does not match the approved baseline")
+
+    with dictionary_path.open(encoding="utf-8-sig", newline="") as handle:
+        dictionary_rows = list(csv.DictReader(handle))
+    dictionary = {row["indicator_name"]: row for row in dictionary_rows}
+    if len(dictionary) != 516:
+        raise ValueError(f"Dictionary must contain exactly 516 indicators, found {len(dictionary)}")
+    with parent_path.open(encoding="utf-8-sig", newline="") as handle:
+        parent_rows = list(csv.DictReader(handle))
+    if len(parent_rows) != 3014:
+        raise ValueError(f"Parent V0 must contain exactly 3014 rows, found {len(parent_rows)}")
+
+    output_rows: list[dict[str, object]] = []
+    reconciliation_rows: list[dict[str, str]] = []
+    seen: set[tuple[str, str, str]] = set()
+    module_counts: dict[str, int] = {}
+    for source in parent_rows:
+        source_key = (source["indicator_id"], source["dimension"], source["categoria"])
+        if source_key in seen:
+            raise ValueError(f"Duplicate parent aggregate key: {source_key}")
+        seen.add(source_key)
+        try:
+            definition = dictionary[source["indicator_id"]]
+        except KeyError as exc:
+            raise ValueError(f"UNRESOLVED indicator: {source['indicator_id']}") from exc
+        module_id = definition["module"].split(" ", 1)[0]
+        if module_id not in {"3.1", "3.2", "3.3", "3.4", "3.5", "3.6"}:
+            raise ValueError(f"UNRESOLVED module for {source['indicator_id']}")
+        module_counts[module_id] = module_counts.get(module_id, 0) + 1
+        dimension = {
+            "Área y sexo": "Área × sexo",
+            "Lengua materna": "Idioma del hogar",
+        }.get(source["dimension"], source["dimension"])
+        category = normalize_vs_matrix_category(source["categoria"])
+        is_context = source_key in FULL_V0_CONTEXT_KEYS
+        estimate = float(source["pct"])
+        cv = None if source["cv"] == "" else float(source["cv"])
+        n_unweighted = int(source["base_unw"])
+        quality = derive_statistical_quality(
+            estimate=estimate,
+            cv=cv,
+            cv_unit="proportion",
+            n_unweighted=n_unweighted,
+        )
+        quality_status = "CONTEXT_ONLY" if is_context else quality.quality_status
+        quality_note = (
+            "Contexto V0 visible sin tarjeta, tabla numérica ni exportación; "
+            "las estadísticas inferenciales ausentes no se imputan."
+            if is_context
+            else " ".join(quality.quality_notes) or "Sin alerta de precisión."
+        )
+        task_names = {item.task: item.display_label for item in D01_TASKS}
+        indicator_name = DISPLAY_NAME_BY_D11_INDICATOR.get(
+            source["indicator_id"], definition["label"]
+        )
+        if source["indicator_id"] == "Componentes":
+            indicator_name = task_names.get(source["categoria"], indicator_name)
+        output_rows.append(
+            {
+                "release_id": "enares2024-crs04-v0-shadow-001",
+                "run_id": "pr-b-full-v0-authorized-20260916",
+                "source_version": "v0_official_drive_baseline",
+                "source_hash": parent_sha,
+                "git_commit_sha": git_commit_sha,
+                "container_image_digest": "BLOCKED_BY_CLOUD_GATE",
+                "dataform_release": "BLOCKED_BY_CLOUD_GATE",
+                "engine_version": "v0_csv",
+                "scale": "0_100",
+                "indicator_id": source["indicator_id"],
+                "indicator_name": indicator_name,
+                "module_id": module_id,
+                "disaggregation": dimension,
+                "category": category,
+                "estimate": source["pct"],
+                "standard_error": "" if is_context else source["es"],
+                "ci95_lower": "" if is_context else source["ci_low"],
+                "ci95_upper": "" if is_context else source["ci_high"],
+                "cv": "" if is_context else source["cv"],
+                "n_unweighted": source["base_unw"],
+                "weighted_population": "",
+                "cv_flag": "" if quality.cv_flag is None else str(quality.cv_flag).lower(),
+                "n_flag": str(quality.n_flag).lower(),
+                "suppress_flag": "false",
+                "quality_note": quality_note,
+                "validation_status": "APPROVED",
+                "created_at": generated_at_utc,
+                "universe": UNIVERSE_BY_INDICATOR.get(source["indicator_id"], definition["denominator_rule"]),
+                "denominator": DENOMINATOR_BY_INDICATOR.get(source["indicator_id"], definition["denominator_rule"]),
+                "quality_status": quality_status,
+                "synthetic": "false",
+            }
+        )
+        canonical = {
+            "indicator_id": source["indicator_id"],
+            "dimension": dimension,
+            "category": category,
+            "estimate": source["pct"],
+            "standard_error": source["es"],
+            "ci95_lower": source["ci_low"],
+            "ci95_upper": source["ci_high"],
+            "cv": source["cv"],
+            "n_unweighted": source["base_unw"],
+        }
+        reconciliation_rows.append(
+            {
+                "indicator_id": source["indicator_id"],
+                "dimension": dimension,
+                "category": category,
+                "parent_row_sha256": hashlib.sha256(
+                    json.dumps(canonical, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+                ).hexdigest(),
+            }
+        )
+
+    preferred_indicator = {
+        "3.1": "Componentes",
+        "3.2": "VF_HOGAR",
+        "3.3": "C3P223_10_1",
+        "3.4": "Agresor_VS_12M__AG_01",
+        "3.5": "CONS_ATENCION_SALUD",
+        "3.6": "C3P213",
+    }
+    output_rows.sort(key=lambda row: (
+        str(row["module_id"]),
+        0 if row["indicator_id"] == preferred_indicator[str(row["module_id"])] else 1,
+        str(row["indicator_id"]),
+        0 if row["disaggregation"] == "Nacional" and row["category"] == "Total" else 1,
+        str(row["disaggregation"]),
+        str(row["category"]),
+    ))
+    with output_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=OUTPUT_FIELDS, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(output_rows)
+    reconciliation_rows.sort(key=lambda row: (row["indicator_id"], row["dimension"], row["category"]))
+    with reconciliation_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=("indicator_id", "dimension", "category", "parent_row_sha256"), lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(reconciliation_rows)
+    extract_sha = hashlib.sha256(output_path.read_bytes()).hexdigest()
+    reconciliation_sha = hashlib.sha256(reconciliation_path.read_bytes()).hexdigest()
+    manifest: dict[str, object] = {
+        "file_name": output_path.name,
+        "generated_at_utc": generated_at_utc,
+        "row_count": 3014,
+        "indicator_count": 516,
+        "schema_version": "stage04-v0-authorized-aggregate-v1",
+        "sha256": extract_sha,
+        "synthetic": False,
+        "data_classification": "AUTHORIZED_AGGREGATE_ONLY",
+        "source_kind": "AUTHORIZED_V0_EXTRACT",
+        "source_hash": parent_sha,
+        "parent_sha256": parent_sha,
+        "dictionary_sha256": dictionary_sha,
+        "reconciliation_file": reconciliation_path.name,
+        "reconciliation_sha256": reconciliation_sha,
+        "source_version": "v0_official_drive_baseline",
+        "module_row_counts": dict(sorted(module_counts.items())),
+        "scope": {"A": 2995, "C": 4, "D": 7, "E": 8},
+        "purpose": "PR B complete V0 local shadow authorized aggregate",
+        "prohibition": "no microdata / no cloud load / no institutional publication / no cutover",
+        "approval_reference": "Issue #43 supervisory scope decision and PR #100 acta adenda",
+    }
+    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return manifest
 
 
 def _selected_etapa1_parent_rows(

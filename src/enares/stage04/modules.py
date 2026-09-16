@@ -18,6 +18,32 @@ DIMENSIONS = (
     "Departamento",
 )
 
+V0_DIMENSIONS = (
+    *DIMENSIONS,
+    "2×2",
+    "3×3",
+    "Condicional",
+    "Prevalencia (contexto)",
+    "Conductas de riesgo inducidas por adultos",
+    "Conductas de riesgo personales",
+    "Creencia: VS ocurre en sitios oscuros",
+    "Creencia: VS ocurre fuera de la casa",
+    "Creencia: VS solo afecta a NNA pobres",
+    "Creencia: VS solo la cometen personas locas",
+    "Desempeño escolar: expulsión de colegio",
+    "Desempeño escolar: repitencia de año",
+    "Exposición a discusiones entre cuidadores",
+    "Exposición a violencia entre cuidadores",
+    "Justificación del castigo físico docente",
+    "Justificación del castigo físico parental",
+    "Normas sobre castigo físico",
+    "Normas sobre castigo físico docente",
+    "Normas sobre castigo físico parental",
+    "Participación en decisiones del hogar",
+    "Tareas del hogar",
+    "Te piden o te han ordenado no ir al colegio para ayudar a tu mamá o papá u otra persona en la casa u otro lugar",
+)
+
 LOCAL_COVERAGE_RUN_ID = "sprint042-corte2-local-coverage-001"
 AUTHORIZED_GOLDEN = "AUTHORIZED_GOLDEN"
 AUTHORIZED_ETAPA1 = "AUTHORIZED_ETAPA1_LOCAL_SHADOW"
@@ -53,8 +79,8 @@ MODULES = (
         ("Componentes",),
         "Adolescentes de CRS04 con respuesta válida según el indicador; ENARES 2024",
         "casos válidos del diseño muestral",
-        ("Nacional", "Tareas del hogar"),
-        ("Tareas del hogar",),
+        V0_DIMENSIONS,
+        V0_DIMENSIONS,
         AUTHORIZED_ETAPA1,
     ),
     ModuleDefinition(
@@ -64,8 +90,8 @@ MODULES = (
         ("VF_HOGAR",),
         "Adolescentes de 12 a 17 años de CRS04 con VF_HOGAR válido; ENARES 2024",
         "casos válidos del diseño muestral",
-        DIMENSIONS,
-        ("Nacional",),
+        V0_DIMENSIONS,
+        V0_DIMENSIONS,
         AUTHORIZED_GOLDEN,
     ),
     ModuleDefinition(
@@ -75,8 +101,8 @@ MODULES = (
         ("C3P223_10_1",),
         "Adolescentes de 12 a 17 años con VP_ESCUELA == 1; ENARES 2024",
         "VP_ESCUELA == 1",
-        ("Nacional",),
-        ("Nacional",),
+        V0_DIMENSIONS,
+        V0_DIMENSIONS,
         AUTHORIZED_ETAPA1,
     ),
     ModuleDefinition(
@@ -86,8 +112,8 @@ MODULES = (
         ("Agresor_VS_12M__AG_01",),
         "Adolescentes de 12 a 17 años con VS_12M == 1; ENARES 2024",
         "VS_12M == 1",
-        ("Nacional",),
-        ("Nacional",),
+        V0_DIMENSIONS,
+        V0_DIMENSIONS,
         AUTHORIZED_ETAPA1,
     ),
     ModuleDefinition(
@@ -97,8 +123,8 @@ MODULES = (
         ("PV_hogar_escuela", "CONS_ATENCION_SALUD", "Solap_VS_12M", "Solap_VS_VIDA"),
         "Adolescentes de 12 a 17 años en el dominio del indicador; ENARES 2024",
         "casos válidos dentro del dominio declarado",
-        (*DIMENSIONS, "2×2", "3×3"),
-        (*DIMENSIONS[:-1], "2×2", "3×3"),
+        V0_DIMENSIONS,
+        V0_DIMENSIONS,
         AUTHORIZED_ETAPA1,
     ),
     ModuleDefinition(
