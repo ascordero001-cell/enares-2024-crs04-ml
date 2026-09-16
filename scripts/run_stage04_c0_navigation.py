@@ -1,54 +1,61 @@
-"""Measure the seven frozen synthetic C0 catalog-location tasks."""
+"""Run the frozen C0/C2 navigation protocol through the Streamlit UI."""
 
 from __future__ import annotations
 
-import statistics
 import sys
 from pathlib import Path
-from time import perf_counter_ns
+from time import perf_counter
+
+from streamlit.testing.v1 import AppTest
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from enares.stage04.catalog_navigation import CatalogLocator, filter_catalog
+from enares.stage04.c0_fixture import (
+    C0_TASKS,
+    HUMAN_TIME_LIMIT_SECONDS,
+    NavigationTask,
+)
 
-LOCATORS = (
-    CatalogLocator("3.1", "SYN_C0_31_001", "Normas repetidas sobre cuidado (hogar)", "Nacional", "Total"),
-    CatalogLocator("3.2", "SYN_C0_32_001", "Violencia física en el hogar: episodio repetido (12 meses)", "Nacional", "Total"),
-    CatalogLocator("3.3", "SYN_C0_33_001", "Violencia psicológica en la escuela: episodio repetido (12 meses)", "Nacional", "Total"),
-    CatalogLocator("3.4", "SYN_C0_34_001", "Situación sintética de violencia sexual (alguna vez)", "Nacional", "Total"),
-    CatalogLocator("3.5", "SYN_C0_35_001", "Consecuencias físicas acumuladas (tres o más)", "Nacional", "Total"),
-    CatalogLocator("3.6", "SYN_C0_36_001", "Búsqueda de ayuda después de un episodio (persona adulta)", "Nacional", "Total"),
-    CatalogLocator("3.2", "SYN_C0_DEP_001", "Violencia física en el hogar: episodio repetido (12 meses)", "Departamento", "Departamento sintético 07"),
-)
-TASKS = (
-    ("C0-01", "3.1", "Nacional", "cuidado hogar", "SYN_C0_31_001"),
-    ("C0-02", "3.2", "Nacional", "fisica 12 meses", "SYN_C0_32_001"),
-    ("C0-03", "3.3", "Nacional", "psicologica escuela 12 meses", "SYN_C0_33_001"),
-    ("C0-04", "3.4", "Nacional", "sexual alguna vez", "SYN_C0_34_001"),
-    ("C0-05", "3.5", "Nacional", "consecuencias tres", "SYN_C0_35_001"),
-    ("C0-06", "3.6", "Nacional", "ayuda persona adulta", "SYN_C0_36_001"),
-    ("C0-07", "3.2", "Departamento", "fisica sintetico 07", "SYN_C0_DEP_001"),
-)
+
+def execute_task(task: NavigationTask) -> tuple[float, str, bool]:
+    """Execute the same start-to-finish UI path frozen for C0 and C2."""
+    started = perf_counter()
+    app = AppTest.from_file(str(ROOT / "app" / "c0_navigation_app.py")).run(timeout=15)
+    next(widget for widget in app.selectbox if widget.label == "Módulo").set_value(
+        task.module_id
+    ).run(timeout=15)
+    next(widget for widget in app.selectbox if widget.label == "Dimensión").set_value(
+        task.dimension
+    ).run(timeout=15)
+    next(widget for widget in app.text_input if widget.label == "Buscar indicador").set_value(
+        task.query
+    ).run(timeout=15)
+    result = next(widget for widget in app.selectbox if widget.label == "Resultado")
+    result.set_value(result.value).run(timeout=15)
+    elapsed = perf_counter() - started
+    visible_ids = [element.value for element in app.code]
+    found = visible_ids[0] if len(visible_ids) == 1 else ""
+    passed = (
+        not app.exception
+        and found == task.expected_indicator_id
+        and elapsed <= HUMAN_TIME_LIMIT_SECONDS
+    )
+    return elapsed, found, passed
 
 
 def main() -> None:
-    print("task,module,dimension,query,median_ms,result")
-    for task_id, module_id, dimension, query, expected in TASKS:
-        samples = []
-        result = ()
-        for _ in range(1000):
-            start = perf_counter_ns()
-            result = filter_catalog(
-                LOCATORS, module_id=module_id, dimension=dimension, query=query
-            )
-            samples.append((perf_counter_ns() - start) / 1_000_000)
-        status = "PASS" if [row.indicator_id for row in result] == [expected] else "FAIL"
+    print("task,module,dimension,query,elapsed_seconds,limit_seconds,result")
+    for task in C0_TASKS:
+        elapsed, found, passed = execute_task(task)
+        status = "PASS" if passed else f"FAIL:{found or 'NO_UNIQUE_RESULT'}"
         print(
-            f'{task_id},{module_id},{dimension},"{query}",'
-            f"{statistics.median(samples):.6f},{status}"
+            f'{task.task_id},{task.module_id},{task.dimension},"{task.query}",'
+            f"{elapsed:.3f},{HUMAN_TIME_LIMIT_SECONDS:.0f},{status}"
         )
 
 
