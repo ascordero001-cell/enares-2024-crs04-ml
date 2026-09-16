@@ -48,12 +48,24 @@ def render() -> None:
     selected = st.selectbox(
         "Resultado",
         matches,
-        format_func=lambda row: f"{row.indicator_id} · {row.label}",
+        index=None,
+        placeholder="Seleccione un indicador",
+        format_func=lambda row: f"{row.label} · {row.category}",
         key="c0_result",
     )
-    st.code(selected.indicator_id, language=None)
-    st.write(selected.label)
-    st.caption(f"{selected.dimension} · {selected.category}")
+    if selected is None:
+        st.info("Revise los candidatos y seleccione uno para continuar.")
+        return
+
+    if st.button("Confirmar indicador", key="c0_confirm"):
+        st.session_state["c0_confirmed_id"] = selected.indicator_id
+        st.session_state["c0_confirmed_label"] = selected.label
+
+    confirmed_id = st.session_state.get("c0_confirmed_id")
+    if confirmed_id == selected.indicator_id:
+        st.code(confirmed_id, language=None)
+        st.write(st.session_state["c0_confirmed_label"])
+        st.caption(f"{selected.dimension} · {selected.category}")
 
 
 if __name__ == "__main__":

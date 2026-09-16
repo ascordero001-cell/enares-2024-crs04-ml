@@ -15,6 +15,12 @@ ALLOWED_HELP = "Solo el texto de la tarea; sin conocer el ID y sin ayuda externa
 @dataclass(frozen=True)
 class NavigationTask:
     task_id: str
+    prompt: str
+
+
+@dataclass(frozen=True)
+class AutomatedNavigationCase:
+    task_id: str
     module_id: str
     dimension: str
     query: str
@@ -30,6 +36,39 @@ MODULE_THEMES = {
     "3.6": "Búsqueda de ayuda, respuesta y barreras de acceso",
 }
 
+FOCUSES = (
+    "apoyo y acompañamiento",
+    "respuesta institucional",
+    "barreras para pedir ayuda",
+    "experiencias reportadas",
+    "redes de confianza",
+    "consecuencias percibidas",
+    "protección y cuidado",
+    "corresponsabilidad cotidiana",
+)
+POPULATIONS = (
+    "niñas y niños de 9 a 11 años",
+    "adolescentes de 12 a 17 años",
+    "estudiantes que buscaron ayuda",
+    "estudiantes que no buscaron ayuda",
+    "hogares con persona adulta de referencia",
+    "comunidad educativa entrevistada",
+)
+CONTEXTS = ("ámbito urbano", "ámbito rural", "total del ámbito observado")
+PERIODS = ("alguna vez", "últimos 12 meses")
+
+
+def _descriptor(sequence: int) -> tuple[str, str, str, str]:
+    """Return a unique semantic combination without relying on its sequence number."""
+    offset = sequence - 1
+    period = PERIODS[offset % len(PERIODS)]
+    focus = FOCUSES[(offset // len(PERIODS)) % len(FOCUSES)]
+    population = POPULATIONS[
+        (offset // (len(PERIODS) * len(FOCUSES))) % len(POPULATIONS)
+    ]
+    context = CONTEXTS[offset % len(CONTEXTS)]
+    return focus, population, context, period
+
 
 def build_synthetic_catalog() -> tuple[CatalogLocator, ...]:
     """Build exactly 516 synthetic locators with deliberately difficult labels."""
@@ -37,11 +76,11 @@ def build_synthetic_catalog() -> tuple[CatalogLocator, ...]:
     for module_id, theme in MODULE_THEMES.items():
         module_number = module_id.replace(".", "")
         for sequence in range(1, PER_MODULE + 1):
-            dimension = "Departamento" if sequence == PER_MODULE else "Nacional"
-            period = "12 meses" if sequence % 2 == 0 else "alguna vez"
+            dimension = "Departamento" if sequence > 80 else "Nacional"
+            focus, population, context, period = _descriptor(sequence)
             label = (
-                f"{theme} — indicador sintético repetido {sequence:03d} "
-                f"(periodo sintético ({period})) — resultado con prefijo casi duplicado"
+                f"{theme} — {focus} en {population} "
+                f"(periodo sintético ({period}); {context}) — resultado sintético comparable"
             )
             rows.append(
                 CatalogLocator(
@@ -49,18 +88,63 @@ def build_synthetic_catalog() -> tuple[CatalogLocator, ...]:
                     indicator_id=f"SYN_C0_{module_number}_{sequence:03d}",
                     label=label,
                     dimension=dimension,
-                    category=f"Categoría sintética cercana {sequence:03d} ({period})",
+                    category=f"{focus.capitalize()} · {population} · {context} · {period}",
                 )
             )
     return tuple(rows)
 
 
 C0_TASKS = (
-    NavigationTask("C0-01", "3.1", "Nacional", "corresponsabilidad repetido 031", "SYN_C0_31_031"),
-    NavigationTask("C0-02", "3.2", "Nacional", "hogar repetido 032 12 meses", "SYN_C0_32_032"),
-    NavigationTask("C0-03", "3.3", "Nacional", "escuela repetido 033", "SYN_C0_33_033"),
-    NavigationTask("C0-04", "3.4", "Nacional", "sexual repetido 034 12 meses", "SYN_C0_34_034"),
-    NavigationTask("C0-05", "3.5", "Nacional", "solapamiento repetido 035", "SYN_C0_35_035"),
-    NavigationTask("C0-06", "3.6", "Nacional", "barreras acceso repetido 036", "SYN_C0_36_036"),
-    NavigationTask("C0-07", "3.2", "Departamento", "hogar repetido 086 12 meses", "SYN_C0_32_086"),
+    NavigationTask(
+        "C0-01",
+        "En el módulo 3.1 y alcance nacional, localiza el indicador sobre "
+        "corresponsabilidad cotidiana en adolescentes de 12 a 17 años, alguna vez, "
+        "para el ámbito urbano.",
+    ),
+    NavigationTask(
+        "C0-02",
+        "En el módulo 3.2 y alcance nacional, localiza el indicador sobre "
+        "corresponsabilidad cotidiana en adolescentes de 12 a 17 años durante los "
+        "últimos 12 meses, para el ámbito rural.",
+    ),
+    NavigationTask(
+        "C0-03",
+        "En el módulo 3.3 y alcance nacional, localiza el indicador sobre apoyo y "
+        "acompañamiento entre estudiantes que buscaron ayuda, alguna vez, para el "
+        "total del ámbito observado.",
+    ),
+    NavigationTask(
+        "C0-04",
+        "En el módulo 3.4 y alcance nacional, localiza el indicador sobre apoyo y "
+        "acompañamiento entre estudiantes que buscaron ayuda durante los últimos "
+        "12 meses, para el ámbito urbano.",
+    ),
+    NavigationTask(
+        "C0-05",
+        "En el módulo 3.5 y alcance nacional, localiza el indicador sobre respuesta "
+        "institucional entre estudiantes que buscaron ayuda, alguna vez, para el "
+        "ámbito rural.",
+    ),
+    NavigationTask(
+        "C0-06",
+        "En el módulo 3.6 y alcance nacional, localiza el indicador sobre respuesta "
+        "institucional entre estudiantes que buscaron ayuda durante los últimos "
+        "12 meses, para el total del ámbito observado.",
+    ),
+    NavigationTask(
+        "C0-07",
+        "En el módulo 3.2 y alcance departamental, localiza el indicador sobre "
+        "barreras para pedir ayuda en comunidad educativa entrevistada durante los "
+        "últimos 12 meses, para el ámbito rural.",
+    ),
+)
+
+C0_AUTOMATION_CASES = (
+    AutomatedNavigationCase("C0-01", "3.1", "Nacional", "corresponsabilidad", "SYN_C0_31_031"),
+    AutomatedNavigationCase("C0-02", "3.2", "Nacional", "corresponsabilidad", "SYN_C0_32_032"),
+    AutomatedNavigationCase("C0-03", "3.3", "Nacional", "acompañamiento", "SYN_C0_33_033"),
+    AutomatedNavigationCase("C0-04", "3.4", "Nacional", "acompañamiento", "SYN_C0_34_034"),
+    AutomatedNavigationCase("C0-05", "3.5", "Nacional", "respuesta", "SYN_C0_35_035"),
+    AutomatedNavigationCase("C0-06", "3.6", "Nacional", "respuesta", "SYN_C0_36_036"),
+    AutomatedNavigationCase("C0-07", "3.2", "Departamento", "barreras", "SYN_C0_32_086"),
 )
