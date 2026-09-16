@@ -35,7 +35,7 @@ Ana ejecutará un recorrido real por módulo. No hay umbral de 90 segundos.
 | Módulo | Inicio UTC | Fin UTC | Segundos | Indicador/dimensión/categoría | Resultado | Observaciones |
 |---|---|---|---:|---|---|---|
 | 3.1 | 2026-09-16T22:42:25Z | 2026-09-16T23:51:21Z | 4136 | `AG_VF_09` / Nacional / Total | PASS | Tarjeta completa, IC, CV y `N=base_unw` visibles; ventana conservadora desde el arranque de la app, incluye tiempo inactivo porque el inicio manual exacto no fue capturado. |
-| 3.2 | PENDIENTE | PENDIENTE | — | PENDIENTE | PENDIENTE | — |
+| 3.2 | 2026-09-16T23:51:48Z | 2026-09-16T23:52:54Z | 67 | `VF_HOGAR` / Nacional / Total | PASS | Tarjeta completa: estimación 16.74 %, EE 0.5115, CV 0.03055, `N=base_unw` 18,807 e IC95 % 15.74 %–17.75 %; sin alerta ni error visible. |
 | 3.3 | PENDIENTE | PENDIENTE | — | PENDIENTE | PENDIENTE | — |
 | 3.4 | PENDIENTE | PENDIENTE | — | PENDIENTE | PENDIENTE | — |
 | 3.5 | PENDIENTE | PENDIENTE | — | PENDIENTE | PENDIENTE | — |
