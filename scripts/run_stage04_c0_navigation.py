@@ -17,6 +17,7 @@ if str(SRC) not in sys.path:
 
 from enares.stage04.c0_fixture import (
     C0_AUTOMATION_CASES,
+    C2_AUTOMATION_CASES,
     C3_RETEST_AUTOMATION_CASES,
     AutomatedNavigationCase,
     build_synthetic_catalog,
@@ -78,7 +79,11 @@ def execute_task(task: AutomatedNavigationCase) -> tuple[float, str, bool]:
 
 def main() -> None:
     print("task,module,dimension,query,apptest_seconds,result")
-    for task in (*C0_AUTOMATION_CASES, *C3_RETEST_AUTOMATION_CASES):
+    for task in (
+        *C0_AUTOMATION_CASES,
+        *C3_RETEST_AUTOMATION_CASES,
+        *C2_AUTOMATION_CASES,
+    ):
         elapsed, found, passed = execute_task(task)
         status = "PASS" if passed else f"FAIL:{found or 'NO_UNIQUE_RESULT'}"
         print(

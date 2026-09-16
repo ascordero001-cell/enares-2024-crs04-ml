@@ -237,3 +237,60 @@ C3_RETEST_AUTOMATION_CASES = (
     _automation_case("C3-06", "3.6", "Nacional", "consecuencias", "SYN_C0_36_075"),
     _automation_case("C3-07", "3.4", "Departamento", "respuesta", "SYN_C0_34_083"),
 )
+
+
+C2_TASKS = (
+    NavigationTask(
+        "C2-01",
+        "En el módulo 3.1 y alcance nacional, localiza el indicador sobre barreras "
+        "para pedir ayuda entre estudiantes que no buscaron ayuda durante los "
+        "últimos 12 meses, para el total del ámbito observado.",
+    ),
+    NavigationTask(
+        "C2-02",
+        "En el módulo 3.2 y alcance nacional, localiza el indicador sobre apoyo y "
+        "acompañamiento entre estudiantes que no buscaron ayuda durante los últimos "
+        "12 meses, para el ámbito rural.",
+    ),
+    NavigationTask(
+        "C2-03",
+        "En el módulo 3.3 y alcance nacional, localiza el indicador sobre "
+        "consecuencias percibidas entre estudiantes que no buscaron ayuda, alguna "
+        "vez, para el ámbito rural.",
+    ),
+    NavigationTask(
+        "C2-04",
+        "En el módulo 3.4 y alcance nacional, localiza el indicador sobre "
+        "corresponsabilidad cotidiana entre estudiantes que no buscaron ayuda, "
+        "alguna vez, para el total del ámbito observado.",
+    ),
+    NavigationTask(
+        "C2-05",
+        "En el módulo 3.5 y alcance nacional, localiza el indicador sobre "
+        "experiencias reportadas en hogares con persona adulta de referencia "
+        "durante los últimos 12 meses, para el total del ámbito observado.",
+    ),
+    NavigationTask(
+        "C2-06",
+        "En el módulo 3.6 y alcance nacional, localiza el indicador sobre "
+        "protección y cuidado en hogares con persona adulta de referencia durante "
+        "los últimos 12 meses, para el total del ámbito observado.",
+    ),
+    NavigationTask(
+        "C2-07",
+        "En el módulo 3.1 y alcance departamental, localiza el indicador sobre "
+        "respuesta institucional en comunidad educativa entrevistada durante los "
+        "últimos 12 meses, para el total del ámbito observado.",
+    ),
+)
+
+
+C2_AUTOMATION_CASES = (
+    _automation_case("C2-01", "3.1", "Nacional", "barreras", "SYN_C0_31_054"),
+    _automation_case("C2-02", "3.2", "Nacional", "acompañamiento", "SYN_C0_32_050"),
+    _automation_case("C2-03", "3.3", "Nacional", "consecuencias", "SYN_C0_33_059"),
+    _automation_case("C2-04", "3.4", "Nacional", "corresponsabilidad", "SYN_C0_34_063"),
+    _automation_case("C2-05", "3.5", "Nacional", "experiencias", "SYN_C0_35_072"),
+    _automation_case("C2-06", "3.6", "Nacional", "protección", "SYN_C0_36_078"),
+    _automation_case("C2-07", "3.1", "Departamento", "respuesta", "SYN_C0_31_084"),
+)
