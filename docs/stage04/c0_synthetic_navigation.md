@@ -241,7 +241,7 @@ inicial, máximo 90 segundos, sin ID esperado ni ayuda externa.
 
 | Tarea | Prompt humano congelado |
 |---|---|
-| C2-01 | En el módulo 3.1 y alcance nacional, localiza el indicador sobre protección y cuidado entre estudiantes que buscaron ayuda, alguna vez, para el total del ámbito observado. |
+| C2-01 | En el módulo 3.1 y alcance nacional, localiza el indicador sobre barreras para pedir ayuda entre estudiantes que no buscaron ayuda durante los últimos 12 meses, para el total del ámbito observado. |
 | C2-02 | En el módulo 3.2 y alcance nacional, localiza el indicador sobre apoyo y acompañamiento entre estudiantes que no buscaron ayuda durante los últimos 12 meses, para el ámbito rural. |
 | C2-03 | En el módulo 3.3 y alcance nacional, localiza el indicador sobre consecuencias percibidas entre estudiantes que no buscaron ayuda, alguna vez, para el ámbito rural. |
 | C2-04 | En el módulo 3.4 y alcance nacional, localiza el indicador sobre corresponsabilidad cotidiana entre estudiantes que no buscaron ayuda, alguna vez, para el total del ámbito observado. |
@@ -258,5 +258,10 @@ inicial, máximo 90 segundos, sin ID esperado ni ayuda externa.
 | C2-05 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Reservado | PENDIENTE | Ninguna | — |
 | C2-06 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Reservado | PENDIENTE | Ninguna | — |
 | C2-07 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Reservado | PENDIENTE | Ninguna | — |
+
+El primer objetivo reservado para C2-01 quedó anulado antes de una medición válida: la pestaña se
+cerró y, al reabrirla, hubo interacción simultánea mientras se intentaba limpiar el estado previo.
+El código `SYN_C0_31_045` se confirmó correctamente, pero no se clasifica ni se reutiliza porque ya
+quedó revelado. C2-01 se congeló de nuevo sobre un objetivo distinto antes de entregar el prompt.
 
 **Estado C2:** `PENDING_MANUAL_EVALUATION`. PR B continúa detenido.

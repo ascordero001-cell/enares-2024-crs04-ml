@@ -242,9 +242,9 @@ C3_RETEST_AUTOMATION_CASES = (
 C2_TASKS = (
     NavigationTask(
         "C2-01",
-        "En el módulo 3.1 y alcance nacional, localiza el indicador sobre "
-        "protección y cuidado entre estudiantes que buscaron ayuda, alguna vez, "
-        "para el total del ámbito observado.",
+        "En el módulo 3.1 y alcance nacional, localiza el indicador sobre barreras "
+        "para pedir ayuda entre estudiantes que no buscaron ayuda durante los "
+        "últimos 12 meses, para el total del ámbito observado.",
     ),
     NavigationTask(
         "C2-02",
@@ -286,7 +286,7 @@ C2_TASKS = (
 
 
 C2_AUTOMATION_CASES = (
-    _automation_case("C2-01", "3.1", "Nacional", "protección", "SYN_C0_31_045"),
+    _automation_case("C2-01", "3.1", "Nacional", "barreras", "SYN_C0_31_054"),
     _automation_case("C2-02", "3.2", "Nacional", "acompañamiento", "SYN_C0_32_050"),
     _automation_case("C2-03", "3.3", "Nacional", "consecuencias", "SYN_C0_33_059"),
     _automation_case("C2-04", "3.4", "Nacional", "corresponsabilidad", "SYN_C0_34_063"),
