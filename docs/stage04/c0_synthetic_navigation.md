@@ -1,6 +1,6 @@
 # C0 — preprueba sintética de navegación del catálogo
 
-**Estado:** `BOUNDED_IMPROVEMENTS_FOR_C3; C3_RETEST_PENDING`
+**Estado:** `C3_RETEST_FAILED; SUPERVISORY_REVIEW_REQUIRED`
 **Alcance:** exclusivamente sintético; no conecta ni reproduce cifras V0
 **Gate posterior:** C3 precede a C2; PR B no comienza hasta aprobar el nuevo recorrido
 
@@ -151,15 +151,22 @@ de estos prompts humanos.
 | C3-06 | En el módulo 3.6 y alcance nacional, localiza el indicador sobre consecuencias percibidas en hogares con persona adulta de referencia, alguna vez, para el total del ámbito observado. |
 | C3-07 | En el módulo 3.4 y alcance departamental, localiza el indicador sobre respuesta institucional en comunidad educativa entrevistada, alguna vez, para el ámbito rural. |
 
-| Tarea | Inicio | Fin | Segundos | Seleccionado | PASS/FAIL | Ayuda | Observaciones |
-|---|---|---|---:|---|---|---|---|
-| C3-01 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Ninguna | Recorrido nuevo. |
-| C3-02 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Ninguna | Recorrido nuevo. |
-| C3-03 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Ninguna | Recorrido nuevo. |
-| C3-04 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Ninguna | Recorrido nuevo. |
-| C3-05 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Ninguna | Recorrido nuevo. |
-| C3-06 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Ninguna | Recorrido nuevo. |
-| C3-07 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | Ninguna | Recorrido nuevo. |
+Ejecución realizada por Ana el 2026-09-16 UTC. El tiempo se midió desde la entrega de cada prompt
+por chat hasta la recepción del código confirmado e incluye su copia y envío.
 
-**Salida C3:** `PENDING_MANUAL_RETEST`. C2 y PR B continúan detenidos hasta registrar y revisar
-este recorrido.
+| Tarea | Inicio UTC | Fin UTC | Segundos | Seleccionado | Esperado | PASS/FAIL | Ayuda | Observaciones |
+|---|---|---|---:|---|---|---|---|---|
+| C3-01 | 03:43:20 | 03:44:12 | 52,6 | `SYN_C0_31_012` | `SYN_C0_31_012` | PASS | Ninguna | Objetivo correcto dentro del límite. |
+| C3-02 | 03:44:20 | 03:45:27 | 67,2 | `SYN_C0_32_023` | `SYN_C0_32_023` | PASS | Ninguna | Objetivo correcto dentro del límite. |
+| C3-03 | 03:45:32 | 03:46:32 | 59,3 | `SYN_C0_33_044` | `SYN_C0_33_044` | PASS | Ninguna | Objetivo correcto dentro del límite. |
+| C3-04 | 03:46:39 | 03:47:40 | 61,5 | `SYN_C0_34_057` | `SYN_C0_34_057` | PASS | Ninguna | Objetivo correcto dentro del límite. |
+| C3-05 | 03:47:45 | 03:48:29 | 43,2 | `SYN_C0_34_068` | `SYN_C0_35_068` | FAIL | Ninguna | El código informado pertenece al módulo 3.4, no al 3.5 solicitado. No se repitió ni corrigió. |
+| C3-06 | 03:48:37 | 03:49:26 | 49,5 | `SYN_C0_36_075` | `SYN_C0_36_075` | PASS | Ninguna | Objetivo correcto dentro del límite. |
+| C3-07 | 03:49:32 | 03:50:17 | 45,7 | `SYN_C0_34_083` | `SYN_C0_34_083` | PASS | Ninguna | Objetivo correcto dentro del límite. |
+
+Resultado: seis tareas PASS y una FAIL. Las siete se completaron dentro de 90 segundos, pero
+C3-05 informó un objetivo de otro módulo. La evidencia se conserva sin retest ni interpretación
+correctiva.
+
+**Salida C3:** `C3_RETEST_FAILED; SUPERVISORY_REVIEW_REQUIRED`. C2 y PR B continúan detenidos
+hasta el dictamen supervisor.
