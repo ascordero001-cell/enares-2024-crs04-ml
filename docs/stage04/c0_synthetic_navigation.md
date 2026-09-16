@@ -1,6 +1,6 @@
 # C0 — preprueba sintética de navegación del catálogo
 
-**Estado:** `C3_CORRECTIONS_IMPLEMENTED; C3_01_C3_05_RERUN_PENDING`
+**Estado:** `ARCHITECTURE_INSUFFICIENT; SUPERVISORY_REVIEW_REQUIRED`
 **Alcance:** exclusivamente sintético; no conecta ni reproduce cifras V0
 **Gate posterior:** C3 precede a C2; PR B no comienza hasta aprobar el nuevo recorrido
 
@@ -163,6 +163,11 @@ C3-05 fue un fallo real de navegación. El código informado pertenecía a 3.4. 
 bajo el selector 3.5: el error fue no cambiar el selector de módulo antes de confirmar, no una
 fuga de resultados entre módulos. La repetición conserva el mismo objetivo y prompt.
 
+En la repetición autorizada, la persona llegó al módulo, enfoque, periodo y ámbito correctos, pero
+eligió la población «adolescentes de 12 a 17 años» en lugar de «hogares con persona adulta de
+referencia». Este segundo fallo, ahora dentro del módulo correcto, confirma que el problema no se
+limita al selector de módulo y requiere revisión supervisora de la arquitectura de selección.
+
 La evidencia previa se preserva:
 
 | Tarea | Resultado previo | Tratamiento |
@@ -170,19 +175,22 @@ La evidencia previa se preserva:
 | C3-01 | 52,6 s; `SYN_C0_31_012`; PASS técnico | ANULADO por objetivo fuera de la autoridad CRS04. |
 | C3-05 | 43,2 s; `SYN_C0_34_068`; FAIL | Fallo de selección; repetición autorizada con el mismo objetivo. |
 
-La tabla combinada conserva los cinco primeros intentos válidos y espera únicamente las dos
-repeticiones autorizadas. El tiempo se mide desde la entrega de cada prompt por chat hasta la
-recepción del código confirmado e incluye su copia y envío.
+La tabla combinada conserva los cinco primeros intentos válidos e incorpora las dos repeticiones
+autorizadas. El tiempo se mide desde la entrega de cada prompt por chat hasta la recepción del
+código confirmado e incluye su copia y envío.
 
 | Tarea | Inicio UTC | Fin UTC | Segundos | Seleccionado | Esperado | PASS/FAIL | Ayuda | Observaciones |
 |---|---|---|---:|---|---|---|---|---|
-| C3-01 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | `SYN_C0_31_024` | PENDIENTE | Ninguna | Objetivo nuevo tras retirar la población fuera de CRS04. |
+| C3-01 | 19:04:38 | 19:05:03 | 25,0 | `SYN_C0_31_024` | `SYN_C0_31_024` | PASS | Ninguna | Objetivo nuevo correcto dentro del límite. |
 | C3-02 | 03:44:20 | 03:45:27 | 67,2 | `SYN_C0_32_023` | `SYN_C0_32_023` | PASS | Ninguna | Objetivo correcto dentro del límite. |
 | C3-03 | 03:45:32 | 03:46:32 | 59,3 | `SYN_C0_33_044` | `SYN_C0_33_044` | PASS | Ninguna | Objetivo correcto dentro del límite. |
 | C3-04 | 03:46:39 | 03:47:40 | 61,5 | `SYN_C0_34_057` | `SYN_C0_34_057` | PASS | Ninguna | Objetivo correcto dentro del límite. |
-| C3-05 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | `SYN_C0_35_068` | PENDIENTE | Ninguna | Repetición autorizada del mismo objetivo tras documentar la causa. |
+| C3-05 | 19:06:38 | 19:07:17 | 38,9 | `SYN_C0_35_020` | `SYN_C0_35_068` | FAIL | Ninguna | Módulo, enfoque, periodo y ámbito correctos; población incorrecta: adolescentes de 12 a 17 años en vez de hogares con persona adulta de referencia. |
 | C3-06 | 03:48:37 | 03:49:26 | 49,5 | `SYN_C0_36_075` | `SYN_C0_36_075` | PASS | Ninguna | Objetivo correcto dentro del límite. |
 | C3-07 | 03:49:32 | 03:50:17 | 45,7 | `SYN_C0_34_083` | `SYN_C0_34_083` | PASS | Ninguna | Objetivo correcto dentro del límite. |
 
-**Salida C3:** `PENDING_C3_01_C3_05_RERUN`. C2 y PR B continúan detenidos hasta completar las dos
-repeticiones, registrar la clasificación combinada y obtener aprobación supervisora.
+**Resultado combinado:** 6/7 tareas PASS; las siete finalizaron dentro de 90 segundos y sin ayuda.
+
+**Salida C3:** `ARCHITECTURE_INSUFFICIENT`. De acuerdo con la clasificación predefinida, el fallo
+de C3-05 devuelve el flujo a supervisión. C2 y PR B continúan detenidos hasta recibir una decisión
+supervisora explícita.
