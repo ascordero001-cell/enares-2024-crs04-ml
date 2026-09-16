@@ -37,7 +37,7 @@ Ana ejecutará un recorrido real por módulo. No hay umbral de 90 segundos.
 | 3.1 | 2026-09-16T22:42:25Z | 2026-09-16T23:51:21Z | 4136 | `AG_VF_09` / Nacional / Total | PASS | Tarjeta completa, IC, CV y `N=base_unw` visibles; ventana conservadora desde el arranque de la app, incluye tiempo inactivo porque el inicio manual exacto no fue capturado. |
 | 3.2 | 2026-09-16T23:51:48Z | 2026-09-16T23:52:54Z | 67 | `VF_HOGAR` / Nacional / Total | PASS | Tarjeta completa: estimación 16.74 %, EE 0.5115, CV 0.03055, `N=base_unw` 18,807 e IC95 % 15.74 %–17.75 %; sin alerta ni error visible. |
 | 3.3 | 2026-09-16T23:53:13Z | 2026-09-16T23:54:15Z | 62 | `C3P223_10_1` / Nacional / Total | PASS | Tarjeta completa: estimación 11.49 %, EE 0.6444, CV 0.05607, `N=base_unw` 7,522 e IC95 % 10.29 %–12.82 %; sin alerta ni error visible. |
-| 3.4 | PENDIENTE | PENDIENTE | — | PENDIENTE | PENDIENTE | — |
+| 3.4 | 2026-09-16T23:54:29Z | 2026-09-16T23:57:10Z | 162 | `Agresor_VS_12M__AG_01` / Nacional / Total (`Familiares`) | PASS | Tarjeta completa: estimación 9.26 %, EE 0.8997, CV 0.09712, `N=base_unw` 3,429 e IC95 % 7.64 %–11.20 %; sin alerta ni error visible. |
 | 3.5 | PENDIENTE | PENDIENTE | — | PENDIENTE | PENDIENTE | — |
 | 3.6 | PENDIENTE | PENDIENTE | — | PENDIENTE | PENDIENTE | — |
 
