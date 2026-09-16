@@ -35,7 +35,7 @@ const scenarios = [
     id: "S05",
     page: "Módulo 3.2",
     dimension: "Departamento",
-    expected: "Departamento: sin datos autorizados",
+    expected: "Resultado agregado · 3.2 Violencia en el hogar",
   },
   {
     id: "S06",
