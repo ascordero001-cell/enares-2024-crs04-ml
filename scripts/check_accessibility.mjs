@@ -1,6 +1,8 @@
 import AxeBuilder from "@axe-core/playwright";
 import { chromium } from "playwright";
 
+import { assertExpectedStreamlitSidebarResiduals } from "./accessibility_residual_policy.mjs";
+
 const baseUrl = process.env.APP_URL ?? "http://127.0.0.1:8501";
 const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
 const pages = [
@@ -62,6 +64,8 @@ try {
 } finally {
   await browser.close();
 }
+
+assertExpectedStreamlitSidebarResiduals(acceptedStreamlitResiduals);
 
 if (failed) {
   process.exitCode = 1;
