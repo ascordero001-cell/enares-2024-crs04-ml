@@ -105,7 +105,7 @@ def test_c0_search_is_accent_and_case_insensitive() -> None:
     assert "SYN_C0_33_033" in {row.indicator_id for row in matches}
 
 
-def test_search_ignores_repeated_module_title_that_caused_c0_01() -> None:
+def test_free_search_prioritizes_semantic_match_over_repeated_module_title() -> None:
     matches = filter_catalog(
         build_synthetic_catalog(),
         module_id="3.1",
@@ -113,8 +113,35 @@ def test_search_ignores_repeated_module_title_that_caused_c0_01() -> None:
         query="corresponsabilidad",
     )
 
-    assert len(matches) >= 2
-    assert {row.focus for row in matches} == {"corresponsabilidad cotidiana"}
+    assert len(matches) > 10
+    assert matches[0].focus == "corresponsabilidad cotidiana"
+    first_generic = next(
+        index
+        for index, row in enumerate(matches)
+        if row.focus != "corresponsabilidad cotidiana"
+    )
+    assert all(
+        row.focus == "corresponsabilidad cotidiana"
+        for row in matches[:first_generic]
+    )
+
+
+def test_free_search_finds_visible_module_words_without_facets() -> None:
+    matches = filter_catalog(
+        build_synthetic_catalog(),
+        module_id="3.2",
+        dimension="Nacional",
+        query="violencia",
+    )
+
+    assert len(matches) == 80
+
+
+def test_c0_fixture_excludes_population_outside_crs04_authority() -> None:
+    catalog = build_synthetic_catalog()
+
+    assert all("9 a 11" not in row.population for row in catalog)
+    assert all("9 a 11" not in row.label for row in catalog)
 
 
 def test_c3_retest_uses_seven_previously_unused_targets() -> None:

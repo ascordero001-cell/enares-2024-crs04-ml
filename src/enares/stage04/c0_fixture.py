@@ -51,7 +51,7 @@ FOCUSES = (
     "corresponsabilidad cotidiana",
 )
 POPULATIONS = (
-    "niñas y niños de 9 a 11 años",
+    "adolescentes de 12 a 17 años con respuesta válida",
     "adolescentes de 12 a 17 años",
     "estudiantes que buscaron ayuda",
     "estudiantes que no buscaron ayuda",
@@ -187,7 +187,7 @@ C3_RETEST_TASKS = (
     NavigationTask(
         "C3-01",
         "En el módulo 3.1 y alcance nacional, localiza el indicador sobre "
-        "consecuencias percibidas en niñas y niños de 9 a 11 años durante los "
+        "experiencias reportadas en adolescentes de 12 a 17 años durante los "
         "últimos 12 meses, para el total del ámbito observado.",
     ),
     NavigationTask(
@@ -229,7 +229,7 @@ C3_RETEST_TASKS = (
 )
 
 C3_RETEST_AUTOMATION_CASES = (
-    _automation_case("C3-01", "3.1", "Nacional", "consecuencias", "SYN_C0_31_012"),
+    _automation_case("C3-01", "3.1", "Nacional", "experiencias", "SYN_C0_31_024"),
     _automation_case("C3-02", "3.2", "Nacional", "experiencias", "SYN_C0_32_023"),
     _automation_case("C3-03", "3.3", "Nacional", "consecuencias", "SYN_C0_33_044"),
     _automation_case("C3-04", "3.4", "Nacional", "redes", "SYN_C0_34_057"),

@@ -66,9 +66,10 @@ def render() -> None:
         st.warning("No se encontró un indicador sintético.")
         return
 
-    st.subheader("Refinar resultados")
+    st.subheader("Refinar resultados (opcional)")
     st.caption(
-        "Use los datos del enunciado para distinguir candidatos antes de confirmar."
+        "Puede seleccionar uno o más filtros para acotar la búsqueda libre. "
+        "También puede revisar y elegir directamente entre sus resultados."
     )
     columns = st.columns(4)
     with columns[0]:

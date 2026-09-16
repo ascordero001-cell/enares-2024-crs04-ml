@@ -1,6 +1,6 @@
 # C0 — preprueba sintética de navegación del catálogo
 
-**Estado:** `C3_RETEST_FAILED; SUPERVISORY_REVIEW_REQUIRED`
+**Estado:** `C3_CORRECTIONS_IMPLEMENTED; C3_01_C3_05_RERUN_PENDING`
 **Alcance:** exclusivamente sintético; no conecta ni reproduce cifras V0
 **Gate posterior:** C3 precede a C2; PR B no comienza hasta aprobar el nuevo recorrido
 
@@ -124,14 +124,15 @@ El análisis de C0-01 separa las tres hipótesis solicitadas:
 
 Las mejoras acotadas de C3 son:
 
-1. la búsqueda textual opera sobre los campos que distinguen indicadores, sin reutilizar el
-   título del módulo ya seleccionado;
-2. tema, población, periodo y ámbito aparecen como refinadores explícitos;
-3. los resultados omiten el prefijo repetido del módulo y muestran los cuatro atributos en orden
+1. la búsqueda libre vuelve a operar sobre la etiqueta completa visible;
+2. las coincidencias en tema, población, periodo y ámbito se ordenan antes que las coincidencias
+   que proceden únicamente del texto genérico del módulo;
+3. tema, población, periodo y ámbito aparecen como refinadores opcionales;
+4. los resultados omiten el prefijo repetido del módulo y muestran los cuatro atributos en orden
    estable;
-4. antes de confirmar se presenta un resumen semántico, mientras el `indicator_id` continúa
+5. antes de confirmar se presenta un resumen semántico, mientras el `indicator_id` continúa
    oculto;
-5. la regresión exige múltiples candidatos tras la búsqueda amplia y exactamente uno después de
+6. la regresión exige múltiples candidatos tras la búsqueda amplia y exactamente uno después de
    aplicar los refinadores.
 
 ## Segundo recorrido posterior a C3
@@ -143,7 +144,7 @@ de estos prompts humanos.
 
 | Tarea | Prompt humano nuevo |
 |---|---|
-| C3-01 | En el módulo 3.1 y alcance nacional, localiza el indicador sobre consecuencias percibidas en niñas y niños de 9 a 11 años durante los últimos 12 meses, para el total del ámbito observado. |
+| C3-01 | En el módulo 3.1 y alcance nacional, localiza el indicador sobre experiencias reportadas en adolescentes de 12 a 17 años durante los últimos 12 meses, para el total del ámbito observado. |
 | C3-02 | En el módulo 3.2 y alcance nacional, localiza el indicador sobre experiencias reportadas en adolescentes de 12 a 17 años, alguna vez, para el ámbito rural. |
 | C3-03 | En el módulo 3.3 y alcance nacional, localiza el indicador sobre consecuencias percibidas entre estudiantes que buscaron ayuda durante los últimos 12 meses, para el ámbito rural. |
 | C3-04 | En el módulo 3.4 y alcance nacional, localiza el indicador sobre redes de confianza entre estudiantes que no buscaron ayuda, alguna vez, para el total del ámbito observado. |
@@ -151,22 +152,37 @@ de estos prompts humanos.
 | C3-06 | En el módulo 3.6 y alcance nacional, localiza el indicador sobre consecuencias percibidas en hogares con persona adulta de referencia, alguna vez, para el total del ámbito observado. |
 | C3-07 | En el módulo 3.4 y alcance departamental, localiza el indicador sobre respuesta institucional en comunidad educativa entrevistada, alguna vez, para el ámbito rural. |
 
-Ejecución realizada por Ana el 2026-09-16 UTC. El tiempo se midió desde la entrega de cada prompt
-por chat hasta la recepción del código confirmado e incluye su copia y envío.
+### Corrección supervisora del 2026-09-16
+
+La primera C3-01 quedó anulada porque utilizó la población de 9 a 11 años, exclusiva de CRS03 y
+fuera de la autoridad CRS04. El fixture sustituyó esa población y C3-01 quedó redefinida sobre un
+objetivo 3.1 nuevo y no usado.
+
+C3-05 fue un fallo real de navegación. El código informado pertenecía a 3.4. Como
+`filter_catalog` aplica el módulo antes de construir candidatos, una fila 3.4 no puede aparecer
+bajo el selector 3.5: el error fue no cambiar el selector de módulo antes de confirmar, no una
+fuga de resultados entre módulos. La repetición conserva el mismo objetivo y prompt.
+
+La evidencia previa se preserva:
+
+| Tarea | Resultado previo | Tratamiento |
+|---|---|---|
+| C3-01 | 52,6 s; `SYN_C0_31_012`; PASS técnico | ANULADO por objetivo fuera de la autoridad CRS04. |
+| C3-05 | 43,2 s; `SYN_C0_34_068`; FAIL | Fallo de selección; repetición autorizada con el mismo objetivo. |
+
+La tabla combinada conserva los cinco primeros intentos válidos y espera únicamente las dos
+repeticiones autorizadas. El tiempo se mide desde la entrega de cada prompt por chat hasta la
+recepción del código confirmado e incluye su copia y envío.
 
 | Tarea | Inicio UTC | Fin UTC | Segundos | Seleccionado | Esperado | PASS/FAIL | Ayuda | Observaciones |
 |---|---|---|---:|---|---|---|---|---|
-| C3-01 | 03:43:20 | 03:44:12 | 52,6 | `SYN_C0_31_012` | `SYN_C0_31_012` | PASS | Ninguna | Objetivo correcto dentro del límite. |
+| C3-01 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | `SYN_C0_31_024` | PENDIENTE | Ninguna | Objetivo nuevo tras retirar la población fuera de CRS04. |
 | C3-02 | 03:44:20 | 03:45:27 | 67,2 | `SYN_C0_32_023` | `SYN_C0_32_023` | PASS | Ninguna | Objetivo correcto dentro del límite. |
 | C3-03 | 03:45:32 | 03:46:32 | 59,3 | `SYN_C0_33_044` | `SYN_C0_33_044` | PASS | Ninguna | Objetivo correcto dentro del límite. |
 | C3-04 | 03:46:39 | 03:47:40 | 61,5 | `SYN_C0_34_057` | `SYN_C0_34_057` | PASS | Ninguna | Objetivo correcto dentro del límite. |
-| C3-05 | 03:47:45 | 03:48:29 | 43,2 | `SYN_C0_34_068` | `SYN_C0_35_068` | FAIL | Ninguna | El código informado pertenece al módulo 3.4, no al 3.5 solicitado. No se repitió ni corrigió. |
+| C3-05 | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | `SYN_C0_35_068` | PENDIENTE | Ninguna | Repetición autorizada del mismo objetivo tras documentar la causa. |
 | C3-06 | 03:48:37 | 03:49:26 | 49,5 | `SYN_C0_36_075` | `SYN_C0_36_075` | PASS | Ninguna | Objetivo correcto dentro del límite. |
 | C3-07 | 03:49:32 | 03:50:17 | 45,7 | `SYN_C0_34_083` | `SYN_C0_34_083` | PASS | Ninguna | Objetivo correcto dentro del límite. |
 
-Resultado: seis tareas PASS y una FAIL. Las siete se completaron dentro de 90 segundos, pero
-C3-05 informó un objetivo de otro módulo. La evidencia se conserva sin retest ni interpretación
-correctiva.
-
-**Salida C3:** `C3_RETEST_FAILED; SUPERVISORY_REVIEW_REQUIRED`. C2 y PR B continúan detenidos
-hasta el dictamen supervisor.
+**Salida C3:** `PENDING_C3_01_C3_05_RERUN`. C2 y PR B continúan detenidos hasta completar las dos
+repeticiones, registrar la clasificación combinada y obtener aprobación supervisora.
