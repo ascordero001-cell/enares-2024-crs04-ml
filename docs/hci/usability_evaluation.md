@@ -1,7 +1,7 @@
 # Evaluación de usabilidad — Sprint 04.2
 
-Estado: `INITIAL_HEURISTIC_REVIEW_COMPLETE; FULL_CATALOG_REEVALUATION_PENDING`.
-Fecha de corte: 2026-09-15.
+Estado: `FULL_CATALOG_HEURISTICS_AND_COGNITIVE_WALKTHROUGH_COMPLETE; ACCESSIBILITY_PARTIAL`.
+Fecha de corte: 2026-09-17.
 
 ## Alcance y evidencia disponible
 
@@ -9,8 +9,8 @@ Esta evaluación reúne la revisión heurística inicial de la interfaz local, l
 con AppTest y el control automatizado WCAG 2.2 AA descrito en
 [`hci_accessibility_corte2.md`](../stage04/hci_accessibility_corte2.md). La decisión supervisora del
 2026-09-15 sustituye la prueba con participantes externos por revisión manual de accesibilidad,
-evaluación heurística y recorrido cognitivo. Los tres métodos deben repetirse después de conectar
-la clase A; esta evaluación de 52 filas no acredita la navegación del catálogo completo.
+evaluación heurística y recorrido cognitivo. La repetición sobre las 3.014 filas conectadas está
+registrada en [`full_catalog_step51_evaluation.md`](full_catalog_step51_evaluation.md).
 
 ## Escala de severidad
 
@@ -41,19 +41,17 @@ El `DEFER` anterior no desactiva una familia completa de controles: la CI admite
 combinación exacta de regla, selector y atributo documentada. Cualquier otra infracción automática
 hace fallar el job.
 
-## Evaluaciones pendientes sobre el catálogo completo
+## Reevaluación sobre el catálogo completo
 
-1. **Revisión manual de accesibilidad:** teclado exclusivo, lector de pantalla, contraste manual y
-   zoom al 200 % sin pérdida de contenido o función.
-2. **Evaluación heurística:** repetir las diez heurísticas y clasificar cada hallazgo con la escala
-   S0–S4 y decisión `FIX`, `DEFER` o `REJECT`.
-3. **Recorrido cognitivo:** recorrer cada paso de los cinco escenarios de
-   [`task_scenarios.md`](task_scenarios.md) y registrar si se sabría qué hacer, si se encontraría el
-   control y si se entendería el resultado.
+1. **Revisión manual de accesibilidad:** teclado, nombres/roles, estados textuales y contraste
+   quedaron revisados. Faltan lector de pantalla real y zoom verificable al 200 %.
+2. **Evaluación heurística:** las diez heurísticas quedaron repetidas sin S3/S4.
+3. **Recorrido cognitivo:** los cinco escenarios de [`task_scenarios.md`](task_scenarios.md)
+   quedaron recorridos con resultado PASS.
 
-No se ejecutan antes de conectar la clase A. La falta de observación por una persona nueva se
-conserva como riesgo residual: estos métodos detectan incumplimientos conocidos, pero no sustituyen
-el descubrimiento de problemas por usuarios reales.
+La falta de observación por una persona nueva se conserva como riesgo residual: estos métodos
+detectan incumplimientos conocidos, pero no sustituyen el descubrimiento de problemas por usuarios
+reales.
 
 ## Condición de cierre
 

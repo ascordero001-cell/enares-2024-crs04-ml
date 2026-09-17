@@ -16,7 +16,7 @@ la numeracion original. Sustituye a cualquier version parcial anterior de estas 
 | Indicador | Valor |
 |---|---|
 | Pasos del plan cerrados | 43 de 53 |
-| Filas del agregado V0 conectadas en la aplicacion | 52 de 3.014 |
+| Filas del agregado V0 conectadas en la aplicacion | 3.014 de 3.014 |
 | Recursos creados en Google Cloud | 0 |
 | Consultas ejecutadas en Google Cloud | 0 |
 | Gasto acumulado | USD 0 |
@@ -361,7 +361,7 @@ medicion de consumo e instancias espera a que exista Cloud Run.
 | # | Paso | Estado |
 |---|---|---|
 | 50 | Matriz de cobertura 3.1-3.6 en cuatro estados | CERRADO |
-| **51** | **REESCRITO** — ver texto abajo | PENDIENTE en su parte manual |
+| **51** | **REESCRITO** — ver texto abajo | PARCIAL: heuristicas y recorrido cerrados; lector de pantalla y zoom 200 % pendientes |
 | 52 | URL registrada en README, About, PR y Release, con su advertencia de estado | BLOQUEADO: necesita que exista una URL |
 | 53 | **Paquete de cierre para revision final — decision de Rita** | PENDIENTE |
 
@@ -394,9 +394,9 @@ El plan rector nunca contemplo estas cuatro cosas. No llevan numero y no renumer
 | Trabajo | Que es | Donde | Estado |
 |---|---|---|---|
 | Contrato de origen de `outputs` | Edicion de contrato | `docs/contracts/published_view_contract.md` | HECHO, PR #90 |
-| Versionar este documento | Registro de las decisiones | `docs/stage04/` | ENTREGADO_EN_PR_100; EFECTIVO_AL_MERGE |
-| Conectar el V0 integral | 2.995 filas mas las 19 excepciones | `authorized_extract.py`, `app/data/` | IMPLEMENTADO_EN_PR_B; RECORRIDO_MANUAL_PENDIENTE |
-| Discrepancia del `[referencial]` | Registro y devolucion al productor | `known_discrepancies.md`, Issue #101 | ENTREGADO_EN_PR_100; EFECTIVO_AL_MERGE |
+| Versionar este documento | Registro de las decisiones | `docs/stage04/` | HECHO, PR #100 |
+| Conectar el V0 integral | 2.995 filas mas las 19 excepciones | `authorized_extract.py`, `app/data/` | HECHO, PR #112; evidencia E fijada en PR #113 |
+| Discrepancia del `[referencial]` | Registro y devolucion al productor | `known_discrepancies.md`, Issue #101 | HECHO, PR #100 |
 
 ---
 
@@ -404,26 +404,22 @@ El plan rector nunca contemplo estas cuatro cosas. No llevan numero y no renumer
 
 ## Sin depender de nadie, desde ya
 
-1. **Cerrar el PR #100:** este documento, los estados de las clases A/C/D/E, la discrepancia y la
-   matriz de cobertura ya están entregados; quedan efectivos al aprobarse y fusionarse el PR.
-2. **Conectar la clase A.** El trabajo mas grande. Con la condicion de parada de la seccion E: si
-   la navegacion no aguanta, detenerse y escribir antes de dar el paso por cerrado.
-3. **Paso 36:** el job de CI del quickstart.
-4. **Paso 48, mitad adelantable:** el guion de seis sesiones en Playwright, probado en local.
-5. **Paso 51:** las tres evaluaciones. Despues del punto 2, no antes.
+1. **Paso 51:** completar lector de pantalla y zoom verificable al 200 %. Las heuristicas y los
+   cinco recorridos cognitivos del catalogo completo ya estan documentados.
+2. Mantener verde la auditoria automatica y la regresion integral mientras se resuelve el gate.
 
 ## Cuando quiera, en paralelo con lo anterior
 
-6. **La secuencia de desbloqueo de la seccion J**, los seis puntos. En cuanto este el punto 6,
+3. **La secuencia de desbloqueo de la seccion J**, los seis puntos. En cuanto este el punto 6,
    Rita verifica y se levanta el gate.
 
 ## Solo con el gate levantado
 
-7. Pasos **43 a 49**, en ese orden.
+4. Pasos **43 a 49**, en ese orden.
 
 ## Al final
 
-8. Paso **52** y paso **53**.
+5. Paso **52** y paso **53**.
 
 ---
 
