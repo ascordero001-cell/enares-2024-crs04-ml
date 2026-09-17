@@ -27,7 +27,6 @@ from app.views.stage04_dashboard import (
 from enares.stage04.export import build_export_bundle
 from enares.stage04.repository import (
     AuthorizedAggregateRepository,
-    CompositeRepository,
     DemoRepository,
     IndicatorEstimate,
     IndicatorRepository,
@@ -38,22 +37,10 @@ def local_repositories():
     """Create only repositories backed by checked-in aggregate or synthetic fixtures."""
     data = ROOT / "app" / "data"
     registry = ROOT / "docs" / "stage04" / "v0_drive_hash_manifest.md"
-    authorized = CompositeRepository(
-        AuthorizedAggregateRepository(
-            data / "v0_authorized_indicator_estimates.csv",
-            data / "v0_authorized_indicator_estimates.manifest.json",
-            registry,
-        ),
-        AuthorizedAggregateRepository(
-            data / "v0_authorized_etapa1_indicator_estimates.csv",
-            data / "v0_authorized_etapa1_indicator_estimates.manifest.json",
-            registry,
-        ),
-        AuthorizedAggregateRepository(
-            data / "v0_authorized_d06_d07_indicator_estimates.csv",
-            data / "v0_authorized_d06_d07_indicator_estimates.manifest.json",
-            registry,
-        ),
+    authorized = AuthorizedAggregateRepository(
+        data / "v0_authorized_full_indicator_estimates.csv",
+        data / "v0_authorized_full_indicator_estimates.manifest.json",
+        registry,
     )
     demo = DemoRepository(data / "demo_indicator_estimates.csv")
     return authorized, demo
@@ -266,9 +253,10 @@ def _render_vs_matrices(repository: IndicatorRepository) -> None:
         if row.indicator_id == indicator and row.disaggregation == matrix
     ]
     by_category = {row.category: row for row in matrix_rows}
+    category_options: list[str] = list(by_category)
     category = st.selectbox(
         "Categoría matricial",
-        tuple(by_category),
+        category_options,
         format_func=lambda value: precision_category_label(
             value, by_category[value].cv_flag
         ),
@@ -285,7 +273,11 @@ def render() -> None:
     _styles()
     authorized, demo = local_repositories()
     try:
-        authorized_rows = filter_estimates(authorized, "3.2", "Nacional", "Total")
+        authorized_rows = [
+            row
+            for row in filter_estimates(authorized, "3.2", "Nacional", "Total")
+            if row.indicator_id == "VF_HOGAR"
+        ]
     except ValueError:
         st.error("Los resultados no superaron la validación estadística.")
         return
@@ -351,9 +343,9 @@ def render() -> None:
 
         if source == "Demo sintético":
             _validated_state_gallery(demo)
-        elif module.module_id == "3.1" and dimension == "Nacional":
-            _render_d01_groups(authorized)
         else:
+            if module.module_id == "3.1" and dimension == "Nacional":
+                _render_d01_groups(authorized)
             if dimension not in module.authorized_dimensions:
                 st.info(
                     f"{dimension}: sin datos autorizados para {module.module_id}. "
@@ -376,6 +368,20 @@ def render() -> None:
                     "Pendiente de conciliación del contrato y los estados de calidad. "
                     "No se fabrican resultados."
                 )
+                return
+            query = st.text_input("Buscar indicador", key=f"real_query_{module.module_id}")
+            if query.strip():
+                terms = query.casefold().split()
+                dimension_rows = [
+                    row
+                    for row in dimension_rows
+                    if all(
+                        term in f"{row.indicator_id} {row.indicator_name} {row.category}".casefold()
+                        for term in terms
+                    )
+                ]
+            if not dimension_rows:
+                st.info("No hay coincidencias en este módulo y dimensión.")
                 return
             indicator_ids = tuple(
                 dict.fromkeys(row.indicator_id for row in dimension_rows)
@@ -403,11 +409,19 @@ def render() -> None:
             if len(matches) != 1:
                 st.error("La combinación autorizada no está disponible de forma única.")
                 return
+            if matches[0].quality_status == "CONTEXT_ONLY":
+                st.info(matches[0].quality_note)
+                st.caption(
+                    f"{matches[0].indicator_id} · {matches[0].disaggregation} · "
+                    f"{matches[0].category}"
+                )
+                st.caption("Sin tarjeta, tabla numérica ni exportación.")
+                return
             card = build_numeric_card(matches[0])
             _numeric_summary(card, f"Resultado agregado · {module.full_label}")
             _download_cut(
                 matches,
-                f"enares-stage04-{module.module_id.replace('.', '')}-{dimension}",
+                f"enares-stage04-{module.module_id.replace('.', '')}-{matches[0].indicator_id}-{dimension}",
             )
             if module.module_id == "3.5" and dimension == "Nacional":
                 try:

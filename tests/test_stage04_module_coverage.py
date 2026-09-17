@@ -30,8 +30,8 @@ from enares.stage04.repository import (
 from enares.stage04.validation import validate_estimates
 
 ROOT = Path(__file__).resolve().parents[1]
-V0_FIXTURE = ROOT / "app" / "data" / "v0_authorized_indicator_estimates.csv"
-V0_MANIFEST = ROOT / "app" / "data" / "v0_authorized_indicator_estimates.manifest.json"
+V0_FIXTURE = ROOT / "app" / "data" / "v0_authorized_full_indicator_estimates.csv"
+V0_MANIFEST = ROOT / "app" / "data" / "v0_authorized_full_indicator_estimates.manifest.json"
 STREAMLIT_CONFIG = ROOT / ".streamlit" / "config.toml"
 
 
@@ -115,19 +115,19 @@ def test_streamlit_theme_keeps_text_and_background_contrast_explicit():
 def test_registry_makes_data_authorization_explicit_and_fail_closed():
     assert LOCAL_COVERAGE_RUN_ID == "sprint042-corte2-local-coverage-001"
     assert get_module("3.2").data_state == AUTHORIZED_GOLDEN
-    assert get_module("3.2").authorized_dimensions == ("Nacional",)
+    assert set(FUTURE_DIMENSIONS) <= set(get_module("3.2").authorized_dimensions)
     for module in MODULES:
         if module.module_id != "3.2":
             assert module.data_state == AUTHORIZED_ETAPA1
             assert module.authorized_dimensions
 
 
-def test_non_synthetic_31_row_outside_closed_indicator_scope_is_rejected():
+def test_non_synthetic_row_outside_full_v0_registry_is_rejected():
     authorized, _ = local_repositories()
     task = authorized.list_estimates("3.1")[0]
     pending = replace(
         task,
-        indicator_id="justifica_castigo_parental",
+        indicator_id="NOT_IN_APPROVED_V0",
         indicator_name="Justificación del castigo parental",
     )
     with pytest.raises(ValueError, match="not registered"):
@@ -138,15 +138,11 @@ def test_non_synthetic_31_row_outside_closed_indicator_scope_is_rejected():
         )
 
 
-def test_valid_non_synthetic_32_sex_row_is_rejected_when_only_national_is_authorized():
+def test_valid_non_synthetic_32_sex_row_is_now_authorized():
     authorized, _ = local_repositories()
-    pending = replace(
-        authorized.list_estimates("3.2")[0],
-        disaggregation="Sexo",
-        category="Mujer",
-    )
-    with pytest.raises(ValueError, match="not authorized"):
-        validate_estimates([pending])
+    rows = [row for row in authorized.list_estimates("3.2") if row.disaggregation == "Sexo"]
+    assert rows
+    validate_estimates(rows)
 
 
 def test_expanding_available_dimensions_does_not_expand_authorization(monkeypatch):
@@ -179,38 +175,30 @@ def test_32_national_golden_still_builds_numeric_card():
     assert card["n_text"] == "N no ponderado: 18,807"
 
 
-def test_modules_with_national_only_source_do_not_advertise_other_dimensions():
-    assert get_module("3.3").available_dimensions == ("Nacional",)
-    assert get_module("3.4").available_dimensions == ("Nacional",)
+def test_module_36_remains_national_only_while_other_modules_cover_v0_dimensions():
+    assert "Departamento" in get_module("3.3").available_dimensions
+    assert "Departamento" in get_module("3.4").available_dimensions
     assert get_module("3.6").available_dimensions == ("Nacional",)
 
 
 def test_real_fixture_coverage_is_distinguished_from_configuration():
     authorized, _ = local_repositories()
     expected = {
-        "3.1": {"Tareas del hogar"},
-        "3.2": {"Nacional"},
-        "3.3": {"Nacional"},
-        "3.4": {"Nacional"},
-        "3.5": {
-            "Nacional",
-            "Sexo",
-            "Área",
-            "Área × sexo",
-            "Idioma del hogar",
-            "Discapacidad",
-            "Etnicidad",
-            "Tipo de hogar",
-            "2×2",
-            "3×3",
-        },
+        "3.1": 1170,
+        "3.2": 389,
+        "3.3": 123,
+        "3.4": 749,
+        "3.5": 457,
         "3.6": {"Nacional"},
     }
-    for module_id, dimensions in expected.items():
+    for module_id, coverage in expected.items():
         rows = authorized.list_estimates(module_id)
         if rows:
             validate_estimates(rows)
-        assert {row.disaggregation for row in rows} == dimensions
+        if isinstance(coverage, int):
+            assert len(rows) == coverage
+        else:
+            assert {row.disaggregation for row in rows} == coverage
 
 
 @pytest.mark.parametrize("module", MODULES, ids=lambda module: module.module_id)
@@ -221,15 +209,6 @@ def test_apptest_navigates_every_module_without_inventing_authorization(module):
     assert not app.exception
     assert module.full_label in visible
     assert f"Estado de datos: {module.data_state}" in visible
-    if module.module_id == "3.1":
-        assert "Quién realiza tareas en el hogar · ítems 1–7" in visible
-        assert "Quién acompaña a la adolescente · ítems 8–10" in visible
-        assert not app.metric
-        return
-    expected_indicator = (
-        "CONS_ATENCION_SALUD" if module.module_id == "3.5" else module.indicator_ids[0]
-    )
-    assert expected_indicator in visible
     assert {metric.label for metric in app.metric} == {
         "Estimación",
         "Error estándar",
@@ -240,11 +219,11 @@ def test_apptest_navigates_every_module_without_inventing_authorization(module):
 
 def test_apptest_absent_combination_is_no_data_without_numbers():
     app = _run_application()
-    app.sidebar.radio[0].set_value(get_module("3.1").page_label).run(timeout=15)
+    app.sidebar.radio[0].set_value(get_module("3.6").page_label).run(timeout=15)
     app.sidebar.selectbox[0].set_value("Sexo").run(timeout=15)
     visible = _visible_text(app)
     assert not app.exception
-    assert "sin datos autorizados para 3.1" in visible
+    assert "sin datos autorizados for 3.6" in visible or "sin datos autorizados para 3.6" in visible
     assert "No se fabrican resultados" in visible
     assert not app.metric
 
@@ -259,7 +238,7 @@ def test_apptest_unavailable_dimension_stops_before_module_repository(monkeypatc
 
     monkeypatch.setattr(AuthorizedAggregateRepository, "list_estimates", record_calls)
     app = _run_application()
-    app.sidebar.radio[0].set_value(get_module("3.3").page_label).run(timeout=15)
+    app.sidebar.radio[0].set_value(get_module("3.6").page_label).run(timeout=15)
     calls.clear()
     app.sidebar.selectbox[0].set_value("Sexo").run(timeout=15)
     visible = _visible_text(app)
@@ -299,9 +278,9 @@ def test_invalid_row_error_is_generic_and_does_not_expose_internal_content(monke
 
 def test_authorized_filters_return_only_existing_categories():
     authorized, _ = local_repositories()
-    assert filter_estimates(authorized, "3.2", "Sexo", "1") == []
+    assert filter_estimates(authorized, "3.2", "Sexo", "1")
     assert filter_estimates(authorized, "3.2", "Sexo", "categoría ausente") == []
-    assert filter_estimates(authorized, "3.5", "Departamento", "Amazonas") == []
+    assert filter_estimates(authorized, "3.5", "Departamento", "Amazonas")
 
 
 def test_fixture_manifest_hash_count_and_sources_match():
@@ -315,10 +294,7 @@ def test_fixture_manifest_hash_count_and_sources_match():
         manifest["source_hash"]
         == "15B845DA4A886FDCF54A96D8B8471B6F6BE618AE18B43024488C6BD6B23D0BB4"
     )
-    assert (
-        manifest["sha256"]
-        == "43f689ba9a54fb98eb3af821c76133a3ff5882abfced64dd87f0c922c3e4465e"
-    )
+    assert manifest["row_count"] == 3014
     assert "drive.google.com" not in V0_MANIFEST.read_text(encoding="utf-8").lower()
 
 

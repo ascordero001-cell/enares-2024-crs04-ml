@@ -70,7 +70,7 @@ class IndicatorEstimate:
     cv: float | None
     n_unweighted: int | None
     weighted_population: float | None
-    cv_flag: bool
+    cv_flag: bool | None
     n_flag: bool
     suppress_flag: bool
     quality_note: str
@@ -120,6 +120,10 @@ def _bool(value: str) -> bool:
     return value.lower() == "true"
 
 
+def _optional_bool(value: str) -> bool | None:
+    return None if value == "" else _bool(value)
+
+
 class _VerifiedSourceClassification(Enum):
     SYNTHETIC_TEST = True
     AUTHORIZED_INSTITUTIONAL_AGGREGATE = False
@@ -158,7 +162,7 @@ def _to_estimate(
         cv=_optional_float(row["cv"]),
         n_unweighted=None if row["n_unweighted"] == "" else int(row["n_unweighted"]),
         weighted_population=_optional_float(row["weighted_population"]),
-        cv_flag=_bool(row["cv_flag"]),
+        cv_flag=_optional_bool(row["cv_flag"]),
         n_flag=_bool(row["n_flag"]),
         suppress_flag=_bool(row["suppress_flag"]),
         quality_note=row["quality_note"],

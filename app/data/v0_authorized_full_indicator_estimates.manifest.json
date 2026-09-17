@@ -1,0 +1,34 @@
+{
+  "file_name": "v0_authorized_full_indicator_estimates.csv",
+  "generated_at_utc": "2026-09-16T21:30:00Z",
+  "row_count": 3014,
+  "indicator_count": 516,
+  "schema_version": "stage04-v0-authorized-aggregate-v1",
+  "sha256": "9160c6b4c44dc3ce4d3fd7f94ff0df26fafe1acad99a2b0daee833a046778c35",
+  "synthetic": false,
+  "data_classification": "AUTHORIZED_AGGREGATE_ONLY",
+  "source_kind": "AUTHORIZED_V0_EXTRACT",
+  "source_hash": "15B845DA4A886FDCF54A96D8B8471B6F6BE618AE18B43024488C6BD6B23D0BB4",
+  "parent_sha256": "15B845DA4A886FDCF54A96D8B8471B6F6BE618AE18B43024488C6BD6B23D0BB4",
+  "dictionary_sha256": "F5FD6979A19EBC9F510C307705B1E7DE12556A8F5A81DDBC566E97347337BD2C",
+  "reconciliation_file": "v0_authorized_full_reconciliation_sha256.csv",
+  "reconciliation_sha256": "2b4c83410ece81d153f4f86f3e23018f588298c122bed5ee676e5bed9218a78e",
+  "source_version": "v0_official_drive_baseline",
+  "module_row_counts": {
+    "3.1": 1170,
+    "3.2": 389,
+    "3.3": 123,
+    "3.4": 749,
+    "3.5": 457,
+    "3.6": 126
+  },
+  "scope": {
+    "A": 2995,
+    "C": 4,
+    "D": 7,
+    "E": 8
+  },
+  "purpose": "PR B complete V0 local shadow authorized aggregate",
+  "prohibition": "no microdata / no cloud load / no institutional publication / no cutover",
+  "approval_reference": "Issue #43 supervisory scope decision and PR #100 acta adenda"
+}

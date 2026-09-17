@@ -40,9 +40,9 @@ def _visible_text(app: AppTest) -> str:
     )
 
 
-def test_local_repository_connects_only_the_closed_etapa1_counts():
+def test_local_repository_connects_the_complete_authorized_v0_counts():
     authorized, _ = local_repositories()
-    expected = {"3.1": 10, "3.2": 1, "3.3": 1, "3.4": 1, "3.5": 38, "3.6": 1}
+    expected = {"3.1": 1170, "3.2": 389, "3.3": 123, "3.4": 749, "3.5": 457, "3.6": 126}
     for module_id, count in expected.items():
         rows = authorized.list_estimates(module_id)
         validate_estimates(rows)
@@ -88,7 +88,7 @@ def test_d09_connects_domain_aliases_labels_and_visible_reference_cells():
     assert all("CONS_ALGUNA = 1" in row.universe for row in rows)
     assert d09_category_label("Idioma del hogar", "3") == "Quechua/Aymara"
     assert d09_category_label("Etnicidad", "6") == "No indígena ni afrodescendiente"
-    assert not filter_estimates(authorized, "3.5", "Departamento", "Amazonas")
+    assert filter_estimates(authorized, "3.5", "Departamento", "Amazonas")
 
 
 def test_apptest_renders_d01_as_two_groups_and_d11_one_by_one():
