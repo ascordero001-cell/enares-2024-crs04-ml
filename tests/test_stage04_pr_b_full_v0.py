@@ -6,6 +6,12 @@ import json
 from pathlib import Path
 
 from app.streamlit_app import local_repositories
+from enares.stage04.authorized_scopes import (
+    REFERENCE_SUFFIX,
+    VS_MATRIX_PAIRS,
+    VS_MATRIX_SOURCE_PAIRS,
+    normalize_vs_matrix_category,
+)
 from enares.stage04.repository import is_verified_authorized_estimate
 from enares.stage04.v0_catalog_registry import (
     DICTIONARY_SHA256,
@@ -111,3 +117,28 @@ def test_authorized_exception_treatments_are_complete() -> None:
         and row.disaggregation in {"2×2", "3×3"}
         for row in rows
     ) == 16
+
+
+def test_scope_e_is_exactly_eight_source_reference_marker_cases() -> None:
+    marked_source_pairs = {
+        (dimension, category)
+        for dimension, category in VS_MATRIX_SOURCE_PAIRS
+        if category.endswith(REFERENCE_SUFFIX)
+    }
+    assert len(marked_source_pairs) == 4
+    assert {dimension for dimension, _ in marked_source_pairs} == {"3×3"}
+
+    scope_e_cases = {
+        (indicator_id, dimension, category)
+        for indicator_id in ("Solap_VS_12M", "Solap_VS_VIDA")
+        for dimension, category in marked_source_pairs
+    }
+    assert len(scope_e_cases) == 8
+    assert {
+        indicator_id: sum(case[0] == indicator_id for case in scope_e_cases)
+        for indicator_id in ("Solap_VS_12M", "Solap_VS_VIDA")
+    } == {"Solap_VS_12M": 4, "Solap_VS_VIDA": 4}
+    assert {
+        (dimension, normalize_vs_matrix_category(category))
+        for dimension, category in VS_MATRIX_SOURCE_PAIRS
+    } == VS_MATRIX_PAIRS

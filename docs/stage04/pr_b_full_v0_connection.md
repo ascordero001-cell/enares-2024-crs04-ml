@@ -26,7 +26,10 @@ SHA-256 por fila; permite contrastar las 3014 filas sin versionar otra copia del
 - 2995 filas A: tarjeta/exportación agregada según contrato, con alertas visibles de CV y N.
 - 4 filas C: contexto visible, sin tarjeta, tabla numérica ni exportación; no se imputan SE, IC o CV.
 - 7 filas D: distribución `num_consecuencias_fisicas`; `Total` no se presenta como prevalencia.
-- 8 filas E: se elimina el texto manual `[referencial]`; la interfaz lo deriva de `cv_flag`.
+- 8 filas E: cuatro categorías fuente `3×3` con el texto manual `[referencial]`, presentes una vez
+  en `Solap_VS_12M` y una vez en `Solap_VS_VIDA` (4 × 2 = 8). No son las 16 filas totales de
+  ambas matrices ni el conteo de `cv_flag=true`. Se elimina el marcador de la identidad de la
+  categoría y la interfaz lo deriva exclusivamente de `cv_flag`.
 
 ## Recorrido manual representativo completado
 
