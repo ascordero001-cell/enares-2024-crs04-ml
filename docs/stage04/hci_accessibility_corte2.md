@@ -1,7 +1,7 @@
 # Evidencia HCI y accesibilidad — Corte 2
 
-Estado: `AUTOMATED_WCAG22_AA_IMPLEMENTED; MANUAL_REEVALUATION_AFTER_CLASS_A_PENDING`.
-Fecha de ejecución y renovación: 2026-09-11.
+Estado: `AUTOMATED_WCAG22_AA_IMPLEMENTED; FULL_CATALOG_MANUAL_REEVALUATION_PARTIAL`.
+Fecha de ejecución y renovación: 2026-09-17.
 
 ## Controles implementados
 
@@ -47,18 +47,25 @@ certificación WCAG ni una auditoría formal con lector de pantalla.
 - [Vista estrecha con selector abierto](evidence/sprint042_corte2_narrow_open.png)
 - [Resumen y métricas en vista estrecha](evidence/sprint042_corte2_narrow_summary.png)
 
-## Gate pendiente
+## Reevaluación después de conectar la clase A
 
 Los cinco escenarios y criterios de éxito están definidos en
 [`task_scenarios.md`](../hci/task_scenarios.md). La decisión supervisora del 2026-09-15 reemplazó
 la prueba con 3 a 5 participantes por tres métodos sin participantes externos: revisión manual de
-accesibilidad, evaluación heurística y recorrido cognitivo. Se ejecutarán después de conectar la
-clase A completa, porque la evidencia actual corresponde a una navegación de 52 filas.
+accesibilidad, evaluación heurística y recorrido cognitivo. La reevaluación comenzó después de
+conectar la clase A completa y distingue los controles ejecutados de los dos aún pendientes.
 
 La CI ejecuta Axe sobre las nueve vistas de navegación con las etiquetas WCAG 2 A/AA, 2.1 A/AA
 y 2.2 AA. El job falla si encuentra una infracción automática nueva. La primera ejecución detectó
 y corrigió el contraste de captions, encabezados tabulares, números en bloques de código y alertas
 de éxito, advertencia y error.
+
+La evaluación del catálogo completo está registrada en
+[`full_catalog_step51_evaluation.md`](../hci/full_catalog_step51_evaluation.md). Quedaron
+completos el recorrido por teclado, la inspección de nombres y roles, el contraste visual, las diez
+heurísticas y los cinco recorridos cognitivos. Permanecen pendientes una lectura con tecnología de
+asistencia real y el zoom verificable al 200 %; el árbol de accesibilidad no se usa como sustituto
+de un lector de pantalla.
 
 Permanece un único residual generado por Streamlit 1.63.0: el elemento raíz del sidebar recibe
 `aria-expanded=true` aunque ese atributo no está permitido para su rol. La prueba admite solo esa
@@ -67,8 +74,7 @@ residual se revisará al actualizar Streamlit y no se declara corregido. Esta co
 complementa, pero no reemplaza, la revisión manual ni las pruebas con tecnologías de asistencia y
 personas.
 
-La aprobación general del checkpoint de ingeniería no acredita la revisión manual final con
-teclado, lector de pantalla, contraste y zoom al 200 %, ni el recorrido cognitivo del catálogo
-completo. La ausencia de personas externas queda registrada como riesgo residual, no como evidencia
-simulada. Hasta completar esos tres métodos después de la ampliación, no se declara cerrado Sprint
-04.2.
+La aprobación general del checkpoint de ingeniería no acredita los dos controles manuales que aún
+faltan. La ausencia de personas externas queda registrada como riesgo residual, no como evidencia
+simulada. Hasta completar lector de pantalla y zoom verificable al 200 %, no se declara cerrado el
+paso 51 ni Sprint 04.2.
