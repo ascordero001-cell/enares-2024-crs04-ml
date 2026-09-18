@@ -12,7 +12,11 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from enares.stage04.c0_fixture import CATALOG_SIZE, build_synthetic_catalog
+from enares.stage04.c0_fixture import (
+    CATALOG_SIZE,
+    MODULE_THEMES,
+    build_synthetic_catalog,
+)
 from enares.stage04.catalog_navigation import CatalogLocator, filter_catalog
 
 
@@ -41,6 +45,10 @@ def _result_label(locator: CatalogLocator) -> str:
     )
 
 
+def _module_label(module_id: str) -> str:
+    return f"{module_id} · {MODULE_THEMES[module_id]}"
+
+
 def render() -> None:
     catalog = build_synthetic_catalog()
     st.set_page_config(page_title="C0 sintético", layout="wide")
@@ -48,12 +56,18 @@ def render() -> None:
     st.caption(f"{CATALOG_SIZE} indicadores sintéticos · sin cifras V0")
 
     modules = tuple(dict.fromkeys(row.module_id for row in catalog))
-    module_id = st.selectbox("Módulo", modules, key="c0_module")
+    module_id = st.selectbox(
+        "Módulo",
+        modules,
+        format_func=_module_label,
+        key="c0_module",
+    )
     dimensions = tuple(
         dict.fromkeys(row.dimension for row in catalog if row.module_id == module_id)
     )
     dimension = st.selectbox("Dimensión", dimensions, key="c0_dimension")
     query = st.text_input("Buscar indicador", key="c0_query")
+    st.info(f"Módulo activo: {_module_label(module_id)} · Dimensión: {dimension}")
 
     if not query.strip():
         st.info("Escriba los términos de la tarea congelada.")
@@ -152,7 +166,7 @@ def render() -> None:
         return
 
     st.info(
-        "Va a confirmar: "
+        f"Va a confirmar en {_module_label(module_id)} · {dimension}: "
         f"{selected.focus}; {selected.population}; {selected.period}; {selected.context}."
     )
 

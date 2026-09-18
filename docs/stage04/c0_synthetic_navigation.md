@@ -276,3 +276,31 @@ pero no sustituye el recorrido humano.
 
 **Estado C2:** `ARCHITECTURE_INSUFFICIENT; SUPERVISORY_REVIEW_REQUIRED`. PR B continúa detenido
 hasta el dictamen supervisor.
+
+## Investigación de causa de C2-07 posterior al `HOLD_AFTER_OUTPUTS`
+
+La revisión supervisora del 2026-09-18 aprobó la evidencia de carga B, decidió
+`HOLD_AFTER_OUTPUTS` y exigió investigar C2-07 antes de volver a solicitar una promoción
+autenticada.
+
+La reproducción distingue dos hechos:
+
+1. no existe fuga de candidatos entre módulos. `filter_catalog` descarta una fila antes de la
+   búsqueda cuando `row.module_id` no coincide con el módulo activo. Con los mismos atributos de
+   C2-07, el módulo 3.1 produce exclusivamente `SYN_C0_31_084` y el módulo 3.2 produce
+   exclusivamente `SYN_C0_32_084`;
+2. el primer intento humano seleccionó y confirmó 3.2. El identificador entregado fue coherente
+   con ese módulo. Por tanto, el fallo observado fue una selección operativa incorrecta y no una
+   clasificación cruzada del catálogo.
+
+Aunque no se confirmó un defecto de aislamiento, la interfaz facilitaba ese error: el selector
+mostraba solamente el número del módulo y el resumen previo a confirmar no repetía el módulo
+activo. Como control preventivo, el selector ahora presenta número y nombre completo, una señal
+persistente repite módulo y dimensión activos, y el resumen de confirmación vuelve a indicar ambos.
+La regresión específica de C2-07 prueba simultáneamente los resultados 3.1 y 3.2 y falla si un
+candidato cruza esa frontera.
+
+La repetición humana limpia de C2-07 permanece pendiente. Debe comenzar desde la pantalla inicial,
+usar el mismo prompt congelado, finalizar en menos de 90 segundos y no revelar el ID esperado ni
+dar ayuda externa. Hasta registrar ese recorrido, se conserva `HOLD_AFTER_OUTPUTS`: no se crean
+`published` ni `ops`, y Cloud Run real no se conecta.

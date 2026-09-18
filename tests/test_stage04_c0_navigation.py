@@ -251,6 +251,49 @@ def test_c2_seven_tasks_run_through_corrected_streamlit_navigation() -> None:
         assert passed
 
 
+def test_c2_07_module_boundary_and_confirmation_are_explicit() -> None:
+    catalog = build_synthetic_catalog()
+    case = next(item for item in C2_AUTOMATION_CASES if item.task_id == "C2-07")
+
+    correct = filter_catalog(
+        catalog,
+        module_id=case.module_id,
+        dimension=case.dimension,
+        query=case.query,
+        focus=case.focus,
+        population=case.population,
+        context=case.context,
+        period=case.period,
+    )
+    wrong_module = filter_catalog(
+        catalog,
+        module_id="3.2",
+        dimension=case.dimension,
+        query=case.query,
+        focus=case.focus,
+        population=case.population,
+        context=case.context,
+        period=case.period,
+    )
+
+    assert [row.indicator_id for row in correct] == ["SYN_C0_31_084"]
+    assert [row.indicator_id for row in wrong_module] == ["SYN_C0_32_084"]
+    assert all(row.module_id == "3.1" for row in correct)
+    assert all(row.module_id == "3.2" for row in wrong_module)
+
+    root = Path(__file__).resolve().parents[1]
+    app = AppTest.from_file(str(root / "app" / "c0_navigation_app.py")).run(
+        timeout=15
+    )
+    module = next(widget for widget in app.selectbox if widget.label == "Módulo")
+    module.set_value("3.1").run(timeout=15)
+    assert any(
+        "Módulo activo: 3.1 · Roles, cuidado y corresponsabilidad en el hogar"
+        in item.value
+        for item in app.info
+    )
+
+
 def test_semantic_facets_reduce_each_c3_task_to_its_target() -> None:
     catalog = build_synthetic_catalog()
     for case in C3_RETEST_AUTOMATION_CASES:
