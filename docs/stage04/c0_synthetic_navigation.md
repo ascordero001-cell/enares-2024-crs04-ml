@@ -276,3 +276,47 @@ pero no sustituye el recorrido humano.
 
 **Estado C2:** `ARCHITECTURE_INSUFFICIENT; SUPERVISORY_REVIEW_REQUIRED`. PR B continúa detenido
 hasta el dictamen supervisor.
+
+## Investigación de causa de C2-07 posterior al `HOLD_AFTER_OUTPUTS`
+
+La revisión supervisora del 2026-09-18 aprobó la evidencia de carga B, decidió
+`HOLD_AFTER_OUTPUTS` y exigió investigar C2-07 antes de volver a solicitar una promoción
+autenticada.
+
+La reproducción distingue dos hechos:
+
+1. no existe fuga de candidatos entre módulos. `filter_catalog` descarta una fila antes de la
+   búsqueda cuando `row.module_id` no coincide con el módulo activo. Con los mismos atributos de
+   C2-07, el módulo 3.1 produce exclusivamente `SYN_C0_31_084` y el módulo 3.2 produce
+   exclusivamente `SYN_C0_32_084`;
+2. el primer intento humano seleccionó y confirmó 3.2. El identificador entregado fue coherente
+   con ese módulo. Por tanto, el fallo observado fue una selección operativa incorrecta y no una
+   clasificación cruzada del catálogo.
+
+Aunque no se confirmó un defecto de aislamiento, la interfaz facilitaba ese error: el selector
+mostraba solamente el número del módulo y el resumen previo a confirmar no repetía el módulo
+activo. Como control preventivo, el selector ahora presenta número y nombre completo, una señal
+persistente repite módulo y dimensión activos, y el resumen de confirmación vuelve a indicar ambos.
+La regresión específica de C2-07 prueba simultáneamente los resultados 3.1 y 3.2 y falla si un
+candidato cruza esa frontera.
+
+### Repetición limpia de C2-07
+
+El primer recorrido posterior al endurecimiento localizó el objetivo correcto, pero se anuló
+porque el intervalo incluyó una pausa y no representa navegación continua:
+
+| Inicio UTC | Fin UTC | Segundos | Seleccionado | Esperado | PASS/FAIL | Ayuda | Observaciones |
+|---|---|---:|---|---|---|---|---|
+| 23:13:03,931 | 23:25:21,689 | 737,8 | `SYN_C0_31_084` | `SYN_C0_31_084` | ANULADO | Ninguna | Objetivo correcto; medición no continua y superior a 90 segundos. |
+
+Se abrió una sesión nueva en la pantalla inicial y el cronómetro comenzó únicamente después de
+que la persona confirmó que estaba lista. La repetición válida preservó el mismo prompt congelado:
+
+| Inicio UTC | Fin UTC | Segundos | Seleccionado | Esperado | PASS/FAIL | Ayuda | Observaciones |
+|---|---|---:|---|---|---|---|---|
+| 23:26:19,902 | 23:27:19,765 | 59,9 | `SYN_C0_31_084` | `SYN_C0_31_084` | PASS | Ninguna durante el recorrido | Módulo 3.1, dimensión departamental y objetivo exacto confirmados desde una sesión limpia. |
+
+**Resultado de la investigación:** C2-07 queda repetido limpiamente dentro del límite de 90
+segundos. La evidencia demuestra aislamiento de módulos y el control preventivo hace explícita la
+selección antes de confirmar. La promoción autenticada no se ejecuta por este resultado: se
+mantiene `HOLD_AFTER_OUTPUTS` hasta una nueva decisión supervisora explícita.
