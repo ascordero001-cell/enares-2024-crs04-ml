@@ -3,7 +3,7 @@
 - **Estado:** `LOCAL_SCOPE_IMPLEMENTED; CLOUD_NOT_EXECUTED; SPRINT042_OPEN`
 - **Alcance de ejecución actual:** `LOCAL_SHADOW_ONLY`
 - **GO de configuración:** `GO_FOR_STAGE7_CONTROLLED_SHADOW`
-- **Bloqueante de ejecución cloud:** verificación privada del proyecto y de la cuenta de billing
+- **Bloqueante de ejecución cloud:** decisión separada del paso 47; verificación privada completada
 - **Publicación institucional y cutover:** `NOT_AUTHORIZED`
 
 Esta matriz separa cuatro hechos que no son intercambiables: que exista trabajo local, que una
@@ -51,8 +51,8 @@ ejecutado.
   institucional; el campo `synthetic=false` nunca se acepta desde el CSV o el llamador.
 - `CV > 15 %` y `base_unw < 30` producen alertas visibles sin supresión. La granularidad nunca
   supera V0 y no se fabrican cruces.
-- El GO vigente permite preparar la configuración controlada, pero la Etapa 7 no empieza hasta
-  verificar en privado el proyecto y billing.
+- El proyecto, billing, alertas y roles supervisores ya fueron verificados privadamente. La
+  Etapa 7 no empieza hasta la decisión separada del paso 47 exigida en la revisión del PR #116.
 - La primera ejecución cloud debe proteger identidades y límites antes de desplegar el fixture
   sintético. Conectar cifras reales requiere la autorización separada del paso 47.
 - El extracto integral, su manifiesto y el ledger verifican 3014/3014 filas y 516/516 indicadores.

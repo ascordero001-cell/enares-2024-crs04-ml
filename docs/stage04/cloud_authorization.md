@@ -4,7 +4,7 @@
 
 **Aclaración operativa:** Ana, 2026-09-17
 
-**Estado:** `GO_FOR_STAGE7_CONTROLLED_SHADOW; BUDGET_AND_IAM_CONFIGURED; PRIVATE_VERIFICATION_PENDING`
+**Estado:** `GO_FOR_STAGE7_CONTROLLED_SHADOW; PRIVATE_VERIFICATION_COMPLETE; RESOURCE_CREATION_BLOCKED_BY_STEP47`
 **Alcance vigente:** `LOCAL_SHADOW_ONLY`
 
 | Campo | Estado verificable |
@@ -15,13 +15,13 @@
 | Proyecto | `enares-2024-crs04`; existencia y coincidencia verificadas privadamente |
 | Ubicaciones previstas | BigQuery `US`; Cloud Run `us-central1`; pendientes de verificación |
 | Billing | Responsable: Ana; vínculo efectivo verificado privadamente, sin publicar identificadores |
-| IAM | Los tres roles de lectura de Rita fueron aplicados y verificados por presencia; prueba efectiva privada pendiente |
+| IAM | Los tres roles de lectura de Rita fueron aplicados; presencia y acceso efectivo confirmados privadamente |
 | Recursos permitidos tras completar precondiciones | BigQuery candidato `outputs/published/ops`, Artifact Registry y Cloud Run Service |
 | Recursos ejecutados por este PR | Ninguno |
 | Datos autorizados | Catálogo V0 autorizado para implementación local; la conexión de cifras reales en cloud conserva el gate separado del paso 47 |
 | Acceso | `viewer_01` a `viewer_04` solo con `roles/run.invoker`; Ana propietaria/operadora; Rita supervisora de lectura; principales exactos solo por canal privado |
 | Parada | Política aprobada: Ana ejecuta y Rita supervisa; prueba efectiva solo después del GO |
-| Decisión técnica | GO controlado vigente; presupuesto, canal y roles configurados; verificación privada pendiente |
+| Decisión técnica | GO controlado vigente y verificación privada completa; la revisión del PR #116 mantiene la creación de recursos sujeta al paso 47 |
 
 Antes de cualquier primer despliegue deben verificarse identidades, roles, alertas USD 1/5/10/20,
 `maximum_bytes_billed` en cada consulta, cuota diaria
@@ -34,11 +34,16 @@ Este PR no ejecuta `gcloud`, no crea cuentas, bindings, datasets, buckets, imág
 La solicitud operativa de los pasos 40–41, con alcance mínimo, IAM propuesto, controles de coste,
 rollback y campos bloqueantes, está en [cloud_go_request.md](cloud_go_request.md). El GO del
 2026-09-14 continúa vigente. Proyecto, vínculo, presupuesto, umbrales, canal y bindings ya están
-configurados; antes de iniciar el paso 43 Rita debe confirmar privadamente recepción y lectura.
+configurados. Rita confirmó privadamente recepción y acceso efectivo en la
+[revisión del PR #116](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/116#pullrequestreview-5243890667).
+Esa misma revisión mantiene la creación de recursos, consultas, cargas y cifras reales sujeta a
+una decisión separada del paso 47; por tanto, el paso 43 no se ejecuta todavía.
 
 Véase [zero_spend_target_20260917.md](zero_spend_target_20260917.md).
 La configuración redactada está en
 [cloud_budget_verification_20260917.md](cloud_budget_verification_20260917.md).
+La decisión siguiente se solicita en
+[step47_cloud_execution_request.md](step47_cloud_execution_request.md).
 
 Rita no administra la cuenta ni puede detener el gasto directamente. Sus controles son
 `CODEOWNERS`, los gates de los pasos 47/53 y la visibilidad de ejecución y alertas. Antes de una
