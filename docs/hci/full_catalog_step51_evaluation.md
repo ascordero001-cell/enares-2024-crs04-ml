@@ -1,6 +1,6 @@
 # Paso 51 — evaluación manual del catálogo V0 completo
 
-Estado: `PARTIAL_COMPLETE; SCREEN_READER_AND_EXACT_200_PERCENT_ZOOM_PENDING`.
+Estado: `PARTIAL_COMPLETE; EXACT_200_PERCENT_ZOOM_PENDING`.
 Fecha UTC: 2026-09-17.
 Base evaluada: `main` en `45ad227792c4312281908c09c405b90ceb900a60`.
 Release local: `enares2024-crs04-v0-shadow-001`.
@@ -18,10 +18,10 @@ Se usaron tres métodos:
 2. evaluación de las diez heurísticas de Nielsen;
 3. recorrido cognitivo de los cinco escenarios de `task_scenarios.md`.
 
-La inspección del árbol de accesibilidad confirma nombres, roles y estados, pero **no se presenta
-como prueba con lector de pantalla**. El control exacto de zoom al 200 % tampoco quedó demostrado
-por el navegador de prueba: el atajo de ampliación no produjo un cambio de escala verificable. Esos
-dos controles permanecen pendientes y por ello el paso 51 no se declara cerrado.
+La inspección del árbol de accesibilidad confirma nombres, roles y estados. El 2026-09-17 se añadió
+una prueba real con Narrador de Windows: `Tab` anunció los controles de descarga y el modo de examen
+leyó el contenido estático. El control exacto de zoom al 200 % todavía no quedó demostrado por el
+navegador de prueba; por ello el paso 51 no se declara cerrado.
 
 ## Revisión manual de accesibilidad
 
@@ -32,11 +32,15 @@ dos controles permanecen pendientes y por ello el paso 51 no se declara cerrado.
 | Estados no dependientes del color | `Referencial — precisión limitada`, nota de CV, N no ponderado, `PUBLISHED: NOT_AUTHORIZED` y mensajes `sin datos` aparecen como texto | PASS |
 | Contraste manual | Texto principal, sidebar, controles y alertas se distinguen en la revisión visual; la CI conserva Axe WCAG 2.2 AA | PASS con respaldo automatizado |
 | Reflujo/zoom exacto al 200 % | El reflujo equivalente a media anchura (640 × 384 desde 1280 × 768) conservó el contenido sin solapamientos; el navegador de prueba no expuso una escala de zoom exacta verificable | REFLOW PASS; EXACT ZOOM PENDING |
-| Lector de pantalla real | No se ejecutó NVDA, Narrator, JAWS o equivalente | PENDING |
+| Lector de pantalla real | Narrador de Windows anunció los controles con `Tab`; con modo de examen activo leyó título, contenido y resultados | PASS |
 
 Hallazgo residual conocido: Streamlit 1.63.0 añade `aria-expanded` al elemento raíz del sidebar
 con un rol que no admite ese atributo. La excepción automática sigue limitada a esa combinación
 exacta y se mantiene como S2/`DEFER` hasta actualizar Streamlit.
+
+Narrador anuncia además «hay un vínculo» al alcanzar el enlace automático que Streamlit agrega a
+los encabezados. El encabezado y el contenido siguen siendo legibles y el vínculo no bloquea la
+navegación. Se registra como S1/`DEFER` hasta revisar una actualización de Streamlit.
 
 ## Evaluación heurística
 
@@ -69,10 +73,8 @@ controles manuales pendientes no se convierten artificialmente en evidencia.
 ## Decisión y pendientes
 
 La navegación funcional del catálogo completo, las diez heurísticas y los cinco recorridos quedan
-ejecutados sin S3/S4. El paso 51 permanece `PARTIAL_COMPLETE` hasta completar y registrar:
-
-1. lectura real con una tecnología de asistencia;
-2. zoom verificable al 200 % sin pérdida de contenido o función.
+ejecutados sin S3/S4. El paso 51 permanece `PARTIAL_COMPLETE` hasta completar y registrar el zoom
+verificable al 200 % sin pérdida de contenido o función.
 
 La ausencia de una persona nueva continúa como riesgo residual explícito. Esta evaluación no
 autoriza cloud, publicación institucional ni sustitución de V0.

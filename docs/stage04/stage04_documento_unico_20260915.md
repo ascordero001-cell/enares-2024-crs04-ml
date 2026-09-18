@@ -361,7 +361,7 @@ medicion de consumo e instancias espera a que exista Cloud Run.
 | # | Paso | Estado |
 |---|---|---|
 | 50 | Matriz de cobertura 3.1-3.6 en cuatro estados | CERRADO |
-| **51** | **REESCRITO** — ver texto abajo | PARCIAL: heuristicas y recorrido cerrados; lector de pantalla y zoom 200 % pendientes |
+| **51** | **REESCRITO** — ver texto abajo | PARCIAL: heuristicas, recorrido y Narrador cerrados; zoom 200 % pendiente |
 | 52 | URL registrada en README, About, PR y Release, con su advertencia de estado | BLOQUEADO: necesita que exista una URL |
 | 53 | **Paquete de cierre para revision final — decision de Rita** | PENDIENTE |
 
@@ -404,8 +404,8 @@ El plan rector nunca contemplo estas cuatro cosas. No llevan numero y no renumer
 
 ## Sin depender de nadie, desde ya
 
-1. **Paso 51:** completar lector de pantalla y zoom verificable al 200 %. Las heuristicas y los
-   cinco recorridos cognitivos del catalogo completo ya estan documentados.
+1. **Paso 51:** completar el zoom verificable al 200 %. Narrador, las heuristicas y los cinco
+   recorridos cognitivos del catalogo completo ya estan documentados.
 2. Mantener verde la auditoria automatica y la regresion integral mientras se resuelve el gate.
 
 ## Cuando quiera, en paralelo con lo anterior

@@ -43,8 +43,8 @@ hace fallar el job.
 
 ## Reevaluación sobre el catálogo completo
 
-1. **Revisión manual de accesibilidad:** teclado, nombres/roles, estados textuales y contraste
-   quedaron revisados. Faltan lector de pantalla real y zoom verificable al 200 %.
+1. **Revisión manual de accesibilidad:** teclado, nombres/roles, estados textuales, contraste y
+   lectura real con Narrador quedaron revisados. Falta el zoom verificable al 200 %.
 2. **Evaluación heurística:** las diez heurísticas quedaron repetidas sin S3/S4.
 3. **Recorrido cognitivo:** los cinco escenarios de [`task_scenarios.md`](task_scenarios.md)
    quedaron recorridos con resultado PASS.
