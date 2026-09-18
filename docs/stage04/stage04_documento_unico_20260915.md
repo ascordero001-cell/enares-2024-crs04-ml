@@ -15,7 +15,7 @@ la numeracion original. Sustituye a cualquier version parcial anterior de estas 
 
 | Indicador | Valor |
 |---|---|
-| Pasos del plan cerrados | 43 de 53 |
+| Pasos del plan cerrados | 44 de 53 |
 | Filas del agregado V0 conectadas en la aplicacion | 3.014 de 3.014 |
 | Recursos creados en Google Cloud | 0 |
 | Consultas ejecutadas en Google Cloud | 0 |
@@ -361,7 +361,7 @@ medicion de consumo e instancias espera a que exista Cloud Run.
 | # | Paso | Estado |
 |---|---|---|
 | 50 | Matriz de cobertura 3.1-3.6 en cuatro estados | CERRADO |
-| **51** | **REESCRITO** — ver texto abajo | PARCIAL: heuristicas, recorrido y Narrador cerrados; zoom 200 % pendiente |
+| **51** | **REESCRITO** — ver texto abajo | CERRADO: accesibilidad manual, heuristicas y recorrido cognitivo completos |
 | 52 | URL registrada en README, About, PR y Release, con su advertencia de estado | BLOQUEADO: necesita que exista una URL |
 | 53 | **Paquete de cierre para revision final — decision de Rita** | PENDIENTE |
 
@@ -404,22 +404,20 @@ El plan rector nunca contemplo estas cuatro cosas. No llevan numero y no renumer
 
 ## Sin depender de nadie, desde ya
 
-1. **Paso 51:** completar el zoom verificable al 200 %. Narrador, las heuristicas y los cinco
-   recorridos cognitivos del catalogo completo ya estan documentados.
-2. Mantener verde la auditoria automatica y la regresion integral mientras se resuelve el gate.
+1. Mantener verde la auditoria automatica y la regresion integral mientras se resuelve el gate.
 
 ## Cuando quiera, en paralelo con lo anterior
 
-3. **La secuencia de desbloqueo de la seccion J**, los seis puntos. En cuanto este el punto 6,
+2. **La secuencia de desbloqueo de la seccion J**, los seis puntos. En cuanto este el punto 6,
    Rita verifica y se levanta el gate.
 
 ## Solo con el gate levantado
 
-4. Pasos **43 a 49**, en ese orden.
+3. Pasos **43 a 49**, en ese orden.
 
 ## Al final
 
-5. Paso **52** y paso **53**.
+4. Paso **52** y paso **53**.
 
 ---
 

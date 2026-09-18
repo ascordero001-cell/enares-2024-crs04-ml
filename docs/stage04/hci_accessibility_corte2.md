@@ -1,6 +1,6 @@
 # Evidencia HCI y accesibilidad — Corte 2
 
-Estado: `AUTOMATED_WCAG22_AA_IMPLEMENTED; FULL_CATALOG_MANUAL_REEVALUATION_PARTIAL`.
+Estado: `AUTOMATED_WCAG22_AA_IMPLEMENTED; FULL_CATALOG_MANUAL_REEVALUATION_COMPLETE`.
 Fecha de ejecución y renovación: 2026-09-17.
 
 ## Controles implementados
@@ -64,8 +64,8 @@ La evaluación del catálogo completo está registrada en
 [`full_catalog_step51_evaluation.md`](../hci/full_catalog_step51_evaluation.md). Quedaron
 completos el recorrido por teclado, la inspección de nombres y roles, el contraste visual, las diez
 heurísticas y los cinco recorridos cognitivos. El 2026-09-17 Narrador de Windows anunció los
-controles y leyó el contenido estático mediante el modo de examen. Permanece pendiente únicamente
-el zoom verificable al 200 %.
+controles y leyó el contenido estático mediante el modo de examen. La revisión manual al 200 %
+confirmó que no se perdió contenido ni función.
 
 Permanece un único residual generado por Streamlit 1.63.0: el elemento raíz del sidebar recibe
 `aria-expanded=true` aunque ese atributo no está permitido para su rol. La prueba admite solo esa
@@ -74,6 +74,6 @@ residual se revisará al actualizar Streamlit y no se declara corregido. Esta co
 complementa, pero no reemplaza, la revisión manual ni las pruebas con tecnologías de asistencia y
 personas.
 
-La aprobación general del checkpoint de ingeniería no acredita el zoom exacto que aún falta. La
-ausencia de personas externas queda registrada como riesgo residual, no como evidencia simulada.
-Hasta completar el zoom verificable al 200 %, no se declara cerrado el paso 51 ni Sprint 04.2.
+Los controles manuales y automatizados exigidos por el paso 51 están completos, por lo que el paso
+queda cerrado. La ausencia de personas externas continúa registrada como riesgo residual, no como
+evidencia simulada. Este cierre HCI no cierra Sprint 04.2 ni autoriza cloud o publicación.
