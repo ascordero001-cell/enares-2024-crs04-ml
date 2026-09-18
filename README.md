@@ -16,9 +16,10 @@ poblacional basada únicamente en agregados validados.
 > `LOCAL_SHADOW_ONLY`. El vínculo de facturación y el presupuesto conservador equivalente a menos
 > de USD 20 fueron configurados; el gasto objetivo es USD 0. El canal de alertas y los tres roles
 > de lectura de Rita también están configurados y verificados privadamente. La infraestructura
-> sintética aislada de la Decisión A está desplegada y cerrada con PASS supervisor. Los bloqueantes
-> metodológicos de la Decisión B fueron resueltos; su ejecución con cifras reales todavía requiere
-> un GO explícito. No se autoriza publicación ni cutover.
+> sintética aislada de la Decisión A está desplegada y cerrada con PASS supervisor. La Decisión B
+> cargó y reconcilió 3.014/3.014 filas V0 en `outputs` aislado. `published` y `ops` siguen vacíos y
+> Cloud Run continúa sintético hasta un gate posterior de promoción. No se autoriza publicación ni
+> cutover.
 
 ![Demostración sintética de estados candidato, referencia y suprimido](docs/stage04/evidence/sprint042_corte2_states.png)
 
