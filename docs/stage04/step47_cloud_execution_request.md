@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-09-18 UTC
 
-**Estado:** `DECISION_A_CLOSED; DECISION_B_READY_FOR_EXPLICIT_EXECUTION_GO`
+**Estado:** `DECISION_B_LOAD_AND_RECONCILIATION_PASS; PROMOTION_NOT_EXECUTED`
 
 ## Antecedentes verificados
 
@@ -11,7 +11,7 @@
 - El presupuesto de PEN 67, sus cuatro umbrales y el canal supervisor están configurados.
 - Rita confirmó privadamente recepción del canal y acceso efectivo con `run.viewer`,
   `logging.viewer` y `monitoring.viewer` en la revisión aprobatoria del PR #116.
-- Las 3.014 filas V0 están conectadas y verificadas localmente; no se han cargado en cloud.
+- Las 3.014 filas V0 fueron cargadas en `outputs` aislado y reconciliadas 3.014/3.014.
 - Antes de la decisión no existían recursos de Stage 04 ni consultas cloud. La Decisión A fue
   aprobada posteriormente y se ejecutó con recursos aislados y sin cifras reales.
 
@@ -52,5 +52,6 @@ por manifiesto y SHA-256. No se cargarán microdatos ni se fabricarán cortes o 
 - La decisión supervisora del 2026-09-18 resolvió `VF_ESCUELA`, la política universal de alertas
   sin supresión y el antiguo HOLD de D06/D07. Ya no existe un bloqueante metodológico de
   confidencialidad para B.
-- La ejecución de B permanece separada y requiere una instrucción explícita antes de cualquier
-  carga o consulta cloud.
+- `APPROVE_B_REAL_V0_CLOUD_EXECUTION`: aprobada en el PR #120 y ejecutada hasta carga y
+  reconciliación.
+- La promoción a `published`, escritura en `ops` y conexión real de Cloud Run no fueron ejecutadas.
