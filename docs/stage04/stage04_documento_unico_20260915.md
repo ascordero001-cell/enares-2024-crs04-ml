@@ -188,9 +188,9 @@ de la capa gratuita. Los presupuestos de Cloud Billing son alertas, no topes aut
 | 1 | Confirmar la cuenta de facturacion activa, con medio de pago y medios de recuperacion | CERRADO privadamente por Ana |
 | 2 | Comprobar si existe el proyecto `enares-2024-crs04`; anotar ID y numero solo en el registro privado | CERRADO privadamente por Ana |
 | 3 | Vincular el proyecto a la cuenta de facturacion | CERRADO; vinculo verificado |
-| 4 | Configurar presupuesto equivalente a menos de USD 20 y alertas en USD 1, 5, 10 y 20; gasto objetivo USD 0 | PARCIAL: PEN 67 y cuatro umbrales configurados; notificacion especifica de Rita pendiente |
-| 5 | Conceder a Rita `roles/run.viewer`, `roles/logging.viewer` y `roles/monitoring.viewer` | PENDIENTE |
-| 6 | Confirmar a Rita, por canal privado, ID y numero de proyecto, vinculo efectivo y recepcion de una alerta de prueba | PENDIENTE |
+| 4 | Configurar presupuesto equivalente a menos de USD 20 y alertas en USD 1, 5, 10 y 20; gasto objetivo USD 0 | CONFIGURADO: PEN 67, cuatro umbrales y canal de Rita |
+| 5 | Conceder a Rita `roles/run.viewer`, `roles/logging.viewer` y `roles/monitoring.viewer` | CONFIGURADO; presencia de los tres bindings verificada |
+| 6 | Confirmar a Rita, por canal privado, ID y numero de proyecto, vinculo efectivo y recepcion de una alerta de prueba | PENDIENTE DE CONFIRMACION DE RITA |
 
 La verificacion de Rita consiste en recibir esa confirmacion y comprobar que sus roles funcionan.
 Completar esa secuencia levanta el gate y permite iniciar el paso 43.
@@ -335,7 +335,7 @@ es negociable: nada se despliega antes de que los controles estén puestos.
 | # | Paso | Estado |
 |---|---|---|
 | 43 | Configuracion base, sin datos | BLOQUEADO hasta completar la secuencia de desbloqueo |
-| 44 | Billing y limites en funcionamiento | PRESUPUESTO Y UMBRALES CONFIGURADOS; verificacion de notificacion de Rita pendiente |
+| 44 | Billing y limites en funcionamiento | PRESUPUESTO, UMBRALES Y CANAL CONFIGURADOS; confirmacion de Rita pendiente |
 | 45 | Identidades y acceso, antes de desplegar nada | BLOQUEADO. La composicion esta en la seccion J |
 | 46 | Verificacion con datos sinteticos; URL en estado DEMO | BLOQUEADO |
 | 47 | **Autorizacion para conectar cifras reales — decision de Rita** | BLOQUEADO |

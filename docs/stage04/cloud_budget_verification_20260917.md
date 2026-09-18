@@ -2,7 +2,7 @@
 
 **Proyecto:** `enares-2024-crs04`
 
-**Estado:** `BUDGET_CONFIGURED; RITA_NOTIFICATION_PENDING`
+**Estado:** `BUDGET_AND_NOTIFICATION_CONFIGURED; PRIVATE_RECEIPT_PENDING`
 
 **Gasto objetivo:** USD 0
 
@@ -35,13 +35,14 @@ Referencia oficial del tipo de cambio: [BCRP, serie diaria interbancaria de vent
 - moneda: PEN;
 - umbrales de gasto real: 5 %, 25 %, 50 % y 100 %;
 - destinatarios IAM predeterminados: habilitados;
+- canal específico de la supervisora: creado y vinculado al presupuesto;
 - identificadores de billing, presupuesto y proyecto: conservados solo en el registro privado.
 
 ## Pendiente
 
-La recepción específica de Rita continúa pendiente porque su principal de Google o canal de
-notificación exacto no se publica ni se infiere. También permanecen pendientes sus tres bindings
-de lectura. No se inicia el paso 43 hasta completar esos controles y la confirmación privada.
+La recepción específica de Rita y el funcionamiento efectivo de sus roles continúan pendientes de
+confirmación privada. El principal y el identificador del canal no se publican. No se inicia el
+paso 43 hasta recibir esa confirmación.
 
 Un presupuesto de Cloud Billing genera alertas, no un corte automático. La configuración busca
 terminar con gasto USD 0; cualquier gasto inesperado activa la parada descrita en el runbook.
