@@ -3,13 +3,14 @@
 **Presupuesto máximo autorizado:** USD 20/mes; gasto objetivo USD 0.
 **Propietaria y operadora designada:** Ana; titular de la cuenta de facturación.
 **Supervisora:** Rita; roles de lectura y alertas, sin administración de billing.
-**Estado operativo:** `GO_FOR_STAGE7_CONTROLLED_SHADOW; PRIVATE_VERIFICATION_COMPLETE; RESOURCE_CREATION_BLOCKED_BY_STEP47`.
+**Estado operativo:** `SYNTHETIC_INFRA_A_EXECUTED; SUPERVISORY_VERIFICATION_PENDING; DECISION_B_BLOCKED`.
 
 El [acta supervisora D01–D12](acta_decision_d01_d12_20260913.md) confirma que el presupuesto no
 autoriza conexión cloud, publicación ni cutover. Proyecto y vínculo de billing ya fueron
 verificados privadamente. Rita confirmó recepción del canal y funcionamiento efectivo de sus tres
-roles de lectura. Los bindings de invocación de las otras identidades continúan sin ejecutar
-porque todavía no existe el servicio.
+roles de lectura. El servicio sintético existe y concede invocación únicamente a dos principales
+verificados; los cuatro principales de reserva continúan pendientes y se conservan fuera del
+repositorio.
 
 El margen de contingencia de USD 20/mes continúa vigente. La aclaración del 2026-09-17 fija USD 0
 como objetivo de gasto, no como bloqueo absoluto. El vínculo de billing fue verificado
@@ -18,21 +19,19 @@ privadamente; no configura IAM ni modifica la autorización local del catálogo 
 La decisión vigente se registra en
 [zero_spend_target_20260917.md](zero_spend_target_20260917.md). Como las alertas de Cloud Billing
 no constituyen un tope automático, se mantienen los límites técnicos y la parada temprana.
-Los elementos siguientes permanecen `BLOCKED_BY_CLOUD_GATE` hasta completar verificación:
+Los elementos siguientes permanecen `BLOCKED_BY_CLOUD_GATE`:
 
-- comandos mutantes de `gcloud` y habilitación de APIs;
-- creación o modificación de BigQuery y ejecución de DDL;
-- buckets y Artifact Registry;
-- Cloud Run, GKE, Airflow y Agent Platform;
-- cuentas de servicio, configuración de alertas/límites y bindings IAM;
+- tablas, vistas, cargas, consultas o DDL con cifras V0 reales;
+- una segunda imagen viva o recursos fuera del conjunto mínimo aprobado;
+- buckets, GKE, Airflow y Agent Platform;
+- acceso anónimo o bindings adicionales sin principal privado verificado;
 - autenticación de `BigQueryRepository`;
 - carga CSV–BigQuery y cualquier afirmación de paridad cloud;
-- despliegue, URL pública, publicación institucional o cutover.
+- URL pública, publicación institucional o cutover.
 
-Alcance vigente: `LOCAL_SHADOW_ONLY`; presupuesto, umbrales, canal y roles de lectura configurados
-y verificados privadamente. La revisión aprobatoria del PR #116 mantuvo la creación de recursos,
-consultas, cargas y cifras reales bloqueada hasta la decisión separada del paso 47. No publicar, no hacer
-cutover y no sustituir V0. Los contratos
+Alcance vigente: `CONTROLLED_SHADOW; SYNTHETIC_ONLY`. La Decisión A permitió la infraestructura
+aislada y el fixture sintético; la Decisión B para cifras reales no está aprobada. No publicar, no
+hacer cutover y no sustituir V0. Los contratos
 describen destinos futuros, pero no crean recursos ni conceden autorización de publicación. Véase
 [cloud_authorization.md](cloud_authorization.md) y
 [cloud_budget_verification_20260917.md](cloud_budget_verification_20260917.md).

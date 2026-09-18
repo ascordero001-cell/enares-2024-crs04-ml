@@ -4,7 +4,7 @@
 
 **Estado de esta solicitud:** `APPROVED_2026-09-14`
 
-**Estado operativo vigente:** `GO_FOR_STAGE7_CONTROLLED_SHADOW; PRIVATE_VERIFICATION_COMPLETE; RESOURCE_CREATION_BLOCKED_BY_STEP47`
+**Estado operativo vigente:** `SYNTHETIC_INFRA_A_EXECUTED; SUPERVISORY_VERIFICATION_PENDING; DECISION_B_BLOCKED`
 
 Esta solicitud no habilita por sí sola servicios, billing ni IAM. El GO permite iniciar la Etapa 7
 controlada cuando presupuesto, alertas e IAM estén configurados en el orden aprobado. No autoriza
@@ -79,8 +79,8 @@ en privado los principales exactos y obtener GO.
 
 | Principal | Alcance mínimo propuesto | Estado |
 |---|---|---|
-| Desplegadora (Ana; principal exacto privado) | `roles/run.developer` sobre Cloud Run, `roles/artifactregistry.writer` sobre el repositorio y `roles/iam.serviceAccountUser` sobre la identidad de ejecución | `PENDING_GO` |
-| Identidad de ejecución de la app | `roles/bigquery.jobUser` en el proyecto y `roles/bigquery.dataViewer` solo sobre `published` | `PENDING_CREATION_AND_GO` |
+| Desplegadora (Ana; principal exacto privado) | permisos efectivos mínimos para desplegar la imagen y actuar como la identidad de ejecución | `EXECUTED_PRIVATE` |
+| Identidad de ejecución de la app | `roles/bigquery.jobUser` en el proyecto y lectura solo sobre el `published` aislado | `EXECUTED; NO_KEYS` |
 | Revisora (Rita; principal exacto privado) | `roles/run.viewer`, `roles/logging.viewer` y `roles/monitoring.viewer` sobre el proyecto; sin propiedad ni administración de billing | `APPROVED_FOR_STAGE7_CONFIGURATION` |
 | Personas usuarias | Ana, Rita y las etiquetas privadas `viewer_01`–`viewer_04`; las seis reciben solo `roles/run.invoker` para invocación autenticada. Los principales exactos se mantienen en el registro privado | `COMPOSITION_APPROVED; PRINCIPALS_PRIVATE` |
 
@@ -122,8 +122,9 @@ Referencias oficiales:
 
 El vínculo, el proyecto, el presupuesto, sus cuatro umbrales, el canal y los tres roles de Rita ya
 fueron configurados y verificados privadamente. Las identidades exactas nunca se incorporan al
-repositorio. La revisión aprobatoria del PR #116 mantuvo la creación de recursos, consultas,
-cargas y cifras reales sujeta a la decisión separada del paso 47.
+repositorio. La Decisión A posterior fue aprobada en el PR #117 y ejecutada exclusivamente con
+infraestructura sintética aislada. Las consultas, cargas y cifras reales continúan sujetas a la
+Decisión B separada del paso 47.
 
 ## 7. Decisión registrada
 
@@ -132,6 +133,7 @@ Rita registró `GO_FOR_STAGE7_CONTROLLED_SHADOW` el 2026-09-14. El GO no inicia 
 2026-09-17 mantiene USD 20 como techo máximo y USD 0 como gasto objetivo. La titularidad de Ana
 corrige la propuesta histórica de administración compartida sin borrar esa evidencia.
 
+La Decisión A fue ejecutada con imagen sintética, autenticación obligatoria y datasets vacíos.
 Incluso con `GO_FOR_STAGE7_CONTROLLED_SHADOW`, el estado de publicación seguirá siendo
 `NOT_AUTHORIZED`. Cada creación, binding y despliegue deberá quedar registrado con fecha UTC,
 actor, recurso, configuración, coste observado y rollback.

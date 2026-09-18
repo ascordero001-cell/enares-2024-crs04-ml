@@ -15,17 +15,18 @@ la numeracion original. Sustituye a cualquier version parcial anterior de estas 
 
 | Indicador | Valor |
 |---|---|
-| Pasos del plan cerrados | 45 de 53 |
+| Pasos del plan cerrados | 46 de 53 |
 | Filas del agregado V0 conectadas en la aplicacion | 3.014 de 3.014 |
-| Recursos creados en Google Cloud | 0 |
+| Recursos creados en Google Cloud | 6 recursos aislados de la Decisión A |
 | Consultas ejecutadas en Google Cloud | 0 |
-| Gasto acumulado | USD 0 |
+| Gasto acumulado | Pendiente de latencia de facturacion; ninguna alerta recibida |
 
-**Ana termino los pasos 1 a 42, incluido el paso 36, y no puede entrar al 43.** Tambien esta
-cerrado el paso 50, que se adelanto.
+**Ana termino los pasos 1 a 44, incluido el paso 36.** Tambien esta cerrado el paso 50, que se
+adelanto. Los pasos 45, 46 y 48 tienen evidencia tecnica parcial o completa, pero esperan la
+verificacion supervisora indicada en la tabla de Etapa 7.
 
-Lo que separa el estado actual de la Etapa 7 es una sola cosa, y no ocurre en GitHub: que exista
-el proyecto de Google Cloud vinculado a una cuenta de facturacion. Esta detallado en la seccion J.
+La infraestructura sintetica aislada de la Decision A ya fue ejecutada. La Decision B para
+conectar cifras reales y los pasos que dependen de ella continúan bloqueados.
 
 ---
 
@@ -193,9 +194,9 @@ de la capa gratuita. Los presupuestos de Cloud Billing son alertas, no topes aut
 | 6 | Confirmar a Rita, por canal privado, ID y numero de proyecto, vinculo efectivo y recepcion de una alerta de prueba | CERRADO; confirmacion privada registrada en la revision del PR #116 |
 
 La verificacion de Rita consiste en recibir esa confirmacion y comprobar que sus roles funcionan.
-Rita la confirmo en la revision aprobatoria del PR #116. Esa misma revision mantuvo la creacion de
-recursos, consultas, cargas y cifras reales sujeta a la decision separada del paso 47; por tanto,
-el paso 43 continua sin ejecutar.
+Rita la confirmo en la revision aprobatoria del PR #116. La Decision A posterior autorizo y ya
+ejecuto los recursos sinteticos aislados de los pasos 43 a 46. La Decision B para consultas,
+cargas y cifras reales continúa sujeta a una aprobación separada del paso 47.
 
 ### Composicion de los seis accesos
 
@@ -331,19 +332,19 @@ conectar cifras reales en cloud, publicar o hacer cutover.
 
 ## Etapa 7 — configurar, verificar y solo entonces conectar
 
-Presupuesto, alertas y los roles supervisores ya fueron verificados. La revision aprobatoria del
-PR #116 mantuvo la creacion de recursos, consultas, cargas y cifras reales sujeta a la decision
-separada del paso 47. El orden no es negociable: no se ejecuta el paso 43 ni se despliega antes de
-esa decision.
+Presupuesto, alertas y los roles supervisores ya fueron verificados. La Decision A fue aprobada
+en el PR #117 y ejecutada con datasets exclusivos de Stage 04 shadow conforme a la decision
+`ISOLATE_STAGE04_DATASETS`. La Decision B para consultas, cargas y cifras reales continúa sujeta
+a una aprobación separada del paso 47.
 
 | # | Paso | Estado |
 |---|---|---|
-| 43 | Configuracion base, sin datos | BLOQUEADO por la decision separada del paso 47; no ejecutado |
+| 43 | Configuracion base, sin datos | CERRADO; tres datasets aislados vacios, identidad sin llaves y repositorio inmutable |
 | 44 | Billing y limites en funcionamiento | CERRADO; presupuesto, umbrales, canal y recepcion verificados |
-| 45 | Identidades y acceso, antes de desplegar nada | PARCIAL: roles supervisores verificados; invocadores e identidad de ejecucion esperan recursos autorizados |
-| 46 | Verificacion con datos sinteticos; URL en estado DEMO | BLOQUEADO |
+| 45 | Identidades y acceso, antes de desplegar nada | PARCIAL: identidad de ejecucion y dos invocadores configurados; cuatro reservas pendientes |
+| 46 | Verificacion con datos sinteticos; URL en estado DEMO | PASS TECNICO; espera verificacion supervisora |
 | 47 | **Autorizacion para conectar cifras reales — decision de Rita** | BLOQUEADO |
-| **48** | **REESCRITO** — ver texto abajo | BLOQUEADO en su mitad cloud; la otra mitad se adelanta |
+| **48** | **REESCRITO** — ver texto abajo | PASS TECNICO cloud: 6/6 sesiones, maximo una instancia; espera verificacion supervisora |
 | 49 | Corrida de evidencia: promocion y rollback reales con paridad | BLOQUEADO |
 
 ### Paso 48 reescrito
