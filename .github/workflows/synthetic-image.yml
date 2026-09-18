@@ -1,0 +1,92 @@
+name: Synthetic cloud image
+
+on:
+  pull_request:
+    paths:
+      - Dockerfile.synthetic
+      - requirements-runtime.txt
+      - app/c0_navigation_app.py
+      - app/synthetic_stage04_init.py
+      - src/enares/stage04/catalog_navigation.py
+      - src/enares/stage04/c0_fixture.py
+      - scripts/container_healthcheck.py
+      - scripts/synthetic_release_diagnostic.py
+      - .github/workflows/synthetic-image.yml
+  push:
+    branches: [main]
+    paths:
+      - Dockerfile.synthetic
+      - requirements-runtime.txt
+      - app/c0_navigation_app.py
+      - app/synthetic_stage04_init.py
+      - src/enares/stage04/catalog_navigation.py
+      - src/enares/stage04/c0_fixture.py
+      - scripts/container_healthcheck.py
+      - scripts/synthetic_release_diagnostic.py
+      - .github/workflows/synthetic-image.yml
+
+permissions:
+  contents: read
+
+jobs:
+  build-smoke-export:
+    name: Build, smoke and export synthetic image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Build synthetic-only image
+        run: docker build --file Dockerfile.synthetic --tag enares-stage04-synthetic:${GITHUB_SHA} .
+
+      - name: Prove excluded institutional payloads
+        run: |
+          docker run --rm enares-stage04-synthetic:${GITHUB_SHA} sh -eu -c '
+            test ! -e /app/app/data
+            test ! -e /app/docs
+            test ! -e /app/src/enares/stage04/authorized_extract.py
+            test ! -e /app/src/enares/stage04/repository.py
+          '
+
+      - name: Confirm pinned Streamlit and synthetic diagnostic
+        run: |
+          docker run --rm enares-stage04-synthetic:${GITHUB_SHA} \
+            python -c "import streamlit; assert streamlit.__version__ == '1.63.0'"
+          docker run --rm enares-stage04-synthetic:${GITHUB_SHA} \
+            python scripts/synthetic_release_diagnostic.py
+
+      - name: Start synthetic application
+        run: >-
+          docker run --detach --name enares-stage04-synthetic-ci --publish 8080:8080
+          enares-stage04-synthetic:${GITHUB_SHA}
+
+      - name: Verify health and application response
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8080/_stcore/health | grep --quiet '^ok$'; then
+              curl --fail --silent --show-error http://127.0.0.1:8080/ > /dev/null
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs enares-stage04-synthetic-ci
+          exit 1
+
+      - name: Export image archive for controlled deployment
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: docker save enares-stage04-synthetic:${GITHUB_SHA} | gzip -1 > enares-stage04-synthetic.tar.gz
+
+      - name: Upload short-lived image archive
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: enares-stage04-synthetic-${{ github.sha }}
+          path: enares-stage04-synthetic.tar.gz
+          retention-days: 1
+          if-no-files-found: error
+
+      - name: Stop synthetic application
+        if: always()
+        run: docker rm --force enares-stage04-synthetic-ci || true
