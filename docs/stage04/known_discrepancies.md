@@ -1,7 +1,22 @@
 # Discrepancias conocidas del corte vertical 3.2
 
-**Estado vigente al 2026-09-15:** las 3.014 filas V0 están autorizadas para implementación local
-shadow, 52 están conectadas y ninguna está autorizada para conexión cloud o publicación.
+**Estado vigente al 2026-09-18:** las 3.014 filas V0 están conectadas y reconciliadas en alcance
+local shadow. La Decisión A cloud está cerrada; la carga o consulta de cifras reales espera una
+autorización de ejecución explícita de la Decisión B. La publicación y el cutover no están
+autorizados.
+
+## Actualización supervisora 2026-09-18 — VF_ESCUELA y D06/D07
+
+La [decisión supervisora del Issue #43](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/43#issuecomment-5735315006)
+resuelve como correcta la definición de `VF_ESCUELA` con diez ítems. La diferencia histórica
+«10 frente a 7» queda `RESOLVED_APPROVED_10_ITEMS` y no bloquea ese indicador.
+
+La misma decisión confirma que `CV > 15 %` y `base_unw < 30` son alertas visibles sin supresión
+para todo el catálogo, incluidas las matrices fijas D06 `Solap_VS_12M` y D07 `Solap_VS_VIDA`.
+Sus cifras reales quedan autorizadas bajo las mismas reglas del resto de V0; no fabrican cruces
+dinámicos ni una granularidad nueva. El antiguo HOLD de «estructura sí, cifras no» queda
+`RESOLVED`. Esto elimina el bloqueante de confidencialidad de la Decisión B, pero no sustituye la
+autorización explícita requerida antes de ejecutar cargas o consultas cloud.
 
 ## Actualización 2026-09-13 — dominio D09
 

@@ -4,7 +4,7 @@
 
 **Aclaración operativa:** Ana, 2026-09-17
 
-**Estado:** `SYNTHETIC_INFRA_A_EXECUTED; SUPERVISORY_VERIFICATION_PENDING; DECISION_B_BLOCKED`
+**Estado:** `DECISION_A_CLOSED_PASS; DECISION_B_READY_FOR_EXPLICIT_EXECUTION_GO`
 **Alcance vigente:** `CONTROLLED_SHADOW; SYNTHETIC_ONLY`
 
 | Campo | Estado verificable |
@@ -20,7 +20,7 @@
 | Datos autorizados | Catálogo V0 autorizado para implementación local; la conexión de cifras reales en cloud conserva el gate separado del paso 47 |
 | Acceso | `viewer_01` a `viewer_04` solo con `roles/run.invoker`; Ana propietaria/operadora; Rita supervisora de lectura; principales exactos solo por canal privado |
 | Parada | Política aprobada: Ana ejecuta y Rita supervisa; prueba efectiva solo después del GO |
-| Decisión técnica | `APPROVE_A_SYNTHETIC_INFRA_ONLY` ejecutada; Decisión B para cifras reales continúa bloqueada |
+| Decisión técnica | Decisión A cerrada con `PASS_SUPERVISOR`; bloqueantes metodológicos de B resueltos; ejecución real pendiente de GO explícito |
 
 Antes de cualquier primer despliegue deben verificarse identidades, roles, alertas USD 1/5/10/20,
 `maximum_bytes_billed` en cada consulta, cuota diaria
@@ -37,8 +37,9 @@ configurados. Rita confirmó privadamente recepción y acceso efectivo en la
 [revisión del PR #116](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/116#pullrequestreview-5243890667).
 La Decisión A fue aprobada en el PR #117 y la variante aislada de datasets fue aprobada en el
 [Issue #43](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/43#issuecomment-5724979721).
-El paso 43 fue ejecutado sin datos reales. La Decisión B para conectar las 3.014 filas V0 continúa
-bloqueada y requiere aprobación explícita posterior.
+El paso 43 fue ejecutado sin datos reales. La decisión supervisora del 2026-09-18 resolvió
+`VF_ESCUELA`, las alertas universales sin supresión y el HOLD de D06/D07. La Decisión B está lista
+para decisión, pero requiere un GO explícito antes de conectar las 3.014 filas V0 en cloud.
 
 Véase [zero_spend_target_20260917.md](zero_spend_target_20260917.md).
 La configuración redactada está en

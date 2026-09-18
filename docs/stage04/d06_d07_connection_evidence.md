@@ -1,10 +1,10 @@
 # Evidencia de conexión D06 y D07
 
 - Fecha: 2026-09-14 UTC
-- Estado: `IMPLEMENTED; SUPERVISORY_REVIEW_PENDING`
+- Estado: `CONNECTED_APPROVED_LOCAL_SHADOW; CLOUD_EXECUTION_GO_PENDING`
 - Fuente: agregado V0 aprobado por SHA-256
 - Alcance: `LOCAL_SHADOW_ONLY`
-- Cloud: `NOT_AUTHORIZED`
+- Cloud: cifras elegibles para Decisión B; carga y consulta aún no ejecutadas
 
 La conexión contiene exactamente dos matrices independientes de ocho filas: `Solap_VS_12M`
 (D06) y `Solap_VS_VIDA` (D07). Cada una conserva los dos pares dirigidos 2×2 y los seis pares
@@ -27,6 +27,10 @@ categorías; nunca combina filas de universos distintos.
 
 El extracto puede rederivarse byte por byte desde el agregado privado aprobado. El repositorio no
 incluye microdatos, rutas personales, IDs de Drive, enlaces públicos ni credenciales.
+
+La decisión supervisora del 2026-09-18 retiró el HOLD de confidencialidad: estas matrices fijas se
+tratan como el resto del catálogo, con alertas CV/N visibles y sin supresión. Esta autorización de
+cifras no ejecuta por sí sola la Decisión B cloud.
 
 ## Artefacto conectado
 

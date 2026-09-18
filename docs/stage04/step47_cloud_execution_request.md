@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-09-18 UTC
 
-**Estado:** `DECISION_A_EXECUTED; DECISION_B_BLOCKED`
+**Estado:** `DECISION_A_CLOSED; DECISION_B_READY_FOR_EXPLICIT_EXECUTION_GO`
 
 ## Antecedentes verificados
 
@@ -49,4 +49,8 @@ por manifiesto y SHA-256. No se cargarán microdatos ni se fabricarán cortes o 
 
 - `APPROVE_A_SYNTHETIC_INFRA_ONLY`: aprobada y ejecutada.
 - `ISOLATE_STAGE04_DATASETS`: aprobada; los datasets preexistentes permanecieron intactos.
-- La decisión B permanece separada, bloqueada y requiere una aprobación posterior explícita.
+- La decisión supervisora del 2026-09-18 resolvió `VF_ESCUELA`, la política universal de alertas
+  sin supresión y el antiguo HOLD de D06/D07. Ya no existe un bloqueante metodológico de
+  confidencialidad para B.
+- La ejecución de B permanece separada y requiere una instrucción explícita antes de cualquier
+  carga o consulta cloud.
