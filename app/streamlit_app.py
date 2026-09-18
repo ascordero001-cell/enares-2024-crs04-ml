@@ -303,7 +303,9 @@ def render() -> None:
     st.sidebar.caption(
         "Exportación segura: disponible solo en cortes agregados V0 autorizados"
     )
-    st.sidebar.caption("Cloud: NOT_AUTHORIZED · Tope autorizado: USD 20/mes total")
+    st.sidebar.caption(
+        "Cloud: NOT_AUTHORIZED · ZERO_BUDGET_HARD_STOP · Límite estricto: USD 0"
+    )
 
     if page == "Resumen":
         if dimension != "Nacional":

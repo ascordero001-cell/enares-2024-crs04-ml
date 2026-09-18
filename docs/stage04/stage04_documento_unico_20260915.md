@@ -177,23 +177,23 @@ puede detener el gasto por si misma, porque la cuenta no es suya. Sus controles 
 2. **Los gates de autorizacion**: paso 47 y paso 53.
 3. **Visibilidad**: roles de lectura sobre el proyecto y alertas de gasto dirigidas a las dos.
 
-El tope de USD 20 al mes, los cuatro limites tecnicos duros y la revision de bindings son
-condiciones supervisoras y acuerdos de trabajo, no controles imponibles tecnicamente. Protegen en
-primer lugar a la propia Ana, que pone la tarjeta.
+El tope historico de USD 20 al mes queda conservado en las decisiones del 2026-09-13 y 2026-09-14.
+La decision operativa posterior del 2026-09-17 fija un limite estricto de USD 0 y bloquea toda
+ejecucion cloud. Los presupuestos de Cloud Billing son alertas, no topes automaticos.
 
 ### Secuencia de desbloqueo
 
 | # | Accion | Quien |
 |---|---|---|
-| 1 | Confirmar la cuenta de facturacion activa, con medio de pago y medios de recuperacion | Ana |
-| 2 | Comprobar si existe el proyecto `enares-2024-crs04`; crearlo con ese ID exacto si no. Anotar ID y numero, que son distintos | Ana |
-| 3 | Vincular el proyecto a la cuenta de facturacion | Ana |
-| 4 | Configurar presupuesto y las cuatro alertas en USD 1, 5, 10 y 20, dirigidas a las dos | Ana |
-| 5 | Conceder a Rita `roles/run.viewer`, `roles/logging.viewer` y `roles/monitoring.viewer` | Ana |
-| 6 | Confirmar a Rita, por canal privado, ID y numero de proyecto, vinculo efectivo y recepcion de una alerta de prueba | Ana |
+| 1 | Confirmar la cuenta de facturacion activa, con medio de pago y medios de recuperacion | CERRADO privadamente por Ana |
+| 2 | Comprobar si existe el proyecto `enares-2024-crs04`; anotar ID y numero solo en el registro privado | CERRADO privadamente por Ana |
+| 3 | Vincular el proyecto a la cuenta de facturacion | CERRADO; vinculo verificado |
+| 4 | Aplicar el limite operativo estricto USD 0 | CERRADO como condicion de parada; no crea alertas ni autoriza consumo |
+| 5 | Conceder a Rita `roles/run.viewer`, `roles/logging.viewer` y `roles/monitoring.viewer` | NO EJECUTAR con limite USD 0 |
+| 6 | Confirmar a Rita, por canal privado, ID y numero de proyecto, vinculo efectivo y recepcion de una alerta de prueba | BLOQUEADO por pasos 4 y 5 |
 
 La verificacion de Rita consiste en recibir esa confirmacion y comprobar que sus roles funcionan.
-**Eso es lo que levanta el gate y permite iniciar el paso 43.**
+No obstante, con limite estricto USD 0 el gate no se levanta y el paso 43 no puede iniciar.
 
 ### Composicion de los seis accesos
 
@@ -329,13 +329,13 @@ conectar cifras reales en cloud, publicar o hacer cutover.
 
 ## Etapa 7 — configurar, verificar y solo entonces conectar
 
-Los siete estan **BLOQUEADOS** hasta completar la secuencia de desbloqueo de la seccion J. El
-orden entre ellos no es negociable: nada se despliega antes de que IAM este puesto.
+Los siete estan **BLOQUEADOS** por `ZERO_BUDGET_HARD_STOP`. El orden entre ellos no es negociable:
+nada se configura o despliega mientras el limite operativo sea `USD 0`.
 
 | # | Paso | Estado |
 |---|---|---|
-| 43 | Configuracion base, sin datos | BLOQUEADO |
-| 44 | Billing y limites en funcionamiento | BLOQUEADO |
+| 43 | Configuracion base, sin datos | BLOQUEADO por limite estricto USD 0 |
+| 44 | Billing y limites en funcionamiento | VINCULO VERIFICADO; consumo BLOQUEADO por limite estricto USD 0 |
 | 45 | Identidades y acceso, antes de desplegar nada | BLOQUEADO. La composicion esta en la seccion J |
 | 46 | Verificacion con datos sinteticos; URL en estado DEMO | BLOQUEADO |
 | 47 | **Autorizacion para conectar cifras reales — decision de Rita** | BLOQUEADO |
