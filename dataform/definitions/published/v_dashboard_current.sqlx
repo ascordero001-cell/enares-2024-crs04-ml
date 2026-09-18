@@ -1,6 +1,6 @@
 config {
   type: "view",
-  schema: "enares2024_crs04_published",
+  schema: dataform.projectConfig.vars.publishedDataset,
   name: "v_dashboard_current",
   description: "Safe aggregate projection for the single approved current release.",
   tags: ["stage04", "published", "aggregate", "shadow"],
@@ -11,6 +11,12 @@ SELECT
   estimates.release_id,
   estimates.run_id,
   estimates.source_version,
+  estimates.source_hash,
+  estimates.git_commit_sha,
+  estimates.container_image_digest,
+  estimates.dataform_release,
+  estimates.engine_version,
+  estimates.scale,
   estimates.indicator_id,
   estimates.indicator_name,
   estimates.module_id,
@@ -28,7 +34,10 @@ SELECT
   estimates.suppress_flag,
   estimates.quality_note,
   estimates.validation_status,
-  estimates.created_at
+  estimates.created_at,
+  estimates.universe,
+  estimates.denominator,
+  estimates.quality_status
 FROM `${dataform.projectConfig.defaultDatabase}.${dataform.projectConfig.vars.outputsDataset}.indicator_estimates` AS estimates
 INNER JOIN ${ref("current_release")} AS current
   ON estimates.release_id = current.release_id

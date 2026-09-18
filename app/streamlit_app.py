@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from collections.abc import Iterable
 from pathlib import Path
@@ -27,9 +28,11 @@ from app.views.stage04_dashboard import (
 from enares.stage04.export import build_export_bundle
 from enares.stage04.repository import (
     AuthorizedAggregateRepository,
+    BigQueryRepository,
     DemoRepository,
     IndicatorEstimate,
     IndicatorRepository,
+    RepositoryError,
 )
 
 
@@ -44,6 +47,38 @@ def local_repositories():
     )
     demo = DemoRepository(data / "demo_indicator_estimates.csv")
     return authorized, demo
+
+
+def configured_repositories() -> tuple[IndicatorRepository, DemoRepository | None]:
+    """Select the local or authenticated-shadow source without mixing transports."""
+    mode = os.environ.get("STAGE04_DATA_MODE", "LOCAL_AUTHORIZED")
+    if mode == "LOCAL_AUTHORIZED":
+        return local_repositories()
+    if mode != "AUTHENTICATED_SHADOW":
+        raise ValueError("Unsupported Stage 04 data mode")
+
+    required = {
+        name: os.environ.get(name)
+        for name in (
+            "STAGE04_BQ_TABLE_FQN",
+            "STAGE04_RELEASE_ID",
+            "STAGE04_RUN_ID",
+        )
+    }
+    if not all(required.values()):
+        raise ValueError("Authenticated shadow configuration is incomplete")
+    manifest = ROOT / "app" / "data" / "v0_authorized_full_indicator_estimates.manifest.json"
+    registry = ROOT / "docs" / "stage04" / "v0_drive_hash_manifest.md"
+    return (
+        BigQueryRepository(
+            table_fqn=required["STAGE04_BQ_TABLE_FQN"],
+            release_id=required["STAGE04_RELEASE_ID"],
+            run_id=required["STAGE04_RUN_ID"],
+            manifest_path=manifest,
+            approval_registry_path=registry,
+        ),
+        None,
+    )
 
 
 def _styles() -> None:
@@ -145,7 +180,7 @@ def _download_cut(rows: Iterable[IndicatorEstimate], basename: str) -> None:
         return
     try:
         bundle = build_export_bundle(rows, basename=basename)
-    except (ValueError, OSError, KeyError, TypeError):
+    except (RepositoryError, ValueError, OSError, KeyError, TypeError):
         st.error("El corte no superó la validación para exportación.")
         return
     csv_column, xlsx_column = st.columns(2)
@@ -214,7 +249,7 @@ def _d01_table(cards: list[dict]) -> None:
 def _render_d01_groups(repository: IndicatorRepository) -> None:
     try:
         task_execution, relationship = build_d01_task_groups(repository)
-    except (ValueError, OSError, KeyError, TypeError):
+    except (RepositoryError, ValueError, OSError, KeyError, TypeError):
         st.error("Los resultados no superaron la validación estadística.")
         return
     st.subheader("Quién realiza tareas en el hogar · ítems 1–7")
@@ -271,14 +306,19 @@ def _render_vs_matrices(repository: IndicatorRepository) -> None:
 def render() -> None:
     st.set_page_config(page_title="ENARES 2024 · Shadow", page_icon="◉", layout="wide")
     _styles()
-    authorized, demo = local_repositories()
+    try:
+        authorized, demo = configured_repositories()
+    except (OSError, TypeError, ValueError):
+        st.error("La configuración de la fuente autorizada no es válida.")
+        return
+    authenticated_shadow = demo is None
     try:
         authorized_rows = [
             row
             for row in filter_estimates(authorized, "3.2", "Nacional", "Total")
             if row.indicator_id == "VF_HOGAR"
         ]
-    except ValueError:
+    except (RepositoryError, ValueError):
         st.error("Los resultados no superaron la validación estadística.")
         return
     if len(authorized_rows) != 1:
@@ -304,7 +344,9 @@ def render() -> None:
         "Exportación segura: disponible solo en cortes agregados V0 autorizados"
     )
     st.sidebar.caption(
-        "Cloud: NOT_AUTHORIZED · Techo máximo: USD 20/mes · Objetivo: USD 0"
+        "Cloud: AUTHENTICATED_SHADOW · publicación/cutover: NOT_AUTHORIZED"
+        if authenticated_shadow
+        else "Cloud: NOT_AUTHORIZED · Techo máximo: USD 20/mes · Objetivo: USD 0"
     )
 
     if page == "Resumen":
@@ -316,7 +358,8 @@ def render() -> None:
             return
         _numeric_summary(summary)
         _download_cut(authorized_rows, "enares-stage04-resumen-nacional")
-        _validated_state_gallery(demo)
+        if demo is not None:
+            _validated_state_gallery(demo)
     elif module := module_for_page(page):
         st.subheader(module.full_label)
         st.caption(f"Estado de datos: {module.data_state}")
@@ -328,7 +371,7 @@ def render() -> None:
             return
 
         source = "V0 autorizado"
-        if module.module_id == "3.2":
+        if module.module_id == "3.2" and demo is not None:
             source_options = ("V0 autorizado", "Demo sintético")
             requested_source = st.query_params.get("source", source_options[0])
             source_index = (
@@ -343,7 +386,7 @@ def render() -> None:
                 horizontal=True,
             )
 
-        if source == "Demo sintético":
+        if source == "Demo sintético" and demo is not None:
             _validated_state_gallery(demo)
         else:
             if module.module_id == "3.1" and dimension == "Nacional":
@@ -361,7 +404,7 @@ def render() -> None:
                     for row in load_validated_estimates(authorized, module.module_id)
                     if row.disaggregation == dimension
                 ]
-            except (ValueError, OSError, KeyError, TypeError):
+            except (RepositoryError, ValueError, OSError, KeyError, TypeError):
                 st.error("Los resultados no superaron la validación estadística.")
                 return
             if not dimension_rows:
@@ -428,7 +471,7 @@ def render() -> None:
             if module.module_id == "3.5" and dimension == "Nacional":
                 try:
                     _render_vs_matrices(authorized)
-                except (ValueError, OSError, KeyError, TypeError):
+                except (RepositoryError, ValueError, OSError, KeyError, TypeError):
                     st.error("Las matrices D06/D07 no superaron la validación.")
     elif page == "Metodología":
         st.subheader("Metodología y límites")
@@ -446,10 +489,15 @@ def render() -> None:
         st.subheader("Estado del release")
         st.code(summary["release_id"])
         st.success("SHADOW · agregado V0 identificado por manifiesto")
-        st.error("PUBLISHED: NOT_AUTHORIZED")
+        st.error(
+            "PUBLISHED: SHADOW_AUTHENTICATED · PUBLICACIÓN/CUTOVER: NOT_AUTHORIZED"
+            if authenticated_shadow
+            else "PUBLISHED: NOT_AUTHORIZED"
+        )
         st.caption(
-            "BigQuery, DDL y Cloud Run: BLOCKED_BY_CLOUD_GATE; "
-            "configuración y primer despliegue pendientes de verificación"
+            "La superficie published es shadow autenticada; no equivale a publicación pública."
+            if authenticated_shadow
+            else "BigQuery y Cloud Run reales permanecen fuera del modo local."
         )
 
     st.divider()
