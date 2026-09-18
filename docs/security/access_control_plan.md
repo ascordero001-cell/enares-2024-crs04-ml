@@ -1,13 +1,14 @@
 # Plan de control de acceso — Stage 04
 
-- Estado: `PLAN_READY; EXECUTION_PENDING_PRIVATE_VERIFICATION`
+- Estado: `SUPERVISOR_READ_ROLES_CONFIGURED; PRIVATE_VERIFICATION_PENDING`
 - Alcance autorizado: `GO_FOR_STAGE7_CONTROLLED_SHADOW`
 - Publicación institucional: `NOT_AUTHORIZED`
 - Responsabilidades: Ana es propietaria, operadora y responsable de billing; Rita supervisa en
   modo de solo lectura antes de cada binding
 
-No se ejecutará ninguna configuración hasta verificar por canal privado el proyecto y la cuenta de
-billing. Este documento no contiene correos, principales exactos, identificadores de billing ni
+Proyecto, vínculo de billing, presupuesto y los tres roles de lectura de Rita fueron configurados
+con principales mantenidos en privado. No se desplegará ningún servicio hasta que Rita verifique
+su acceso. Este documento no contiene correos, principales exactos, identificadores de billing ni
 credenciales.
 
 ## Mecanismo de autenticación

@@ -78,4 +78,5 @@ D01–D12. Hasta que la revisora enumere cada indicador/dimensión/categoría ap
 - solo 3.2 / `VF_HOGAR` / Nacional / Total permanece autorizado;
 - el adaptador candidato continúa desconectado;
 - no se modifican `authorized_dimensions`, la aplicación, el golden ni los agregados V0;
-- existe presupuesto máximo aprobado de USD 20/mes, pero la configuración cloud continúa pendiente.
+- el techo máximo autorizado es USD 20/mes y el gasto objetivo es USD 0; la configuración cloud
+  continúa pendiente de sus controles de presupuesto, alertas e IAM.

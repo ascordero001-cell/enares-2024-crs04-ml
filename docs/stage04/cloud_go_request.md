@@ -4,10 +4,10 @@
 
 **Estado de esta solicitud:** `APPROVED_2026-09-14`
 
-**Estado operativo vigente:** `GO_FOR_STAGE7_CONTROLLED_SHADOW; PRIVATE_PROJECT_BILLING_VERIFICATION_PENDING`
+**Estado operativo vigente:** `GO_FOR_STAGE7_CONTROLLED_SHADOW; BUDGET_AND_IAM_CONFIGURED; PRIVATE_VERIFICATION_PENDING`
 
-Esta solicitud no habilita por sí sola servicios, billing ni IAM. El GO ya aprobado permite iniciar únicamente
-la Etapa 7 controlada en shadow, con los recursos y límites enumerados aquí. No autoriza
+Esta solicitud no habilita por sí sola servicios, billing ni IAM. El GO permite iniciar la Etapa 7
+controlada cuando presupuesto, alertas e IAM estén configurados en el orden aprobado. No autoriza
 publicación institucional, cutover, sustitución de V0 ni nuevas cifras.
 
 ## 1. Evidencia previa del camino crítico
@@ -44,10 +44,10 @@ microdatos, `raw`, `cleaned`, `analytical`, `survey_input`, publicación ni cuto
 
 ## 3. Capa gratuita, límites de consumo y parada
 
-El modelo operativo es permanecer dentro de la capa gratuita de Google Cloud. Los **USD 20 al
-mes** son un margen máximo de contingencia para pruebas controladas, no el presupuesto previsto
-ni una meta de gasto. PR B conecta localmente las 3.014 filas autorizadas; ninguna ha sido cargada
-en cloud. El servicio tendrá seis personas
+El techo máximo de contingencia es **USD 20 al mes** y el gasto objetivo es **USD 0**. Esto permite
+asumir el riesgo controlado de configuración y pruebas sin convertir el techo en meta de consumo.
+PR B conecta localmente las 3.014 filas autorizadas; ninguna ha sido cargada en cloud. El diseño
+previsto mantiene seis personas
 usuarias. Artifact Registry puede generar un cargo pequeño e inevitable de centavos cuando la
 imagen almacenada exceda 0.5 GiB; la alerta de USD 1 señala un gasto anómalo que sí requiere
 investigación.
@@ -66,7 +66,7 @@ Controles obligatorios antes de habilitar tráfico:
 
 Las alertas no detienen consumo. A USD 1 se congelan nuevas pruebas y se investiga la salida de la
 capa gratuita. A USD 5 se detienen tráfico y consultas candidatas. USD 10 exige revisión conjunta
-de billing/IAM antes de cualquier reanudación. USD 20 es el límite de contingencia: todo Stage 04
+de billing/IAM antes de cualquier reanudación. USD 20 es el techo de contingencia: todo Stage 04
 cloud permanece detenido hasta una nueva autorización. No se añaden Pub/Sub ni funciones de
 parada, porque serían recursos fuera del alcance mínimo.
 
@@ -113,22 +113,23 @@ Referencias oficiales:
 |---|---|---|
 | Responsable real de billing | `ASIGNADO: ANA` | Ana confirma que la cuenta y el medio de pago son propios |
 | Responsable real de IAM | `ASIGNADO: ANA; REVISIÓN: RITA` | Ana aplica o revoca; Rita revisa antes de cada binding; ninguna clave JSON |
-| Cuenta de billing | `PENDING` | identificador verificado en canal privado y vínculo con el proyecto |
-| Proyecto | `PENDING_VERIFICATION` | ID/número y propiedad verificados |
+| Cuenta de billing | `LINK_VERIFIED_PRIVATE` | identificador y medio de pago permanecen fuera del repositorio |
+| Proyecto | `VERIFIED_PRIVATE` | ID exacto confirmado; número y propiedad permanecen en el registro privado |
 | Seis identidades | `COMPOSITION_APPROVED` | Ana, Rita y `viewer_01`–`viewer_04`; los principales exactos se verifican solo por canal privado |
-| Roles exactos de Rita | `APPROVED` | `run.viewer`, `logging.viewer` y `monitoring.viewer`; sin propiedad ni administración de billing |
-| Condición de parada | `APPROVED_NOT_EXECUTED` | Ana ejecuta y Rita supervisa los escalones USD 1/5/10/20 |
+| Roles exactos de Rita | `CONFIGURED_PRIVATE` | `run.viewer`, `logging.viewer` y `monitoring.viewer`; presencia verificada, acceso efectivo pendiente de Rita |
+| Condición de parada | `CONFIGURED` | PEN 67; umbrales 5/25/50/100 %, equivalentes aproximados a USD 1/5/10/20 |
 | GO de Etapa 7 | `GO_FOR_STAGE7_CONTROLLED_SHADOW` | Aprobado el 2026-09-14 en la [revisión formal del PR #69](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/69#pullrequestreview-5203865560) |
 
-Los únicos campos aún bloqueantes son la verificación privada del proyecto y de la cuenta de
-billing. Las identidades exactas nunca se incorporan al repositorio.
+El vínculo, el proyecto, el presupuesto, sus cuatro umbrales, el canal y los tres roles de Rita ya
+fueron configurados. El bloqueante vigente es la verificación efectiva y privada de Rita. Las
+identidades exactas nunca se incorporan al repositorio.
 
 ## 7. Decisión registrada
 
-Rita registró `GO_FOR_STAGE7_CONTROLLED_SHADOW` el 2026-09-14. El GO no inicia por sí solo la
-Etapa 7: primero Ana debe confirmar privadamente cuenta de facturación activa, proyecto exacto,
-vínculo, alertas y los roles de lectura de Rita. La titularidad de Ana corrige la propuesta
-histórica de administración compartida sin borrar esa evidencia.
+Rita registró `GO_FOR_STAGE7_CONTROLLED_SHADOW` el 2026-09-14. El GO no inicia por sí solo la Etapa
+7: primero deben configurarse presupuesto, alertas y roles de lectura. La aclaración del
+2026-09-17 mantiene USD 20 como techo máximo y USD 0 como gasto objetivo. La titularidad de Ana
+corrige la propuesta histórica de administración compartida sin borrar esa evidencia.
 
 Incluso con `GO_FOR_STAGE7_CONTROLLED_SHADOW`, el estado de publicación seguirá siendo
 `NOT_AUTHORIZED`. Cada creación, binding y despliegue deberá quedar registrado con fecha UTC,

@@ -12,11 +12,11 @@ poblacional basada únicamente en agregados validados.
 > **Estado real:** V0 continúa siendo la versión oficial. V0.5 permanece en
 > `SHADOW — NOT PUBLISHED`. PRE-STAGE04 está cerrado y el checkpoint de ingeniería
 > local del Corte 2 fue aprobado y fusionado mediante el [PR #57](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/57).
-> Sprint 04.2 sigue en curso. El catálogo V0 completo está autorizado para implementación
-> `LOCAL_SHADOW_ONLY`, pero solo 52 de sus 3,014 filas están conectadas. Cloud continúa pendiente
-> de verificación privada. El tope aprobado es USD 20 mensuales en total; Ana es propietaria y
-> operadora, y Rita supervisa mediante lectura, alertas y gates. Todavía no se autoriza publicar
-> resultados ni conectar cifras reales en cloud.
+> Sprint 04.2 sigue en curso. Las 3,014 filas del catálogo V0 están conectadas y reconciliadas para
+> `LOCAL_SHADOW_ONLY`. El vínculo de facturación y el presupuesto conservador equivalente a menos
+> de USD 20 fueron configurados; el gasto objetivo es USD 0. El canal de alertas y los tres roles
+> de lectura de Rita también están configurados y esperan verificación privada. Todavía no se
+> autoriza publicar ni conectar cifras reales en cloud.
 
 ![Demostración sintética de estados candidato, referencia y suprimido](docs/stage04/evidence/sprint042_corte2_states.png)
 
