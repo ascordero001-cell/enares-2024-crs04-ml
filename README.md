@@ -13,9 +13,9 @@ poblacional basada únicamente en agregados validados.
 > `SHADOW — NOT PUBLISHED`. PRE-STAGE04 está cerrado y el checkpoint de ingeniería
 > local del Corte 2 fue aprobado y fusionado mediante el [PR #57](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/57).
 > Sprint 04.2 sigue en curso. Las 3,014 filas del catálogo V0 están conectadas y reconciliadas para
-> `LOCAL_SHADOW_ONLY`. El vínculo de facturación fue verificado, pero la decisión operativa del
-> 2026-09-17 fija un límite estricto de USD 0; por tanto, la Etapa 7 permanece bloqueada y no se
-> autoriza crear recursos, desplegar, publicar ni conectar cifras reales en cloud.
+> `LOCAL_SHADOW_ONLY`. El vínculo de facturación fue verificado. El techo máximo de contingencia
+> es USD 20 mensuales y el gasto objetivo es USD 0. La Etapa 7 conserva su secuencia de controles;
+> todavía no se autoriza publicar ni conectar cifras reales en cloud.
 
 ![Demostración sintética de estados candidato, referencia y suprimido](docs/stage04/evidence/sprint042_corte2_states.png)
 

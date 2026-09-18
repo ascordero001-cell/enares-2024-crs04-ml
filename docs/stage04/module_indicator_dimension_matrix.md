@@ -43,6 +43,6 @@ celdas D09 tienen CV superior a 15 % y permanecen visibles como referenciales.
   ejecutable.
 - Las combinaciones ausentes devuelven «sin datos» y nunca se fabrican.
 - Exportación permanece deshabilitada y `BigQueryRepository` sigue bloqueado.
-- Cloud: `BLOCKED_BY_ZERO_BUDGET`; límite operativo estricto: USD 0 desde el 2026-09-17.
+- Cloud: `PENDING_BUDGET_AND_IAM_CONTROLS`; techo máximo USD 20/mes y gasto objetivo USD 0.
 
 Pruebas: `tests/test_stage04_etapa1_connection.py`, suite general y golden 3.2.

@@ -304,7 +304,7 @@ def render() -> None:
         "Exportación segura: disponible solo en cortes agregados V0 autorizados"
     )
     st.sidebar.caption(
-        "Cloud: NOT_AUTHORIZED · ZERO_BUDGET_HARD_STOP · Límite estricto: USD 0"
+        "Cloud: NOT_AUTHORIZED · Techo máximo: USD 20/mes · Objetivo: USD 0"
     )
 
     if page == "Resumen":

@@ -177,9 +177,9 @@ puede detener el gasto por si misma, porque la cuenta no es suya. Sus controles 
 2. **Los gates de autorizacion**: paso 47 y paso 53.
 3. **Visibilidad**: roles de lectura sobre el proyecto y alertas de gasto dirigidas a las dos.
 
-El tope historico de USD 20 al mes queda conservado en las decisiones del 2026-09-13 y 2026-09-14.
-La decision operativa posterior del 2026-09-17 fija un limite estricto de USD 0 y bloquea toda
-ejecucion cloud. Los presupuestos de Cloud Billing son alertas, no topes automaticos.
+El tope maximo continúa siendo USD 20 al mes. La aclaracion del 2026-09-17 fija USD 0 como gasto
+objetivo, no como bloqueo absoluto: se acepta el riesgo controlado de configurar y probar dentro
+de la capa gratuita. Los presupuestos de Cloud Billing son alertas, no topes automaticos.
 
 ### Secuencia de desbloqueo
 
@@ -188,12 +188,12 @@ ejecucion cloud. Los presupuestos de Cloud Billing son alertas, no topes automat
 | 1 | Confirmar la cuenta de facturacion activa, con medio de pago y medios de recuperacion | CERRADO privadamente por Ana |
 | 2 | Comprobar si existe el proyecto `enares-2024-crs04`; anotar ID y numero solo en el registro privado | CERRADO privadamente por Ana |
 | 3 | Vincular el proyecto a la cuenta de facturacion | CERRADO; vinculo verificado |
-| 4 | Aplicar el limite operativo estricto USD 0 | CERRADO como condicion de parada; no crea alertas ni autoriza consumo |
-| 5 | Conceder a Rita `roles/run.viewer`, `roles/logging.viewer` y `roles/monitoring.viewer` | NO EJECUTAR con limite USD 0 |
-| 6 | Confirmar a Rita, por canal privado, ID y numero de proyecto, vinculo efectivo y recepcion de una alerta de prueba | BLOQUEADO por pasos 4 y 5 |
+| 4 | Configurar presupuesto USD 20 y alertas en USD 1, 5, 10 y 20; gasto objetivo USD 0 | PENDIENTE |
+| 5 | Conceder a Rita `roles/run.viewer`, `roles/logging.viewer` y `roles/monitoring.viewer` | PENDIENTE |
+| 6 | Confirmar a Rita, por canal privado, ID y numero de proyecto, vinculo efectivo y recepcion de una alerta de prueba | PENDIENTE |
 
 La verificacion de Rita consiste en recibir esa confirmacion y comprobar que sus roles funcionan.
-No obstante, con limite estricto USD 0 el gate no se levanta y el paso 43 no puede iniciar.
+Completar esa secuencia levanta el gate y permite iniciar el paso 43.
 
 ### Composicion de los seis accesos
 
@@ -329,13 +329,13 @@ conectar cifras reales en cloud, publicar o hacer cutover.
 
 ## Etapa 7 — configurar, verificar y solo entonces conectar
 
-Los siete estan **BLOQUEADOS** por `ZERO_BUDGET_HARD_STOP`. El orden entre ellos no es negociable:
-nada se configura o despliega mientras el limite operativo sea `USD 0`.
+Los siete estan **BLOQUEADOS** hasta completar presupuesto, alertas e IAM. El orden entre ellos no
+es negociable: nada se despliega antes de que los controles estén puestos.
 
 | # | Paso | Estado |
 |---|---|---|
-| 43 | Configuracion base, sin datos | BLOQUEADO por limite estricto USD 0 |
-| 44 | Billing y limites en funcionamiento | VINCULO VERIFICADO; consumo BLOQUEADO por limite estricto USD 0 |
+| 43 | Configuracion base, sin datos | BLOQUEADO hasta completar la secuencia de desbloqueo |
+| 44 | Billing y limites en funcionamiento | VINCULO VERIFICADO; presupuesto y alertas PENDIENTES |
 | 45 | Identidades y acceso, antes de desplegar nada | BLOQUEADO. La composicion esta en la seccion J |
 | 46 | Verificacion con datos sinteticos; URL en estado DEMO | BLOQUEADO |
 | 47 | **Autorizacion para conectar cifras reales — decision de Rita** | BLOQUEADO |
