@@ -1,6 +1,6 @@
 # Evaluación de usabilidad — Sprint 04.2
 
-Estado: `FULL_CATALOG_HEURISTICS_AND_COGNITIVE_WALKTHROUGH_COMPLETE; ACCESSIBILITY_PARTIAL`.
+Estado: `FULL_CATALOG_STEP51_COMPLETE; PASS`.
 Fecha de corte: 2026-09-17.
 
 ## Alcance y evidencia disponible
@@ -43,8 +43,8 @@ hace fallar el job.
 
 ## Reevaluación sobre el catálogo completo
 
-1. **Revisión manual de accesibilidad:** teclado, nombres/roles, estados textuales y contraste
-   quedaron revisados. Faltan lector de pantalla real y zoom verificable al 200 %.
+1. **Revisión manual de accesibilidad:** teclado, nombres/roles, estados textuales, contraste,
+   lectura real con Narrador y zoom al 200 % quedaron revisados con resultado PASS.
 2. **Evaluación heurística:** las diez heurísticas quedaron repetidas sin S3/S4.
 3. **Recorrido cognitivo:** los cinco escenarios de [`task_scenarios.md`](task_scenarios.md)
    quedaron recorridos con resultado PASS.
@@ -55,6 +55,6 @@ reales.
 
 ## Condición de cierre
 
-El checkpoint HCI no se declara cerrado hasta conectar el catálogo autorizado, ejecutar y
-documentar los tres métodos, y resolver cualquier S3/S4. Un hallazgo S2 solo puede quedar en
-`DEFER` con causa, responsable de seguimiento y condición explícita de reevaluación.
+El catálogo autorizado está conectado, los tres métodos están documentados y no existe ningún
+S3/S4. El checkpoint HCI del paso 51 queda cerrado. El residual S2 de Streamlit permanece en
+`DEFER` con causa y condición de reevaluación explícitas.
