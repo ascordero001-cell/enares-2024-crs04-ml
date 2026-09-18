@@ -3,11 +3,13 @@
 **Presupuesto máximo autorizado:** USD 20/mes; gasto objetivo USD 0.
 **Propietaria y operadora designada:** Ana; titular de la cuenta de facturación.
 **Supervisora:** Rita; roles de lectura y alertas, sin administración de billing.
-**Estado operativo:** `GO_FOR_STAGE7_CONTROLLED_SHADOW; BUDGET_AND_IAM_CONFIGURED; PRIVATE_VERIFICATION_PENDING`.
+**Estado operativo:** `GO_FOR_STAGE7_CONTROLLED_SHADOW; PRIVATE_VERIFICATION_COMPLETE; RESOURCE_CREATION_BLOCKED_BY_STEP47`.
 
 El [acta supervisora D01–D12](acta_decision_d01_d12_20260913.md) confirma que el presupuesto no
 autoriza conexión cloud, publicación ni cutover. Proyecto y vínculo de billing ya fueron
-verificados privadamente; IAM y la lista de seis identidades continúan sin ejecutar ni verificar.
+verificados privadamente. Rita confirmó recepción del canal y funcionamiento efectivo de sus tres
+roles de lectura. Los bindings de invocación de las otras identidades continúan sin ejecutar
+porque todavía no existe el servicio.
 
 El margen de contingencia de USD 20/mes continúa vigente. La aclaración del 2026-09-17 fija USD 0
 como objetivo de gasto, no como bloqueo absoluto. El vínculo de billing fue verificado
@@ -27,8 +29,9 @@ Los elementos siguientes permanecen `BLOCKED_BY_CLOUD_GATE` hasta completar veri
 - carga CSV–BigQuery y cualquier afirmación de paridad cloud;
 - despliegue, URL pública, publicación institucional o cutover.
 
-Alcance vigente: `LOCAL_SHADOW_ONLY`; presupuesto, umbrales, canal y roles de lectura configurados,
-ejecución cloud bloqueada hasta la verificación privada de Rita. No publicar, no hacer
+Alcance vigente: `LOCAL_SHADOW_ONLY`; presupuesto, umbrales, canal y roles de lectura configurados
+y verificados privadamente. La revisión aprobatoria del PR #116 mantuvo la creación de recursos,
+consultas, cargas y cifras reales bloqueada hasta la decisión separada del paso 47. No publicar, no hacer
 cutover y no sustituir V0. Los contratos
 describen destinos futuros, pero no crean recursos ni conceden autorización de publicación. Véase
 [cloud_authorization.md](cloud_authorization.md) y

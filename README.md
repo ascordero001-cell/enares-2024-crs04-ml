@@ -15,8 +15,9 @@ poblacional basada únicamente en agregados validados.
 > Sprint 04.2 sigue en curso. Las 3,014 filas del catálogo V0 están conectadas y reconciliadas para
 > `LOCAL_SHADOW_ONLY`. El vínculo de facturación y el presupuesto conservador equivalente a menos
 > de USD 20 fueron configurados; el gasto objetivo es USD 0. El canal de alertas y los tres roles
-> de lectura de Rita también están configurados y esperan verificación privada. Todavía no se
-> autoriza publicar ni conectar cifras reales en cloud.
+> de lectura de Rita también están configurados y verificados privadamente. La creación de
+> recursos y la conexión de cifras reales esperan la decisión separada del paso 47. Todavía no se
+> autoriza publicación ni cutover.
 
 ![Demostración sintética de estados candidato, referencia y suprimido](docs/stage04/evidence/sprint042_corte2_states.png)
 

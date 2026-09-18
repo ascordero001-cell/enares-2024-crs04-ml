@@ -2,7 +2,7 @@
 
 **Proyecto:** `enares-2024-crs04`
 
-**Estado:** `BUDGET_AND_NOTIFICATION_CONFIGURED; PRIVATE_RECEIPT_PENDING`
+**Estado:** `BUDGET_AND_NOTIFICATION_CONFIGURED; PRIVATE_RECEIPT_CONFIRMED`
 
 **Gasto objetivo:** USD 0
 
@@ -38,11 +38,13 @@ Referencia oficial del tipo de cambio: [BCRP, serie diaria interbancaria de vent
 - canal específico de la supervisora: creado y vinculado al presupuesto;
 - identificadores de billing, presupuesto y proyecto: conservados solo en el registro privado.
 
-## Pendiente
+## Confirmación privada
 
-La recepción específica de Rita y el funcionamiento efectivo de sus roles continúan pendientes de
-confirmación privada. El principal y el identificador del canal no se publican. No se inicia el
-paso 43 hasta recibir esa confirmación.
+Rita confirmó la recepción del canal y el funcionamiento efectivo de sus roles de lectura en la
+[revisión aprobatoria del PR #116](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/116#pullrequestreview-5243890667).
+El principal y el identificador del canal no se publican. La confirmación cierra este control, pero
+no autoriza por sí sola crear recursos: esa misma revisión conserva ese punto dentro del gate del
+paso 47.
 
 Un presupuesto de Cloud Billing genera alertas, no un corte automático. La configuración busca
 terminar con gasto USD 0; cualquier gasto inesperado activa la parada descrita en el runbook.

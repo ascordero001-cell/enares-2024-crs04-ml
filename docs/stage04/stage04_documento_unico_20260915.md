@@ -15,7 +15,7 @@ la numeracion original. Sustituye a cualquier version parcial anterior de estas 
 
 | Indicador | Valor |
 |---|---|
-| Pasos del plan cerrados | 44 de 53 |
+| Pasos del plan cerrados | 45 de 53 |
 | Filas del agregado V0 conectadas en la aplicacion | 3.014 de 3.014 |
 | Recursos creados en Google Cloud | 0 |
 | Consultas ejecutadas en Google Cloud | 0 |
@@ -190,10 +190,12 @@ de la capa gratuita. Los presupuestos de Cloud Billing son alertas, no topes aut
 | 3 | Vincular el proyecto a la cuenta de facturacion | CERRADO; vinculo verificado |
 | 4 | Configurar presupuesto equivalente a menos de USD 20 y alertas en USD 1, 5, 10 y 20; gasto objetivo USD 0 | CONFIGURADO: PEN 67, cuatro umbrales y canal de Rita |
 | 5 | Conceder a Rita `roles/run.viewer`, `roles/logging.viewer` y `roles/monitoring.viewer` | CONFIGURADO; presencia de los tres bindings verificada |
-| 6 | Confirmar a Rita, por canal privado, ID y numero de proyecto, vinculo efectivo y recepcion de una alerta de prueba | PENDIENTE DE CONFIRMACION DE RITA |
+| 6 | Confirmar a Rita, por canal privado, ID y numero de proyecto, vinculo efectivo y recepcion de una alerta de prueba | CERRADO; confirmacion privada registrada en la revision del PR #116 |
 
 La verificacion de Rita consiste en recibir esa confirmacion y comprobar que sus roles funcionan.
-Completar esa secuencia levanta el gate y permite iniciar el paso 43.
+Rita la confirmo en la revision aprobatoria del PR #116. Esa misma revision mantuvo la creacion de
+recursos, consultas, cargas y cifras reales sujeta a la decision separada del paso 47; por tanto,
+el paso 43 continua sin ejecutar.
 
 ### Composicion de los seis accesos
 
@@ -329,14 +331,16 @@ conectar cifras reales en cloud, publicar o hacer cutover.
 
 ## Etapa 7 — configurar, verificar y solo entonces conectar
 
-Los siete estan **BLOQUEADOS** hasta completar presupuesto, alertas e IAM. El orden entre ellos no
-es negociable: nada se despliega antes de que los controles estén puestos.
+Presupuesto, alertas y los roles supervisores ya fueron verificados. La revision aprobatoria del
+PR #116 mantuvo la creacion de recursos, consultas, cargas y cifras reales sujeta a la decision
+separada del paso 47. El orden no es negociable: no se ejecuta el paso 43 ni se despliega antes de
+esa decision.
 
 | # | Paso | Estado |
 |---|---|---|
-| 43 | Configuracion base, sin datos | BLOQUEADO hasta completar la secuencia de desbloqueo |
-| 44 | Billing y limites en funcionamiento | PRESUPUESTO, UMBRALES Y CANAL CONFIGURADOS; confirmacion de Rita pendiente |
-| 45 | Identidades y acceso, antes de desplegar nada | BLOQUEADO. La composicion esta en la seccion J |
+| 43 | Configuracion base, sin datos | BLOQUEADO por la decision separada del paso 47; no ejecutado |
+| 44 | Billing y limites en funcionamiento | CERRADO; presupuesto, umbrales, canal y recepcion verificados |
+| 45 | Identidades y acceso, antes de desplegar nada | PARCIAL: roles supervisores verificados; invocadores e identidad de ejecucion esperan recursos autorizados |
 | 46 | Verificacion con datos sinteticos; URL en estado DEMO | BLOQUEADO |
 | 47 | **Autorizacion para conectar cifras reales — decision de Rita** | BLOQUEADO |
 | **48** | **REESCRITO** — ver texto abajo | BLOQUEADO en su mitad cloud; la otra mitad se adelanta |

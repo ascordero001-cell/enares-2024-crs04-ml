@@ -1,14 +1,15 @@
 # Plan de control de acceso — Stage 04
 
-- Estado: `SUPERVISOR_READ_ROLES_CONFIGURED; PRIVATE_VERIFICATION_PENDING`
+- Estado: `SUPERVISOR_READ_ROLES_VERIFIED; RESOURCE_CREATION_BLOCKED_BY_STEP47`
 - Alcance autorizado: `GO_FOR_STAGE7_CONTROLLED_SHADOW`
 - Publicación institucional: `NOT_AUTHORIZED`
 - Responsabilidades: Ana es propietaria, operadora y responsable de billing; Rita supervisa en
   modo de solo lectura antes de cada binding
 
 Proyecto, vínculo de billing, presupuesto y los tres roles de lectura de Rita fueron configurados
-con principales mantenidos en privado. No se desplegará ningún servicio hasta que Rita verifique
-su acceso. Este documento no contiene correos, principales exactos, identificadores de billing ni
+con principales mantenidos en privado. Rita confirmó recepción del canal y acceso efectivo. La
+revisión del PR #116 mantiene la creación de recursos y el despliegue sujetos a la decisión del
+paso 47. Este documento no contiene correos, principales exactos, identificadores de billing ni
 credenciales.
 
 ## Mecanismo de autenticación
