@@ -10,6 +10,7 @@ vars:
   cleanedDataset: enares2024_crs04_cleaned
   analyticalDataset: enares2024_crs04_analytical
   outputsDataset: enares2024_crs04_outputs
+  publishedDataset: enares2024_crs04_published
   opsDataset: enares2024_crs04_ops
   # Override both values on every operational deployment.
   runId: uncommitted-local-run

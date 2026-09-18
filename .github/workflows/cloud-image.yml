@@ -1,0 +1,92 @@
+name: Authenticated shadow cloud image
+
+on:
+  pull_request:
+    paths:
+      - Dockerfile.cloud
+      - requirements-cloud-runtime.txt
+      - requirements-runtime.txt
+      - app/streamlit_app.py
+      - app/config/**
+      - app/views/**
+      - src/enares/stage04/**
+      - scripts/container_healthcheck.py
+      - app/data/v0_authorized_full_indicator_estimates.manifest.json
+      - docs/stage04/v0_drive_hash_manifest.md
+      - .github/workflows/cloud-image.yml
+  push:
+    branches: [main]
+    paths:
+      - Dockerfile.cloud
+      - requirements-cloud-runtime.txt
+      - requirements-runtime.txt
+      - app/streamlit_app.py
+      - app/config/**
+      - app/views/**
+      - src/enares/stage04/**
+      - scripts/container_healthcheck.py
+      - app/data/v0_authorized_full_indicator_estimates.manifest.json
+      - docs/stage04/v0_drive_hash_manifest.md
+      - .github/workflows/cloud-image.yml
+
+permissions:
+  contents: read
+
+jobs:
+  build-smoke-export:
+    name: Build and inspect authenticated shadow image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Build cloud image
+        run: docker build --file Dockerfile.cloud --tag enares-stage04-cloud:${GITHUB_SHA} .
+
+      - name: Prove aggregate-only image boundary
+        run: |
+          docker run --rm enares-stage04-cloud:${GITHUB_SHA} sh -eu -c '
+            test ! -e /app/app/data/v0_authorized_full_indicator_estimates.csv
+            test ! -e /app/app/data/demo_indicator_estimates.csv
+            test ! -e /app/data
+            ! find /app -type f \( -name "*.sav" -o -name "*.csv" \) | grep -q .
+            python -c "import google.cloud.bigquery, streamlit; assert streamlit.__version__ == \"1.63.0\""
+          '
+
+      - name: Start cloud image with non-secret placeholder configuration
+        run: >-
+          docker run --detach --name enares-stage04-cloud-ci --publish 8080:8080
+          --env STAGE04_BQ_TABLE_FQN=placeholder-project.shadow_published.v_dashboard_current
+          --env STAGE04_RELEASE_ID=placeholder-release
+          --env STAGE04_RUN_ID=placeholder-run
+          enares-stage04-cloud:${GITHUB_SHA}
+
+      - name: Verify health
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8080/_stcore/health | grep --quiet '^ok$'; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs enares-stage04-cloud-ci
+          exit 1
+
+      - name: Export image archive for controlled deployment
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: docker save enares-stage04-cloud:${GITHUB_SHA} | gzip -1 > enares-stage04-cloud.tar.gz
+
+      - name: Upload short-lived image archive
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: enares-stage04-cloud-${{ github.sha }}
+          path: enares-stage04-cloud.tar.gz
+          retention-days: 1
+          if-no-files-found: error
+
+      - name: Stop cloud image
+        if: always()
+        run: docker rm --force enares-stage04-cloud-ci || true
