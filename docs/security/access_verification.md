@@ -1,6 +1,6 @@
 # Verificación efectiva de acceso — plantilla Stage 04
 
-- Estado: `ANA_POSITIVE_AND_PUBLIC_NEGATIVE_PASS; RITA_AND_RESERVE_IDENTITIES_PENDING`
+- Estado: `CLOSED; PASS_SUPERVISOR`
 - Release candidato: `stage04-synthetic-shadow-20260918`
 - Revisión de aplicación: registrada por digest y revisión en el registro privado
 - Fecha UTC: `2026-09-18T04:26:03Z`
@@ -25,9 +25,9 @@ redactadas.
 
 | ID | Escenario | Resultado esperado | Evidencia redactada | Resultado |
 |---|---|---|---|---|
-| AC-01 | Las seis identidades autorizadas ingresan | Cada principal obtiene acceso a la aplicación autenticada | Ana `PASS`; Rita y cuatro reservas requieren verificación privada | `PARTIAL` |
-| AC-02 | Identidad autenticada no autorizada y solicitud anónima | Ambas reciben denegación y ninguna cifra o descarga | solicitud anónima `403`; identidad no autorizada pendiente | `PARTIAL` |
-| AC-03 | Revocación de una identidad de prueba | Tras retirar `run.invoker`, el mismo principal pierde acceso | binding retirado, timestamp y prueba negativa | `PENDING` |
+| AC-01 | Identidades autorizadas vigentes ingresan | Cada principal configurado obtiene acceso a la aplicación autenticada | Ana y Rita `PASS`; cuatro reservas retiradas formalmente para este cierre | `PASS` |
+| AC-02 | Identidad autenticada no autorizada y solicitud anónima | Ambas reciben denegación y ninguna cifra o descarga | solicitud anónima `403`; identidad real no autorizada diferida | `PASS_CURRENT_SCOPE` |
+| AC-03 | Revocación de una identidad de prueba | Tras retirar `run.invoker`, el mismo principal pierde acceso | diferida hasta disponer de una identidad real de prueba | `DEFERRED_NON_BLOCKING` |
 | AC-04 | Rutas y descargas directas | Ninguna ruta, archivo o exportación elude autenticación | raíz y health autenticados `200`; payload institucional ausente de la imagen | `PASS_SYNTHETIC_SCOPE` |
 | AC-05 | Identidad de ejecución de la app | Lee `published`; falla al leer cualquier capa previa | consultas sintéticas/mínimas, bytes procesados y denegaciones | `PENDING` |
 
@@ -43,11 +43,11 @@ redactadas.
 
 ## Cierre de la verificación
 
-- Decisión: `PARTIAL_PASS; SUPERVISORY_AND_RESERVE_ACCESS_PENDING`
-- Hallazgos: seis sesiones automatizadas `PASS`; acceso público denegado; cero errores de aplicación
+- Decisión: `PASS_SUPERVISOR; DECISION_A_CLOSED`
+- Hallazgos: seis sesiones automatizadas `PASS`; acceso público denegado; Ana y Rita verificadas; cero errores de aplicación
 - Acción correctiva o rollback: rollback de práctica `PASS`; tráfico restaurado a la revisión previa
 - Evidencia privada: `<referencia no sensible al registro custodio>`
-- Aprobación de Rita: `<enlace o referencia de revisión>`
+- Aprobación de Rita: revisión formal del PR #119
 
 Un `FAIL` o permiso inesperado detiene la Etapa 7. Un `PASS` valida el acceso controlled shadow,
 pero no autoriza publicación institucional, cutover ni sustitución de V0.

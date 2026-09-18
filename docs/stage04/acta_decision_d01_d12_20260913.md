@@ -217,3 +217,21 @@ trabajo se detiene y vuelve a revisión supervisora.
 
 Continúan separados y bloqueados: recursos y gasto cloud, conexión de cifras reales en cloud
 (paso 47), publicación institucional, cutover y sustitución de V0.
+
+## 7. Adenda supervisora — resolución VF_ESCUELA y D06/D07 — 2026-09-18 UTC
+
+La [decisión del Issue #43](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/43#issuecomment-5735315006)
+prevalece sobre los HOLD históricos de esta acta:
+
+- `VF_ESCUELA` usa diez ítems; la discrepancia «10 frente a 7» queda resuelta y no bloquea el
+  indicador.
+- D06 y D07 quedan autorizados con cifras reales como matrices fijas de V0. `CV > 15 %` y
+  `base_unw < 30` producen alertas visibles, nunca supresión.
+- La regla de confidencialidad es el límite de granularidad de V0: no se crean cortes ni cruces
+  ausentes del catálogo aprobado.
+- Ana y Rita son la autoridad final del proyecto independiente; no existe un gate de aprobación
+  institucional externa para esta publicación.
+
+Esta adenda elimina el bloqueante metodológico de confidencialidad para la Decisión B. La carga o
+consulta cloud continúa esperando una autorización de ejecución explícita y separada; publicación
+y cutover permanecen fuera de alcance.

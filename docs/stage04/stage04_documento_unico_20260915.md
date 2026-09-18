@@ -22,8 +22,7 @@ la numeracion original. Sustituye a cualquier version parcial anterior de estas 
 | Gasto acumulado | Pendiente de latencia de facturacion; ninguna alerta recibida |
 
 **Ana termino los pasos 1 a 44, incluido el paso 36.** Tambien esta cerrado el paso 50, que se
-adelanto. Los pasos 45, 46 y 48 tienen evidencia tecnica parcial o completa, pero esperan la
-verificacion supervisora indicada en la tabla de Etapa 7.
+adelanto. Los pasos 45, 46 y 48 quedaron verificados por Rita en la revisión formal del PR #119.
 
 La infraestructura sintetica aislada de la Decision A ya fue ejecutada. La Decision B para
 conectar cifras reales y los pasos que dependen de ella continúan bloqueados.
@@ -341,10 +340,10 @@ a una aprobación separada del paso 47.
 |---|---|---|
 | 43 | Configuracion base, sin datos | CERRADO; tres datasets aislados vacios, identidad sin llaves y repositorio inmutable |
 | 44 | Billing y limites en funcionamiento | CERRADO; presupuesto, umbrales, canal y recepcion verificados |
-| 45 | Identidades y acceso, antes de desplegar nada | PARCIAL: identidad de ejecucion y dos invocadores configurados; cuatro reservas pendientes |
-| 46 | Verificacion con datos sinteticos; URL en estado DEMO | PASS TECNICO; espera verificacion supervisora |
-| 47 | **Autorizacion para conectar cifras reales — decision de Rita** | BLOQUEADO |
-| **48** | **REESCRITO** — ver texto abajo | PASS TECNICO cloud: 6/6 sesiones, maximo una instancia; espera verificacion supervisora |
+| 45 | Identidades y acceso, antes de desplegar nada | CERRADO para Decisión A: Ana y Rita verificadas; cuatro reservas retiradas formalmente |
+| 46 | Verificacion con datos sinteticos; URL en estado DEMO | PASS SUPERVISOR; Decisión A cerrada |
+| 47 | **Autorizacion para conectar cifras reales — decision de Rita** | LISTO PARA DECISIÓN; GO explícito de ejecución pendiente |
+| **48** | **REESCRITO** — ver texto abajo | PASS SUPERVISOR: 6/6 sesiones, maximo una instancia |
 | 49 | Corrida de evidencia: promocion y rollback reales con paridad | BLOQUEADO |
 
 ### Paso 48 reescrito

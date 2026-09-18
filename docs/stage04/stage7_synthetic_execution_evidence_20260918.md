@@ -1,6 +1,6 @@
 # Evidencia de ejecución sintética de Etapa 7 — 2026-09-18
 
-**Estado:** `TECHNICAL_PASS; SUPERVISORY_ACCESS_VERIFICATION_PENDING`
+**Estado:** `CLOSED; PASS_SUPERVISOR`
 
 **Alcance:** Decisión A `SYNTHETIC_INFRA_ONLY`. La Decisión B para cifras V0 reales continúa
 `BLOCKED`.
@@ -50,12 +50,14 @@ registro privado. Ninguna cifra V0 fue cargada, consultada o incorporada a la im
 | Credenciales | identidad sin llaves; login efímero y archivos temporales eliminados |
 | Coste | pendiente de latencia de facturación; ninguna alerta recibida durante la ejecución |
 
-## Pendientes antes de declarar PASS supervisor
+## Verificación supervisora posterior
 
-- Rita confirma privadamente que puede invocar la aplicación y consultar logs/métricas.
-- Se completan o se retiran formalmente los cuatro principales de reserva antes del cierre de
-  AC-01.
-- Se prueba una identidad autenticada sin autorización y una revocación controlada.
+- Rita confirmó privadamente invocación autenticada y acceso a logs/métricas.
+- Los cuatro principales de reserva fueron retirados formalmente de AC-01 para este cierre; no se
+  configuraron identidades ficticias.
+- La revisión formal del PR #119 registró los pasos 46 y 48 como `PASS_SUPERVISOR`.
+- Las pruebas de una identidad no autorizada y de revocación permanecen como endurecimiento
+  futuro cuando exista una identidad real de prueba; no bloquean el cierre de la Decisión A.
 - `maximum_bytes_billed=10,485,760` continúa como condición obligatoria antes de cualquier consulta;
   no se ejecutó porque la Decisión A no conecta BigQuery a la aplicación.
 
