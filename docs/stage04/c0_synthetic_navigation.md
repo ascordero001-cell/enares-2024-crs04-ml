@@ -300,7 +300,23 @@ persistente repite módulo y dimensión activos, y el resumen de confirmación v
 La regresión específica de C2-07 prueba simultáneamente los resultados 3.1 y 3.2 y falla si un
 candidato cruza esa frontera.
 
-La repetición humana limpia de C2-07 permanece pendiente. Debe comenzar desde la pantalla inicial,
-usar el mismo prompt congelado, finalizar en menos de 90 segundos y no revelar el ID esperado ni
-dar ayuda externa. Hasta registrar ese recorrido, se conserva `HOLD_AFTER_OUTPUTS`: no se crean
-`published` ni `ops`, y Cloud Run real no se conecta.
+### Repetición limpia de C2-07
+
+El primer recorrido posterior al endurecimiento localizó el objetivo correcto, pero se anuló
+porque el intervalo incluyó una pausa y no representa navegación continua:
+
+| Inicio UTC | Fin UTC | Segundos | Seleccionado | Esperado | PASS/FAIL | Ayuda | Observaciones |
+|---|---|---:|---|---|---|---|---|
+| 23:13:03,931 | 23:25:21,689 | 737,8 | `SYN_C0_31_084` | `SYN_C0_31_084` | ANULADO | Ninguna | Objetivo correcto; medición no continua y superior a 90 segundos. |
+
+Se abrió una sesión nueva en la pantalla inicial y el cronómetro comenzó únicamente después de
+que la persona confirmó que estaba lista. La repetición válida preservó el mismo prompt congelado:
+
+| Inicio UTC | Fin UTC | Segundos | Seleccionado | Esperado | PASS/FAIL | Ayuda | Observaciones |
+|---|---|---:|---|---|---|---|---|
+| 23:26:19,902 | 23:27:19,765 | 59,9 | `SYN_C0_31_084` | `SYN_C0_31_084` | PASS | Ninguna durante el recorrido | Módulo 3.1, dimensión departamental y objetivo exacto confirmados desde una sesión limpia. |
+
+**Resultado de la investigación:** C2-07 queda repetido limpiamente dentro del límite de 90
+segundos. La evidencia demuestra aislamiento de módulos y el control preventivo hace explícita la
+selección antes de confirmar. La promoción autenticada no se ejecuta por este resultado: se
+mantiene `HOLD_AFTER_OUTPUTS` hasta una nueva decisión supervisora explícita.
