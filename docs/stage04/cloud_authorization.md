@@ -4,12 +4,12 @@
 
 **Aclaración operativa:** Ana, 2026-09-17
 
-**Estado:** `GO_FOR_STAGE7_CONTROLLED_SHADOW; BILLING_LINK_VERIFIED; IAM_AND_BUDGET_CONTROLS_PENDING`
+**Estado:** `GO_FOR_STAGE7_CONTROLLED_SHADOW; BUDGET_CONFIGURED; RITA_NOTIFICATION_AND_IAM_PENDING`
 **Alcance vigente:** `LOCAL_SHADOW_ONLY`
 
 | Campo | Estado verificable |
 |---|---|
-| Modelo de coste | Techo máximo USD 20/mes; gasto objetivo USD 0 mediante capa gratuita y límites técnicos |
+| Modelo de coste | Presupuesto PEN 67, equivalente conservador inferior a USD 20; gasto objetivo USD 0 |
 | Propiedad y operación | Ana; propietaria del proyecto y titular de la cuenta de facturación |
 | Supervisión | Rita; lectura de Cloud Run, Logging y Monitoring, sin propiedad ni administración de billing |
 | Proyecto | `enares-2024-crs04`; existencia y coincidencia verificadas privadamente |
@@ -21,7 +21,7 @@
 | Datos autorizados | Catálogo V0 autorizado para implementación local; la conexión de cifras reales en cloud conserva el gate separado del paso 47 |
 | Acceso | `viewer_01` a `viewer_04` solo con `roles/run.invoker`; Ana propietaria/operadora; Rita supervisora de lectura; principales exactos solo por canal privado |
 | Parada | Política aprobada: Ana ejecuta y Rita supervisa; prueba efectiva solo después del GO |
-| Decisión técnica | GO controlado vigente; presupuesto, alertas e IAM deben completarse antes del primer despliegue |
+| Decisión técnica | GO controlado vigente; presupuesto y umbrales configurados; notificación de Rita e IAM pendientes |
 
 Antes de cualquier primer despliegue deben verificarse identidades, roles, alertas USD 1/5/10/20,
 `maximum_bytes_billed` en cada consulta, cuota diaria
@@ -33,10 +33,12 @@ Este PR no ejecuta `gcloud`, no crea cuentas, bindings, datasets, buckets, imág
 
 La solicitud operativa de los pasos 40–41, con alcance mínimo, IAM propuesto, controles de coste,
 rollback y campos bloqueantes, está en [cloud_go_request.md](cloud_go_request.md). El GO del
-2026-09-14 continúa vigente. Proyecto y vínculo ya están verificados; antes de iniciar el paso 43
-deben completarse el presupuesto, las alertas y los bindings IAM aprobados.
+2026-09-14 continúa vigente. Proyecto, vínculo, presupuesto y umbrales ya están verificados; antes
+de iniciar el paso 43 deben completarse la notificación de Rita y los bindings IAM aprobados.
 
 Véase [zero_spend_target_20260917.md](zero_spend_target_20260917.md).
+La configuración redactada está en
+[cloud_budget_verification_20260917.md](cloud_budget_verification_20260917.md).
 
 Rita no administra la cuenta ni puede detener el gasto directamente. Sus controles son
 `CODEOWNERS`, los gates de los pasos 47/53 y la visibilidad de ejecución y alertas. Antes de una

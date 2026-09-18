@@ -4,7 +4,7 @@
 
 **Estado de esta solicitud:** `APPROVED_2026-09-14`
 
-**Estado operativo vigente:** `GO_FOR_STAGE7_CONTROLLED_SHADOW; BILLING_LINK_VERIFIED; IAM_AND_BUDGET_CONTROLS_PENDING`
+**Estado operativo vigente:** `GO_FOR_STAGE7_CONTROLLED_SHADOW; BUDGET_CONFIGURED; RITA_NOTIFICATION_AND_IAM_PENDING`
 
 Esta solicitud no habilita por sí sola servicios, billing ni IAM. El GO permite iniciar la Etapa 7
 controlada cuando presupuesto, alertas e IAM estén configurados en el orden aprobado. No autoriza
@@ -117,12 +117,12 @@ Referencias oficiales:
 | Proyecto | `VERIFIED_PRIVATE` | ID exacto confirmado; número y propiedad permanecen en el registro privado |
 | Seis identidades | `COMPOSITION_APPROVED` | Ana, Rita y `viewer_01`–`viewer_04`; los principales exactos se verifican solo por canal privado |
 | Roles exactos de Rita | `APPROVED` | `run.viewer`, `logging.viewer` y `monitoring.viewer`; sin propiedad ni administración de billing |
-| Condición de parada | `APPROVED_PENDING_CONFIGURATION` | objetivo USD 0; alertas USD 1/5/10/20 y techo máximo USD 20 |
+| Condición de parada | `CONFIGURED` | PEN 67; umbrales 5/25/50/100 %, equivalentes aproximados a USD 1/5/10/20 |
 | GO de Etapa 7 | `GO_FOR_STAGE7_CONTROLLED_SHADOW` | Aprobado el 2026-09-14 en la [revisión formal del PR #69](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/69#pullrequestreview-5203865560) |
 
-El vínculo y el proyecto ya fueron verificados privadamente. Los bloqueantes vigentes son la
-configuración del presupuesto y alertas, IAM y la verificación efectiva. Las identidades exactas
-nunca se incorporan al repositorio.
+El vínculo, el proyecto, el presupuesto y sus cuatro umbrales ya fueron verificados. Los
+bloqueantes vigentes son la notificación específica de Rita, IAM y la verificación efectiva. Las
+identidades exactas nunca se incorporan al repositorio.
 
 ## 7. Decisión registrada
 
