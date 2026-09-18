@@ -56,3 +56,15 @@ Los cinco criterios obligatorios son:
 Si no existe un puntero anterior aprobado, si las validaciones están incompletas o si la vista
 mezcla releases, el procedimiento falla cerrado y requiere intervención. Un ensayo local exitoso
 no autoriza la operación cloud.
+
+## Excepción de bootstrap para la primera promoción shadow autenticada
+
+La primera promoción del dataset aislado no tiene un release institucional anterior que pueda
+inventarse como destino. En ese único caso, la prueba de rollback restaura el checkpoint previo
+real: `current_release` vacío y `published.v_dashboard_current` con cero filas. Debe conservar
+`outputs` y el registro append-only, anotar el evento `ROLLBACK_TO_EMPTY`, demostrar cero filas
+visibles y volver a promover exactamente el mismo release `APPROVED` antes de cerrar la ventana.
+
+Esta excepción no permite crear un release ficticio ni se aplica desde la segunda promoción. Una
+vez que exista un puntero aprobado anterior, todo rollback debe restaurarlo y la ausencia de ese
+destino vuelve a ser un fallo cerrado.
