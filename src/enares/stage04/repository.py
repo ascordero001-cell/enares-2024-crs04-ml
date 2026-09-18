@@ -13,10 +13,6 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Final
 
-from google.api_core.exceptions import GoogleAPICallError
-from google.auth.exceptions import DefaultCredentialsError
-from google.cloud import bigquery
-
 REPOSITORY_UNAVAILABLE_MESSAGE: Final = "Repository data is unavailable"
 REPOSITORY_CONTRACT_MESSAGE: Final = "Repository data violates the aggregate contract"
 RELEASE_NOT_FOUND_MESSAGE: Final = "Requested release run is unavailable"
@@ -431,6 +427,12 @@ class BigQueryRepository(IndicatorRepository):
         if expected_rows is None:
             raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE)
         source_hash = self._verified_source_hash()
+        try:
+            from google.api_core.exceptions import GoogleAPICallError
+            from google.auth.exceptions import DefaultCredentialsError
+            from google.cloud import bigquery
+        except ImportError:
+            raise RepositoryUnavailableError(REPOSITORY_UNAVAILABLE_MESSAGE) from None
         client = self.client
         if client is None:
             try:
