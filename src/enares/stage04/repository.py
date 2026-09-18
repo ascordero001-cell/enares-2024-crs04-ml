@@ -5,11 +5,17 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
-from typing import Final
+from typing import Any, Final
+
+from google.api_core.exceptions import GoogleAPICallError
+from google.auth.exceptions import DefaultCredentialsError
+from google.cloud import bigquery
 
 REPOSITORY_UNAVAILABLE_MESSAGE: Final = "Repository data is unavailable"
 REPOSITORY_CONTRACT_MESSAGE: Final = "Repository data violates the aggregate contract"
@@ -29,6 +35,51 @@ SENSITIVE_COLUMNS = {
     "longitude",
     "raw_record",
 }
+
+BIGQUERY_MAXIMUM_BYTES_BILLED: Final = 10_485_760
+V0_MODULE_ROW_COUNTS: Final = {
+    "3.1": 1170,
+    "3.2": 389,
+    "3.3": 123,
+    "3.4": 749,
+    "3.5": 457,
+    "3.6": 126,
+}
+_BIGQUERY_TABLE_PATTERN: Final = re.compile(
+    r"^[A-Za-z0-9][A-Za-z0-9_-]*\.[A-Za-z0-9_]+\.[A-Za-z0-9_]+$"
+)
+_BIGQUERY_FIELDS: Final = (
+    "release_id",
+    "run_id",
+    "source_version",
+    "source_hash",
+    "git_commit_sha",
+    "container_image_digest",
+    "dataform_release",
+    "engine_version",
+    "scale",
+    "indicator_id",
+    "indicator_name",
+    "module_id",
+    "disaggregation",
+    "category",
+    "estimate",
+    "standard_error",
+    "ci95_lower",
+    "ci95_upper",
+    "cv",
+    "n_unweighted",
+    "weighted_population",
+    "cv_flag",
+    "n_flag",
+    "suppress_flag",
+    "quality_note",
+    "validation_status",
+    "created_at",
+    "universe",
+    "denominator",
+    "quality_status",
+)
 
 
 class RepositoryError(RuntimeError):
@@ -293,7 +344,156 @@ class AuthorizedAggregateRepository(IndicatorRepository):
 
 
 class BigQueryRepository(IndicatorRepository):
-    """Non-connected design placeholder; cloud access is not authorized."""
+    """Read the manifest-bound aggregate V0 table with a mandatory query cap."""
+
+    def __init__(
+        self,
+        *,
+        table_fqn: str | None = None,
+        release_id: str | None = None,
+        run_id: str | None = None,
+        manifest_path: Path | None = None,
+        approval_registry_path: Path | None = None,
+        client: Any | None = None,
+    ) -> None:
+        values = (
+            table_fqn,
+            release_id,
+            run_id,
+            manifest_path,
+            approval_registry_path,
+        )
+        self.configured = all(value is not None for value in values)
+        if not any(value is not None for value in values):
+            self.table_fqn = ""
+            self.release_id = ""
+            self.run_id = ""
+            self.manifest_path = Path()
+            self.approval_registry_path = Path()
+            self.client = client
+            return
+        if not self.configured:
+            raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE)
+        assert table_fqn is not None
+        assert release_id is not None
+        assert run_id is not None
+        assert manifest_path is not None
+        assert approval_registry_path is not None
+        if not _BIGQUERY_TABLE_PATTERN.fullmatch(table_fqn):
+            raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE)
+        if not release_id or not run_id:
+            raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE)
+        self.table_fqn = table_fqn
+        self.release_id = release_id
+        self.run_id = run_id
+        self.manifest_path = Path(manifest_path)
+        self.approval_registry_path = Path(approval_registry_path)
+        self.client = client
+
+    def _verified_source_hash(self) -> str:
+        try:
+            manifest = json.loads(self.manifest_path.read_text(encoding="utf-8"))
+            approval_registry = self.approval_registry_path.read_text(encoding="utf-8")
+        except OSError:
+            raise RepositoryUnavailableError(REPOSITORY_UNAVAILABLE_MESSAGE) from None
+        except (json.JSONDecodeError, TypeError):
+            raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE) from None
+        source_hash = manifest.get("source_hash")
+        if (
+            manifest.get("row_count") != 3014
+            or manifest.get("indicator_count") != 516
+            or manifest.get("synthetic") is not False
+            or manifest.get("data_classification") != "AUTHORIZED_AGGREGATE_ONLY"
+            or manifest.get("source_kind") != "AUTHORIZED_V0_EXTRACT"
+            or not isinstance(source_hash, str)
+            or manifest.get("parent_sha256") != source_hash
+            or "APPROVED_FOR_STAGE04_BASELINE" not in approval_registry
+            or source_hash not in approval_registry
+        ):
+            raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE)
+        return source_hash
+
+    @staticmethod
+    def _csv_value(value: object) -> str:
+        if value is None:
+            return ""
+        if isinstance(value, bool):
+            return str(value).lower()
+        if isinstance(value, datetime):
+            normalized = value.astimezone(timezone.utc)
+            return normalized.isoformat(timespec="seconds").replace("+00:00", "Z")
+        return str(value)
 
     def list_estimates(self, module_id: str) -> list[IndicatorEstimate]:
-        raise RepositoryUnavailableError(REPOSITORY_UNAVAILABLE_MESSAGE)
+        if not self.configured:
+            raise RepositoryUnavailableError(REPOSITORY_UNAVAILABLE_MESSAGE)
+        expected_rows = V0_MODULE_ROW_COUNTS.get(module_id)
+        if expected_rows is None:
+            raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE)
+        source_hash = self._verified_source_hash()
+        client = self.client
+        if client is None:
+            try:
+                client = bigquery.Client()
+            except (DefaultCredentialsError, GoogleAPICallError, OSError):
+                raise RepositoryUnavailableError(REPOSITORY_UNAVAILABLE_MESSAGE) from None
+
+        query = f"""
+            SELECT {", ".join(_BIGQUERY_FIELDS)}
+            FROM `{self.table_fqn}`
+            WHERE module_id = @module_id
+              AND release_id = @release_id
+              AND run_id = @run_id
+              AND source_hash = @source_hash
+            ORDER BY indicator_id, disaggregation, category
+        """
+        job_config = bigquery.QueryJobConfig(
+            maximum_bytes_billed=BIGQUERY_MAXIMUM_BYTES_BILLED,
+            query_parameters=[
+                bigquery.ScalarQueryParameter("module_id", "STRING", module_id),
+                bigquery.ScalarQueryParameter(
+                    "release_id", "STRING", self.release_id
+                ),
+                bigquery.ScalarQueryParameter("run_id", "STRING", self.run_id),
+                bigquery.ScalarQueryParameter("source_hash", "STRING", source_hash),
+            ],
+        )
+        try:
+            raw_rows = list(client.query(query, job_config=job_config).result())
+        except GoogleAPICallError:
+            raise RepositoryUnavailableError(REPOSITORY_UNAVAILABLE_MESSAGE) from None
+        if len(raw_rows) != expected_rows:
+            raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE)
+
+        try:
+            estimates = []
+            for raw_row in raw_rows:
+                mapping = (
+                    dict(raw_row.items())
+                    if hasattr(raw_row, "items")
+                    else dict(raw_row)
+                )
+                if set(mapping) != set(_BIGQUERY_FIELDS):
+                    raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE)
+                row = {key: self._csv_value(value) for key, value in mapping.items()}
+                if (
+                    row["module_id"] != module_id
+                    or row["release_id"] != self.release_id
+                    or row["run_id"] != self.run_id
+                    or row["source_hash"] != source_hash
+                    or row["validation_status"] != "APPROVED"
+                ):
+                    raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE)
+                estimates.append(
+                    _to_estimate(
+                        row,
+                        source_classification=(
+                            _VerifiedSourceClassification.AUTHORIZED_INSTITUTIONAL_AGGREGATE
+                        ),
+                    )
+                )
+            return estimates
+        except RepositoryError:
+            raise
+        except (KeyError, TypeError, ValueError):
+            raise RepositoryContractError(REPOSITORY_CONTRACT_MESSAGE) from None
