@@ -1,23 +1,24 @@
 # Plan de control de acceso — Stage 04
 
-- Estado: `SUPERVISOR_READ_ROLES_VERIFIED; RESOURCE_CREATION_BLOCKED_BY_STEP47`
-- Alcance autorizado: `GO_FOR_STAGE7_CONTROLLED_SHADOW`
+- Estado: `SYNTHETIC_INFRA_A_EXECUTED; ACCESS_VERIFICATION_PARTIAL; DECISION_B_BLOCKED`
+- Alcance autorizado: `GO_FOR_STAGE7_CONTROLLED_SHADOW; SYNTHETIC_ONLY`
 - Publicación institucional: `NOT_AUTHORIZED`
 - Responsabilidades: Ana es propietaria, operadora y responsable de billing; Rita supervisa en
   modo de solo lectura antes de cada binding
 
 Proyecto, vínculo de billing, presupuesto y los tres roles de lectura de Rita fueron configurados
 con principales mantenidos en privado. Rita confirmó recepción del canal y acceso efectivo. La
-revisión del PR #116 mantiene la creación de recursos y el despliegue sujetos a la decisión del
-paso 47. Este documento no contiene correos, principales exactos, identificadores de billing ni
-credenciales.
+Decisión A posterior autorizó y ejecutó la infraestructura sintética aislada; la Decisión B del
+paso 47 continúa bloqueando cifras reales. Este documento no contiene correos, principales
+exactos, identificadores de billing ni credenciales.
 
 ## Mecanismo de autenticación
 
-La aplicación se desplegará en Cloud Run con autenticación obligatoria y sin bindings para
+La aplicación sintética está desplegada en Cloud Run con autenticación obligatoria y sin bindings para
 `allUsers` ni `allAuthenticatedUsers`. El acceso se concederá mediante `roles/run.invoker` sobre el
-servicio únicamente a las seis identidades aprobadas: Ana, Rita y las etiquetas privadas
-`viewer_01`–`viewer_04`. Los principales exactos se conservan y verifican fuera del repositorio.
+servicio únicamente a identidades verificadas. Ana y Rita están configuradas; las etiquetas
+privadas `viewer_01`–`viewer_04` permanecen pendientes. Los principales exactos se conservan y
+verifican fuera del repositorio.
 
 Todas las rutas de la aplicación, archivos estáticos y descargas deben quedar detrás del mismo
 control. No se autoriza una URL pública alternativa, un bucket público ni un enlace de exportación

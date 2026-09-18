@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-09-18 UTC
 
-**Estado:** `PENDING_SUPERVISORY_DECISION`
+**Estado:** `DECISION_A_EXECUTED; DECISION_B_BLOCKED`
 
 ## Antecedentes verificados
 
@@ -12,7 +12,8 @@
 - Rita confirmó privadamente recepción del canal y acceso efectivo con `run.viewer`,
   `logging.viewer` y `monitoring.viewer` en la revisión aprobatoria del PR #116.
 - Las 3.014 filas V0 están conectadas y verificadas localmente; no se han cargado en cloud.
-- Recursos creados, consultas ejecutadas y gasto acumulado antes de esta decisión: cero.
+- Antes de la decisión no existían recursos de Stage 04 ni consultas cloud. La Decisión A fue
+  aprobada posteriormente y se ejecutó con recursos aislados y sin cifras reales.
 
 ## Decisión solicitada A — infraestructura sintética
 
@@ -44,8 +45,8 @@ por manifiesto y SHA-256. No se cargarán microdatos ni se fabricarán cortes o 
 - El gasto objetivo continúa siendo USD 0; USD 20/mes es techo de contingencia, no meta.
 - Cada acción debe registrarse con fecha UTC, actor, recurso, resultado, coste observado y rollback.
 
-## Decisión requerida
+## Decisión registrada
 
-- `APPROVE_A_SYNTHETIC_INFRA_ONLY`: permite pasos 43–46 sin cifras reales.
-- `NO_GO`: no se crea ningún recurso.
-- La decisión B permanece siempre separada y requiere una aprobación posterior explícita.
+- `APPROVE_A_SYNTHETIC_INFRA_ONLY`: aprobada y ejecutada.
+- `ISOLATE_STAGE04_DATASETS`: aprobada; los datasets preexistentes permanecieron intactos.
+- La decisión B permanece separada, bloqueada y requiere una aprobación posterior explícita.

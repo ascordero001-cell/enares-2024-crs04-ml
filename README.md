@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/ascordero001-cell/enares-2024-crs04-ml/actions/workflows/ci.yml/badge.svg)](https://github.com/ascordero001-cell/enares-2024-crs04-ml/actions/workflows/ci.yml)
 ![Stage 03](https://img.shields.io/badge/Stage%2003-PASS%20en%20shadow-success)
-![Stage 04](https://img.shields.io/badge/Stage%2004-LOCAL%20SHADOW-yellow)
+![Stage 04](https://img.shields.io/badge/Stage%2004-CONTROLLED%20SHADOW-yellow)
 ![Privacidad](https://img.shields.io/badge/datos-sin%20microdatos-blue)
 
 Proyecto técnico para procesar de forma reproducible y auditable el Cuestionario 4 de
@@ -15,9 +15,10 @@ poblacional basada únicamente en agregados validados.
 > Sprint 04.2 sigue en curso. Las 3,014 filas del catálogo V0 están conectadas y reconciliadas para
 > `LOCAL_SHADOW_ONLY`. El vínculo de facturación y el presupuesto conservador equivalente a menos
 > de USD 20 fueron configurados; el gasto objetivo es USD 0. El canal de alertas y los tres roles
-> de lectura de Rita también están configurados y verificados privadamente. La creación de
-> recursos y la conexión de cifras reales esperan la decisión separada del paso 47. Todavía no se
-> autoriza publicación ni cutover.
+> de lectura de Rita también están configurados y verificados privadamente. La infraestructura
+> sintética aislada de la Decisión A está desplegada con autenticación obligatoria; la Decisión B
+> para conectar cifras reales en cloud continúa bloqueada. Todavía no se autoriza publicación ni
+> cutover.
 
 ![Demostración sintética de estados candidato, referencia y suprimido](docs/stage04/evidence/sprint042_corte2_states.png)
 
@@ -48,7 +49,7 @@ promoción, cutover, sustitución de V0, autenticación cloud, cambios IAM ni de
 | Stage 02 | Almacenamiento y validación inicial | Aprobado |
 | Stage 03 | Limpieza, indicadores 3.1–3.6 y migración por componentes | `PASS` en shadow |
 | PRE-STAGE04 | Inventario, gobernanza y autorización local | `CLOSED/PASS` |
-| Stage 04 | Aplicación de vigilancia poblacional | `LOCAL_SHADOW_ONLY`; Sprint 04.2 en curso |
+| Stage 04 | Aplicación de vigilancia poblacional | `CONTROLLED_SHADOW; SYNTHETIC_ONLY`; Sprint 04.2 en curso |
 | Stage 05 | Evaluación y decisiones posteriores | Pendiente |
 
 ### Versiones
