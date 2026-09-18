@@ -15,7 +15,7 @@ la numeracion original. Sustituye a cualquier version parcial anterior de estas 
 
 | Indicador | Valor |
 |---|---|
-| Pasos del plan cerrados | 46 de 53 |
+| Pasos del plan cerrados | 47 de 53 |
 | Filas del agregado V0 conectadas en la aplicacion | 3.014 de 3.014 |
 | Recursos creados en Google Cloud | 6 recursos aislados de la Decisión A |
 | Consultas ejecutadas en Google Cloud | 0 |
@@ -342,9 +342,9 @@ a una aprobación separada del paso 47.
 | 44 | Billing y limites en funcionamiento | CERRADO; presupuesto, umbrales, canal y recepcion verificados |
 | 45 | Identidades y acceso, antes de desplegar nada | CERRADO para Decisión A: Ana y Rita verificadas; cuatro reservas retiradas formalmente |
 | 46 | Verificacion con datos sinteticos; URL en estado DEMO | PASS SUPERVISOR; Decisión A cerrada |
-| 47 | **Autorizacion para conectar cifras reales — decision de Rita** | LISTO PARA DECISIÓN; GO explícito de ejecución pendiente |
+| 47 | **Autorizacion para conectar cifras reales — decision de Rita** | CERRADO; 3.014 filas cargadas en outputs y reconciliadas 3.014/3.014 |
 | **48** | **REESCRITO** — ver texto abajo | PASS SUPERVISOR: 6/6 sesiones, maximo una instancia |
-| 49 | Corrida de evidencia: promocion y rollback reales con paridad | BLOQUEADO |
+| 49 | Corrida de evidencia: promocion y rollback reales con paridad | BLOQUEADO; carga/paridad PASS, promoción no ejecutada |
 
 ### Paso 48 reescrito
 
