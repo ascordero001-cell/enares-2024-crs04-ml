@@ -1,6 +1,6 @@
 # Matriz de cobertura Stage 04 — cuatro estados
 
-- **Estado:** `AUTHENTICATED_SHADOW_APPROVED; SPRINT042_CLOSURE_REVIEW`
+- **Estado:** `AUTHENTICATED_SHADOW_APPROVED; SPRINT042_CLOSED`
 - **Alcance de ejecución actual:** `CONTROLLED_SHADOW`
 - **GO de configuración:** `GO_FOR_STAGE7_CONTROLLED_SHADOW`
 - **Ejecución cloud:** pasos 47–49 cerrados; paso 49 `PASS_SUPERVISOR` en PR #126
@@ -57,6 +57,6 @@ pública, la publicación institucional y el cutover continúan no autorizados.
 - El extracto integral, su manifiesto y el ledger verifican 3014/3014 filas y 516/516 indicadores.
 - La evidencia de promoción autenticada fue aprobada sin reservas en el PR #126.
 
-Sprint 04.2 permanece abierto únicamente hasta la decisión supervisora del paquete del paso 53.
-La Etapa 7 y su revisión están cerradas; la URL sigue siendo autenticada y no constituye
-publicación ni cutover.
+Sprint 04.2 quedó cerrado por decisión supervisora en el PR #127. La Etapa 7 y su revisión están
+cerradas; la URL sigue siendo autenticada y no constituye publicación ni cutover. El Issue #43
+permanece abierto como paraguas de Stage 04.
