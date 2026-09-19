@@ -154,6 +154,8 @@ def _config(*parameters: bigquery.ScalarQueryParameter) -> bigquery.QueryJobConf
 
 
 def _rows(client: Any, query: str, config: bigquery.QueryJobConfig) -> list[Any]:
+    config.maximum_bytes_billed = BIGQUERY_MAXIMUM_BYTES_BILLED
+    config.use_query_cache = False
     return list(client.query(query, job_config=config).result())
 
 

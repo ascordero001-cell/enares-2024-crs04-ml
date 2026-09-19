@@ -5,12 +5,15 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from google.cloud import bigquery
 
 from enares.stage04.cloud_promotion import (
     PromotionResources,
+    _rows,
     load_promotion_decision,
     promote_reconciled_release,
 )
+from enares.stage04.repository import BIGQUERY_MAXIMUM_BYTES_BILLED
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / ".github" / "workflows" / "stage04-shadow-promote.yml"
@@ -123,6 +126,17 @@ class _Client:
         return _Job([])
 
 
+def test_rows_enforces_shared_bigquery_cost_cap() -> None:
+    client = _Client()
+    config = bigquery.QueryJobConfig(maximum_bytes_billed=0, use_query_cache=True)
+
+    _rows(client, "SELECT 1", config)
+
+    submitted_config = client.queries[-1][1]
+    assert submitted_config.maximum_bytes_billed == BIGQUERY_MAXIMUM_BYTES_BILLED
+    assert submitted_config.use_query_cache is False
+
+
 def test_promotion_is_fail_closed_and_uses_one_guardrail(tmp_path: Path) -> None:
     decision = _load(_decision(tmp_path / "decision.json"))
     client = _Client()
@@ -157,7 +171,10 @@ def test_promotion_is_fail_closed_and_uses_one_guardrail(tmp_path: Path) -> None
     assert "previous_release_id" in next(
         query for query in queries if "PROMOTE_AUTOMATED" in query
     )
-    assert all(config.maximum_bytes_billed == 10_485_760 for _, config in client.queries)
+    assert all(
+        config.maximum_bytes_billed == BIGQUERY_MAXIMUM_BYTES_BILLED
+        for _, config in client.queries
+    )
     assert all(config.use_query_cache is False for _, config in client.queries)
 
 
