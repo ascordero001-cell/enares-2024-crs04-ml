@@ -9,7 +9,9 @@ identificadores personales, variables de diseño ni rutas a fuentes privadas.
 
 ## Reglas
 
-1. `current_release` debe apuntar a un release `APPROVED` antes de exponerlo.
+1. `current_release` debe apuntar a un release `APPROVED` antes de exponerlo y la vista debe fijar
+   literalmente la misma combinación `release_id + run_id` mediante las variables operativas
+   `publishedReleaseId` y `publishedRunId`.
 2. Cada fila conserva `release_id`, versión de fuente, estado y notas de calidad.
 3. Una celda suprimida mantiene su etiqueta y estado, pero expone como NULL `estimate`,
    `standard_error`, `ci95_lower`, `ci95_upper`, `cv`, `n_unweighted` y
@@ -19,6 +21,10 @@ identificadores personales, variables de diseño ni rutas a fuentes privadas.
 6. La aplicación no abre CSV privados, Drive ni `survey_input`.
 7. `suppress_flag` es el control principal de nulificación; el estado visual debe ser coherente,
    pero no sustituye al flag como barrera de seguridad.
+8. La vista consulta una sola tabla física. No une `outputs` con `current_release`: BigQuery cobra
+   un mínimo de 10 MiB por tabla consultada y esa unión haría imposible respetar el límite
+   obligatorio de 10 MiB por consulta. El puntero y la definición fija de la vista se verifican
+   como un par durante promoción y rollback.
 
 ## Proyección segura mínima
 

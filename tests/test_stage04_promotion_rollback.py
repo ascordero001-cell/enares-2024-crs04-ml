@@ -119,7 +119,10 @@ def test_dataform_release_tables_and_safe_current_view_are_declared():
     assert "approval_reference STRING" in registry
     assert "CREATE TABLE IF NOT EXISTS" in current
     assert "previous_release_id STRING" in current
-    assert 'dependencies: ["current_release"]' in published
+    assert "publishedReleaseId" in published
+    assert "publishedRunId" in published
+    assert "JOIN" not in published
+    assert 'dependencies: ["current_release"]' not in published
     assert 'estimates.validation_status = "APPROVED"' in published
     for field in (
         "estimate",
