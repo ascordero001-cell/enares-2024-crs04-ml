@@ -202,8 +202,8 @@ def test_promotion_workflow_preserves_human_gate_and_private_runtime() -> None:
     assert "Candidate minimum scale is not zero" in workflow
     assert "Candidate maximum scale is not one" in workflow
     assert "Candidate concurrency is not six" in workflow
-    assert 'anonymous.StatusCode -ne 403' in workflow
-    assert 'authenticated.StatusCode -ne 200' in workflow
+    assert 'anonymousStatus.Trim() -ne "403"' in workflow
+    assert 'authenticatedStatus.Trim() -ne "200"' in workflow
     assert '--max 1' in workflow
     assert "exactly 100 percent traffic" in workflow
     assert "Cloud Run minimum scale is not zero" in workflow
@@ -221,3 +221,13 @@ def test_failure_evidence_uses_runner_native_shell() -> None:
     assert "if: always()" in outcome_step
     assert "shell: powershell" in outcome_step
     assert "shell: pwsh" not in outcome_step
+
+
+def test_promotion_workflow_uses_only_runner_native_powershell() -> None:
+    workflow = WORKFLOW.read_text(encoding="utf-8")
+
+    assert "shell: pwsh" not in workflow
+    assert workflow.count("shell: powershell") == 6
+    assert "SkipHttpErrorCheck" not in workflow
+    assert "curl.exe --silent --show-error" in workflow
+    assert "[IO.File]::WriteAllText" in workflow
