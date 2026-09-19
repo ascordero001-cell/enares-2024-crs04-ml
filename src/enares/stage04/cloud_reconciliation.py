@@ -7,11 +7,15 @@ from dataclasses import asdict, dataclass, fields
 from pathlib import Path
 from typing import Any
 
+from google.api_core.exceptions import GoogleAPICallError
+from google.auth.exceptions import DefaultCredentialsError
+
 from .repository import (
     BIGQUERY_MAXIMUM_BYTES_BILLED,
     AuthorizedAggregateRepository,
     BigQueryRepository,
     IndicatorEstimate,
+    RepositoryUnavailableError,
 )
 from .shadow_pipeline import (
     MODULE_IDS,
@@ -27,6 +31,16 @@ _FLOAT_FIELDS = {
     "ci95_upper",
     "cv",
     "weighted_population",
+}
+_SAFE_FAILURE_CLASSES = {
+    "BadRequest",
+    "DeadlineExceeded",
+    "DefaultCredentialsError",
+    "Forbidden",
+    "NotFound",
+    "ServiceUnavailable",
+    "TooManyRequests",
+    "Unauthorized",
 }
 
 
@@ -45,6 +59,7 @@ class CloudReconciliationEvidence:
     expected_total_bytes_processed: int
     cache_hits: int
     gates: dict[str, str]
+    failure_class: str | None = None
 
     def as_json(self) -> str:
         return json.dumps(asdict(self), ensure_ascii=False, indent=2, sort_keys=True) + "\n"
@@ -60,6 +75,7 @@ class CloudReconciliationEvidence:
             f"- Bytes procesados: {self.total_bytes_processed}\n"
             f"- Bytes esperados: {self.expected_total_bytes_processed}\n"
             f"- Cache hits: {self.cache_hits}\n\n"
+            f"- Categoría segura de fallo: `{self.failure_class or 'NONE'}`\n\n"
             "## Gates\n\n"
             f"{gates}\n\n"
             "No se cargaron filas ni se ejecutaron promoción, rollback, IAM, tráfico o "
@@ -73,11 +89,33 @@ class TrackingBigQueryClient:
     def __init__(self, client: Any) -> None:
         self._client = client
         self.queries: list[tuple[Any, Any]] = []
+        self.failure_class: str | None = None
+
+    def _record_failure(self, exc: BaseException) -> None:
+        name = type(exc).__name__
+        self.failure_class = name if name in _SAFE_FAILURE_CLASSES else "GoogleCloudError"
 
     def query(self, query: str, *, job_config: Any) -> Any:
-        job = self._client.query(query, job_config=job_config)
+        try:
+            job = self._client.query(query, job_config=job_config)
+        except (GoogleAPICallError, DefaultCredentialsError, OSError) as exc:
+            self._record_failure(exc)
+            raise
         self.queries.append((job, job_config))
-        return job
+        return _TrackedJob(job, self)
+
+
+class _TrackedJob:
+    def __init__(self, job: Any, owner: TrackingBigQueryClient) -> None:
+        self._job = job
+        self._owner = owner
+
+    def result(self) -> Any:
+        try:
+            return self._job.result()
+        except (GoogleAPICallError, DefaultCredentialsError, OSError) as exc:
+            self._owner._record_failure(exc)
+            raise
 
 
 def _row_key(row: IndicatorEstimate) -> tuple[str, str, str, str]:
@@ -143,12 +181,40 @@ def reconcile_existing_snapshot(
     local_rows: list[IndicatorEstimate] = []
     cloud_rows: list[IndicatorEstimate] = []
     module_row_counts: dict[str, int] = {}
-    for module_id in MODULE_IDS:
-        expected_rows = local_repository.list_estimates(module_id)
-        actual_rows = cloud_repository.list_estimates(module_id)
-        module_row_counts[module_id] = len(actual_rows)
-        local_rows.extend(expected_rows)
-        cloud_rows.extend(actual_rows)
+    try:
+        for module_id in MODULE_IDS:
+            expected_rows = local_repository.list_estimates(module_id)
+            actual_rows = cloud_repository.list_estimates(module_id)
+            module_row_counts[module_id] = len(actual_rows)
+            local_rows.extend(expected_rows)
+            cloud_rows.extend(actual_rows)
+    except RepositoryUnavailableError:
+        return CloudReconciliationEvidence(
+            status="HOLD",
+            mode="RECONCILE_EXISTING",
+            release_id=contract.release_id,
+            run_id=contract.run_id,
+            row_count=len(cloud_rows),
+            indicator_count=len({row.indicator_id for row in cloud_rows}),
+            module_row_counts=module_row_counts,
+            total_bytes_processed=sum(
+                int(getattr(job, "total_bytes_processed", 0) or 0)
+                for job, _ in tracking_client.queries
+            ),
+            expected_total_bytes_processed=expected_total_bytes_processed,
+            cache_hits=sum(
+                bool(getattr(job, "cache_hit", False))
+                for job, _ in tracking_client.queries
+            ),
+            gates={
+                "technical": "HOLD",
+                "v0_parity": "NOT_RUN",
+                "privacy": "NOT_RUN",
+                "release_consistency": "NOT_RUN",
+                "query_cost_cap": "NOT_RUN",
+            },
+            failure_class=tracking_client.failure_class or "RepositoryUnavailable",
+        )
 
     validate_estimates(cloud_rows)
     local_rows.sort(key=_row_key)
@@ -199,4 +265,5 @@ def reconcile_existing_snapshot(
         expected_total_bytes_processed=expected_total_bytes_processed,
         cache_hits=cache_hits,
         gates=gates,
+        failure_class=None,
     )

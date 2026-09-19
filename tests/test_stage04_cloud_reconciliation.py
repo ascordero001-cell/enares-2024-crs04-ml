@@ -5,6 +5,8 @@ import hashlib
 from pathlib import Path
 from typing import Any
 
+from google.api_core.exceptions import Forbidden
+
 from enares.stage04.cloud_reconciliation import reconcile_existing_snapshot
 from enares.stage04.shadow_pipeline import PipelineInputContract
 
@@ -18,20 +20,30 @@ EXPECTED_BYTES = 3_308_972
 
 
 class _FakeJob:
-    def __init__(self, rows: list[dict[str, str]], processed_bytes: int) -> None:
+    def __init__(
+        self,
+        rows: list[dict[str, str]],
+        processed_bytes: int,
+        *,
+        fail: bool = False,
+    ) -> None:
         self._rows = rows
         self.total_bytes_processed = processed_bytes
         self.cache_hit = False
+        self._fail = fail
 
     def result(self) -> list[dict[str, str]]:
+        if self._fail:
+            raise Forbidden("sensitive provider detail must not be emitted")
         return self._rows
 
 
 class _FakeClient:
-    def __init__(self, *, alter_first_row: bool = False) -> None:
+    def __init__(self, *, alter_first_row: bool = False, fail: bool = False) -> None:
         with AGGREGATE.open(encoding="utf-8", newline="") as handle:
             self.rows = list(csv.DictReader(handle))
         self.alter_first_row = alter_first_row
+        self.fail = fail
         self.configs: list[Any] = []
 
     def query(self, query: str, *, job_config: Any) -> _FakeJob:
@@ -50,7 +62,7 @@ class _FakeClient:
             self.alter_first_row = False
         index = len(self.configs) - 1
         processed_bytes = 551_495 + (1 if index < 2 else 0)
-        return _FakeJob(module_rows, processed_bytes)
+        return _FakeJob(module_rows, processed_bytes, fail=self.fail)
 
 
 def _sha256(path: Path) -> str:
@@ -117,3 +129,21 @@ def test_reconciliation_job_is_main_only_and_environment_protected() -> None:
     assert "if: always()" in workflow
     assert "load_table_from_file" not in workflow
     assert "bq load" not in workflow
+
+
+def test_reconcile_existing_snapshot_emits_redacted_hold_on_provider_failure() -> None:
+    evidence = reconcile_existing_snapshot(
+        _contract(),
+        aggregate_path=AGGREGATE,
+        manifest_path=MANIFEST,
+        approval_registry_path=REGISTRY,
+        table_fqn="enares-2024-crs04.stage04_shadow_outputs.indicator_estimates",
+        expected_total_bytes_processed=EXPECTED_BYTES,
+        client=_FakeClient(fail=True),
+    )
+
+    assert evidence.status == "HOLD"
+    assert evidence.gates["technical"] == "HOLD"
+    assert evidence.failure_class == "Forbidden"
+    assert "sensitive provider detail" not in evidence.as_json()
+    assert "sensitive provider detail" not in evidence.as_markdown()
