@@ -72,6 +72,7 @@ def test_bigquery_repository_uses_parameters_cap_and_verified_provenance() -> No
     assert "module_id = @module_id" in query
     assert "source_hash = @source_hash" in query
     assert job_config.maximum_bytes_billed == BIGQUERY_MAXIMUM_BYTES_BILLED
+    assert job_config.use_query_cache is True
     parameters = {parameter.name: parameter.value for parameter in job_config.query_parameters}
     assert parameters["module_id"] == "3.2"
     assert parameters["release_id"] == "enares2024-crs04-v0-shadow-001"
