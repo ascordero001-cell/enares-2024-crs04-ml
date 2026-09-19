@@ -137,6 +137,18 @@ jobs:
           $serviceJson = gcloud run services describe $service --project $project --region $region --format=json | ConvertFrom-Json
           $candidate = $serviceJson.status.traffic | Where-Object { $_.tag -eq $env:STAGE04_CANDIDATE_TAG }
           if (-not $candidate -or -not $candidate.url) { throw "Candidate tag URL is unavailable" }
+          $revisionJson = gcloud run revisions describe $candidate.revisionName `
+            --project $project --region $region --format=json | ConvertFrom-Json
+          $minimum = $revisionJson.metadata.annotations.'autoscaling.knative.dev/minScale'
+          if ($null -ne $minimum -and [string]$minimum -ne "0") {
+            throw "Candidate minimum scale is not zero"
+          }
+          if ([string]$revisionJson.metadata.annotations.'autoscaling.knative.dev/maxScale' -ne "1") {
+            throw "Candidate maximum scale is not one"
+          }
+          if ([int]$revisionJson.spec.containerConcurrency -ne 6) {
+            throw "Candidate concurrency is not six"
+          }
           $healthUrl = "$($candidate.url)/_stcore/health"
           $anonymous = Invoke-WebRequest -Uri $healthUrl -SkipHttpErrorCheck
           if ($anonymous.StatusCode -ne 403) { throw "Anonymous candidate access is not forbidden" }
@@ -169,6 +181,10 @@ jobs:
           })
           if ($activeTraffic.Count -ne 1) {
             throw "Verified candidate does not have exactly 100 percent traffic"
+          }
+          $minimum = $serviceJson.spec.template.metadata.annotations.'autoscaling.knative.dev/minScale'
+          if ($null -ne $minimum -and [string]$minimum -ne "0") {
+            throw "Cloud Run minimum scale is not zero"
           }
           if ([string]$serviceJson.spec.template.metadata.annotations.'autoscaling.knative.dev/maxScale' -ne "1") {
             throw "Cloud Run max scale is not one"

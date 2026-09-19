@@ -37,6 +37,9 @@ Después de recibir esa decisión, el job protegido:
 
 Todas las consultas BigQuery usan cache desactivada y el techo existente de 10 MiB. El flujo opera
 solo sobre el snapshot ya reconciliado; no carga datos, no crea una release y no modifica IAM.
+El dry-run local de la consulta de hashes sirve únicamente para validar sintaxis y bytes estimados;
+durante el workflow la paridad ejecuta dos consultas reales porque compara los hashes efectivos de
+ambas superficies.
 
 ## Límites invariables
 
