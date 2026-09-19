@@ -1,9 +1,10 @@
 # Auditoría de afirmaciones de control ejecutables
 
-- Fecha: 2026-09-15
+- Fecha inicial: 2026-09-15
+- Última ampliación: 2026-09-19
 - Alcance: controles transversales de Stage 04
 - Estado: `PASS`
-- Cloud: `NOT_AUTHORIZED`
+- Cloud: `CONTROLLED_SHADOW`; acceso público, publicación y cutover `NOT_AUTHORIZED`
 
 La auditoría contrasta lo que los documentos y PR afirman con las rutas que realmente ejecutan la
 aplicación y CI. No modifica cifras, hashes, reglas estadísticas, granularidad ni alcance cloud.
@@ -16,6 +17,11 @@ aplicación y CI. No modifica cifras, hashes, reglas estadísticas, granularidad
 | Tipos entre módulos | `mypy.ini` usa `follow_imports = normal` globalmente | `test_stage04_engineering_hygiene.py`; el `skip` queda limitado y explicado para `scripts.*` heredados | Conectado |
 | Residual de accesibilidad | El job WCAG audita nueve vistas y reconoce solo la firma exacta de Streamlit 1.63.0 | El contador ahora debe ser exactamente 9; pruebas negativas con 8 y 10 rompen el control | Corregido en esta rama |
 | Límite de granularidad V0 | `validate_estimates` llama `assert_v0_granularity_boundary` para cada fila antes de UI/exportación | Pruebas con dimensión, cruce y par matricial no autorizados | Conectado |
+| Procedencia institucional | `AuthorizedAggregateRepository` deriva `synthetic=false` después de verificar manifiesto, SHA-256 y registro | Faltantes, duplicados y orígenes no autorizados fallan cerrados | Conectado |
+| Identidad reservada | Aserción Dataform `stage04_reserved_release_identity` | `UNPROMOTED` y `__UNPROMOTED__` no pueden presentarse como release/run real | Conectado |
+| Límite de consulta | El repositorio BigQuery fija `maximum_bytes_billed`; la vista publicada usa una sola tabla | Consulta real observada por debajo de 10 MiB; el preflight más costoso falla antes de ejecutarse | Conectado |
+| Privilegio mínimo | Runtime con `bigquery.jobUser`, `READER` en `published` y vista autorizada | 0 roles de datos a nivel proyecto, 0 ACL directa en `outputs`, 0 principals públicos | Conectado |
+| Promoción y rollback | Lifecycle, cache por release/run y runbook ejecutado | `PROMOTE → ROLLBACK_TO_EMPTY → RE_PROMOTE` sin mezcla de snapshots | Conectado |
 
 ## Corrección realizada
 
@@ -27,6 +33,8 @@ cambiar esa versión.
 
 ## Resultado
 
-Después de la corrección, ninguna de las seis afirmaciones auditadas depende únicamente de texto o
-registro manual: o bien se ejecuta y falla de forma cerrada, o bien está declarada explícitamente
-inactiva sin presentarse como protección vigente.
+Después de la ampliación posterior a la promoción, ninguna afirmación auditada depende únicamente
+de texto o registro manual: o bien se ejecuta y falla de forma cerrada, o bien está declarada
+explícitamente inactiva sin presentarse como protección vigente. La configuración IAM/ACL fue
+contrastada contra el servicio y los datasets vivos; los identificadores del principal permanecen
+redactados del repositorio público.

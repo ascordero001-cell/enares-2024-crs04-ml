@@ -12,14 +12,16 @@ poblacional basada únicamente en agregados validados.
 > **Estado real:** V0 continúa siendo la versión oficial. V0.5 permanece en
 > `SHADOW — NOT PUBLISHED`. PRE-STAGE04 está cerrado y el checkpoint de ingeniería
 > local del Corte 2 fue aprobado y fusionado mediante el [PR #57](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/57).
-> Sprint 04.2 sigue en curso. Las 3,014 filas del catálogo V0 están conectadas y reconciliadas para
-> `LOCAL_SHADOW_ONLY`. El vínculo de facturación y el presupuesto conservador equivalente a menos
-> de USD 20 fueron configurados; el gasto objetivo es USD 0. El canal de alertas y los tres roles
-> de lectura de Rita también están configurados y verificados privadamente. La infraestructura
-> sintética aislada de la Decisión A está desplegada y cerrada con PASS supervisor. La Decisión B
-> cargó y reconcilió 3.014/3.014 filas V0 en `outputs` aislado. `published` y `ops` siguen vacíos y
-> Cloud Run continúa sintético hasta un gate posterior de promoción. No se autoriza publicación ni
-> cutover.
+> Sprint 04.2 está en cierre supervisor. Las 3.014 filas del catálogo V0 están conectadas,
+> reconciliadas y promovidas en `CONTROLLED_SHADOW`: 3.014/3.014 filas, 516 indicadores y cinco
+> gates operativos en `PASS`. Cloud Run consume exclusivamente la vista autorizada
+> `published.v_dashboard_current`, exige autenticación y mantiene acceso anónimo en HTTP 403.
+> El techo presupuestario es USD 20/mes y el gasto objetivo es USD 0. V0 continúa oficial; no se
+> autoriza acceso público, publicación institucional, cutover ni sustitución de V0.
+
+**URL autenticada del shadow:**
+[enares-stage04-shadow](https://enares-stage04-shadow-bmg5ifoitq-uc.a.run.app).
+Requiere una identidad autorizada; no es una URL pública ni una publicación institucional.
 
 ![Demostración sintética de estados candidato, referencia y suprimido](docs/stage04/evidence/sprint042_corte2_states.png)
 
@@ -29,18 +31,19 @@ poblacional basada únicamente en agregados validados.
 
 | Capa | Cobertura verificable | Significado |
 |---|---:|---|
-| Catálogo V0 autorizado para implementación local | 516 indicadores / 3,014 filas agregadas | Decisión supervisora registrada; implementación pendiente |
-| Registro de navegación de la app | 7 `indicator_id` seleccionados en 3.1–3.6 | Configuración técnica y comportamiento fail-closed |
-| Resultados V0 conectados | 52 filas en los módulos 3.1–3.6 | Agregados locales ligados a manifiestos; no publicados |
-| Demo visual | candidato, referencial y suprimido | Fixture 100 % sintético, separado de V0 |
+| Catálogo V0 autorizado | 516 indicadores / 3.014 filas agregadas | Conectado y reconciliado 3.014/3.014 |
+| Shadow autenticado | 516 indicadores / 3.014 filas agregadas | Promovido; 5/5 gates `PASS`; sin acceso público |
+| Navegación y accesibilidad | módulos 3.1–3.6 | Recorridos reales, auditoría automática y revisión manual completas |
+| Demo visual histórica | candidato, referencial y suprimido | Fixture 100 % sintético, preservado como evidencia separada de V0 |
 
-Las 2,962 filas restantes están autorizadas pero todavía no conectadas. La implementación debe
-crear un extracto y manifiesto nuevos, probar rederivación y mantener una navegación utilizable;
-ninguna autorización permite inventar dimensiones o cruces ausentes de V0.
+No quedan filas V0 autorizadas pendientes de conectar. El extracto integral y su manifiesto
+conservan procedencia por SHA-256; ninguna autorización permite inventar dimensiones o cruces
+ausentes de V0.
 
 La exportación técnica del mismo corte agregado V0 visible está habilitada en CSV y Excel con
-controles contra fórmulas y metadata. No están autorizados la publicación institucional,
-promoción, cutover, sustitución de V0, autenticación cloud, cambios IAM ni despliegues.
+controles contra fórmulas y metadata. La promoción controlada en shadow y la autenticación cloud
+fueron ejecutadas bajo revisión supervisora. No están autorizados el acceso público, la
+publicación institucional, el cutover ni la sustitución de V0.
 
 ## Estado del proyecto
 
@@ -50,7 +53,7 @@ promoción, cutover, sustitución de V0, autenticación cloud, cambios IAM ni de
 | Stage 02 | Almacenamiento y validación inicial | Aprobado |
 | Stage 03 | Limpieza, indicadores 3.1–3.6 y migración por componentes | `PASS` en shadow |
 | PRE-STAGE04 | Inventario, gobernanza y autorización local | `CLOSED/PASS` |
-| Stage 04 | Aplicación de vigilancia poblacional | `CONTROLLED_SHADOW; SYNTHETIC_ONLY`; Sprint 04.2 en curso |
+| Stage 04 | Aplicación de vigilancia poblacional | `CONTROLLED_SHADOW`; Sprint 04.2 en cierre supervisor |
 | Stage 05 | Evaluación y decisiones posteriores | Pendiente |
 
 ### Versiones
@@ -66,15 +69,15 @@ Un `PASS` técnico o metodológico no equivale a autorización de publicación i
 
 | Módulo | Contenido | Filas V0 autorizadas | Filas conectadas localmente |
 |---|---|---:|---:|
-| 3.1 | Características, percepciones y normas | 1.170 | 10 |
-| 3.2 | Violencia psicológica y física en el hogar | 389 | 1 |
-| 3.3 | Violencia psicológica y física en la escuela | 123 | 1 |
-| 3.4 | Violencia sexual | 749 | 1 |
-| 3.5 | Polivictimización y acumulación de violencias | 457 | 38 |
-| 3.6 | Búsqueda de ayuda | 126 | 1 |
+| 3.1 | Características, percepciones y normas | 1.170 | 1.170 |
+| 3.2 | Violencia psicológica y física en el hogar | 389 | 389 |
+| 3.3 | Violencia psicológica y física en la escuela | 123 | 123 |
+| 3.4 | Violencia sexual | 749 | 749 |
+| 3.5 | Polivictimización y acumulación de violencias | 457 | 457 |
+| 3.6 | Búsqueda de ayuda | 126 | 126 |
 
-Las 3.014 filas están autorizadas únicamente para implementación local en shadow; 52 están
-conectadas. La conexión cloud y la publicación de resultados continúan sin autorización.
+Las 3.014 filas están conectadas localmente y promovidas únicamente en el shadow autenticado. La
+publicación de resultados y el acceso público continúan sin autorización.
 
 La etiqueta 3.1 no cambia el significado original de sus indicadores. El bloque oficial 3.6
 corresponde a **Búsqueda de ayuda**; las denominaciones históricas se conservan únicamente para
@@ -88,14 +91,16 @@ Fuentes institucionales preservadas por hash
   -> Stage 02: capa raw
   -> Stage 03: capas cleaned y analytical 3.1–3.6
   -> agregados y contratos V0/V0.5 validados
-  -> repositorio local de agregados autorizados
+  -> repositorio de agregados autorizados y reconciliados 3.014/3.014
   -> validación de módulo + indicador + authorized_dimensions
-  -> aplicación Streamlit local, read-only y fail-closed
+  -> published.v_dashboard_current (vista autorizada)
+  -> aplicación Streamlit read-only, autenticada y fail-closed
 ```
 
 La aplicación no consulta microdatos ni permite buscar niñas, niños o adolescentes individuales.
-Las capas `published/current`, BigQuery adicional y Cloud Run pertenecen a gates futuros que no
-están autorizados en esta fase.
+La capa `published` y Cloud Run operan exclusivamente en `CONTROLLED_SHADOW`, con una instancia
+máxima, escala a cero y sin principal público. Cualquier publicación o cutover requiere una
+decisión independiente.
 
 ## Reproducibilidad y evidencia
 
@@ -181,6 +186,7 @@ enares-2024-crs04-ml/
 ## Documentación principal
 
 - [Estado único de Stage 04 — 2026-09-15](docs/stage04/stage04_documento_unico_20260915.md)
+- [Paquete de cierre de Sprint 04.2 — 2026-09-19](docs/stage04/sprint042_closure_package_20260919.md)
 - [PRE-STAGE04](PRE_STAGE04.md) · [Documento rector](CRS04_STAGE04_CORREGIDO_VER6_NUEVA_METODOLOGIA.md) · [Hoja arquitectónica](CRS04_STAGE04_HOJA_ARQUITECTONICA_APP_VIGILANCIA.md)
 - [Mapa real de issues](docs/stage04/issue_map.md) · [Issue paraguas #43](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/43)
 - [Checkpoint Corte 2](docs/stage04/sprint042_corte2_module_coverage.md) · [Matriz de cobertura](docs/stage04/module_coverage_matrix.md) · [Evidencia HCI](docs/stage04/hci_accessibility_corte2.md)

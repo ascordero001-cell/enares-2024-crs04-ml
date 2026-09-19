@@ -15,17 +15,18 @@ la numeracion original. Sustituye a cualquier version parcial anterior de estas 
 
 | Indicador | Valor |
 |---|---|
-| Pasos del plan cerrados | 47 de 53 |
+| Pasos del plan cerrados | 51 de 53 |
 | Filas del agregado V0 conectadas en la aplicacion | 3.014 de 3.014 |
 | Recursos creados en Google Cloud | 6 recursos aislados de la Decisión A |
-| Consultas ejecutadas en Google Cloud | 0 |
+| Ejecucion real en Google Cloud | 3.014 filas / 516 indicadores; promocion y rollback verificados |
 | Gasto acumulado | Pendiente de latencia de facturacion; ninguna alerta recibida |
 
-**Ana termino los pasos 1 a 44, incluido el paso 36.** Tambien esta cerrado el paso 50, que se
-adelanto. Los pasos 45, 46 y 48 quedaron verificados por Rita en la revisión formal del PR #119.
+**Ana termino los pasos 1 a 51, incluido el paso 36.** Los pasos 45, 46 y 48 quedaron verificados
+por Rita en la revisión formal del PR #119; el paso 49 quedó aprobado sin reservas en el PR #126.
 
-La infraestructura sintetica aislada de la Decision A ya fue ejecutada. La Decision B para
-conectar cifras reales y los pasos que dependen de ella continúan bloqueados.
+La infraestructura sintetica aislada de la Decision A y la ejecucion real autenticada de la
+Decision B fueron completadas. Permanecen pendientes el registro final de la URL del paso 52 y la
+decision supervisora del paquete de cierre del paso 53.
 
 ---
 
@@ -344,7 +345,7 @@ a una aprobación separada del paso 47.
 | 46 | Verificacion con datos sinteticos; URL en estado DEMO | PASS SUPERVISOR; Decisión A cerrada |
 | 47 | **Autorizacion para conectar cifras reales — decision de Rita** | CERRADO; 3.014 filas cargadas en outputs y reconciliadas 3.014/3.014 |
 | **48** | **REESCRITO** — ver texto abajo | PASS SUPERVISOR: 6/6 sesiones, maximo una instancia |
-| 49 | Corrida de evidencia: promocion y rollback reales con paridad | EJECUTADO PASS; pendiente revisión supervisora del paquete |
+| 49 | Corrida de evidencia: promocion y rollback reales con paridad | CERRADO; PASS SUPERVISOR en PR #126 |
 
 ### Paso 48 reescrito
 
@@ -366,8 +367,8 @@ medicion de consumo e instancias espera a que exista Cloud Run.
 |---|---|---|
 | 50 | Matriz de cobertura 3.1-3.6 en cuatro estados | CERRADO |
 | **51** | **REESCRITO** — ver texto abajo | CERRADO: accesibilidad manual, heuristicas y recorrido cognitivo completos |
-| 52 | URL registrada en README, About, PR y Release, con su advertencia de estado | BLOQUEADO: necesita que exista una URL |
-| 53 | **Paquete de cierre para revision final — decision de Rita** | PENDIENTE |
+| 52 | URL registrada en README, About, PR y Release, con su advertencia de estado | EN CURSO; URL autenticada existente, README y PR preparados; About y Release posteriores al merge |
+| 53 | **Paquete de cierre para revision final — decision de Rita** | PRESENTADO; pendiente decision supervisora |
 
 ### Paso 51 reescrito
 
@@ -417,11 +418,11 @@ El plan rector nunca contemplo estas cuatro cosas. No llevan numero y no renumer
 
 ## Solo con el gate levantado
 
-3. Pasos **43 a 49**, en ese orden.
+3. Pasos **43 a 49**, en ese orden. **Completados.**
 
 ## Al final
 
-4. Paso **52** y paso **53**.
+4. Paso **52** y paso **53**. **Paquete presentado; pendiente decision supervisora.**
 
 ---
 
