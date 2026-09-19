@@ -1,7 +1,7 @@
 # Matriz de cobertura Stage 04 — cuatro estados
 
-- **Estado:** `LOCAL_SCOPE_IMPLEMENTED; CLOUD_NOT_EXECUTED; SPRINT042_OPEN`
-- **Alcance de ejecución actual:** `LOCAL_SHADOW_ONLY`
+- **Estado:** `AUTHENTICATED_SHADOW_EXECUTED; SPRINT042_OPEN`
+- **Alcance de ejecución actual:** `CONTROLLED_SHADOW`
 - **GO de configuración:** `GO_FOR_STAGE7_CONTROLLED_SHADOW`
 - **Bloqueante de ejecución cloud:** decisión separada del paso 47; verificación privada completada
 - **Publicación institucional y cutover:** `NOT_AUTHORIZED`
@@ -23,12 +23,12 @@ separado lo decidido de lo efectivamente conectado.
 
 | Módulo | Trabajo local actual | Decisión supervisora vigente | Cloud ejecutado | Autorizado, pendiente de conectar | Sin decisión supervisora |
 |---|---|---|---|---:|---|
-| 3.1 Roles y tareas en el hogar | 1170/1170 filas conectadas | 1170 filas V0 cubiertas | No; 0 filas | 0 | Ninguna fila V0 |
-| 3.2 Violencia en el hogar | 389/389 filas conectadas | 389 filas V0 autorizadas | No; 0 filas | 0 | Ninguna fila V0 |
-| 3.3 Violencia en la escuela | 123/123 filas conectadas | 123 filas V0 autorizadas | No; 0 filas | 0 | Ninguna fila V0 |
-| 3.4 Violencia sexual | 749/749 filas conectadas | 749 filas V0 autorizadas | No; 0 filas | 0 | Ninguna fila V0 |
-| 3.5 Acumulación y consecuencias | 457/457 filas conectadas: 438 A, 4 C, 7 D y 8 E | 457 filas V0 cubiertas | No; 0 filas | 0 | Ninguna fila V0 |
-| 3.6 Búsqueda de ayuda | 126/126 filas conectadas | 126 filas V0 autorizadas | No; 0 filas | 0 | Ninguna fila V0 |
+| 3.1 Roles y tareas en el hogar | 1170/1170 filas conectadas | 1170 filas V0 cubiertas | Sí; 1170 filas | 0 | Ninguna fila V0 |
+| 3.2 Violencia en el hogar | 389/389 filas conectadas | 389 filas V0 autorizadas | Sí; 389 filas | 0 | Ninguna fila V0 |
+| 3.3 Violencia en la escuela | 123/123 filas conectadas | 123 filas V0 autorizadas | Sí; 123 filas | 0 | Ninguna fila V0 |
+| 3.4 Violencia sexual | 749/749 filas conectadas | 749 filas V0 autorizadas | Sí; 749 filas | 0 | Ninguna fila V0 |
+| 3.5 Acumulación y consecuencias | 457/457 filas conectadas: 438 A, 4 C, 7 D y 8 E | 457 filas V0 cubiertas | Sí; 457 filas | 0 | Ninguna fila V0 |
+| 3.6 Búsqueda de ayuda | 126/126 filas conectadas | 126 filas V0 autorizadas | Sí; 126 filas | 0 | Ninguna fila V0 |
 
 ## Totales por estado
 
@@ -37,13 +37,13 @@ separado lo decidido de lo efectivamente conectado.
 | Agregados conectados y reconciliados automáticamente | 3014 filas |
 | Filas V0 con decisión supervisora | 3014 filas |
 | Filas autorizadas todavía no conectadas | 0 filas |
-| Agregados ejecutados o cargados en cloud | 0 filas |
-| Recursos cloud creados por este trabajo local | 0 |
+| Agregados ejecutados y promovidos en cloud | 3014 filas |
+| Servicio nuevo creado durante la promoción | 0 |
 
 Las 3014 filas son `1170 + 389 + 123 + 749 + 457 + 126` para los módulos 3.1–3.6. La autorización
-numérica no equivale a autorización de publicación. La URL pública, la materialización de
-`published.v_dashboard_current`, la carga real, la promoción y el rollback cloud no se han
-ejecutado.
+numérica no equivale a autorización de publicación. La carga, la materialización autenticada de
+`published.v_dashboard_current`, la promoción y el rollback cloud fueron ejecutados. La URL
+pública, la publicación institucional y el cutover continúan no autorizados.
 
 ## Evidencia y gates siguientes
 
@@ -51,12 +51,11 @@ ejecutado.
   institucional; el campo `synthetic=false` nunca se acepta desde el CSV o el llamador.
 - `CV > 15 %` y `base_unw < 30` producen alertas visibles sin supresión. La granularidad nunca
   supera V0 y no se fabrican cruces.
-- El proyecto, billing, alertas y roles supervisores ya fueron verificados privadamente. La
-  Etapa 7 no empieza hasta la decisión separada del paso 47 exigida en la revisión del PR #116.
-- La primera ejecución cloud debe proteger identidades y límites antes de desplegar el fixture
-  sintético. Conectar cifras reales requiere la autorización separada del paso 47.
+- El proyecto, billing, alertas y roles supervisores fueron verificados privadamente. La Etapa 7
+  comenzó solo después de la decisión separada del paso 47 exigida en la revisión del PR #116.
+- La ejecución real protegió identidades, acceso autenticado y el límite de 10 MiB por consulta.
 - El extracto integral, su manifiesto y el ledger verifican 3014/3014 filas y 516/516 indicadores.
-- Permanecen pendientes los seis recorridos manuales representativos exigidos para cerrar PR B.
+- La evidencia de promoción autenticada queda pendiente de revisión supervisora.
 
-Sprint 04.2 permanece abierto. Esta actualización completa el registro local del paso 50, pero
-no declara ejecutada la Etapa 7 ni satisface por sí sola el paquete de cierre del paso 53.
+Sprint 04.2 permanece abierto. La Etapa 7 está ejecutada técnicamente; esta actualización no
+satisface por sí sola el paquete ni la revisión supervisora del paso 53.
