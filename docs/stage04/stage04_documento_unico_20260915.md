@@ -15,7 +15,7 @@ la numeracion original. Sustituye a cualquier version parcial anterior de estas 
 
 | Indicador | Valor |
 |---|---|
-| Pasos del plan cerrados | 51 de 53 |
+| Pasos del plan cerrados | 53 de 53 |
 | Filas del agregado V0 conectadas en la aplicacion | 3.014 de 3.014 |
 | Recursos creados en Google Cloud | 6 recursos aislados de la Decisión A |
 | Ejecucion real en Google Cloud | 3.014 filas / 516 indicadores; promocion y rollback verificados |
@@ -25,8 +25,8 @@ la numeracion original. Sustituye a cualquier version parcial anterior de estas 
 por Rita en la revisión formal del PR #119; el paso 49 quedó aprobado sin reservas en el PR #126.
 
 La infraestructura sintetica aislada de la Decision A y la ejecucion real autenticada de la
-Decision B fueron completadas. Permanecen pendientes el registro final de la URL del paso 52 y la
-decision supervisora del paquete de cierre del paso 53.
+Decision B fueron completadas. La URL quedó registrada con su advertencia y Rita aprobó el cierre
+del Sprint 04.2 bajo `CONTROLLED_SHADOW` en el PR #127.
 
 ---
 
@@ -367,8 +367,8 @@ medicion de consumo e instancias espera a que exista Cloud Run.
 |---|---|---|
 | 50 | Matriz de cobertura 3.1-3.6 en cuatro estados | CERRADO |
 | **51** | **REESCRITO** — ver texto abajo | CERRADO: accesibilidad manual, heuristicas y recorrido cognitivo completos |
-| 52 | URL registrada en README, About, PR y Release, con su advertencia de estado | EN CURSO; URL autenticada registrada en README y About; PR preparado; Release posterior al merge |
-| 53 | **Paquete de cierre para revision final — decision de Rita** | PRESENTADO; pendiente decision supervisora |
+| 52 | URL registrada en README, About, PR y Release, con su advertencia de estado | CERRADO; prerelease `stage04-sprint042-controlled-shadow` |
+| 53 | **Paquete de cierre para revision final — decision de Rita** | CERRADO; PASS SUPERVISOR en PR #127 |
 
 ### Paso 51 reescrito
 
@@ -422,7 +422,7 @@ El plan rector nunca contemplo estas cuatro cosas. No llevan numero y no renumer
 
 ## Al final
 
-4. Paso **52** y paso **53**. **Paquete presentado; pendiente decision supervisora.**
+4. Paso **52** y paso **53**. **Completados; Sprint 04.2 cerrado.**
 
 ---
 
@@ -453,11 +453,11 @@ apagaba mypy entre modulos. El contador de residuales de accesibilidad que no se
 Los cinco se corrigieron. Pero aparecieron revisando, no auditando, y no hay razon para suponer
 que fueran los unicos.
 
-**Antes del paquete de cierre del paso 53 se hara una pasada especifica sobre lo construido esos
-dos dias, buscando ese patron.** Es una tarde de trabajo y es exactamente lo que un paquete de
-cierre debe sostener.
+**Antes del paquete de cierre del paso 53 se hizo una pasada especifica sobre lo construido esos
+dos dias, buscando ese patron.** El resultado quedó registrado en
+`executable_control_claims_audit.md` y en el paquete del PR #127.
 
 ---
 
-Sprint 04.2 no se cierra por este documento, por un PR documental ni por CI en verde. Requiere el
-paquete del paso 53 y revision supervisora.
+Sprint 04.2 quedó cerrado después del paquete del paso 53 y la revisión supervisora del PR #127.
+El cierre conserva `CONTROLLED_SHADOW` y no autoriza acceso público, publicación ni cutover.

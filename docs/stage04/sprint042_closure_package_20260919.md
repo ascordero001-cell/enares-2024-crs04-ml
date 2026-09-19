@@ -1,7 +1,7 @@
 # Sprint 04.2 — paquete de cierre supervisor
 
 - Fecha: 2026-09-19
-- Estado: `READY_FOR_SUPERVISORY_REVIEW; NOT_CLOSED`
+- Estado: `CLOSED; PASS_SUPERVISOR`
 - Alcance: `CONTROLLED_SHADOW`
 - V0: continúa oficial
 - Publicación institucional, acceso público, cutover y sustitución de V0: `NOT_AUTHORIZED`
@@ -70,10 +70,10 @@ URL autenticada:
 <https://enares-stage04-shadow-bmg5ifoitq-uc.a.run.app>
 
 La URL exige identidad autorizada. No concede acceso público y no constituye publicación
-institucional. Este PR la registra en README y en el propio paquete; el campo About del
-repositorio ya contiene la URL y la advertencia de estado. El registro de Release se completa
-después del merge para que apunte al commit aprobado. Debe quedar identificado como prerelease de
-ingeniería en shadow y repetir esta misma advertencia.
+institucional. El PR #127 la registró en README y en el propio paquete; el campo About del
+repositorio contiene la URL y la advertencia de estado. El prerelease de ingeniería
+[`stage04-sprint042-controlled-shadow`](https://github.com/ascordero001-cell/enares-2024-crs04-ml/releases/tag/stage04-sprint042-controlled-shadow)
+apunta al merge aprobado y repite esta misma advertencia.
 
 ## Evidencia principal
 
@@ -85,9 +85,10 @@ ingeniería en shadow y repetir esta misma advertencia.
 - [Promoción autenticada](stage7_authenticated_shadow_promotion_evidence_20260919.md)
 - [Runbook de promoción y rollback](promotion_rollback_runbook.md)
 
-## Decisión solicitada — paso 53
+## Decisión supervisora — paso 53
 
-Se solicita a Rita revisar este paquete y decidir si el Sprint 04.2 puede declararse cerrado bajo
-`CONTROLLED_SHADOW`. Una decisión positiva no autoriza acceso público, publicación institucional,
+Rita aprobó el head `9dcb9e7` y el cierre del Sprint 04.2 bajo `CONTROLLED_SHADOW`. El PR #127 se
+fusionó en `68f052ccdb2b6d67cb31ea66134a2885de1958bf`; las cinco workflows posteriores de `main`
+terminaron en `SUCCESS`. La decisión no autoriza acceso público, publicación institucional,
 cutover, sustitución de V0 ni un aumento del techo presupuestario. El Issue #43 permanece abierto
 como paraguas de Stage 04.

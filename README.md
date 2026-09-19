@@ -12,7 +12,8 @@ poblacional basada únicamente en agregados validados.
 > **Estado real:** V0 continúa siendo la versión oficial. V0.5 permanece en
 > `SHADOW — NOT PUBLISHED`. PRE-STAGE04 está cerrado y el checkpoint de ingeniería
 > local del Corte 2 fue aprobado y fusionado mediante el [PR #57](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/57).
-> Sprint 04.2 está en cierre supervisor. Las 3.014 filas del catálogo V0 están conectadas,
+> Sprint 04.2 está cerrado con aprobación supervisora bajo `CONTROLLED_SHADOW`. Las 3.014 filas
+> del catálogo V0 están conectadas,
 > reconciliadas y promovidas en `CONTROLLED_SHADOW`: 3.014/3.014 filas, 516 indicadores y cinco
 > gates operativos en `PASS`. Cloud Run consume exclusivamente la vista autorizada
 > `published.v_dashboard_current`, exige autenticación y mantiene acceso anónimo en HTTP 403.
@@ -53,7 +54,7 @@ publicación institucional, el cutover ni la sustitución de V0.
 | Stage 02 | Almacenamiento y validación inicial | Aprobado |
 | Stage 03 | Limpieza, indicadores 3.1–3.6 y migración por componentes | `PASS` en shadow |
 | PRE-STAGE04 | Inventario, gobernanza y autorización local | `CLOSED/PASS` |
-| Stage 04 | Aplicación de vigilancia poblacional | `CONTROLLED_SHADOW`; Sprint 04.2 en cierre supervisor |
+| Stage 04 | Aplicación de vigilancia poblacional | `CONTROLLED_SHADOW`; Sprint 04.2 `CLOSED/PASS_SUPERVISOR` |
 | Stage 05 | Evaluación y decisiones posteriores | Pendiente |
 
 ### Versiones
