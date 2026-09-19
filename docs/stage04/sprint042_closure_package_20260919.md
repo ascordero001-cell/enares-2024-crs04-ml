@@ -70,10 +70,10 @@ URL autenticada:
 <https://enares-stage04-shadow-bmg5ifoitq-uc.a.run.app>
 
 La URL exige identidad autorizada. No concede acceso público y no constituye publicación
-institucional. Este PR la registra en README y en el propio paquete. El campo About del
-repositorio y el registro de Release se completan como acciones posteriores al merge para que
-apunten al commit aprobado. El Release debe quedar identificado como prerelease de ingeniería en
-shadow y repetir esta misma advertencia.
+institucional. Este PR la registra en README y en el propio paquete; el campo About del
+repositorio ya contiene la URL y la advertencia de estado. El registro de Release se completa
+después del merge para que apunte al commit aprobado. Debe quedar identificado como prerelease de
+ingeniería en shadow y repetir esta misma advertencia.
 
 ## Evidencia principal
 

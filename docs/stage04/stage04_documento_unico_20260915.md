@@ -367,7 +367,7 @@ medicion de consumo e instancias espera a que exista Cloud Run.
 |---|---|---|
 | 50 | Matriz de cobertura 3.1-3.6 en cuatro estados | CERRADO |
 | **51** | **REESCRITO** — ver texto abajo | CERRADO: accesibilidad manual, heuristicas y recorrido cognitivo completos |
-| 52 | URL registrada en README, About, PR y Release, con su advertencia de estado | EN CURSO; URL autenticada existente, README y PR preparados; About y Release posteriores al merge |
+| 52 | URL registrada en README, About, PR y Release, con su advertencia de estado | EN CURSO; URL autenticada registrada en README y About; PR preparado; Release posterior al merge |
 | 53 | **Paquete de cierre para revision final — decision de Rita** | PRESENTADO; pendiente decision supervisora |
 
 ### Paso 51 reescrito
