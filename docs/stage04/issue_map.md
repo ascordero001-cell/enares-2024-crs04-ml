@@ -1,13 +1,13 @@
 ﻿# Mapa real de issues — Stage 04
 
 **Repositorio:** `ascordero001-cell/enares-2024-crs04-ml`
-**Estado:** `CONTROLLED_SHADOW; SPRINT043_SPECIFICATION`
+**Estado:** `CONTROLLED_SHADOW; SPRINT043_CLOSURE_PENDING_MERGE`
 
 | Tema local | Número GitHub real | URL | Tipo | Bloqueante |
 |---|---:|---|---|---|
 | Paraguas Stage 04 | #43 | https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/43 | núcleo | sí |
 | V0 y contratos | #44 | https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/44 | núcleo | sí |
-| Automatización shadow | #45 | https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/45 | núcleo activo de Sprint 04.3 | sí |
+| Automatización shadow | #45 | https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/45 | cierre 04.3 pendiente de merge | no |
 | Auditoría, promoción y rollback | #46 | https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/46 | cerrado / `PASS_SUPERVISOR` | no |
 | Looker opcional | #47 | https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/47 | núcleo opcional | no |
 | App Streamlit y Cloud Run | #48 | https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/48 | núcleo | sí |
@@ -27,6 +27,8 @@ La plantilla local stage04_43.md declara como dependencia el «#42» en numeraci
 
 Esa dependencia quedó superada por el reordenamiento del rector: la aplicación se validó primero
 en Sprint 04.2 mediante #46, #47 y #48. Sprint 04.2 quedó cerrado por el PR #127 y #46 se cerró
-después de la promoción/rollback real. La automatización #45 es ahora el núcleo activo de Sprint
-04.3. Local 43 no está bloqueado por local 42, y no existe relación GitHub `blocked by` entre estos
-issues.
+después de la promoción/rollback real. La automatización de los pasos 5–11 de #45 quedó verificada
+en Sprint 04.3; el rollback automatizado del paso 12 se difirió con aprobación supervisora y el
+mecanismo manual probado se conserva como respaldo. #45 se cerrará al fusionarse el paquete de
+cierre, mientras #43 continuará abierto como paraguas. Local 43 no está bloqueado por local 42,
+y no existe relación GitHub `blocked by` entre estos issues.
