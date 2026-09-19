@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-09-18 UTC
 
-**Estado:** `DECISION_B_LOAD_AND_RECONCILIATION_PASS; PROMOTION_NOT_EXECUTED`
+**Estado:** `AUTHENTICATED_SHADOW_PROMOTION_EXECUTED_PASS`
 
 ## Antecedentes verificados
 
@@ -54,4 +54,8 @@ por manifiesto y SHA-256. No se cargarán microdatos ni se fabricarán cortes o 
   confidencialidad para B.
 - `APPROVE_B_REAL_V0_CLOUD_EXECUTION`: aprobada en el PR #120 y ejecutada hasta carga y
   reconciliación.
-- La promoción a `published`, escritura en `ops` y conexión real de Cloud Run no fueron ejecutadas.
+- La promoción a `published`, escritura append-only en `ops`, rollback al checkpoint vacío,
+  re-promoción y conexión real autenticada de Cloud Run fueron ejecutadas en PASS el 2026-09-19.
+- La primera consulta real a través de la aplicación procesó 1.598.962 bytes bajo el límite de
+  10.485.760 bytes. Véase
+  [stage7_authenticated_shadow_promotion_evidence_20260919.md](stage7_authenticated_shadow_promotion_evidence_20260919.md).

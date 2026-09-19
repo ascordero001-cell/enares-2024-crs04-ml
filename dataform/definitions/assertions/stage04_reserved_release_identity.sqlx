@@ -1,0 +1,14 @@
+config {
+  type: "assertion",
+  schema: dataform.projectConfig.vars.opsDataset,
+  name: "stage04_reserved_release_identity",
+  description: "Rejects the fail-closed published-view sentinel as a real release or run identity.",
+  tags: ["stage04", "release", "promotion", "security"]
+}
+
+SELECT
+  release_id,
+  run_id
+FROM `${dataform.projectConfig.defaultDatabase}.${dataform.projectConfig.vars.outputsDataset}.indicator_estimates`
+WHERE release_id = "__UNPROMOTED__"
+   OR run_id = "__UNPROMOTED__"

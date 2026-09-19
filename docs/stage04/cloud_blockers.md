@@ -3,7 +3,7 @@
 **Presupuesto máximo autorizado:** USD 20/mes; gasto objetivo USD 0.
 **Propietaria y operadora designada:** Ana; titular de la cuenta de facturación.
 **Supervisora:** Rita; roles de lectura y alertas, sin administración de billing.
-**Estado operativo:** `DECISION_B_LOAD_AND_RECONCILIATION_PASS; PROMOTION_BLOCKED`.
+**Estado operativo:** `AUTHENTICATED_SHADOW_PROMOTION_EXECUTED_PASS`.
 
 El [acta supervisora D01–D12](acta_decision_d01_d12_20260913.md) confirma que el presupuesto no
 autoriza conexión cloud, publicación ni cutover. Proyecto y vínculo de billing ya fueron
@@ -18,23 +18,22 @@ privadamente; no configura IAM ni modifica la autorización local del catálogo 
 La decisión vigente se registra en
 [zero_spend_target_20260917.md](zero_spend_target_20260917.md). Como las alertas de Cloud Billing
 no constituyen un tope automático, se mantienen los límites técnicos y la parada temprana.
-Los elementos siguientes permanecen `BLOCKED_BY_CLOUD_GATE`:
+Los elementos siguientes permanecen bloqueados:
 
-- tablas, vistas, cargas, consultas o DDL adicionales a la tabla `outputs` aprobada;
-- una segunda imagen viva o recursos fuera del conjunto mínimo aprobado;
+- recursos, cargas, consultas o DDL fuera de `outputs`, `published` y `ops` aislados y aprobados;
+- imágenes adicionales fuera de la revisión activa y su destino temporal de rollback durante la
+  ventana de verificación, o recursos fuera del conjunto mínimo aprobado;
 - buckets, GKE, Airflow y Agent Platform;
 - acceso anónimo o bindings adicionales sin principal privado verificado;
-- autenticación de `BigQueryRepository`;
-- promoción a `published`, escritura en `ops` y conexión real de Cloud Run;
 - URL pública, publicación institucional o cutover.
 
 La decisión supervisora del 2026-09-18 resolvió `VF_ESCUELA`, confirmó alertas CV/N universales
-sin supresión y retiró el HOLD de D06/D07. La confidencialidad ya no bloquea la Decisión B. Aun
-El GO explícito de B fue recibido y la carga/reconciliación terminó en PASS. Cualquier promoción o
-conexión de la aplicación permanece en un checkpoint posterior.
+sin supresión y retiró el HOLD de D06/D07. La confidencialidad ya no bloquea la Decisión B.
+El GO explícito de B fue recibido. Carga, reconciliación, promoción, rollback, re-promoción y
+conexión autenticada terminaron en PASS.
 
-Alcance vigente: `CONTROLLED_SHADOW; REAL_V0_IN_OUTPUTS_ONLY`. Cloud Run continúa sintético y los
-datasets `published` y `ops` permanecen vacíos. No publicar, no hacer cutover y no sustituir V0.
+Alcance vigente: `CONTROLLED_SHADOW; REAL_V0_IN_PUBLISHED`. Cloud Run sirve la revisión real solo
+con autenticación. No publicar, no hacer cutover y no sustituir V0.
 Los contratos
 describen destinos futuros, pero no crean recursos ni conceden autorización de publicación. Véase
 [cloud_authorization.md](cloud_authorization.md) y

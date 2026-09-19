@@ -344,7 +344,7 @@ a una aprobación separada del paso 47.
 | 46 | Verificacion con datos sinteticos; URL en estado DEMO | PASS SUPERVISOR; Decisión A cerrada |
 | 47 | **Autorizacion para conectar cifras reales — decision de Rita** | CERRADO; 3.014 filas cargadas en outputs y reconciliadas 3.014/3.014 |
 | **48** | **REESCRITO** — ver texto abajo | PASS SUPERVISOR: 6/6 sesiones, maximo una instancia |
-| 49 | Corrida de evidencia: promocion y rollback reales con paridad | BLOQUEADO; carga/paridad PASS, promoción no ejecutada |
+| 49 | Corrida de evidencia: promocion y rollback reales con paridad | EJECUTADO PASS; pendiente revisión supervisora del paquete |
 
 ### Paso 48 reescrito
 

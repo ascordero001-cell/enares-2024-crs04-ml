@@ -113,6 +113,10 @@ def test_dataform_release_tables_and_safe_current_view_are_declared():
     published = (
         root / "dataform/definitions/published/v_dashboard_current.sqlx"
     ).read_text()
+    sentinel = (
+        root
+        / "dataform/definitions/assertions/stage04_reserved_release_identity.sqlx"
+    ).read_text()
 
     assert "CREATE TABLE IF NOT EXISTS" in registry
     assert "release_id STRING NOT NULL" in registry
@@ -124,6 +128,8 @@ def test_dataform_release_tables_and_safe_current_view_are_declared():
     assert "JOIN" not in published
     assert 'dependencies: ["current_release"]' not in published
     assert 'estimates.validation_status = "APPROVED"' in published
+    assert 'release_id = "__UNPROMOTED__"' in sentinel
+    assert 'run_id = "__UNPROMOTED__"' in sentinel
     for field in (
         "estimate",
         "standard_error",
