@@ -26,6 +26,26 @@ Autorizaciones y correcciones aplicadas:
   ejecución no recibió acceso directo a `outputs`.
 - La lista ACL existente se conservó y no contiene acceso público.
 
+### Verificación efectiva del límite de acceso
+
+El 2026-09-19 se contrastó la identidad configurada en el servicio Cloud Run con
+`gcloud projects get-iam-policy` y las ACL efectivas de ambos datasets mediante `bq show`. El
+resultado fue:
+
+| Superficie verificada | Resultado |
+|---|---|
+| IAM del proyecto para la identidad del runtime | únicamente `roles/bigquery.jobUser`; ningún rol de datos |
+| ACL directa de la identidad del runtime en `outputs` | 0 entradas |
+| ACL de la identidad del runtime en `published` | `READER` |
+| Entrada de vista autorizada en `outputs` | exactamente 1: `published.v_dashboard_current` |
+| Acceso público en `outputs` y `published` | 0 entradas `allUsers` / `allAuthenticatedUsers` |
+
+Por tanto, la identidad puede crear jobs y leer la superficie publicada, pero no tiene un grant
+directo para consultar `outputs.indicator_estimates`. El acceso de la vista a su tabla subyacente
+depende exclusivamente de la entrada `view` de la ACL del dataset. El principal concreto se
+verificó contra la configuración viva del servicio y se mantiene redactado de esta evidencia
+pública.
+
 Secuencia observada:
 
 1. vista fail-closed con 0 filas;
