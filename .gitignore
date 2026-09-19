@@ -11,6 +11,8 @@ data/
 *.parquet
 *.pkl
 *.json
+!docs/stage04/decisions/
+!docs/stage04/decisions/*.json
 *.env
 *.html
 .venv/

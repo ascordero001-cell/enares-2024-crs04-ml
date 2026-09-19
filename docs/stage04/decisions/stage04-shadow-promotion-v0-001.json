@@ -1,0 +1,13 @@
+{
+  "schema_version": "stage04-promotion-decision-v1",
+  "action": "APPROVE_AUTHENTICATED_SHADOW_PROMOTION",
+  "status": "APPROVED",
+  "reviewer": "ritaricaldi-cpu",
+  "scope": "CONTROLLED_SHADOW",
+  "release_id": "enares2024-crs04-v0-shadow-001",
+  "run_id": "pr-b-full-v0-authorized-20260916",
+  "source_hash": "15B845DA4A886FDCF54A96D8B8471B6F6BE618AE18B43024488C6BD6B23D0BB4",
+  "reconciliation_run_url": "https://github.com/ascordero001-cell/enares-2024-crs04-ml/actions/runs/35421445001",
+  "allow_public_access": false,
+  "allow_cutover": false
+}
