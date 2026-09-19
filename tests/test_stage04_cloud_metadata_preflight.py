@@ -41,7 +41,7 @@ def test_metadata_preflight_checks_each_resource_without_querying_rows() -> None
     evidence = preflight_bigquery_metadata(
         client=client,
         project_id="enares-2024-crs04",
-        dataset_id="stage04_shadow_outputs",
+        dataset_id="enares2024_crs04_stage04_shadow_outputs",
         table_id="indicator_estimates",
     )
 
@@ -50,10 +50,13 @@ def test_metadata_preflight_checks_each_resource_without_querying_rows() -> None
     assert evidence.ddl_dml_executed is False
     assert client.calls == [
         ("project", "enares-2024-crs04"),
-        ("dataset", "enares-2024-crs04.stage04_shadow_outputs"),
+        (
+            "dataset",
+            "enares-2024-crs04.enares2024_crs04_stage04_shadow_outputs",
+        ),
         (
             "table",
-            "enares-2024-crs04.stage04_shadow_outputs.indicator_estimates",
+            "enares-2024-crs04.enares2024_crs04_stage04_shadow_outputs.indicator_estimates",
         ),
     ]
     assert not hasattr(client, "query")
@@ -67,7 +70,7 @@ def test_metadata_preflight_stops_after_project_failure_and_redacts_detail() -> 
     evidence = preflight_bigquery_metadata(
         client=client,
         project_id="enares-2024-crs04",
-        dataset_id="stage04_shadow_outputs",
+        dataset_id="enares2024_crs04_stage04_shadow_outputs",
         table_id="indicator_estimates",
     )
 
@@ -84,7 +87,7 @@ def test_metadata_preflight_distinguishes_missing_table_without_leaking_detail()
     evidence = preflight_bigquery_metadata(
         client=client,
         project_id="enares-2024-crs04",
-        dataset_id="stage04_shadow_outputs",
+        dataset_id="enares2024_crs04_stage04_shadow_outputs",
         table_id="indicator_estimates",
     )
 
@@ -101,7 +104,7 @@ def test_metadata_preflight_workflow_is_protected_and_contains_no_data_operation
     assert "if: github.ref == 'refs/heads/main'" in workflow
     assert "name: stage04-shadow-mutation" in workflow
     assert "enares-2024-crs04" in workflow
-    assert "stage04_shadow_outputs" in workflow
+    assert "enares2024_crs04_stage04_shadow_outputs" in workflow
     assert "indicator_estimates" in workflow
     assert "preflight_stage04_bigquery_metadata.py" in workflow
     for forbidden in ("query(", "SELECT ", "INSERT ", "UPDATE ", "DELETE ", "bq load"):

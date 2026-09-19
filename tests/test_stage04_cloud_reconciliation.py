@@ -91,7 +91,10 @@ def test_reconcile_existing_snapshot_passes_with_exact_parity_and_bytes() -> Non
         aggregate_path=AGGREGATE,
         manifest_path=MANIFEST,
         approval_registry_path=REGISTRY,
-        table_fqn="enares-2024-crs04.stage04_shadow_outputs.indicator_estimates",
+        table_fqn=(
+            "enares-2024-crs04."
+            "enares2024_crs04_stage04_shadow_outputs.indicator_estimates"
+        ),
         expected_total_bytes_processed=EXPECTED_BYTES,
         client=client,
     )
@@ -110,7 +113,10 @@ def test_reconcile_existing_snapshot_holds_on_content_difference() -> None:
         aggregate_path=AGGREGATE,
         manifest_path=MANIFEST,
         approval_registry_path=REGISTRY,
-        table_fqn="enares-2024-crs04.stage04_shadow_outputs.indicator_estimates",
+        table_fqn=(
+            "enares-2024-crs04."
+            "enares2024_crs04_stage04_shadow_outputs.indicator_estimates"
+        ),
         expected_total_bytes_processed=EXPECTED_BYTES,
         client=_FakeClient(alter_first_row=True),
     )
@@ -125,7 +131,10 @@ def test_reconciliation_job_is_main_only_and_environment_protected() -> None:
     assert "if: github.ref == 'refs/heads/main'" in workflow
     assert "name: stage04-shadow-mutation" in workflow
     assert "reconcile_stage04_shadow_existing.py" in workflow
-    assert "--table-fqn enares-2024-crs04.stage04_shadow_outputs.indicator_estimates" in workflow
+    assert (
+        "--table-fqn enares-2024-crs04."
+        "enares2024_crs04_stage04_shadow_outputs.indicator_estimates"
+    ) in workflow
     assert "if: always()" in workflow
     assert "load_table_from_file" not in workflow
     assert "bq load" not in workflow
@@ -137,7 +146,10 @@ def test_reconcile_existing_snapshot_emits_redacted_hold_on_provider_failure() -
         aggregate_path=AGGREGATE,
         manifest_path=MANIFEST,
         approval_registry_path=REGISTRY,
-        table_fqn="enares-2024-crs04.stage04_shadow_outputs.indicator_estimates",
+        table_fqn=(
+            "enares-2024-crs04."
+            "enares2024_crs04_stage04_shadow_outputs.indicator_estimates"
+        ),
         expected_total_bytes_processed=EXPECTED_BYTES,
         client=_FakeClient(fail=True),
     )

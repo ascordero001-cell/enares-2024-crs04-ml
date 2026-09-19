@@ -20,7 +20,7 @@ History y en el registro custodio. No se versionan tokens, correos ni IDs intern
 
 | Fecha UTC | Destino lógico | Resultado |
 |---|---|---|
-| 2026-09-18T22:43:10.996Z | `stage04_shadow_outputs.indicator_estimates` | `DONE; 3.014 FILAS; 1.601.976 BYTES` |
+| 2026-09-18T22:43:10.996Z | `enares2024_crs04_stage04_shadow_outputs.indicator_estimates` | `DONE; 3.014 FILAS; 1.601.976 BYTES` |
 
 Solo se creó esa tabla. Los datasets aislados `published` y `ops` permanecieron vacíos. Los
 datasets preexistentes conservaron sus conteos anteriores de una y 32 tablas y no fueron
