@@ -282,33 +282,29 @@ def promote_reconciled_release(
     _rows(
         client,
         f"""
-        DECLARE previous_release STRING;
-        DECLARE previous_run STRING;
-        DECLARE current_release_id STRING;
-        DECLARE current_run_id STRING;
-        SET (previous_release, previous_run) = (
-          SELECT AS STRUCT ANY_VALUE(previous_release_id), ANY_VALUE(previous_run_id)
-          FROM `{resources.current_release}` WHERE singleton = TRUE
-        );
-        SET (current_release_id, current_run_id) = (
-          SELECT AS STRUCT ANY_VALUE(release_id), ANY_VALUE(run_id)
-          FROM `{resources.current_release}` WHERE singleton = TRUE
-        );
-        IF current_release_id IS DISTINCT FROM @release_id
-           OR current_run_id IS DISTINCT FROM @run_id THEN
-          SET previous_release = current_release_id;
-          SET previous_run = current_run_id;
-          BEGIN TRANSACTION;
-            DELETE FROM `{resources.current_release}` WHERE TRUE;
-            INSERT INTO `{resources.current_release}`
-              (singleton, release_id, run_id, previous_release_id, previous_run_id,
-               promoted_at, promoted_by, reason)
-            VALUES
-              (TRUE, @release_id, @run_id, previous_release, previous_run,
-               CURRENT_TIMESTAMP(), 'github-actions-protected',
-               'approved automated authenticated shadow promotion');
-          COMMIT TRANSACTION;
-        END IF;
+        MERGE `{resources.current_release}` AS target
+        USING (
+          SELECT TRUE AS singleton, @release_id AS release_id, @run_id AS run_id
+        ) AS source
+        ON target.singleton = source.singleton
+        WHEN MATCHED AND (
+          target.release_id IS DISTINCT FROM source.release_id
+          OR target.run_id IS DISTINCT FROM source.run_id
+        ) THEN UPDATE SET
+          previous_release_id = target.release_id,
+          previous_run_id = target.run_id,
+          release_id = source.release_id,
+          run_id = source.run_id,
+          promoted_at = CURRENT_TIMESTAMP(),
+          promoted_by = 'github-actions-protected',
+          reason = 'approved automated authenticated shadow promotion'
+        WHEN NOT MATCHED THEN INSERT
+          (singleton, release_id, run_id, previous_release_id, previous_run_id,
+           promoted_at, promoted_by, reason)
+        VALUES
+          (TRUE, source.release_id, source.run_id, NULL, NULL,
+           CURRENT_TIMESTAMP(), 'github-actions-protected',
+           'approved automated authenticated shadow promotion')
         """,
         _config(*common),
     )
@@ -374,6 +370,15 @@ def promote_reconciled_release(
     event_id = hashlib.sha256(
         f"{release_id}\n{run_id}\n{decision_reference}".encode()
     ).hexdigest()
+    pointer = _rows(
+        client,
+        f"""
+        SELECT previous_release_id, previous_run_id
+        FROM `{resources.current_release}`
+        WHERE singleton = TRUE
+        """,
+        _config(),
+    )[0]
     _rows(
         client,
         f"""
@@ -385,10 +390,7 @@ def promote_reconciled_release(
            previous_run_id, actor, reason, occurred_at, evidence_reference)
         VALUES
           (@event_id, 'PROMOTE_AUTOMATED', @release_id, @run_id,
-           (SELECT ANY_VALUE(previous_release_id) FROM `{resources.current_release}`
-            WHERE singleton = TRUE),
-           (SELECT ANY_VALUE(previous_run_id) FROM `{resources.current_release}`
-            WHERE singleton = TRUE),
+           @previous_release_id, @previous_run_id,
            'github-actions-protected', 'approved Stage 04 shadow promotion',
            CURRENT_TIMESTAMP(), @decision_reference)
         """,
@@ -397,6 +399,12 @@ def promote_reconciled_release(
             bigquery.ScalarQueryParameter("event_id", "STRING", event_id),
             bigquery.ScalarQueryParameter(
                 "decision_reference", "STRING", decision_reference
+            ),
+            bigquery.ScalarQueryParameter(
+                "previous_release_id", "STRING", pointer["previous_release_id"]
+            ),
+            bigquery.ScalarQueryParameter(
+                "previous_run_id", "STRING", pointer["previous_run_id"]
             ),
         ),
     )
