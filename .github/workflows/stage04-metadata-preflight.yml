@@ -39,7 +39,7 @@ jobs:
         run: |
           python scripts/preflight_stage04_bigquery_metadata.py `
             --project-id enares-2024-crs04 `
-            --dataset-id stage04_shadow_outputs `
+            --dataset-id enares2024_crs04_stage04_shadow_outputs `
             --table-id indicator_estimates `
             --output (Join-Path $env:RUNNER_TEMP "stage04-metadata-preflight/evidence.json")
 

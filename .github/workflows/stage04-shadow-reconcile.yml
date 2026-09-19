@@ -149,7 +149,7 @@ jobs:
             --aggregate $env:STAGE04_AGGREGATE_PATH `
             --manifest $env:STAGE04_MANIFEST_PATH `
             --approval-registry docs/stage04/v0_drive_hash_manifest.md `
-            --table-fqn enares-2024-crs04.stage04_shadow_outputs.indicator_estimates `
+            --table-fqn enares-2024-crs04.enares2024_crs04_stage04_shadow_outputs.indicator_estimates `
             --expected-total-bytes $env:EXPECTED_TOTAL_BYTES `
             --output-directory (Join-Path $env:RUNNER_TEMP "stage04-reconciliation-evidence")
 
