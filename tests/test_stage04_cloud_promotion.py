@@ -233,7 +233,10 @@ def test_promotion_workflow_preserves_human_gate_and_private_runtime() -> None:
     assert "Candidate concurrency is not six" in workflow
     assert 'anonymousStatus.Trim() -ne "403"' in workflow
     assert 'authenticatedStatus.Trim() -ne "200"' in workflow
-    assert '--max 1' in workflow
+    assert "--min-instances 0 --max-instances 1" in workflow
+    assert "--min 0 --max 1" not in workflow
+    assert workflow.count("gcloud auth print-identity-token") == 2
+    assert "--audiences=" not in workflow
     assert "exactly 100 percent traffic" in workflow
     assert "Cloud Run minimum scale is not zero" in workflow
     assert '"allUsers"' in workflow
