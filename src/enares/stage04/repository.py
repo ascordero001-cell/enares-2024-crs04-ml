@@ -351,6 +351,7 @@ class BigQueryRepository(IndicatorRepository):
         manifest_path: Path | None = None,
         approval_registry_path: Path | None = None,
         client: Any | None = None,
+        use_query_cache: bool = True,
     ) -> None:
         values = (
             table_fqn,
@@ -385,6 +386,7 @@ class BigQueryRepository(IndicatorRepository):
         self.manifest_path = Path(manifest_path)
         self.approval_registry_path = Path(approval_registry_path)
         self.client = client
+        self.use_query_cache = use_query_cache
 
     def _verified_source_hash(self) -> str:
         try:
@@ -451,6 +453,7 @@ class BigQueryRepository(IndicatorRepository):
         """
         job_config = bigquery.QueryJobConfig(
             maximum_bytes_billed=BIGQUERY_MAXIMUM_BYTES_BILLED,
+            use_query_cache=self.use_query_cache,
             query_parameters=[
                 bigquery.ScalarQueryParameter("module_id", "STRING", module_id),
                 bigquery.ScalarQueryParameter(
