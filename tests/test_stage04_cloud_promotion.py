@@ -211,3 +211,13 @@ def test_promotion_workflow_preserves_human_gate_and_private_runtime() -> None:
     assert '"allAuthenticatedUsers"' in workflow
     assert "--allow-unauthenticated" not in workflow
     assert "--no-allow-unauthenticated" not in workflow
+
+
+def test_failure_evidence_uses_runner_native_shell() -> None:
+    workflow = WORKFLOW.read_text(encoding="utf-8")
+    outcome_step = workflow.split("- name: Record redacted workflow outcome", 1)[1]
+    outcome_step = outcome_step.split("- name: Upload redacted promotion evidence", 1)[0]
+
+    assert "if: always()" in outcome_step
+    assert "shell: powershell" in outcome_step
+    assert "shell: pwsh" not in outcome_step
