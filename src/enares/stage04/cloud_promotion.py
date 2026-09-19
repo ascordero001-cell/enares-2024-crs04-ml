@@ -21,6 +21,38 @@ _FIVE_GATES = {
     "release_consistency",
     "query_cost_cap",
 }
+_PUBLISHED_FIELD_NAMES = (
+    "release_id",
+    "run_id",
+    "source_version",
+    "source_hash",
+    "git_commit_sha",
+    "container_image_digest",
+    "dataform_release",
+    "engine_version",
+    "scale",
+    "indicator_id",
+    "indicator_name",
+    "module_id",
+    "disaggregation",
+    "category",
+    "estimate",
+    "standard_error",
+    "ci95_lower",
+    "ci95_upper",
+    "cv",
+    "n_unweighted",
+    "weighted_population",
+    "cv_flag",
+    "n_flag",
+    "suppress_flag",
+    "quality_note",
+    "validation_status",
+    "created_at",
+    "universe",
+    "denominator",
+    "quality_status",
+)
 
 
 @dataclass(frozen=True)
@@ -47,6 +79,7 @@ class PromotionEvidence:
     indicator_count: int
     validation_gate_count: int
     source_hash_match: bool
+    row_hash_parity: bool
     fail_closed_view_applied: bool
     pointer_updated: bool
     published_view_updated: bool
@@ -128,6 +161,29 @@ def _literal(value: str) -> str:
     if not _IDENTITY.fullmatch(value):
         raise ValueError("Promotion identity is invalid")
     return value
+
+
+def _snapshot_row_hashes(
+    client: Any,
+    *,
+    source_query: str,
+    config: bigquery.QueryJobConfig,
+) -> tuple[str, ...]:
+    """Return ordered, non-sensitive hashes for exact projection comparison."""
+
+    hash_struct = ", ".join(f"{name} AS {name}" for name in _PUBLISHED_FIELD_NAMES)
+    result = _rows(
+        client,
+        f"""
+        SELECT ARRAY_AGG(
+          TO_HEX(SHA256(TO_JSON_STRING(STRUCT({hash_struct}))))
+          ORDER BY module_id, indicator_id, disaggregation, category
+        ) AS row_hashes
+        FROM ({source_query}) AS snapshot_row
+        """,
+        config,
+    )[0]
+    return tuple(str(value) for value in result["row_hashes"])
 
 
 def promote_reconciled_release(
@@ -266,6 +322,53 @@ def promote_reconciled_release(
         _config(),
     )
 
+    published = _rows(
+        client,
+        f"""
+        SELECT COUNT(*) AS row_count, COUNT(DISTINCT indicator_id) AS indicator_count,
+               COUNTIF(release_id != @release_id OR run_id != @run_id) AS wrong_identity,
+               COUNTIF(source_hash != @source_hash) AS source_hash_mismatches
+        FROM `{resources.published_view}`
+        """,
+        _config(
+            *common,
+            bigquery.ScalarQueryParameter(
+                "source_hash", "STRING", decision.source_hash.upper()
+            ),
+        ),
+    )[0]
+    if (
+        int(published["row_count"]) != 3014
+        or int(published["indicator_count"]) != 516
+        or int(published["wrong_identity"]) != 0
+        or int(published["source_hash_mismatches"]) != 0
+    ):
+        raise ValueError("Published view parity failed after promotion")
+
+    selected_hashes = _snapshot_row_hashes(
+        client,
+        source_query=f"""
+          SELECT {projection}
+          FROM `{resources.outputs_table}`
+          WHERE release_id = @release_id AND run_id = @run_id
+            AND validation_status = 'APPROVED'
+        """,
+        config=_config(*common),
+    )
+    published_hashes = _snapshot_row_hashes(
+        client,
+        source_query=f"SELECT {projection} FROM `{resources.published_view}`",
+        config=_config(),
+    )
+    if selected_hashes != published_hashes or len(published_hashes) != 3014:
+        _rows(
+            client,
+            f"CREATE OR REPLACE VIEW `{resources.published_view}` AS "
+            f"SELECT {projection} FROM `{resources.outputs_table}` WHERE FALSE",
+            _config(),
+        )
+        raise ValueError("Published view row-hash parity failed after promotion")
+
     event_id = hashlib.sha256(
         f"{release_id}\n{run_id}\n{decision_reference}".encode()
     ).hexdigest()
@@ -295,28 +398,6 @@ def promote_reconciled_release(
             ),
         ),
     )
-    published = _rows(
-        client,
-        f"""
-        SELECT COUNT(*) AS row_count, COUNT(DISTINCT indicator_id) AS indicator_count,
-               COUNTIF(release_id != @release_id OR run_id != @run_id) AS wrong_identity,
-               COUNTIF(source_hash != @source_hash) AS source_hash_mismatches
-        FROM `{resources.published_view}`
-        """,
-        _config(
-            *common,
-            bigquery.ScalarQueryParameter(
-                "source_hash", "STRING", decision.source_hash.upper()
-            ),
-        ),
-    )[0]
-    if (
-        int(published["row_count"]) != 3014
-        or int(published["indicator_count"]) != 516
-        or int(published["wrong_identity"]) != 0
-        or int(published["source_hash_mismatches"]) != 0
-    ):
-        raise ValueError("Published view parity failed after promotion")
 
     return PromotionEvidence(
         status="BIGQUERY_PROMOTED_PENDING_RUNTIME_VERIFICATION",
@@ -326,6 +407,7 @@ def promote_reconciled_release(
         indicator_count=516,
         validation_gate_count=5,
         source_hash_match=True,
+        row_hash_parity=True,
         fail_closed_view_applied=True,
         pointer_updated=True,
         published_view_updated=True,

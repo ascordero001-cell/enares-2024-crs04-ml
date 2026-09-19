@@ -77,6 +77,7 @@ class _Job:
 class _Client:
     def __init__(self) -> None:
         self.queries: list[tuple[str, Any]] = []
+        self.hash_results: list[list[str]] = [["hash-a"] * 3014, ["hash-a"] * 3014]
 
     def query(self, query: str, *, job_config: Any) -> _Job:
         self.queries.append((query, job_config))
@@ -117,6 +118,8 @@ class _Client:
                     }
                 ]
             )
+        if "AS row_hashes" in query:
+            return _Job([{"row_hashes": self.hash_results.pop(0)}])
         return _Job([])
 
 
@@ -139,6 +142,7 @@ def test_promotion_is_fail_closed_and_uses_one_guardrail(tmp_path: Path) -> None
     )
 
     assert evidence.status == "BIGQUERY_PROMOTED_PENDING_RUNTIME_VERIFICATION"
+    assert evidence.row_hash_parity is True
     queries = [query for query, _ in client.queries]
     fail_closed = next(i for i, query in enumerate(queries) if "WHERE FALSE" in query)
     pointer = next(i for i, query in enumerate(queries) if "DELETE FROM" in query)
@@ -155,6 +159,35 @@ def test_promotion_is_fail_closed_and_uses_one_guardrail(tmp_path: Path) -> None
     )
     assert all(config.maximum_bytes_billed == 10_485_760 for _, config in client.queries)
     assert all(config.use_query_cache is False for _, config in client.queries)
+
+
+def test_promotion_fails_closed_when_exact_projection_parity_differs(
+    tmp_path: Path,
+) -> None:
+    decision = _load(_decision(tmp_path / "decision.json"))
+    client = _Client()
+    client.hash_results = [["expected"] * 3014, ["actual"] * 3014]
+    project = "enares-2024-crs04"
+
+    with pytest.raises(ValueError, match="row-hash parity"):
+        promote_reconciled_release(
+            client=client,
+            decision=decision,
+            resources=PromotionResources(
+                outputs_table=f"{project}.shadow_outputs.indicator_estimates",
+                release_registry=f"{project}.shadow_ops.release_registry",
+                validation_results=f"{project}.shadow_ops.validation_results",
+                current_release=f"{project}.shadow_ops.current_release",
+                promotion_events=f"{project}.shadow_ops.promotion_events",
+                published_view=f"{project}.shadow_published.v_dashboard_current",
+            ),
+            decision_reference="https://github.com/example/decision",
+        )
+
+    fail_closed_queries = [
+        query for query, _ in client.queries if "WHERE FALSE" in query
+    ]
+    assert len(fail_closed_queries) == 2
 
 
 def test_promotion_workflow_preserves_human_gate_and_private_runtime() -> None:

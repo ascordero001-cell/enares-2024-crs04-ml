@@ -25,14 +25,15 @@ Después de recibir esa decisión, el job protegido:
    los cinco gates de reconciliación en `PASS`;
 2. deja primero la vista publicada vacía, actualiza el puntero en una transacción idempotente y
    recrea la vista fijada literalmente al release/run aprobado;
-3. comprueba paridad de identidad, hash y conteos, y registra un evento idempotente conservando el
-   puntero anterior;
-4. reutiliza la imagen actual fijada por digest para crear una revisión Cloud Run sin tráfico;
-5. exige acceso anónimo `403`, health autenticado `200`, cero principals públicos, mínimo cero,
+3. comprueba paridad de identidad, SHA-256, conteos y hashes ordenados de las 3.014 filas de la
+   proyección completa; una diferencia vuelve a dejar la vista vacía;
+4. registra un evento idempotente conservando el puntero anterior;
+5. reutiliza la imagen actual fijada por digest para crear una revisión Cloud Run sin tráfico;
+6. exige acceso anónimo `403`, health autenticado `200`, cero principals públicos, mínimo cero,
    máximo una instancia y concurrencia seis;
-6. mueve el 100 % del tráfico únicamente después de validar la candidata y repite las
+7. mueve el 100 % del tráfico únicamente después de validar la candidata y repite las
    comprobaciones sobre el servicio final;
-7. guarda artifacts redactados durante siete días.
+8. guarda artifacts redactados durante siete días.
 
 Todas las consultas BigQuery usan cache desactivada y el techo existente de 10 MiB. El flujo opera
 solo sobre el snapshot ya reconciliado; no carga datos, no crea una release y no modifica IAM.
