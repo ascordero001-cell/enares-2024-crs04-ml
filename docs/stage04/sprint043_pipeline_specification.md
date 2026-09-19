@@ -2,7 +2,7 @@
 
 - Fecha: 2026-09-19
 - Issue núcleo: #45
-- Estado: `PROPOSED; PENDING_SUPERVISORY_CLASSIFICATION_APPROVAL`
+- Estado: `CLASSIFICATION_APPROVED; STAGE2_PREPARATION_IN_PROGRESS`
 - Principio: automatizar ejecución técnica; nunca automatizar autorización
 
 ## Contrato de entrada propuesto
@@ -99,12 +99,24 @@ condición `HOLD`: se diagnostica y documenta antes de continuar, aunque las cif
 
 ## Gate antes de Etapa 2
 
-No se implementa ni ejecuta el workflow hasta que Rita:
+Rita aprobó la clasificación y autorizó iniciar la implementación mediante los comentarios del
+[Issue #43 sobre el canal](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/43#issuecomment-5738403514)
+y el [Environment protegido](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/43#issuecomment-5738454716).
+La decisión estableció subida manual por corrida y a Rita como única revisora requerida, con
+`prevent self-review`. Continúa prohibido crear un transporte alternativo por inferencia.
 
-- apruebe la clasificación de esta tabla;
-- apruebe el mecanismo de decisión trazable;
-- decida el canal autorizado para el agregado privado;
-- confirme que la regresión inicial puede ejecutarse en `RECONCILE_EXISTING` sin mutaciones.
+Las decisiones cubren:
+
+- clasificación de esta tabla;
+- registro de decisión trazable y Environment protegido;
+- entrada manual, exclusivamente por corrida;
+- inicio de la implementación de Etapa 2.
+
+La API de `workflow_dispatch` no ofrece un input de tipo archivo. La preparación se implementa
+fail-closed y queda detenida si el agregado no existe en el directorio efímero de la corrida; no
+se utilizarán artifacts previos, Releases, URLs, secretos, commits, buckets o Drive como reemplazo
+no autorizado. La regresión `RECONCILE_EXISTING` y toda mutación cloud siguen pendientes de un
+mecanismo realizable para materializar esa entrada.
 
 El alcance permanece `CONTROLLED_SHADOW`: sin acceso público, publicación institucional, cutover,
 sustitución de V0 ni aumento de presupuesto o del cap de consulta.
