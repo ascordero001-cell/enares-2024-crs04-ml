@@ -123,6 +123,10 @@ class _Client:
             )
         if "AS row_hashes" in query:
             return _Job([{"row_hashes": self.hash_results.pop(0)}])
+        if "SELECT previous_release_id, previous_run_id" in query:
+            return _Job(
+                [{"previous_release_id": "prior-release", "previous_run_id": "prior-run"}]
+            )
         return _Job([])
 
 
@@ -159,18 +163,26 @@ def test_promotion_is_fail_closed_and_uses_one_guardrail(tmp_path: Path) -> None
     assert evidence.row_hash_parity is True
     queries = [query for query, _ in client.queries]
     fail_closed = next(i for i, query in enumerate(queries) if "WHERE FALSE" in query)
-    pointer = next(i for i, query in enumerate(queries) if "DELETE FROM" in query)
+    pointer = next(
+        i
+        for i, query in enumerate(queries)
+        if "MERGE" in query and "current_release" in query
+    )
     promoted = next(
         i
         for i, query in enumerate(queries)
         if "CREATE OR REPLACE VIEW" in query and "WHERE FALSE" not in query
     )
     assert fail_closed < pointer < promoted
-    assert "BEGIN TRANSACTION" in queries[pointer]
-    assert "IS DISTINCT FROM @release_id" in queries[pointer]
-    assert "previous_release_id" in next(
+    assert "BEGIN TRANSACTION" not in queries[pointer]
+    assert "DELETE FROM" not in queries[pointer]
+    assert "WHEN MATCHED AND" in queries[pointer]
+    assert "previous_release_id = target.release_id" in queries[pointer]
+    event_query = next(
         query for query in queries if "PROMOTE_AUTOMATED" in query
     )
+    assert "@previous_release_id" in event_query
+    assert "SELECT ANY_VALUE(previous_release_id)" not in event_query
     assert all(
         config.maximum_bytes_billed == BIGQUERY_MAXIMUM_BYTES_BILLED
         for _, config in client.queries
@@ -221,7 +233,10 @@ def test_promotion_workflow_preserves_human_gate_and_private_runtime() -> None:
     assert "Candidate concurrency is not six" in workflow
     assert 'anonymousStatus.Trim() -ne "403"' in workflow
     assert 'authenticatedStatus.Trim() -ne "200"' in workflow
-    assert '--max 1' in workflow
+    assert "--min-instances 0 --max-instances 1" in workflow
+    assert "--min 0 --max 1" not in workflow
+    assert workflow.count("gcloud auth print-identity-token") == 2
+    assert "--audiences=" not in workflow
     assert "exactly 100 percent traffic" in workflow
     assert "Cloud Run minimum scale is not zero" in workflow
     assert '"allUsers"' in workflow
