@@ -229,7 +229,7 @@ jobs:
 
       - name: Record redacted workflow outcome
         if: always()
-        shell: pwsh
+        shell: powershell
         env:
           JOB_STATUS: ${{ job.status }}
         run: |
