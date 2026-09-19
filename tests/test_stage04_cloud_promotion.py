@@ -199,10 +199,14 @@ def test_promotion_workflow_preserves_human_gate_and_private_runtime() -> None:
     assert "docs/stage04/decisions/" in workflow
     assert "APPROVE_AUTHENTICATED_SHADOW_PROMOTION" not in workflow
     assert "--no-traffic" in workflow
+    assert "Candidate minimum scale is not zero" in workflow
+    assert "Candidate maximum scale is not one" in workflow
+    assert "Candidate concurrency is not six" in workflow
     assert 'anonymous.StatusCode -ne 403' in workflow
     assert 'authenticated.StatusCode -ne 200' in workflow
     assert '--max 1' in workflow
     assert "exactly 100 percent traffic" in workflow
+    assert "Cloud Run minimum scale is not zero" in workflow
     assert '"allUsers"' in workflow
     assert '"allAuthenticatedUsers"' in workflow
     assert "--allow-unauthenticated" not in workflow
