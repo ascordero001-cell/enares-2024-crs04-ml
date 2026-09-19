@@ -1,0 +1,57 @@
+name: Stage 04 metadata preflight
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stage04-metadata-preflight
+  cancel-in-progress: false
+
+jobs:
+  metadata-preflight:
+    name: Verify approved BigQuery resource metadata
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: stage04-shadow-mutation
+    runs-on: [self-hosted, Windows, X64, stage04-private-input]
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out exact requested commit
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-cloud-runtime.txt
+
+      - name: Install cloud runtime dependencies
+        run: python -m pip install -r requirements-cloud-runtime.txt
+
+      - name: Verify metadata only
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/preflight_stage04_bigquery_metadata.py `
+            --project-id enares-2024-crs04 `
+            --dataset-id stage04_shadow_outputs `
+            --table-id indicator_estimates `
+            --output (Join-Path $env:RUNNER_TEMP "stage04-metadata-preflight/evidence.json")
+
+      - name: Upload redacted metadata evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage04-metadata-preflight-${{ github.run_id }}
+          path: ${{ runner.temp }}/stage04-metadata-preflight/
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Confirm metadata-only boundary
+        if: success()
+        run: echo "Project, dataset and table metadata are accessible; no rows, DDL or DML were used."
