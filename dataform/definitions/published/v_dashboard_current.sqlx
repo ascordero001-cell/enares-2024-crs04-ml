@@ -3,8 +3,7 @@ config {
   schema: dataform.projectConfig.vars.publishedDataset,
   name: "v_dashboard_current",
   description: "Safe aggregate projection for the single approved current release.",
-  tags: ["stage04", "published", "aggregate", "shadow"],
-  dependencies: ["current_release"]
+  tags: ["stage04", "published", "aggregate", "shadow"]
 }
 
 SELECT
@@ -39,8 +38,6 @@ SELECT
   estimates.denominator,
   estimates.quality_status
 FROM `${dataform.projectConfig.defaultDatabase}.${dataform.projectConfig.vars.outputsDataset}.indicator_estimates` AS estimates
-INNER JOIN ${ref("current_release")} AS current
-  ON estimates.release_id = current.release_id
- AND estimates.run_id = current.run_id
-WHERE current.singleton = TRUE
+WHERE estimates.release_id = "${dataform.projectConfig.vars.publishedReleaseId}"
+  AND estimates.run_id = "${dataform.projectConfig.vars.publishedRunId}"
   AND estimates.validation_status = "APPROVED"
