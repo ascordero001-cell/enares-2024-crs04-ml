@@ -132,6 +132,10 @@ def test_workflow_is_manual_fail_closed_and_stops_before_cloud() -> None:
     assert "workflow_dispatch:" in workflow
     assert "pull_request:" not in workflow
     assert "stage04-private-input" in workflow
+    assert "runs-on: [self-hosted, Windows, X64, stage04-private-input]" in workflow
+    assert "runs-on: ubuntu-latest" not in workflow
+    assert "shell: pwsh" in workflow
+    assert "STAGE04_AGGREGATE_PATH" in workflow
     assert "stage04-safe-evidence" in workflow
     assert "fetch-depth: 0" in workflow
     assert "git merge-base --is-ancestor" in workflow
@@ -140,3 +144,19 @@ def test_workflow_is_manual_fail_closed_and_stops_before_cloud() -> None:
     assert "bq " not in workflow
     assert "environment:" not in workflow
     assert "no load, query, promotion, IAM, traffic or publication" in workflow
+
+
+def test_runner_hooks_stage_after_cleanup_and_remove_both_copies() -> None:
+    start = (
+        ROOT / "scripts/runner_hooks/stage04_input_start.ps1"
+    ).read_text(encoding="utf-8")
+    complete = (
+        ROOT / "scripts/runner_hooks/stage04_input_complete.ps1"
+    ).read_text(encoding="utf-8")
+    assert "STAGE04_PRIVATE_INPUT_INBOX" in start
+    assert "RUNNER_TEMP" in start
+    assert "manifestPayload.file_name" in start
+    assert "GetFileName($fileName) -ne $fileName" in start
+    assert "STAGE04_PRIVATE_INPUT_INBOX" in complete
+    assert "RUNNER_TEMP" in complete
+    assert "Remove-Item" in complete

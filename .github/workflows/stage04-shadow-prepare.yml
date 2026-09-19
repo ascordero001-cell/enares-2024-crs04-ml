@@ -46,7 +46,7 @@ permissions:
 jobs:
   prepare-private-input:
     name: Verify manually staged private aggregate
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Windows, X64, stage04-private-input]
     timeout-minutes: 10
 
     steps:
@@ -66,21 +66,32 @@ jobs:
         run: python -m pip install -r requirements.txt
 
       - name: Require an ephemeral per-run input
-        shell: bash
+        shell: pwsh
         run: |
-          set -euo pipefail
-          input_dir="${RUNNER_TEMP}/stage04-private-input"
-          test -f "${input_dir}/aggregate.csv" || {
-            echo "::error::No authorized per-run aggregate was staged. workflow_dispatch has no native file input; no fallback transport is permitted."
-            exit 1
-          }
-          test -f "${input_dir}/manifest.json" || {
-            echo "::error::No matching per-run manifest was staged."
+          $inputDirectory = Join-Path $env:RUNNER_TEMP "stage04-private-input"
+          $manifestPath = Join-Path $inputDirectory "manifest.json"
+          if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
+            Write-Error "::error::No matching per-run manifest was staged by the approved local runner hook."
             exit 1
           }
 
+          $manifest = Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
+          $fileName = [string]$manifest.file_name
+          if (-not $fileName.EndsWith(".csv", [StringComparison]::OrdinalIgnoreCase) -or
+              [IO.Path]::GetFileName($fileName) -ne $fileName) {
+            Write-Error "::error::The manifest file_name is not a safe CSV basename."
+            exit 1
+          }
+          $aggregatePath = Join-Path $inputDirectory $fileName
+          if (-not (Test-Path -LiteralPath $aggregatePath -PathType Leaf)) {
+            Write-Error "::error::No authorized per-run aggregate was staged by the approved local runner hook."
+            exit 1
+          }
+          "STAGE04_AGGREGATE_PATH=$aggregatePath" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "STAGE04_MANIFEST_PATH=$manifestPath" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
       - name: Build immutable run contract
-        shell: bash
+        shell: pwsh
         env:
           RELEASE_ID: ${{ inputs.release_id }}
           RUN_ID: ${{ inputs.run_id }}
@@ -92,40 +103,41 @@ jobs:
           DECISION_REFERENCE: ${{ inputs.decision_reference }}
           DECISION_COMMIT: ${{ inputs.decision_commit }}
         run: |
-          [[ "${DECISION_COMMIT}" =~ ^[0-9a-fA-F]{40}$ ]]
-          git merge-base --is-ancestor "${DECISION_COMMIT}" "${GITHUB_SHA}"
-          git show "${DECISION_COMMIT}:docs/stage04/sprint043_stage2_input_contract.md" \
-            | grep --fixed-strings -- "${DECISION_REFERENCE}" >/dev/null
-          python - <<'PY'
-          import json
-          import os
-          from pathlib import Path
-
-          payload = {
-              "release_id": os.environ["RELEASE_ID"],
-              "run_id": os.environ["RUN_ID"],
-              "aggregate_sha256": os.environ["AGGREGATE_SHA256"],
-              "manifest_sha256": os.environ["MANIFEST_SHA256"],
-              "parent_sha256": os.environ["PARENT_SHA256"],
-              "expected_row_count": int(os.environ["EXPECTED_ROW_COUNT"]),
-              "expected_indicator_count": int(os.environ["EXPECTED_INDICATOR_COUNT"]),
-              "decision_reference": os.environ["DECISION_REFERENCE"],
-              "decision_commit": os.environ["DECISION_COMMIT"],
+          if ($env:DECISION_COMMIT -notmatch '^[0-9a-fA-F]{40}$') {
+            throw "decision_commit must be a full commit SHA"
           }
-          target = Path(os.environ["RUNNER_TEMP"]) / "stage04-run-contract.json"
-          target.write_text(json.dumps(payload), encoding="utf-8")
-          PY
+          git merge-base --is-ancestor $env:DECISION_COMMIT $env:GITHUB_SHA
+          if ($LASTEXITCODE -ne 0) {
+            throw "decision_commit is not an ancestor of the dispatched commit"
+          }
+          $decisionDocument = git show "$($env:DECISION_COMMIT):docs/stage04/sprint043_stage2_input_contract.md"
+          if (-not ($decisionDocument -join "`n").Contains($env:DECISION_REFERENCE)) {
+            throw "decision_reference is not present in the versioned decision commit"
+          }
+          $payload = @{
+            release_id = $env:RELEASE_ID
+            run_id = $env:RUN_ID
+            aggregate_sha256 = $env:AGGREGATE_SHA256
+            manifest_sha256 = $env:MANIFEST_SHA256
+            parent_sha256 = $env:PARENT_SHA256
+            expected_row_count = [int]$env:EXPECTED_ROW_COUNT
+            expected_indicator_count = [int]$env:EXPECTED_INDICATOR_COUNT
+            decision_reference = $env:DECISION_REFERENCE
+            decision_commit = $env:DECISION_COMMIT
+          } | ConvertTo-Json
+          $target = Join-Path $env:RUNNER_TEMP "stage04-run-contract.json"
+          [IO.File]::WriteAllText($target, $payload, [Text.UTF8Encoding]::new($false))
 
       - name: Verify provenance and row contracts
         env:
           PYTHONPATH: src
         run: |
-          python scripts/prepare_stage04_shadow_run.py \
-            --contract "${RUNNER_TEMP}/stage04-run-contract.json" \
-            --aggregate "${RUNNER_TEMP}/stage04-private-input/aggregate.csv" \
-            --manifest "${RUNNER_TEMP}/stage04-private-input/manifest.json" \
-            --approval-registry docs/stage04/v0_drive_hash_manifest.md \
-            --output-directory "${RUNNER_TEMP}/stage04-safe-evidence"
+          python scripts/prepare_stage04_shadow_run.py `
+            --contract (Join-Path $env:RUNNER_TEMP "stage04-run-contract.json") `
+            --aggregate $env:STAGE04_AGGREGATE_PATH `
+            --manifest $env:STAGE04_MANIFEST_PATH `
+            --approval-registry docs/stage04/v0_drive_hash_manifest.md `
+            --output-directory (Join-Path $env:RUNNER_TEMP "stage04-safe-evidence")
 
       - name: Upload redacted evidence only
         uses: actions/upload-artifact@v4

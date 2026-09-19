@@ -112,11 +112,15 @@ Las decisiones cubren:
 - entrada manual, exclusivamente por corrida;
 - inicio de la implementación de Etapa 2.
 
-La API de `workflow_dispatch` no ofrece un input de tipo archivo. La preparación se implementa
-fail-closed y queda detenida si el agregado no existe en el directorio efímero de la corrida; no
-se utilizarán artifacts previos, Releases, URLs, secretos, commits, buckets o Drive como reemplazo
-no autorizado. La regresión `RECONCILE_EXISTING` y toda mutación cloud siguen pendientes de un
-mecanismo realizable para materializar esa entrada.
+La API de `workflow_dispatch` no ofrece un input de tipo archivo. Rita resolvió el transporte en
+la [revisión del PR #130](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/130):
+un runner autoalojado exclusivo recibe una copia local por corrida. Como GitHub vacía
+`RUNNER_TEMP` al inicio del job, un hook posterior a esa limpieza mueve la copia desde un inbox
+local restringido y un hook final elimina ambas copias. No se utilizan artifacts previos,
+Releases, URLs, secretos, commits, buckets o Drive como reemplazo no autorizado.
+
+La preparación continúa fail-closed si falta cualquiera de los dos archivos. La regresión
+`RECONCILE_EXISTING` y toda mutación cloud permanecen separadas y todavía no se ejecutan.
 
 El alcance permanece `CONTROLLED_SHADOW`: sin acceso público, publicación institucional, cutover,
 sustitución de V0 ni aumento de presupuesto o del cap de consulta.

@@ -3,7 +3,7 @@
 - Fecha: 2026-09-19
 - Issue núcleo: #45
 - Decisión supervisora: [Issue #43](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/43#issuecomment-5738454716)
-- Estado: `IMPLEMENTED_PREPARATION; BLOCKED_TRANSPORT`
+- Estado: `IMPLEMENTED_PREPARATION; SELF_HOSTED_TRANSPORT_CONFIGURED`
 
 ## Decisión aplicada
 
@@ -17,15 +17,21 @@ privadas, principales, credenciales e identificadores de jobs.
 
 ## Límite comprobado de la plataforma
 
-`workflow_dispatch` acepta texto, opciones, booleanos y environments; no acepta archivos. Por
-ello, la decisión de «adjuntar el archivo al disparar» no puede materializarse directamente en un
-runner hospedado por GitHub. El workflow no sustituye ese canal por artifacts previos, Releases,
-URLs, secretos, commits, buckets ni Drive: exige que el agregado y su manifiesto ya estén en
-`$RUNNER_TEMP/stage04-private-input` y falla cerrado cuando no están.
+`workflow_dispatch` acepta texto, opciones, booleanos y environments; no acepta archivos. Rita
+resolvió este límite en la revisión del PR #130 autorizando exclusivamente un runner autoalojado
+en la máquina de Ana. El workflow requiere las etiquetas `self-hosted`, `Windows`, `X64` y
+`stage04-private-input`; ya no puede caer en un runner hospedado por GitHub.
 
-La preparación ejecutable queda lista, pero el workflow no puede pasar ese punto en un runner
-hospedado hasta que se apruebe cómo materializar ambos archivos efímeros. Esta limitación no se
-presenta como implementación completa del paso 4.
+GitHub vacía `RUNNER_TEMP` al inicio y al final de cada job. Por eso, una copia colocada allí antes
+del disparo se perdería. El runner usa un inbox local privado y un hook de inicio: después de la
+limpieza automática, el hook valida que existan `aggregate.csv` y `manifest.json`, conserva para
+el CSV el nombre seguro declarado en el manifiesto y copia ambos a
+`RUNNER_TEMP/stage04-private-input`. Un hook de finalización elimina las copias del inbox y del
+directorio temporal. Los hooks auditables están en `scripts/runner_hooks/`.
+
+No se usa artifact previo, Release, URL, secreto, bucket, commit de datos ni sincronización con
+Drive. El archivo privado permanece en la máquina autoalojada y solo la evidencia redactada puede
+subirse como artifact.
 
 ## Controles ejecutados
 
@@ -43,11 +49,11 @@ presenta como implementación completa del paso 4.
 
 ## Próximo gate
 
-Rita debe aprobar un mecanismo técnicamente realizable para colocar el agregado y el manifiesto
-en el directorio efímero de la corrida. Después se podrá añadir el job cloud bajo Environment
-protegido, con Rita como única revisora y `prevent self-review`, conservando separados los gates
-de carga y promoción.
+El runner de repositorio `enares-stage04-local` quedó registrado con la etiqueta exclusiva y el
+Environment `stage04-shadow-mutation` quedó configurado para `main`, con Rita como única revisora
+requerida y `prevent self-review` activo. El workflow de este PR todavía termina antes de toda
+mutación cloud y por eso no consume el Environment.
 
-La consulta de configuración realizada el 2026-09-19 no encontró un Environment existente en el
-repositorio. Este PR no lo crea porque su único job termina antes de cualquier mutación cloud; el
-Environment se configura y verifica antes de añadir el primer job que cargue o promueva datos.
+El próximo gate es una corrida supervisada de preparación con una copia del agregado autorizado.
+Solo después de revisar su evidencia se añadirá un job separado de carga/reconciliación que use el
+Environment protegido. Promoción y rollback conservarán decisiones humanas distintas.
