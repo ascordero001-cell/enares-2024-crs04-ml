@@ -3,7 +3,7 @@
 - Fecha: 2026-09-19
 - Issue núcleo: [#144](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/144)
 - Precondición: Sprint 04.3 cerrado mediante PR #143
-- Estado: `STAGE1_SPECIFICATION_READY_FOR_SUPERVISORY_REVIEW`
+- Estado: `STAGE4_CLOSURE_READY_FOR_SUPERVISORY_REVIEW`
 - Alcance: `CONTROLLED_SHADOW`
 
 ## Decisión de arquitectura
@@ -19,15 +19,15 @@ fuera del acta D01–D12 y no duplica reglas de `authorized_scopes.py` ni `quali
 
 | Etapa | Alcance | Gate de salida |
 |---|---|---|
-| 0 | commit base, inventario de componentes y confirmación de infraestructura | confirmación de reutilización sin IAM/credenciales/recursos nuevos |
-| 1 | mapeo visual, estados, filtros y exportación | aprobación supervisora de la especificación |
-| 2 | estructura/layout con datos 100 % sintéticos y AppTest | aprobación supervisora antes de conectar datos reales |
-| 3 | reutilización del adaptador real y prueba de paridad golden | paridad y ausencia de cambios cloud verificadas |
-| 4 | suite, evidencia ejecutable y cierre | decisión supervisora final |
+| 0 | commit base, inventario de componentes y confirmación de infraestructura | cerrado en PR #145 |
+| 1 | mapeo visual, estados, filtros y exportación | cerrado en PR #145 |
+| 2 | estructura/layout con datos 100 % sintéticos y AppTest | cerrado en PR #146 |
+| 3 | reutilización del adaptador real y prueba de paridad golden | cerrado en PR #147 |
+| 4 | suite, evidencia ejecutable y cierre | listo para decisión supervisora final |
 
-La Etapa 2 no comienza hasta incorporar o identificar la maqueta
-`ui_redesign_mockup_v1.html` y aprobar la especificación de la Etapa 1. La Etapa 3 permanece
-bloqueada hasta la aprobación explícita de la estructura sintética.
+La supervisión declaró suficiente la especificación textual, aprobó la estructura sintética y
+verificó la conexión real y la paridad golden. El bloque permanece en `CONTROLLED_SHADOW` hasta la
+decisión final de cierre de la Etapa 4.
 
 ## Límites permanentes
 

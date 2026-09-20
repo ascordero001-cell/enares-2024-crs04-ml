@@ -3,7 +3,10 @@
 - Issue: #144
 - Alcance: estructura funcional, sin conexión real
 - Datos: fixture en memoria `100 % sintético`
-- Estado: `READY_FOR_SUPERVISORY_REVIEW`
+- Estado: `APPROVED_AND_MERGED`
+- PR: #146
+- Head aprobado: `ec42155cf38aafb6a10d0d1b33571c26366585fe`
+- Merge SHA: `9eab462ae71699b196f89beb0e950d2c008daef1`
 
 ## Implementación
 
