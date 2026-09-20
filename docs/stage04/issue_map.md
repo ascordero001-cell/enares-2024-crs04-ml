@@ -1,7 +1,7 @@
 ﻿# Mapa real de issues — Stage 04
 
 **Repositorio:** `ascordero001-cell/enares-2024-crs04-ml`
-**Estado:** `CONTROLLED_SHADOW; UI_REDESIGN_STAGE2_SYNTHETIC`
+**Estado:** `CONTROLLED_SHADOW; UI_REDESIGN_STAGE3_REAL_CONNECTION`
 
 | Tema local | Número GitHub real | URL | Tipo | Bloqueante |
 |---|---:|---|---|---|
@@ -14,7 +14,7 @@
 | Calidad, paridad y privacidad | #49 | https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/49 | núcleo | sí |
 | Runbook y cutover | #50 | https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/50 | núcleo | sí |
 | Documentación y cierre | #51 | https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/51 | núcleo | sí |
-| Rediseño UI Streamlit | #144 | https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/144 | Etapa 2 sintética en revisión | sí |
+| Rediseño UI Streamlit | #144 | https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/144 | Etapa 3 conectada en revisión | sí |
 | Buckets | No creado | — | learning-lab | no |
 | GKE | No creado | — | learning-lab | no |
 | Airflow | No creado | — | learning-lab | no |
