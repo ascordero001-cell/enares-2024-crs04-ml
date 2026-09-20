@@ -59,15 +59,34 @@ def test_redesign_app_displays_the_exact_golden_values_by_default():
         "Forest plot",
         "Estados",
     ]
+    assert [selectbox.label for selectbox in app.sidebar.selectbox] == [
+        "Módulo",
+        "Departamento",
+        "Área",
+        "Sexo",
+        "Área × sexo",
+        "Idioma del hogar",
+        "Etnicidad",
+        "Tipo de hogar",
+        "Discapacidad",
+        "Indicador",
+    ]
     assert [selectbox.value for selectbox in app.sidebar.selectbox] == [
         "3.2",
-        "Nacional",
+        "Todos",
+        "Todas",
+        "Todos",
+        "Todos",
+        "Todos",
+        "Todas",
+        "Todos",
+        "Todas",
         "VF_HOGAR",
     ]
     metric_values = {metric.label: metric.value for metric in app.metric}
     assert metric_values["Estimación"] == "16.74 %"
     assert metric_values["Error estándar"] == "EE 0.5115"
-    assert metric_values["CV"] == "0.03055"
+    assert metric_values["CV"] == "3.06 %"
     assert metric_values["N no ponderado"] == "18,807"
     assert len(app.dataframe) == 1
     assert len(app.get("vega_lite_chart")) == 1
@@ -100,3 +119,28 @@ def test_empty_state_filter_never_fabricates_a_value():
     assert not app.dataframe
     assert not app.get("vega_lite_chart")
     assert any("No hay resultados autorizados" in info.value for info in app.info)
+
+
+def test_one_visible_dimension_control_filters_an_existing_category_only():
+    app = _app()
+    area = next(box for box in app.sidebar.selectbox if box.label == "Área")
+    area.set_value("1").run(timeout=30)
+    assert not app.exception
+    assert "Dimensión" not in [box.label for box in app.sidebar.selectbox]
+    assert set(app.dataframe[0].value["Categoría"]) == {"1"}
+    assert all(
+        box.disabled
+        for box in app.sidebar.selectbox
+        if box.label
+        in {
+            "Departamento",
+            "Área",
+            "Sexo",
+            "Área × sexo",
+            "Idioma del hogar",
+            "Etnicidad",
+            "Tipo de hogar",
+            "Discapacidad",
+        }
+        and box.label != "Área"
+    )

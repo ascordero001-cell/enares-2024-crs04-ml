@@ -158,7 +158,7 @@ def test_apptest_summary_shows_local_status_release_and_golden_statistics():
     assert {metric.value for metric in app.metric} == {
         "16.74 %",
         "EE 0.5115",
-        "0.03055",
+        "3.06 %",
         "18,807",
     }
     assert "IC95 %: 15.74 %–17.75 %" in visible

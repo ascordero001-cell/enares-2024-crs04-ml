@@ -70,6 +70,7 @@ def filter_authorized_results(
     dimension: str,
     indicator_id: str,
     states: tuple[str, ...],
+    category: str | None = None,
 ) -> list[AuthorizedRedesignResult]:
     """Select only combinations that already exist in the authorized catalog."""
     return [
@@ -79,6 +80,7 @@ def filter_authorized_results(
         and result.row.disaggregation == dimension
         and result.row.indicator_id == indicator_id
         and result.state in states
+        and (category is None or result.row.category == category)
     ]
 
 
