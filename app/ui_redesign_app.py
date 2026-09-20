@@ -25,9 +25,68 @@ from app.views.ui_redesign_real import (
 )
 from enares.stage04.repository import RepositoryError
 
+DIMENSION_FILTERS = (
+    ("Departamento", "Todos"),
+    ("Área", "Todas"),
+    ("Sexo", "Todos"),
+    ("Área × sexo", "Todos"),
+    ("Idioma del hogar", "Todos"),
+    ("Etnicidad", "Todas"),
+    ("Tipo de hogar", "Todos"),
+    ("Discapacidad", "Todas"),
+)
+
 
 def _default_index(options: tuple[str, ...], preferred: str) -> int:
     return options.index(preferred) if preferred in options else 0
+
+
+def _dimension_filter_selection(
+    module_rows: list[AuthorizedRedesignResult],
+) -> tuple[str, str | None]:
+    """Render one-control-per-dimension without enabling dynamic crosses."""
+    options_by_dimension: dict[str, tuple[str, ...]] = {}
+    for dimension, default in DIMENSION_FILTERS:
+        categories = tuple(
+            dict.fromkeys(
+                result.row.category
+                for result in module_rows
+                if result.row.disaggregation == dimension
+            )
+        )
+        options_by_dimension[dimension] = (default, *categories)
+        key = f"redesign_filter_{dimension}"
+        if st.session_state.get(key, default) not in options_by_dimension[dimension]:
+            st.session_state[key] = default
+
+    active_dimension = next(
+        (
+            dimension
+            for dimension, default in DIMENSION_FILTERS
+            if st.session_state.get(f"redesign_filter_{dimension}", default) != default
+        ),
+        None,
+    )
+    selected_values: dict[str, str] = {}
+    for dimension, default in DIMENSION_FILTERS:
+        selected_values[dimension] = st.sidebar.selectbox(
+            dimension,
+            options_by_dimension[dimension],
+            key=f"redesign_filter_{dimension}",
+            disabled=active_dimension is not None and active_dimension != dimension,
+        )
+
+    active_dimension = next(
+        (
+            dimension
+            for dimension, default in DIMENSION_FILTERS
+            if selected_values[dimension] != default
+        ),
+        None,
+    )
+    if active_dimension is None:
+        return "Nacional", None
+    return active_dimension, selected_values[active_dimension]
 
 
 def _render_detail(result: AuthorizedRedesignResult) -> None:
@@ -83,16 +142,12 @@ def render() -> None:
         index=_default_index(module_options, "3.2"),
     )
     module_rows = [result for result in results if result.row.module_id == module_id]
-    dimension_options = tuple(
-        dict.fromkeys(result.row.disaggregation for result in module_rows)
-    )
-    dimension = st.sidebar.selectbox(
-        "Dimensión",
-        dimension_options,
-        index=_default_index(dimension_options, "Nacional"),
-    )
+    dimension, category_filter = _dimension_filter_selection(module_rows)
     dimension_rows = [
-        result for result in module_rows if result.row.disaggregation == dimension
+        result
+        for result in module_rows
+        if result.row.disaggregation == dimension
+        and (category_filter is None or result.row.category == category_filter)
     ]
     indicator_options = tuple(
         dict.fromkeys(result.row.indicator_id for result in dimension_rows)
@@ -120,6 +175,7 @@ def render() -> None:
         dimension=dimension,
         indicator_id=indicator_id,
         states=states,
+        category=category_filter,
     )
     overview, table, forest, states_tab = st.tabs(
         ("Panorama", "Tabla", "Forest plot", "Estados")

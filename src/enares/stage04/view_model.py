@@ -2,8 +2,22 @@
 
 from __future__ import annotations
 
+from decimal import ROUND_HALF_UP, Decimal
+
 from .modules import get_module
 from .repository import IndicatorEstimate
+
+
+def _format_cv(cv: float | None) -> str:
+    if cv is None:
+        return "CV indefinido (0/0)"
+    displayed_ratio = Decimal(str(cv)).quantize(
+        Decimal("0.00001"), rounding=ROUND_HALF_UP
+    )
+    displayed_percent = (displayed_ratio * 100).quantize(
+        Decimal("0.01"), rounding=ROUND_HALF_UP
+    )
+    return f"CV {displayed_percent:.2f} %"
 
 
 def to_indicator_contract(row: IndicatorEstimate) -> dict:
@@ -38,7 +52,7 @@ def to_card_view_model(row: IndicatorEstimate) -> dict:
         raise ValueError("A suppressed row cannot build a numeric card")
     return {
         "category": row.category,
-        "cv_text": "CV indefinido (0/0)" if row.cv is None else f"CV {row.cv:.5f}",
+        "cv_text": _format_cv(row.cv),
         "denominator_text": f"Denominador: {row.denominator}",
         "disaggregation": row.disaggregation,
         "estimate_text": f"{row.estimate:.2f} %",
