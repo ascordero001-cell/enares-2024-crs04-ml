@@ -2,7 +2,10 @@
 
 - Issue: #144
 - Alcance: conexión del layout aprobado al adaptador existente
-- Estado: `READY_FOR_SUPERVISORY_REVIEW`
+- Estado: `APPROVED_AND_MERGED`
+- PR: #147
+- Head aprobado: `a9c71e1c3403f74d476b0a929797cd66d7345c2d`
+- Merge SHA: `322fc46784d5e3f4928f62b4d2aa21e52dc2781b`
 
 ## Ruta ejecutable
 
