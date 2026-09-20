@@ -2,7 +2,7 @@
 
 - Fecha: 2026-09-19
 - Issue núcleo: #45
-- Estado: `CLASSIFICATION_APPROVED; STAGE2_PREPARATION_IN_PROGRESS`
+- Estado: `CLOSED; PASS_SUPERVISOR; ROLLBACK_AUTOMATION_DEFERRED`
 - Principio: automatizar ejecución técnica; nunca automatizar autorización
 
 ## Contrato de entrada propuesto
@@ -119,8 +119,14 @@ un runner autoalojado exclusivo recibe una copia local por corrida. Como GitHub 
 local restringido y un hook final elimina ambas copias. No se utilizan artifacts previos,
 Releases, URLs, secretos, commits, buckets o Drive como reemplazo no autorizado.
 
-La preparación continúa fail-closed si falta cualquiera de los dos archivos. La regresión
-`RECONCILE_EXISTING` y toda mutación cloud permanecen separadas y todavía no se ejecutan.
+La preparación falla cerrada si falta cualquiera de los dos archivos. La regresión
+`RECONCILE_EXISTING` y la promoción protegida se ejecutaron después de sus autorizaciones
+separadas y quedaron verificadas en los runs `35421445001` y `35475887689`, respectivamente.
+
+Los pasos 5–11 están automatizados y verificados. El rollback de práctica del paso 12 permanece
+diferido como trabajo futuro; su mecanismo manual `PROMOTE → ROLLBACK_TO_EMPTY → RE_PROMOTE` fue
+probado en el PR #126 y se conserva como respaldo operativo. Esta excepción explícita fue
+aceptada por la decisión supervisora de cierre y no altera la obligación de autorización humana.
 
 El alcance permanece `CONTROLLED_SHADOW`: sin acceso público, publicación institucional, cutover,
 sustitución de V0 ni aumento de presupuesto o del cap de consulta.

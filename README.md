@@ -12,7 +12,10 @@ poblacional basada únicamente en agregados validados.
 > **Estado real:** V0 continúa siendo la versión oficial. V0.5 permanece en
 > `SHADOW — NOT PUBLISHED`. PRE-STAGE04 está cerrado y el checkpoint de ingeniería
 > local del Corte 2 fue aprobado y fusionado mediante el [PR #57](https://github.com/ascordero001-cell/enares-2024-crs04-ml/pull/57).
-> Sprint 04.2 está cerrado con aprobación supervisora bajo `CONTROLLED_SHADOW`. Las 3.014 filas
+> Los Sprints 04.2 y 04.3 están cerrados con aprobación supervisora bajo `CONTROLLED_SHADOW`.
+> Sprint 04.3 automatizó y verificó la reconciliación y la promoción protegida (pasos 5–11); el
+> rollback automatizado de práctica quedó explícitamente diferido y conserva como respaldo el
+> mecanismo manual probado. Las 3.014 filas
 > del catálogo V0 están conectadas,
 > reconciliadas y promovidas en `CONTROLLED_SHADOW`: 3.014/3.014 filas, 516 indicadores y cinco
 > gates operativos en `PASS`. Cloud Run consume exclusivamente la vista autorizada
@@ -54,7 +57,7 @@ publicación institucional, el cutover ni la sustitución de V0.
 | Stage 02 | Almacenamiento y validación inicial | Aprobado |
 | Stage 03 | Limpieza, indicadores 3.1–3.6 y migración por componentes | `PASS` en shadow |
 | PRE-STAGE04 | Inventario, gobernanza y autorización local | `CLOSED/PASS` |
-| Stage 04 | Aplicación de vigilancia poblacional | `CONTROLLED_SHADOW`; Sprint 04.2 `CLOSED/PASS_SUPERVISOR` |
+| Stage 04 | Aplicación de vigilancia poblacional | `CONTROLLED_SHADOW`; Sprints 04.2 y 04.3 `CLOSED/PASS_SUPERVISOR` |
 | Stage 05 | Evaluación y decisiones posteriores | Pendiente |
 
 ### Versiones
@@ -188,6 +191,7 @@ enares-2024-crs04-ml/
 
 - [Estado único de Stage 04 — 2026-09-15](docs/stage04/stage04_documento_unico_20260915.md)
 - [Paquete de cierre de Sprint 04.2 — 2026-09-19](docs/stage04/sprint042_closure_package_20260919.md)
+- [Paquete de cierre de Sprint 04.3 — 2026-09-19](docs/stage04/sprint043_closure_package_20260919.md)
 - [PRE-STAGE04](PRE_STAGE04.md) · [Documento rector](CRS04_STAGE04_CORREGIDO_VER6_NUEVA_METODOLOGIA.md) · [Hoja arquitectónica](CRS04_STAGE04_HOJA_ARQUITECTONICA_APP_VIGILANCIA.md)
 - [Mapa real de issues](docs/stage04/issue_map.md) · [Issue paraguas #43](https://github.com/ascordero001-cell/enares-2024-crs04-ml/issues/43)
 - [Checkpoint Corte 2](docs/stage04/sprint042_corte2_module_coverage.md) · [Matriz de cobertura](docs/stage04/module_coverage_matrix.md) · [Evidencia HCI](docs/stage04/hci_accessibility_corte2.md)
