@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vigilancia ENARES CRS04 — Diseño de aplicación</title>
+<meta name="description" content="Maqueta de la aplicacion de vigilancia ENARES 2024 CRS04. Cifras simuladas, no resultados oficiales.">
+<style>:root{color-scheme:light dark}html,body{margin:0}img{max-width:100%}</style>
+<style>
+  @media (prefers-reduced-motion: reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important;}}
+
+  :root{
+    --ink:#16202E; --ink-soft:#4B5A72; --ink-faint:#8695AC;
+    --paper:#F1F4F9; --surface:#FFFFFF; --surface-2:#EAEFF6;
+    --border:#DBE3EE; --border-soft:#E8EDF4;
+    --brand:#22405F; --brand-strong:#16293D; --brand-ink:#F5F8FC;
+    --accent:#0E7C6B; --accent-strong:#0A5F52; --accent-soft:#E0F2EE;
+    --ok:#2F9E5C; --ok-soft:#E5F6EC;
+    --warn:#9A6B08; --warn-soft:#FBF1DC;
+    --info:#2E5EA8; --info-soft:#E4ECF8;
+    --crit:#B23A2E; --crit-soft:#FBE7E4;
+    --muted:#6B7A93; --muted-soft:#EBEEF4;
+    --font-display:ui-serif,Georgia,"Iowan Old Style","Palatino Linotype","Times New Roman",serif;
+    --font-body:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,sans-serif;
+    --font-mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    --shadow-sm:0 1px 2px rgba(22,32,46,.06);
+    --shadow-md:0 4px 16px rgba(22,32,46,.08);
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ink:#E7ECF3; --ink-soft:#A9B6C9; --ink-faint:#6E7C93;
+      --paper:#0F1520; --surface:#161E2B; --surface-2:#1D2634;
+      --border:#2B3648; --border-soft:#232D3D;
+      --brand:#6E9BCB; --brand-strong:#8FB4DA; --brand-ink:#0B1420;
+      --accent:#3FBBA4; --accent-strong:#63CDB8; --accent-soft:#12312D;
+      --ok:#4FBE80; --ok-soft:#12301F;
+      --warn:#D9A73B; --warn-soft:#33290F;
+      --info:#7DA5E0; --info-soft:#17253C;
+      --crit:#E38377; --crit-soft:#3A1D19;
+      --muted:#90A0B9; --muted-soft:#202A3A;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.3); --shadow-md:0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink:#E7ECF3; --ink-soft:#A9B6C9; --ink-faint:#6E7C93;
+    --paper:#0F1520; --surface:#161E2B; --surface-2:#1D2634;
+    --border:#2B3648; --border-soft:#232D3D;
+    --brand:#6E9BCB; --brand-strong:#8FB4DA; --brand-ink:#0B1420;
+    --accent:#3FBBA4; --accent-strong:#63CDB8; --accent-soft:#12312D;
+    --ok:#4FBE80; --ok-soft:#12301F;
+    --warn:#D9A73B; --warn-soft:#33290F;
+    --info:#7DA5E0; --info-soft:#17253C;
+    --crit:#E38377; --crit-soft:#3A1D19;
+    --muted:#90A0B9; --muted-soft:#202A3A;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.3); --shadow-md:0 8px 24px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-body);
+    font-size:14px;line-height:1.5;}
+  h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;margin:0;text-wrap:balance;}
+  table{font-variant-numeric:tabular-nums;}
+  .num{font-variant-numeric:tabular-nums;font-family:var(--font-mono);}
+  a{color:var(--accent-strong);}
+  button,select{font-family:inherit;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  .app{max-width:1360px;margin:0 auto;padding:20px 20px 64px;}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    padding-bottom:16px;border-bottom:1px solid var(--border);margin-bottom:16px;}
+  .brandmark{display:flex;align-items:center;gap:12px;}
+  .brandmark .glyph{width:42px;height:42px;border-radius:10px;background:var(--brand);
+    color:var(--brand-ink);display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-display);font-weight:700;font-size:17px;flex:none;}
+  .brandmark .eyebrow{font-size:11px;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--accent-strong);font-weight:700;margin-bottom:2px;}
+  .brandmark h1{font-size:21px;color:var(--ink);}
+  .brandmark .sub{color:var(--ink-soft);font-size:12.5px;margin-top:2px;}
+
+  .release-chip{display:flex;align-items:center;gap:10px;background:var(--surface);
+    border:1px solid var(--border);border-radius:10px;padding:8px 14px;box-shadow:var(--shadow-sm);
+    flex-wrap:wrap;}
+  .release-chip .rc-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-faint);}
+  .release-chip .rc-id{font-family:var(--font-mono);font-size:12.5px;color:var(--ink);}
+
+  .pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;
+    font-size:11px;font-weight:700;letter-spacing:.02em;white-space:nowrap;}
+  .pill.ok{background:var(--ok-soft);color:var(--ok);}
+  .pill.warn{background:var(--warn-soft);color:var(--warn);}
+  .pill.info{background:var(--info-soft);color:var(--info);}
+  .pill.crit{background:var(--crit-soft);color:var(--crit);}
+  .pill.muted{background:var(--muted-soft);color:var(--muted);}
+  .pill.accent{background:var(--accent-soft);color:var(--accent-strong);}
+  .pill.ghost{background:transparent;color:var(--muted);border:1px dashed var(--border);}
+  .pill .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+  .pills{display:flex;flex-wrap:wrap;gap:4px;}
+
+  .banner{display:flex;gap:12px;align-items:flex-start;background:var(--warn-soft);
+    border:1px solid color-mix(in srgb,var(--warn) 38%,transparent);border-radius:12px;
+    padding:13px 16px;margin-bottom:18px;font-size:12.8px;color:var(--ink-soft);}
+  .banner strong{color:var(--ink);}
+  .banner .tag{flex:none;background:var(--warn);color:var(--brand-ink);font-size:10.5px;
+    font-weight:800;letter-spacing:.06em;padding:3px 8px;border-radius:6px;text-transform:uppercase;}
+
+  .layout{display:grid;grid-template-columns:270px 1fr 272px;gap:18px;align-items:start;}
+  @media (max-width:1080px){.layout{grid-template-columns:1fr;}}
+
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+    box-shadow:var(--shadow-sm);}
+  .panel-pad{padding:16px;}
+  .panel-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
+    color:var(--ink-faint);margin-bottom:10px;}
+
+  .rail-left,.rail-right{display:flex;flex-direction:column;gap:14px;}
+  @media (min-width:1081px){.rail-left,.rail-right{position:sticky;top:16px;}}
+  .field{margin-bottom:12px;} .field:last-child{margin-bottom:0;}
+  .field label{display:block;font-size:11.5px;color:var(--ink-soft);margin-bottom:5px;font-weight:600;}
+  .field select{width:100%;background:var(--surface-2);border:1px solid var(--border);
+    border-radius:8px;padding:7px 9px;font-size:13px;color:var(--ink);}
+  .field .hint{font-size:10.8px;color:var(--ink-faint);margin-top:4px;}
+  .coverage-stat{display:flex;justify-content:space-between;gap:10px;padding:6px 0;
+    border-bottom:1px dashed var(--border-soft);font-size:12.3px;}
+  .coverage-stat:last-child{border-bottom:none;}
+  .coverage-stat .v{font-family:var(--font-mono);color:var(--ink);font-weight:600;
+    text-align:right;white-space:nowrap;}
+  .coverage-stat .k{color:var(--ink-soft);}
+
+  .modnav{display:flex;flex-direction:column;gap:3px;}
+  .modnav button{all:unset;cursor:pointer;display:flex;align-items:center;gap:9px;padding:8px 9px;
+    border-radius:8px;font-size:12.5px;color:var(--ink-soft);}
+  .modnav button:hover{background:var(--surface-2);color:var(--ink);}
+  .modnav button.active{background:var(--accent-soft);color:var(--accent-strong);font-weight:700;}
+  .modnav .mcode{flex:none;width:26px;height:20px;border-radius:5px;background:var(--surface-2);
+    display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);
+    font-size:10.5px;font-weight:700;color:var(--ink-soft);}
+  .modnav button.active .mcode{background:var(--accent);color:var(--brand-ink);}
+  .modnav .mtitle{flex:1;}
+  .modnav .mflag{width:7px;height:7px;border-radius:50%;flex:none;}
+
+  .strip{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px;}
+  @media (max-width:900px){.strip{grid-template-columns:repeat(3,1fr);}}
+  @media (max-width:560px){.strip{grid-template-columns:repeat(2,1fr);}}
+  .stripcard{background:var(--surface);border:1px solid var(--border);border-radius:11px;
+    padding:12px;box-shadow:var(--shadow-sm);cursor:pointer;
+    transition:transform .12s ease,box-shadow .12s ease;}
+  .stripcard:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+  .stripcard .sc-top{display:flex;align-items:center;justify-content:space-between;
+    gap:6px;margin-bottom:8px;}
+  .stripcard .sc-code{font-family:var(--font-mono);font-size:11px;font-weight:800;
+    color:var(--accent-strong);background:var(--accent-soft);padding:2px 7px;border-radius:5px;}
+  .stripcard h3{font-size:12.5px;font-family:var(--font-body);font-weight:700;line-height:1.3;
+    min-height:32px;margin-bottom:8px;}
+  .stripcard .sc-value{font-size:21px;font-weight:700;font-family:var(--font-mono);}
+  .stripcard .sc-value.na{font-size:14px;color:var(--ink-faint);font-weight:600;}
+  .stripcard .sc-label{font-size:10.8px;color:var(--ink-faint);margin-bottom:6px;}
+
+  .tabs{display:flex;gap:2px;overflow-x:auto;border-bottom:1px solid var(--border);margin-bottom:16px;}
+  .tabs button{all:unset;cursor:pointer;padding:9px 14px 11px;font-size:12.8px;font-weight:600;
+    color:var(--ink-faint);white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;}
+  .tabs button:hover{color:var(--ink);}
+  .tabs button.active{color:var(--brand);border-bottom-color:var(--accent);}
+
+  .view{display:none;flex-direction:column;gap:16px;}
+  .view.active{display:flex;}
+
+  .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+  .section-head h2{font-size:18px;}
+  .section-head .meta{font-size:12px;color:var(--ink-faint);}
+
+  .ficha{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:var(--surface-2);
+    border:1px solid var(--border-soft);border-radius:10px;padding:12px 14px;font-size:12.3px;}
+  @media (max-width:700px){.ficha{grid-template-columns:1fr;}}
+  .ficha div span{display:block;color:var(--ink-faint);font-size:10.7px;text-transform:uppercase;
+    letter-spacing:.05em;margin-bottom:2px;}
+
+  table.data{width:100%;border-collapse:collapse;font-size:12.6px;}
+  table.data th{text-align:left;font-size:10.7px;text-transform:uppercase;letter-spacing:.04em;
+    color:var(--ink-faint);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--border);
+    white-space:nowrap;}
+  table.data td{padding:9px 10px;border-bottom:1px solid var(--border-soft);vertical-align:middle;}
+  table.data tr:last-child td{border-bottom:none;}
+  table.data td.num,table.data th.num{text-align:right;font-family:var(--font-mono);white-space:nowrap;}
+  .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;}
+  .table-wrap table.data{min-width:640px;}
+  .table-wrap table.data th:first-child,.table-wrap table.data td:first-child{padding-left:14px;}
+  .table-wrap table.data th:last-child,.table-wrap table.data td:last-child{padding-right:14px;}
+  .row-context td{color:var(--ink-faint);}
+  .row-context td:first-child{border-left:2px solid var(--muted);}
+  .row-pending td:first-child{border-left:2px solid var(--border);}
+  .qnote{display:block;font-size:11.2px;color:var(--ink-soft);margin-top:3px;max-width:52ch;}
+
+  .flagdot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;}
+
+  .forest{display:flex;flex-direction:column;gap:10px;}
+  .forest-row{display:grid;grid-template-columns:220px 1fr 68px;gap:10px;align-items:center;}
+  @media (max-width:620px){.forest-row{grid-template-columns:1fr;}}
+  .forest-row .flabel{font-size:12px;color:var(--ink-soft);}
+  .forest-track{position:relative;height:22px;background:var(--surface-2);border-radius:6px;}
+  .forest-grid{position:absolute;inset:0;display:flex;justify-content:space-between;padding:0 2px;}
+  .forest-grid i{width:1px;background:var(--border);opacity:.7;}
+  .forest-ci{position:absolute;top:50%;height:2px;background:var(--accent);opacity:.45;
+    transform:translateY(-50%);}
+  .forest-pt{position:absolute;top:50%;width:10px;height:10px;border-radius:50%;
+    background:var(--accent);border:2px solid var(--surface);transform:translate(-50%,-50%);
+    box-shadow:var(--shadow-sm);}
+  .forest-pt.warn{background:var(--warn);} .forest-pt.info{background:var(--info);}
+  .forest-ci.warn{background:var(--warn);} .forest-ci.info{background:var(--info);}
+  .forest-row .fval{text-align:right;font-family:var(--font-mono);font-size:12px;font-weight:700;}
+  .axis{display:grid;grid-template-columns:220px 1fr 68px;gap:10px;font-size:10.5px;
+    color:var(--ink-faint);font-family:var(--font-mono);}
+  @media (max-width:620px){.axis{display:none;}}
+  .axis .ticks{display:flex;justify-content:space-between;}
+
+  .alert-item{display:flex;gap:9px;padding:9px 0;border-bottom:1px solid var(--border-soft);}
+  .alert-item:last-child{border-bottom:none;}
+  .alert-item .ai-icon{flex:none;width:26px;height:26px;border-radius:7px;display:flex;
+    align-items:center;justify-content:center;font-size:13px;font-weight:800;}
+  .alert-item.warn .ai-icon{background:var(--warn-soft);color:var(--warn);}
+  .alert-item.info .ai-icon{background:var(--info-soft);color:var(--info);}
+  .alert-item.crit .ai-icon{background:var(--crit-soft);color:var(--crit);}
+  .alert-item.muted .ai-icon{background:var(--muted-soft);color:var(--muted);}
+  .alert-item .ai-title{font-size:12.4px;font-weight:700;margin-bottom:2px;}
+  .alert-item .ai-desc{font-size:11.6px;color:var(--ink-soft);}
+
+  .note{font-size:12px;color:var(--ink-soft);line-height:1.55;margin:0;}
+  .note+.note{margin-top:8px;padding-top:8px;border-top:1px dashed var(--border-soft);}
+  .legend-row{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--ink-soft);
+    padding:5px 0;}
+  .legend-row .flagdot{margin-top:5px;flex:none;}
+
+  .timeline{display:flex;flex-direction:column;}
+  .tl-item{display:grid;grid-template-columns:16px 1fr;gap:10px;}
+  .tl-rail{display:flex;flex-direction:column;align-items:center;}
+  .tl-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);margin-top:5px;flex:none;}
+  .tl-dot.current{background:var(--ok);box-shadow:0 0 0 3px var(--ok-soft);}
+  .tl-line{width:1.5px;flex:1;background:var(--border);margin:2px 0;}
+  .tl-body{padding-bottom:16px;}
+  .tl-body .tl-id{font-family:var(--font-mono);font-size:12.3px;font-weight:700;}
+  .tl-body .tl-meta{font-size:11.5px;color:var(--ink-faint);margin:2px 0 5px;}
+  .tl-body .tl-actions{font-size:11.5px;}
+
+  .gategrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;}
+  .gatecard{border:1px solid var(--border);border-radius:10px;padding:11px 12px;background:var(--surface-2);}
+  .gatecard .gc-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px;}
+  .gatecard .gc-id{font-family:var(--font-mono);font-size:11.5px;font-weight:800;color:var(--ink);}
+  .gatecard .gc-txt{font-size:11.8px;color:var(--ink-soft);}
+
+  .btn{all:unset;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;
+    font-size:12.3px;font-weight:600;border:1px solid var(--border);color:var(--ink-faint);
+    background:var(--surface-2);cursor:not-allowed;}
+
+  .foot-scope{margin-top:22px;padding-top:14px;border-top:1px solid var(--border);font-size:11px;
+    color:var(--ink-faint);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brandmark">
+      <div class="glyph">04</div>
+      <div>
+        <div class="eyebrow">ENARES 2024 · CRS04 · Stage 04</div>
+        <h1>Vigilancia poblacional de violencia contra adolescentes</h1>
+        <div class="sub">Perú · Adolescentes de 12 a 17 años · Resultados agregados, no expedientes individuales</div>
+      </div>
+    </div>
+    <div class="release-chip">
+      <div>
+        <div class="rc-label">Alcance vigente</div>
+        <div class="rc-id">LOCAL_SHADOW_ONLY · sin release publicado</div>
+      </div>
+      <div class="pills">
+        <span class="pill warn"><span class="dot"></span>NUMERIC_DATA_GATE_OPEN</span>
+        <span class="pill muted"><span class="dot"></span>CLOUD PENDING</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="banner">
+    <span class="tag">Datos simulados</span>
+    <div><strong>Propuesta de interfaz, no la aplicación en producción.</strong>
+      Todas las cifras son sintéticas e ilustrativas: no son resultados de ENARES 2024 y no deben citarse.
+      Hoy el único corte numérico autorizado es <span class="num">3.2 / VF_HOGAR / Nacional / Total</span>;
+      el resto del catálogo sigue tras el gate. La aplicación real consulta solo
+      <span class="num">published.v_dashboard_current</span> y no contiene microdatos, identificadores ni
+      listas de niñas, niños o adolescentes.</div>
+  </div>
+
+  <div class="layout">
+
+    <!-- LEFT RAIL -->
+    <div class="rail-left">
+      <div class="panel panel-pad">
+        <div class="panel-title">Desagregaciones autorizadas</div>
+        <div class="field">
+          <label for="f-depto">Departamento</label>
+          <select id="f-depto"><option>Nacional (Total)</option><option>Por departamento</option></select>
+        </div>
+        <div class="field">
+          <label for="f-area">Área</label>
+          <select id="f-area"><option>Todas</option><option>Urbana (1)</option><option>Rural (2)</option></select>
+        </div>
+        <div class="field">
+          <label for="f-sexo">Sexo</label>
+          <select id="f-sexo"><option>Todos</option><option>Hombre (1)</option><option>Mujer (2)</option></select>
+        </div>
+        <div class="field">
+          <label for="f-areasexo">Área × sexo</label>
+          <select id="f-areasexo"><option>Todas</option><option>Urbano Hombre</option><option>Urbano Mujer</option><option>Rural Hombre</option><option>Rural Mujer</option></select>
+        </div>
+        <div class="field">
+          <label for="f-idioma">Idioma del hogar</label>
+          <select id="f-idioma"><option>Todos</option><option>Código 1</option><option>Código 3</option><option>Código 4</option></select>
+          <div class="hint">Etiquetas pendientes de confirmar contra el diccionario V0. Origen: <span class="num">idiomaHogar</span>.</div>
+        </div>
+        <div class="field">
+          <label for="f-etnia">Etnicidad</label>
+          <select id="f-etnia"><option>Todas</option><option>Código 1</option><option>Código 3</option><option>Código 5</option><option>Código 6</option><option>Código 9</option></select>
+          <div class="hint">Cinco categorías autorizadas en D09; etiquetas pendientes.</div>
+        </div>
+        <div class="field">
+          <label for="f-hogar">Tipo de hogar</label>
+          <select id="f-hogar"><option>Todos</option><option>Código 1</option><option>Código 2</option><option>Código 3</option></select>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label for="f-disc">Discapacidad</label>
+          <select id="f-disc"><option>Todos</option><option>Código 0</option><option>Código 1</option></select>
+        </div>
+      </div>
+
+      <div class="panel panel-pad">
+        <div class="panel-title">Base V0 verificada</div>
+        <div class="coverage-stat"><span class="k">Indicadores en el diccionario</span><span class="v">516</span></div>
+        <div class="coverage-stat"><span class="k">Filas del agregado V0</span><span class="v">3 014</span></div>
+        <div class="coverage-stat"><span class="k">Origen de N</span><span class="v">base_unw</span></div>
+        <div class="coverage-stat"><span class="k">Escala de estimate, SE e IC</span><span class="v">0–100</span></div>
+        <div class="coverage-stat"><span class="k">CV</span><span class="v">proporción</span></div>
+        <div class="coverage-stat"><span class="k">Golden 3.2 · SHA</span><span class="v">43f689ba…465e</span></div>
+      </div>
+
+      <div class="panel panel-pad">
+        <div class="panel-title">Módulos 3.1–3.6</div>
+        <div class="modnav" id="modnav"></div>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+      <div class="strip" id="strip"></div>
+      <div class="tabs" id="tabs"></div>
+
+      <!-- RESUMEN -->
+      <div class="view" data-view="resumen">
+        <div class="section-head">
+          <h2>Resumen nacional</h2>
+          <span class="meta">Indicador principal por módulo · cifras simuladas</span>
+        </div>
+
+        <div class="panel panel-pad">
+          <div class="panel-title">Indicadores clave por módulo</div>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr>
+                <th>Módulo</th><th>Indicador</th>
+                <th class="num">Estimación</th><th class="num">IC95%</th><th class="num">CV</th>
+                <th class="num">N</th><th>Estado y notas</th>
+              </tr></thead>
+              <tbody id="resumen-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel panel-pad">
+          <div class="panel-title">Comparación entre módulos — mismo corte, no es una serie temporal</div>
+          <div class="axis"><span></span><span class="ticks"><i>0</i><i>25</i><i>50</i><i>75</i><i>100</i></span><span></span></div>
+          <div class="forest" id="forest-resumen"></div>
+        </div>
+      </div>
+
+      <div id="module-views"></div>
+
+      <!-- BRECHAS -->
+      <div class="view" data-view="brechas">
+        <div class="section-head">
+          <h2>Brechas por desagregación</h2>
+          <span class="meta">Solo entre categorías autorizadas del mismo indicador</span>
+        </div>
+        <div class="panel panel-pad">
+          <div class="panel-title">Violencia física en el hogar (12 meses) — por desagregación</div>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Desagregación</th><th>Categoría</th><th class="num">Estimación</th>
+                <th class="num">IC95%</th><th class="num">CV</th><th class="num">N</th><th>Estado y notas</th></tr></thead>
+              <tbody id="brechas-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel panel-pad">
+          <div class="panel-title">Cómo leer esta tabla</div>
+          <p class="note">Una estimación con N reducido o CV alto <strong>sigue visible</strong> y conserva sus
+            estadísticos: la alerta describe precisión, no oculta el valor. Comparar dos categorías cuyos
+            intervalos de confianza se solapan no permite afirmar que exista una diferencia.</p>
+          <p class="note">Ninguna fila se oculta por CV ni por N. La única razón para ocultar una celda sería una
+            política de confidencialidad independiente, que todavía no está definida.</p>
+        </div>
+      </div>
+
+      <!-- CALIDAD -->
+      <div class="view" data-view="calidad">
+        <div class="section-head">
+          <h2>Calidad de estimaciones y notas metodológicas</h2>
+          <span class="meta">Decisión supervisora del 2026-09-13</span>
+        </div>
+
+        <div class="panel panel-pad">
+          <div class="panel-title">Estados de una celda</div>
+          <div class="legend-row"><span class="flagdot" style="background:var(--ok)"></span>
+            <span><strong>Publicable</strong> — CV ≤ 15 % y N no ponderado ≥ 30. Ninguna alerta por estos umbrales; no implica aprobación automática.</span></div>
+          <div class="legend-row"><span class="flagdot" style="background:var(--warn)"></span>
+            <span><strong>Referencial por CV</strong> — CV &gt; 15 %. La prevalencia permanece visible con la nota aprobada. La igualdad exacta al umbral no activa la alerta.</span></div>
+          <div class="legend-row"><span class="flagdot" style="background:var(--info)"></span>
+            <span><strong>Alerta de N reducido</strong> — <span class="num">base_unw</span> &lt; 30. La prevalencia permanece visible con alerta. <strong>No se suprime.</strong> N = 30 exacto no activa la alerta.</span></div>
+          <div class="legend-row"><span class="flagdot" style="background:var(--muted)"></span>
+            <span><strong>Contexto no numérico</strong> — a la fila le falta SE, IC o CV. Se muestra sin métricas, sin tarjeta y sin exportación; las ausencias no se imputan.</span></div>
+          <div class="legend-row"><span class="flagdot" style="background:var(--border)"></span>
+            <span><strong>Pendiente de autorización</strong> — el par indicador/dimensión/categoría no está en el alcance autorizado. No es una supresión.</span></div>
+          <div class="legend-row"><span class="flagdot" style="background:var(--crit)"></span>
+            <span><strong>Suprimido por confidencialidad</strong> — estado reservado. Requiere una política independiente con motivo, evidencia y aprobación; <em>no se deriva de CV ni de N</em>. Hoy no hay ninguna celda en este estado.</span></div>
+        </div>
+
+        <div class="panel panel-pad">
+          <div class="panel-title">Notas que acompañan la cifra</div>
+          <p class="note"><strong>CV alto:</strong> «Estimación referencial por precisión reducida: CV superior al 15 %. Interpretar con cautela.»</p>
+          <p class="note"><strong>N reducido:</strong> «Estimación basada en menos de 30 observaciones no ponderadas. Interpretar con cautela.»</p>
+          <p class="note">Si coinciden ambas condiciones, la prevalencia se conserva y se muestran las dos advertencias, en tarjeta, tabla, gráfico, tooltip, impresión y exportación autorizada.</p>
+        </div>
+
+        <div class="ficha">
+          <div><span>Universo</span>Adolescentes de 12 a 17 años, ENARES 2024 CRS04</div>
+          <div><span>Origen de N</span><span class="num">base_unw</span> del denominador válido; nunca <span class="num">target_unw</span></div>
+          <div><span>Separación de controles</span><span class="num">suppress_flag</span> independiente de <span class="num">cv_flag</span> y <span class="num">n_flag</span></div>
+          <div><span>Conciliación SPSS</span><span class="pill ok" style="margin-top:2px"><span class="dot"></span>EVIDENCIA CONCILIADA</span></div>
+          <div><span>Paridad CSV ↔ BigQuery</span><span class="pill muted" style="margin-top:2px"><span class="dot"></span>PENDIENTE · sin nube</span></div>
+          <div><span>Tolerancia de paridad</span><span class="num">1e-9</span>, solo serialización del mismo indicador y celda</div>
+        </div>
+      </div>
+
+      <!-- GATE -->
+      <div class="view" data-view="gate">
+        <div class="section-head">
+          <h2>Estado del gate numérico</h2>
+          <span class="meta">Acta D01–D12 · 2026-09-13</span>
+        </div>
+        <div class="panel panel-pad">
+          <div class="panel-title">Resultado por caso</div>
+          <div class="gategrid" id="gategrid"></div>
+        </div>
+        <div class="panel panel-pad">
+          <div class="panel-title">Lo que sigue cerrado</div>
+          <p class="note">Todo indicador, dimensión o categoría fuera del alcance enumerado en el acta permanece
+            tras <span class="num">NUMERIC_DATA_GATE_OPEN</span>: son 516 indicadores en el diccionario V0 y
+            solo un puñado está autorizado. Un módulo nunca queda autorizado de forma implícita.</p>
+          <p class="note">D06 y D07 tienen la estructura aprobada pero no conectan cifras reales hasta que exista
+            la política de confidencialidad: una matriz dirigida sobre violencia sexual con celdas pequeñas es el
+            caso de reconstrucción de mayor riesgo del catálogo.</p>
+        </div>
+      </div>
+
+      <!-- HISTORIAL -->
+      <div class="view" data-view="historial">
+        <div class="section-head">
+          <h2>Historial de releases</h2>
+          <span class="meta">El puntero cambia; el histórico nunca se borra</span>
+        </div>
+        <div class="panel panel-pad">
+          <div class="timeline" id="timeline"></div>
+        </div>
+        <div class="panel panel-pad">
+          <p class="note"><span class="num">ops.current_release</span> y
+            <span class="num">published.v_dashboard_current</span> todavía no existen como objetos: son
+            definiciones escritas, no tablas creadas. Esta vista muestra cómo se verá el registro una vez que
+            la configuración de nube pase el GO técnico.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT RAIL -->
+    <div class="rail-right">
+      <div class="panel panel-pad">
+        <div class="panel-title">Alertas y hallazgos</div>
+        <div class="alert-item warn">
+          <div class="ai-icon">!</div>
+          <div><div class="ai-title">CV alto en 3.4</div>
+            <div class="ai-desc">Violencia sexual, nacional: CV 0.19. Visible y referencial, con nota.</div></div>
+        </div>
+        <div class="alert-item info">
+          <div class="ai-icon">n</div>
+          <div><div class="ai-title">N reducido en un departamento</div>
+            <div class="ai-desc">base_unw = 24. La prevalencia se mantiene visible con alerta; no se suprime.</div></div>
+        </div>
+        <div class="alert-item muted">
+          <div class="ai-icon">0</div>
+          <div><div class="ai-title">Cero con CV indefinido</div>
+            <div class="ai-desc">D02 y D10: contexto no numérico hasta verificar con Stage 03 si el cero es real.</div></div>
+        </div>
+        <div class="alert-item warn">
+          <div class="ai-icon">!</div>
+          <div><div class="ai-title">Discrepancia VF_ESCUELA</div>
+            <div class="ai-desc">10 frente a 7 ítems, sin resolución aprobada (known_discrepancies.md).</div></div>
+        </div>
+        <div class="alert-item crit">
+          <div class="ai-icon">×</div>
+          <div><div class="ai-title">Política de confidencialidad pendiente</div>
+            <div class="ai-desc">Sin ella no hay exportación fuera del golden ni cifras de D06 y D07.</div></div>
+        </div>
+      </div>
+
+      <div class="panel panel-pad">
+        <div class="panel-title">Ficha del indicador activo</div>
+        <p class="note">Violencia física en el hogar, últimos 12 meses. Denominador: respuestas válidas del
+          dominio seleccionado. Las ausencias no se imputan.</p>
+        <p class="note">Este panel resume el contrato del indicador observado. La aplicación no recalcula ni
+          edita valores: los lee de la capa publicada.</p>
+      </div>
+
+      <div class="panel panel-pad">
+        <div class="panel-title">Exportar</div>
+        <p class="note" style="margin-bottom:10px">Deshabilitado hasta aprobar la política de confidencialidad.
+          Cuando se habilite, CSV y Excel reproducirán el mismo corte, las mismas notas y las mismas
+          protecciones que la pantalla.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" disabled aria-disabled="true">CSV agregado</button>
+          <button class="btn" disabled aria-disabled="true">Excel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot-scope">
+    <span>Maqueta de diseño · cifras simuladas · capa prevista <span class="num">published.v_dashboard_current</span></span>
+    <span>Estado al 2026-09-13 · No representa seguimiento longitudinal individual</span>
+  </div>
+</div>
+
+<script>
+(function(){
+  // state: 'ok' (sin alertas) | flags cv / n | 'context' | 'pending'
+  const modules = [
+    { code:"3.1", title:"Características, percepciones y normas", flag:"ok",
+      headline:"Rechaza mitos sobre violencia en el noviazgo", value:"61.0%",
+      ficha:{fuente:"3.1 Características y percepciones", universo:"Adolescentes 12–17 años",
+             denominador:"Respuestas válidas del módulo 3.1"},
+      rows:[
+        {ind:"Considera aceptable el castigo físico como corrección", est:18.4, se:1.1, cv:0.06, n:6712},
+        {ind:"Conoce dónde denunciar violencia contra NNA", est:46.2, se:1.4, cv:0.03, n:6801},
+        {ind:"Rechaza mitos sobre violencia en el noviazgo", est:61.0, se:1.3, cv:0.02, n:6790},
+        {ind:"Componentes · tareas del hogar (10 categorías)", state:"pending",
+         note:"D01 autorizado; el adaptador special→prevalence y el universo del sufijo _fem se documentan antes de conectar cifras."},
+      ]},
+    { code:"3.2", title:"Violencia en el hogar", flag:"ok",
+      headline:"Violencia psicológica en el hogar (12 meses)", value:"27.6%",
+      ficha:{fuente:"3.2 Violencia en el hogar", universo:"Adolescentes 12–17 años",
+             denominador:"Respuestas válidas del módulo 3.2"},
+      rows:[
+        {ind:"Violencia psicológica en el hogar", est:27.6, se:1.5, cv:0.05, n:6742},
+        {ind:"Violencia física en el hogar · VF_HOGAR", est:15.2, se:1.2, cv:0.08, n:6742,
+         note:"Único corte numérico autorizado hoy: 3.2 / VF_HOGAR / Nacional / Total. Golden verificado."},
+        {ind:"Solapamiento VP × VF · P(VF | VP)", est:44.8, se:2.4, cv:0.05, n:1811,
+         note:"D05: condicional autorizada, con su denominador explícito en la etiqueta."},
+        {ind:"Solapamiento VP × VF · contexto: VF (física)", state:"context",
+         note:"D05: fila de contexto sin SE, IC ni CV. Se muestra sin métricas y no se exporta."},
+      ]},
+    { code:"3.3", title:"Violencia en el entorno escolar", flag:"ok",
+      headline:"Violencia entre pares", value:"22.9%",
+      ficha:{fuente:"3.3 Violencia en el entorno escolar", universo:"Adolescentes 12–17 años escolarizados",
+             denominador:"Respuestas válidas del módulo 3.3",
+             discrepancia:"VF_ESCUELA: la sintaxis fuente registra 10 ítems frente a 7, sin resolución metodológica aprobada. Mientras no se resuelva, el bloque no se promueve y sus estimaciones se marcan como referenciales."},
+      rows:[
+        {ind:"Violencia entre pares en el centro educativo", est:22.9, se:1.3, cv:0.06, n:6580},
+        {ind:"Violencia por parte de docentes o personal", est:6.1, se:0.7, cv:0.11, n:6580},
+        {ind:"C3P223_10_1 · Nacional / Total", state:"pending",
+         note:"D11: autorizado indicador por indicador, solo Nacional / Total. Ningún otro indicador del módulo queda incluido."},
+      ]},
+    { code:"3.4", title:"Violencia sexual", flag:"warn",
+      headline:"Violencia sexual (alguna vez en la vida)", value:"8.7%",
+      ficha:{fuente:"3.4 Violencia sexual, 12 a 17 años", universo:"Adolescentes 12–17 años",
+             denominador:"Respuestas válidas del módulo 3.4"},
+      rows:[
+        {ind:"Violencia sexual (alguna vez en la vida)", est:8.7, se:1.6, cv:0.19, n:6790},
+        {ind:"Violencia sexual · departamento de menor cobertura", est:6.9, se:2.8, cv:0.41, n:24},
+        {ind:"VP_VF_VS_HOGAR · Cusco y Huancavelica", state:"context",
+         note:"D02: cero observado con CV ausente. Contexto no numérico hasta verificar con Stage 03 si el cero es real o un artefacto."},
+        {ind:"Solapamiento VS 12 meses · matriz dirigida 2×2 y 3×3", state:"pending",
+         note:"D06: estructura aprobada, cifras suspendidas hasta la política de confidencialidad."},
+      ]},
+    { code:"3.5", title:"Acumulación de violencias", flag:"ok",
+      headline:"Dos o más formas de violencia", value:"19.4%",
+      ficha:{fuente:"3.5 Acumulación de violencias", universo:"Adolescentes 12–17 años",
+             denominador:"Respuestas válidas en los módulos 3.2 a 3.4"},
+      rows:[
+        {ind:"Reporta dos o más formas de violencia", est:19.4, se:1.2, cv:0.06, n:6742},
+        {ind:"Reporta tres o más formas de violencia", est:7.8, se:0.9, cv:0.12, n:6742},
+        {ind:"Recibió atención de salud entre quienes tuvieron alguna consecuencia física por maltrato físico en casa o escuela",
+         est:31.2, se:3.1, cv:0.10, n:842, dominio:"CONS_ALGUNA = 1",
+         note:"D09: dominio condicionado aprobado y trazado a R/V0. 22 pares autorizados; Departamento excluido. N = base_unw del denominador condicionado."},
+        {ind:"Número de consecuencias físicas · distribución 0 a 6", state:"pending",
+         note:"D08: adaptador de distribución aprobado; se ubica en Consecuencias, no en Acumulación."},
+      ]},
+    { code:"3.6", title:"Búsqueda y recepción de ayuda", flag:"ok",
+      headline:"Buscó ayuda tras un episodio", value:"34.1%",
+      ficha:{fuente:"3.6 Búsqueda y recepción de ayuda", universo:"Adolescentes 12–17 años que reportan violencia",
+             denominador:"Subgrupo con al menos un episodio reportado"},
+      rows:[
+        {ind:"Buscó ayuda tras un episodio de violencia", est:34.1, se:2.0, cv:0.06, n:2103},
+        {ind:"Fuente de apoyo principal: familiar", est:52.0, se:2.4, cv:0.05, n:715},
+        {ind:"C3P242_10, C3P242_5, C4P258_7, ayuda_vs_car · Nacional", state:"context",
+         note:"D10: cuatro indicadores con cero observado y CV indefinido. Contexto no numérico hasta verificar el origen del cero."},
+      ]},
+  ];
+
+  const gate = [
+    {id:"D01", st:"cond", txt:"3.1 Componentes · 10 categorías. Falta documentar el sufijo _fem."},
+    {id:"D02", st:"ctx",  txt:"Cusco y Huancavelica · cero con CV ausente. Contexto no numérico."},
+    {id:"D03", st:"ok",   txt:"Prevalencia condicional con VS · 2 categorías."},
+    {id:"D04", st:"mix",  txt:"Escuela · condicionales autorizadas; 2 filas de contexto sin métricas."},
+    {id:"D05", st:"mix",  txt:"Hogar · igual que D04, con adaptador propio."},
+    {id:"D06", st:"hold", txt:"Solapamiento VS 12 meses · estructura sí, cifras no."},
+    {id:"D07", st:"hold", txt:"Solapamiento VS vida · autorizado por separado, cifras en espera."},
+    {id:"D08", st:"ok",   txt:"Distribución de consecuencias · 7 categorías, en Consecuencias."},
+    {id:"D09", st:"ok",   txt:"Atención de salud · dominio CONS_ALGUNA = 1 y 22 pares exactos."},
+    {id:"D10", st:"ctx",  txt:"Cuatro indicadores de 3.6 · contexto no numérico."},
+    {id:"D11", st:"cond", txt:"Tres indicadores, uno por uno. C3P213 usa numerador == 5."},
+    {id:"D12", st:"ok",   txt:"Área × sexo e Idioma del hogar · alias aprobados, códigos en metadata."},
+  ];
+  const gateMeta = {
+    ok:{l:"Autorizado",cls:"ok"}, cond:{l:"Condicionado",cls:"info"},
+    mix:{l:"Parcial",cls:"info"}, ctx:{l:"Contexto",cls:"muted"}, hold:{l:"Cifras en espera",cls:"warn"},
+  };
+
+  function fmtPct(v){ return v==null ? "—" : v.toFixed(1)+"%"; }
+  function ci(est,se){ if(est==null) return "—";
+    return Math.max(0,est-1.96*se).toFixed(1)+"–"+Math.min(100,est+1.96*se).toFixed(1); }
+
+  // derive the state of a row from its own values — never from a hand-set flag
+  function stateOf(r){
+    if(r.state) return r.state;
+    return "num";
+  }
+  function notesOf(r){
+    const out=[];
+    if(r.cv!=null && r.cv>0.15) out.push({k:"cv",cls:"warn",l:"Referencial · CV > 15 %"});
+    if(r.n!=null && r.n<30)     out.push({k:"n", cls:"info",l:"N reducido · base_unw < 30"});
+    if(!out.length) out.push({k:"ok",cls:"ok",l:"Publicable"});
+    return out;
+  }
+  function statusCell(r){
+    const s=stateOf(r);
+    if(s==="context") return `<span class="pill muted"><span class="dot"></span>Contexto no numérico</span>`
+      + (r.note?`<span class="qnote">${r.note}</span>`:"");
+    if(s==="pending") return `<span class="pill ghost">Pendiente de autorización</span>`
+      + (r.note?`<span class="qnote">${r.note}</span>`:"");
+    const pills = notesOf(r).map(p=>`<span class="pill ${p.cls}"><span class="dot"></span>${p.l}</span>`).join(" ");
+    return `<div class="pills">${pills}</div>` + (r.note?`<span class="qnote">${r.note}</span>`:"");
+  }
+  function cellsFor(r){
+    const s=stateOf(r);
+    if(s!=="num") return `<td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td>`;
+    return `<td class="num">${fmtPct(r.est)}</td><td class="num">${ci(r.est,r.se)}</td>`
+         + `<td class="num">${r.cv==null?"—":r.cv.toFixed(2)}</td><td class="num">${r.n}</td>`;
+  }
+  function rowClass(r){
+    const s=stateOf(r);
+    return s==="context" ? "row-context" : s==="pending" ? "row-pending" : "";
+  }
+  function markOf(r){
+    if(r.cv!=null && r.cv>0.15) return "warn";
+    if(r.n!=null && r.n<30) return "info";
+    return "";
+  }
+
+  // left nav
+  const modnav=document.getElementById('modnav');
+  modules.forEach(m=>{
+    const b=document.createElement('button');
+    b.dataset.target='mod-'+m.code;
+    b.innerHTML=`<span class="mcode">${m.code}</span><span class="mtitle">${m.title}</span>`
+      +`<span class="mflag" style="background:var(--${m.flag==='warn'?'warn':'ok'})"></span>`;
+    modnav.appendChild(b);
+  });
+
+  // strip
+  const strip=document.getElementById('strip');
+  modules.forEach(m=>{
+    const c=document.createElement('div');
+    c.className='stripcard'; c.dataset.target='mod-'+m.code; c.tabIndex=0;
+    const pill = m.flag==='warn'
+      ? `<span class="pill warn"><span class="dot"></span>Referencial</span>`
+      : `<span class="pill ok"><span class="dot"></span>Publicable</span>`;
+    c.innerHTML=`<div class="sc-top"><span class="sc-code">${m.code}</span>${pill}</div>
+      <h3>${m.title}</h3><div class="sc-label">${m.headline}</div>
+      <div class="sc-value">${m.value}</div>`;
+    strip.appendChild(c);
+  });
+
+  // tabs
+  const tabDefs=[{id:'resumen',label:'Resumen nacional'}]
+    .concat(modules.map(m=>({id:'mod-'+m.code,label:m.code})))
+    .concat([{id:'brechas',label:'Brechas'},{id:'calidad',label:'Calidad y notas'},
+             {id:'gate',label:'Estado del gate'},{id:'historial',label:'Historial'}]);
+  const tabsEl=document.getElementById('tabs');
+  tabDefs.forEach(t=>{const b=document.createElement('button');
+    b.textContent=t.label;b.dataset.target=t.id;tabsEl.appendChild(b);});
+
+  // module views
+  const host=document.getElementById('module-views');
+  modules.forEach(m=>{
+    const view=document.createElement('div');
+    view.className='view'; view.dataset.view='mod-'+m.code;
+
+    const rows=m.rows.map(r=>`<tr class="${rowClass(r)}">
+        <td>${r.ind}${r.dominio?`<span class="qnote">Dominio: <span class="num">${r.dominio}</span></span>`:""}</td>
+        ${cellsFor(r)}<td>${statusCell(r)}</td></tr>`).join("");
+
+    const forest=m.rows.filter(r=>stateOf(r)==="num").map(r=>{
+      const lo=Math.max(0,r.est-1.96*r.se), hi=Math.min(100,r.est+1.96*r.se), k=markOf(r);
+      return `<div class="forest-row"><div class="flabel">${r.ind}</div>
+        <div class="forest-track"><div class="forest-grid">${"<i></i>".repeat(5)}</div>
+        <div class="forest-ci ${k}" style="left:${lo}%;width:${hi-lo}%"></div>
+        <div class="forest-pt ${k}" style="left:${r.est}%"></div></div>
+        <div class="fval">${fmtPct(r.est)}</div></div>`;
+    }).join("");
+
+    view.innerHTML=`
+      <div class="section-head"><h2>${m.code} · ${m.title}</h2>
+        <span class="meta">cifras simuladas · desagregación desde el panel izquierdo</span></div>
+      <div class="ficha">
+        <div><span>Fuente</span>${m.ficha.fuente}</div>
+        <div><span>Universo</span>${m.ficha.universo}</div>
+        <div><span>Denominador</span>${m.ficha.denominador}</div>
+      </div>
+      ${m.ficha.discrepancia?`<div class="panel panel-pad">
+        <div class="panel-title">Discrepancia metodológica abierta</div>
+        <p class="note"><span class="pill warn" style="margin-right:6px"><span class="dot"></span>known_discrepancies.md</span>${m.ficha.discrepancia}</p></div>`:""}
+      <div class="panel panel-pad">
+        <div class="panel-title">Indicadores del módulo ${m.code}</div>
+        <div class="table-wrap"><table class="data">
+          <thead><tr><th>Indicador</th><th class="num">Estimación</th><th class="num">IC95%</th>
+            <th class="num">CV</th><th class="num">N</th><th>Estado y notas</th></tr></thead>
+          <tbody>${rows}</tbody></table></div>
+      </div>
+      <div class="panel panel-pad">
+        <div class="panel-title">Estimación puntual e IC95 %</div>
+        <div class="axis"><span></span><span class="ticks"><i>0</i><i>25</i><i>50</i><i>75</i><i>100</i></span><span></span></div>
+        <div class="forest">${forest}</div>
+      </div>`;
+    host.appendChild(view);
+  });
+
+  // resumen
+  const rb=document.getElementById('resumen-body');
+  modules.forEach(m=>{
+    const r=m.rows[0];
+    rb.innerHTML+=`<tr><td><span class="pill accent">${m.code}</span></td>
+      <td>${m.headline}</td>${cellsFor(r)}<td>${statusCell(r)}</td></tr>`;
+  });
+  const fr=document.getElementById('forest-resumen');
+  modules.forEach(m=>{
+    const r=m.rows[0]; if(stateOf(r)!=="num") return;
+    const lo=Math.max(0,r.est-1.96*r.se), hi=Math.min(100,r.est+1.96*r.se), k=markOf(r);
+    fr.innerHTML+=`<div class="forest-row"><div class="flabel">${m.code} · ${m.headline}</div>
+      <div class="forest-track"><div class="forest-grid">${"<i></i>".repeat(5)}</div>
+      <div class="forest-ci ${k}" style="left:${lo}%;width:${hi-lo}%"></div>
+      <div class="forest-pt ${k}" style="left:${r.est}%"></div></div>
+      <div class="fval">${fmtPct(r.est)}</div></div>`;
+  });
+
+  // brechas
+  const br=[
+    {desag:"Nacional", cat:"Total", est:15.2, se:1.2, cv:0.08, n:6742},
+    {desag:"Sexo", cat:"Hombre (1)", est:17.1, se:1.6, cv:0.09, n:3320},
+    {desag:"Sexo", cat:"Mujer (2)", est:13.4, se:1.5, cv:0.11, n:3422},
+    {desag:"Área", cat:"Urbana (1)", est:13.0, se:1.4, cv:0.11, n:3610},
+    {desag:"Área", cat:"Rural (2)", est:18.9, se:1.9, cv:0.10, n:3132},
+    {desag:"Área × sexo", cat:"Rural Mujer", est:17.6, se:2.5, cv:0.14, n:1544},
+    {desag:"Departamento", cat:"Departamento de mayor N", est:11.8, se:1.3, cv:0.11, n:1180},
+    {desag:"Departamento", cat:"Departamento de menor N", est:21.4, se:3.6, cv:0.17, n:392,
+     note:"CV superior al 15 %: la prevalencia se mantiene visible y se marca como referencial."},
+    {desag:"Departamento", cat:"Dominio pequeño", est:19.8, se:6.4, cv:0.32, n:22,
+     note:"N = 22 y CV alto. Antes esta fila se ocultaba; con la decisión del 2026-09-13 permanece visible con ambas advertencias."},
+    {desag:"Idioma del hogar", cat:"Código 3", est:19.7, se:2.1, cv:0.11, n:1204},
+    {desag:"Discapacidad", cat:"Código 1", est:20.5, se:3.4, cv:0.17, n:214},
+  ];
+  const bb=document.getElementById('brechas-body');
+  br.forEach(r=>{ bb.innerHTML+=`<tr class="${rowClass(r)}">
+    <td>${r.desag}</td><td>${r.cat}</td>${cellsFor(r)}<td>${statusCell(r)}</td></tr>`; });
+
+  // gate grid
+  const gg=document.getElementById('gategrid');
+  gate.forEach(g=>{const m=gateMeta[g.st];
+    gg.innerHTML+=`<div class="gatecard"><div class="gc-top"><span class="gc-id">${g.id}</span>
+      <span class="pill ${m.cls}"><span class="dot"></span>${m.l}</span></div>
+      <div class="gc-txt">${g.txt}</div></div>`;});
+
+  // timeline
+  const releases=[
+    {id:"— sin release publicado —", run:"—", date:"2026-09-13", status:"current",
+     note:"Alcance LOCAL_SHADOW_ONLY. Único corte autorizado: 3.2 / VF_HOGAR / Nacional / Total."},
+    {id:"sprint042-corte2-local-coverage-001", run:"run técnico local", date:"2026-09-11",
+     status:"superseded", note:"Corte 2 de cobertura funcional. No modifica current_release ni crea una corrida en la nube."},
+    {id:"baseline V0", run:"tabulados_crs04_long.csv", date:"congelada",
+     status:"rollback-target", note:"Agregado y diccionario V0 verificados por SHA-256. Referencia de paridad; no se recalcula."},
+  ];
+  const tl=document.getElementById('timeline');
+  releases.forEach((r,i)=>{
+    const badge = r.status==='current'
+      ? '<span class="pill muted"><span class="dot"></span>ESTADO ACTUAL</span>'
+      : r.status==='rollback-target'
+      ? '<span class="pill accent"><span class="dot"></span>REFERENCIA V0</span>'
+      : '<span class="pill muted"><span class="dot"></span>EVIDENCIA PREVIA</span>';
+    tl.innerHTML+=`<div class="tl-item">
+      <div class="tl-rail"><div class="tl-dot ${r.status==='current'?'current':''}"></div>
+      ${i<releases.length-1?'<div class="tl-line"></div>':''}</div>
+      <div class="tl-body"><div class="tl-id">${r.id}
+        <span style="color:var(--ink-faint);font-weight:400">· ${r.run}</span></div>
+        <div class="tl-meta">${r.date} — ${badge}</div>
+        <div class="tl-actions">${r.note}</div></div></div>`;
+  });
+
+  // nav
+  function showView(id){
+    document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.dataset.view===id));
+    document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active',b.dataset.target===id));
+    document.querySelectorAll('#modnav button').forEach(b=>b.classList.toggle('active',b.dataset.target===id));
+  }
+  document.querySelectorAll('#tabs button, #modnav button, .stripcard').forEach(el=>{
+    el.addEventListener('click',()=>showView(el.dataset.target));
+    el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showView(el.dataset.target);}});
+  });
+  showView('resumen');
+})();
+</script>
+
+</body>
+</html>
