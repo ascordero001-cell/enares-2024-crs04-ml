@@ -62,4 +62,3 @@ Antes de Etapa 2, Rita debe confirmar:
 3. si la exportación agregada segura vigente permanece habilitada o debe existir una nueva decisión
    formal para deshabilitarla; y
 4. que la maqueta HTML será incorporada, o que esta especificación textual basta como referencia.
-

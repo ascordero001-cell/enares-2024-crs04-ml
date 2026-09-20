@@ -44,4 +44,3 @@ solo filas `synthetic=true`.
 El rediseño no necesita conexión, credencial, permiso IAM, dataset, bucket, servicio o deployment
 nuevo. Reutilizará exactamente el runtime autenticado y las rutas existentes. Esta es la propuesta
 de Ana para confirmación supervisora; no se realizará ninguna mutación cloud en este bloque.
-

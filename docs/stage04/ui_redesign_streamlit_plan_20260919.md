@@ -53,4 +53,3 @@ vigente de `main`, aprobado durante Sprint 04.2, tiene `EXPORT_ENABLED = True` y
 exportación agregada segura. Esta especificación no revierte esa decisión. Rita debe confirmar si
 el rediseño conserva la exportación agregada habilitada o si existe una nueva decisión que la
 deshabilita. Hasta entonces, la Etapa 2 no modifica el control.
-
