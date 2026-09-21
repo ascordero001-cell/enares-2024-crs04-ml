@@ -46,7 +46,7 @@ def test_synthetic_redesign_starts_with_native_structure():
     assert len(app.multiselect) == 1
     assert len(app.dataframe) == 1
     assert len(app.get("vega_lite_chart")) == 1
-    assert app.get("button_group")[0].value == "Resumen nacional"
+    assert getattr(app.get("button_group")[0], "value", None) == "Resumen nacional"
     assert "100 % sintética" in _visible_text(app)
 
 
