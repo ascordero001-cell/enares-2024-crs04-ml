@@ -4,11 +4,14 @@ Fecha de verificación: 2026-09-21
 
 Base: `7106a6dd364525c991d072cd4537e45466edc9b3`
 
+Corrección de selección efectiva: `2f8fdd187f245e213392497820958da5aa0bb4f8`.
+
 Alcance: estructura visual con fixture sintético; sin conexión a V0 ni BigQuery.
 
 ## Capturas
 
 - `desktop_summary.png`: viewport CSS 1360 × 900.
+- `desktop_1920x1080.png`: viewport CSS 1920 × 1080.
 - `tablet_summary.png`: viewport CSS 768 × 1024.
 - `mobile_summary.png`: viewport CSS 390 × 844.
 
@@ -20,6 +23,7 @@ cifras V0 ni resultados institucionales.
 | Viewport | `clientWidth` | `scrollWidth` | Resultado |
 |---|---:|---:|---|
 | Escritorio | 1360 | 1360 | PASS |
+| Escritorio amplio | 1920 | 1920 | PASS |
 | Tablet | 768 | 768 | PASS |
 | Móvil | 390 | 390 | PASS |
 
@@ -34,6 +38,11 @@ seis tarjetas se reorganizaron en tres y dos columnas, respectivamente.
 - Navegación implementada con control nativo accesible por teclado y estado de
   vista persistido en el parámetro `view` de la URL.
 - Opciones de dimensión, indicador y categoría derivadas del fixture vigente.
+- Una sola selección efectiva alimenta tabla, forest plot, alertas y ficha; la
+  navegación por módulo sincroniza el filtro de módulo y conserva filtros
+  compatibles.
+- Una selección vacía presenta su estado vacío y no reutiliza una fila ajena
+  como ficha activa.
 - Combinaciones ausentes no se fabrican ni se convierten en cero.
 - Campos estadísticos protegidos permanecen ausentes en el estado suprimido.
 - Texto dinámico renderizado con componentes nativos; el HTML se limita a CSS
