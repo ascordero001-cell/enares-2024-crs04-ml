@@ -8,6 +8,7 @@ from streamlit.testing.v1 import AppTest
 from app.views.ui_redesign_synthetic import (
     STATE_LABELS,
     SYNTHETIC_RESULTS,
+    effective_view_results,
     filter_synthetic_results,
     forest_record,
     state_code,
@@ -162,3 +163,50 @@ def test_view_query_selects_one_named_view_without_loading_real_data():
     assert "Sin release sintético publicado" in _visible_text(app)
     assert not app.dataframe
     assert not app.get("vega_lite_chart")
+
+
+def test_module_32_area_uses_one_effective_selection_everywhere():
+    app = _app()
+    app.get("button_group")[0].set_value("Módulo 3.2").run(timeout=15)
+    assert app.selectbox[0].value == "3.2"
+    app.selectbox[1].set_value("Área").run(timeout=15)
+    records = app.dataframe[0].value.to_dict("records")
+    assert len(records) == 1
+    assert records[0]["Indicador"] == "SYN_32_B"
+    assert records[0]["Categoría"] == "Rural"
+
+
+def test_indicator_and_category_selection_excludes_unrelated_results():
+    app = _app()
+    app.selectbox[0].set_value("3.2").run(timeout=15)
+    app.selectbox[2].set_value("SYN_32_B").run(timeout=15)
+    app.selectbox[3].set_value("Rural").run(timeout=15)
+    records = app.dataframe[0].value.to_dict("records")
+    assert [record["Indicador"] for record in records] == ["SYN_32_B"]
+
+
+def test_changing_view_preserves_compatible_filters_and_syncs_module():
+    app = _app()
+    app.selectbox[0].set_value("3.2").run(timeout=15)
+    app.selectbox[1].set_value("Área").run(timeout=15)
+    app.get("button_group")[0].set_value("Módulo 3.2").run(timeout=15)
+    assert app.selectbox[0].value == "3.2"
+    assert app.selectbox[1].value == "Área"
+    assert app.dataframe[0].value.iloc[0]["Categoría"] == "Rural"
+
+
+def test_empty_selection_has_no_unrelated_indicator_sheet():
+    app = _app()
+    app.multiselect[0].set_value([]).run(timeout=15)
+    text = _visible_text(app)
+    assert not app.dataframe
+    assert "No hay alertas ni indicador activo" in text
+    assert "Ficha del indicador activo" not in text
+
+
+def test_effective_module_view_never_reintroduces_filtered_rows():
+    filtered = filter_synthetic_results(
+        module_id="3.2", dimension="Área", states=tuple(STATE_LABELS)
+    )
+    assert effective_view_results(filtered, active_view="Módulo 3.2") == filtered
+    assert effective_view_results(filtered, active_view="Módulo 3.1") == []

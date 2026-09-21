@@ -14,6 +14,7 @@ if str(ROOT) not in sys.path:
 from app.views.ui_redesign_synthetic import (
     STATE_LABELS,
     SYNTHETIC_RESULTS,
+    effective_view_results,
     filter_synthetic_results,
     forest_record,
     state_code,
@@ -53,6 +54,16 @@ def _sync_view_query() -> None:
     selected = st.session_state.get("stage04_view")
     if selected in VIEW_LABELS:
         st.query_params["view"] = selected
+        if selected.startswith("Módulo "):
+            st.session_state["stage04_module_filter"] = selected.removeprefix(
+                "Módulo "
+            )
+
+
+def _valid_session_value(key: str, options: tuple[str, ...], fallback: str) -> None:
+    """Keep a compatible filter and reset only values absent from new options."""
+    if st.session_state.get(key) not in options:
+        st.session_state[key] = fallback
 
 
 def _render_state(row) -> None:
@@ -195,12 +206,24 @@ def render() -> None:
         *dict.fromkeys(row.module_id for row in SYNTHETIC_RESULTS),
     )
     state_options = tuple(STATE_LABELS)
+    initial_view = _initial_view()
+    if "stage04_view" not in st.session_state:
+        st.session_state["stage04_view"] = initial_view
+    if "stage04_module_filter" not in st.session_state:
+        st.session_state["stage04_module_filter"] = (
+            initial_view.removeprefix("Módulo ")
+            if initial_view.startswith("Módulo ")
+            else "Todos"
+        )
+    _valid_session_value("stage04_module_filter", module_options, "Todos")
 
     with st.container(key="stage04_layout"):
         left, center, right = st.columns((270, 800, 272), gap="medium")
         with left, st.container(key="stage04_left_rail"):
             st.subheader("Filtros sintéticos")
-            module_id = st.selectbox("Módulo", module_options)
+            module_id = st.selectbox(
+                "Módulo", module_options, key="stage04_module_filter"
+            )
             module_rows = [
                 row
                 for row in SYNTHETIC_RESULTS
@@ -210,13 +233,17 @@ def render() -> None:
                 "Todas",
                 *dict.fromkeys(row.dimension for row in module_rows),
             )
-            dimension = st.selectbox("Dimensión", dimension_options)
+            _valid_session_value("stage04_dimension_filter", dimension_options, "Todas")
+            dimension = st.selectbox(
+                "Dimensión", dimension_options, key="stage04_dimension_filter"
+            )
             states = tuple(
                 st.multiselect(
                     "Estados visibles",
                     state_options,
                     default=state_options,
                     format_func=lambda value: STATE_LABELS[value],
+                    key="stage04_state_filter",
                 )
             )
             candidate_rows = filter_synthetic_results(
@@ -226,7 +253,10 @@ def render() -> None:
                 "Todos",
                 *dict.fromkeys(row.indicator for row in candidate_rows),
             )
-            indicator = st.selectbox("Indicador", indicator_options)
+            _valid_session_value("stage04_indicator_filter", indicator_options, "Todos")
+            indicator = st.selectbox(
+                "Indicador", indicator_options, key="stage04_indicator_filter"
+            )
             indicator_rows = [
                 row
                 for row in candidate_rows
@@ -236,7 +266,10 @@ def render() -> None:
                 "Todas",
                 *dict.fromkeys(row.category for row in indicator_rows),
             )
-            category = st.selectbox("Categoría", category_options)
+            _valid_session_value("stage04_category_filter", category_options, "Todas")
+            category = st.selectbox(
+                "Categoría", category_options, key="stage04_category_filter"
+            )
             st.caption("Opciones limitadas al fixture sintético versionado.")
             st.caption("No se fabrican combinaciones ausentes.")
             with st.container(border=True):
@@ -249,31 +282,29 @@ def render() -> None:
             for row in indicator_rows
             if category == "Todas" or row.category == category
         ]
+        active_view = st.session_state["stage04_view"]
+        visible_rows = effective_view_results(rows, active_view=active_view)
 
         with center, st.container(key="stage04_center"):
-            active_view = st.segmented_control(
+            selected_view = st.segmented_control(
                 "Vista",
                 VIEW_LABELS,
                 selection_mode="single",
-                default=_initial_view(),
                 required=True,
                 key="stage04_view",
                 on_change=_sync_view_query,
                 label_visibility="collapsed",
                 width="stretch",
             )
+            active_view = selected_view or VIEW_LABELS[0]
             if active_view == "Resumen nacional":
-                _render_overview(rows)
-                _render_table(rows)
-                _render_forest(rows)
+                _render_overview(visible_rows)
+                _render_table(visible_rows)
+                _render_forest(visible_rows)
             elif active_view.startswith("Módulo "):
-                module_id_view = active_view.removeprefix("Módulo ")
-                selected_module_rows = [
-                    row for row in SYNTHETIC_RESULTS if row.module_id == module_id_view
-                ]
                 st.subheader(active_view)
-                _render_table(selected_module_rows)
-                _render_forest(selected_module_rows)
+                _render_table(visible_rows)
+                _render_forest(visible_rows)
             elif active_view == "Brechas":
                 st.subheader("Brechas")
                 st.info(
@@ -281,7 +312,7 @@ def render() -> None:
                 )
             elif active_view == "Calidad y notas":
                 render_quality_legend()
-                _render_states(rows)
+                _render_states(visible_rows)
             elif active_view == "Estado del gate":
                 st.subheader("Estado del gate")
                 st.warning(
@@ -290,25 +321,30 @@ def render() -> None:
             else:
                 render_release_history()
 
-        active = rows[0] if rows else SYNTHETIC_RESULTS[0]
         with right, st.container(key="stage04_right_rail"):
             st.subheader("Alertas y hallazgos")
             flagged = [
-                row for row in rows if row.cv_flag or row.n_flag or row.suppress_flag
+                row
+                for row in visible_rows
+                if row.cv_flag or row.n_flag or row.suppress_flag
             ]
-            if not flagged:
+            if visible_rows and not flagged:
                 st.success("Sin alertas en la selección sintética.")
+            elif not visible_rows:
+                st.info("No hay alertas ni indicador activo para esta selección.")
             for row in flagged:
                 _render_state(row)
-            render_indicator_sheet(
-                {
-                    "Módulo": active.module_id,
-                    "Indicador": active.indicator,
-                    "Dimensión": active.dimension,
-                    "Categoría": active.category,
-                    "Estado": STATE_LABELS[state_code(active)],
-                }
-            )
+            if visible_rows:
+                active = visible_rows[0]
+                render_indicator_sheet(
+                    {
+                        "Módulo": active.module_id,
+                        "Indicador": active.indicator,
+                        "Dimensión": active.dimension,
+                        "Categoría": active.category,
+                        "Estado": STATE_LABELS[state_code(active)],
+                    }
+                )
             st.subheader("Exportar")
             st.button("Descargar corte visible", disabled=True)
             st.caption("Deshabilitado en el fixture sintético de composición.")

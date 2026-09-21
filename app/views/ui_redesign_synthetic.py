@@ -75,6 +75,16 @@ def filter_synthetic_results(
     ]
 
 
+def effective_view_results(
+    rows: list[SyntheticResult], *, active_view: str
+) -> list[SyntheticResult]:
+    """Apply the active module view to an already-filtered selection."""
+    if not active_view.startswith("Módulo "):
+        return list(rows)
+    module_id = active_view.removeprefix("Módulo ")
+    return [row for row in rows if row.module_id == module_id]
+
+
 def table_record(row: SyntheticResult) -> dict[str, object]:
     """Build a table row, withholding numeric fields for protected/non-numeric states."""
     state = state_code(row)
