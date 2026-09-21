@@ -15,6 +15,7 @@ data/
 !docs/stage04/decisions/*.json
 *.env
 *.html
+!docs/stage04/references/MAQUETA_APP_VIGILANCIA_CRS04.html
 .venv/
 node_modules/
 playwright-report/
