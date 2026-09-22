@@ -125,11 +125,16 @@ def render_scope_banner(message: str) -> None:
         st.info(message)
 
 
-def render_module_strip(modules: Iterable[Mapping[str, str]]) -> None:
-    """Render six synthetic summaries without dynamic HTML."""
+def render_module_strip(
+    modules: Iterable[Mapping[str, str]],
+    *,
+    caption: str = "INDICADORES CLAVE POR MÓDULO · FIXTURE SINTÉTICO",
+    metric_label: str = "Valor sintético",
+) -> None:
+    """Render six summaries without dynamic HTML."""
     module_list = list(modules)
     with st.container(key="stage04_module_strip"):
-        st.caption("INDICADORES CLAVE POR MÓDULO · FIXTURE SINTÉTICO")
+        st.caption(caption)
         columns = st.columns(len(module_list))
         for column, module in zip(columns, module_list, strict=True):
             with column, st.container(border=True):
@@ -138,30 +143,32 @@ def render_module_strip(modules: Iterable[Mapping[str, str]]) -> None:
                 st.caption(module["indicator"])
                 if module["value"].endswith("%"):
                     st.metric(
-                        "Valor sintético", module["value"], label_visibility="collapsed"
+                        metric_label, module["value"], label_visibility="collapsed"
                     )
                 else:
                     st.markdown(f"**{module['value']}**")
                 st.caption(module["state"])
 
 
-def render_quality_legend() -> None:
+def render_quality_legend(*, synthetic: bool = True) -> None:
     """Render the approved meaning of independent quality states."""
     with st.container(key="stage04_quality_legend"):
         st.subheader("Cómo leer los estados")
-        st.success("Sin alerta — cifra sintética visible.")
+        qualifier = "cifra sintética" if synthetic else "cifra V0"
+        st.success(f"Sin alerta — {qualifier} visible.")
         st.warning("CV alto — cifra visible y referencial.")
         st.warning("N reducido — cifra visible con alerta; no se suprime.")
         st.error("Suprimido — ningún campo estadístico protegido llega a la vista.")
 
 
-def render_release_history() -> None:
-    """Render a synthetic-only history state for layout validation."""
+def render_release_history(
+    *,
+    message: str = "Sin release sintético publicado. Esta vista prueba composición, no promoción.",
+) -> None:
+    """Render the supplied release-history state."""
     with st.container(key="stage04_release_history"):
         st.subheader("Historial")
-        st.info(
-            "Sin release sintético publicado. Esta vista prueba composición, no promoción."
-        )
+        st.info(message)
         st.caption("V0 continúa oficial · publicación y cutover: NOT_AUTHORIZED")
 
 
