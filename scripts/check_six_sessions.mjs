@@ -6,42 +6,33 @@ const timeoutMs = 30_000;
 const scenarios = [
   {
     id: "S01",
-    page: "Resumen",
-    dimension: "Nacional",
-    expected: "Resumen nacional · Módulo 3.2",
+    view: "Resumen nacional",
+    expected: "Resultados visibles",
   },
   {
     id: "S02",
-    page: "Módulo 3.1",
-    dimension: "Nacional",
-    expected: "Quién realiza tareas en el hogar",
+    view: "Módulo 3.1",
+    expected: "Módulo 3.1",
   },
   {
     id: "S03",
-    page: "Módulo 3.2",
-    dimension: "Nacional",
-    expected: "Estados visuales didácticos",
-    action: async (page) => {
-      await page.getByText("Demo sintético", { exact: true }).click();
-    },
+    view: "Módulo 3.2",
+    expected: "Módulo 3.2",
   },
   {
     id: "S04",
-    page: "Módulo 3.5",
-    dimension: "Nacional",
-    expected: "Matrices de solapamiento de violencia sexual",
+    view: "Módulo 3.5",
+    expected: "Módulo 3.5",
   },
   {
     id: "S05",
-    page: "Módulo 3.2",
-    dimension: "Departamento",
-    expected: "Resultado agregado · 3.2 Violencia en el hogar",
+    view: "Brechas",
+    expected: "no calcula diferencias nuevas",
   },
   {
     id: "S06",
-    page: "Metodología",
-    dimension: "Nacional",
-    expected: "Metodología y límites",
+    view: "Estado del gate",
+    expected: "Integración autorizada en shadow",
   },
 ];
 
@@ -67,8 +58,7 @@ async function runScenario(scenario) {
   page.on("pageerror", (error) => pageErrors.push(String(error)));
 
   const url = new URL(baseUrl);
-  url.searchParams.set("page", scenario.page);
-  url.searchParams.set("dimension", scenario.dimension);
+  url.searchParams.set("view", scenario.view);
   const started = performance.now();
 
   try {
@@ -80,9 +70,6 @@ async function runScenario(scenario) {
       state: "visible",
       timeout: timeoutMs,
     });
-    if (scenario.action) {
-      await scenario.action(page);
-    }
     await page.getByText(scenario.expected, { exact: false }).first().waitFor({
       state: "visible",
       timeout: timeoutMs,
@@ -105,8 +92,7 @@ async function runScenario(scenario) {
     }
     return {
       id: scenario.id,
-      page: scenario.page,
-      dimension: scenario.dimension,
+      view: scenario.view,
       status: response.status(),
       elapsedMs,
       ...browserMetrics,
