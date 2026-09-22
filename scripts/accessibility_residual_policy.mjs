@@ -1,6 +1,6 @@
-// This exception is pinned to Streamlit 1.63.0. Revalidate the signature and
-// expected count before changing the pinned runtime version.
-export const EXPECTED_STREAMLIT_SIDEBAR_RESIDUALS = 9;
+// The canonical redesigned entrypoint renders without the legacy Streamlit
+// sidebar. Keep this fail-closed assertion so a residual cannot return unnoticed.
+export const EXPECTED_STREAMLIT_SIDEBAR_RESIDUALS = 0;
 
 export function assertExpectedStreamlitSidebarResiduals(actual) {
   if (actual !== EXPECTED_STREAMLIT_SIDEBAR_RESIDUALS) {
