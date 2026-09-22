@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from app.views.stage04_dashboard import build_numeric_card, load_validated_estimates
+from enares.stage04.indicator_labels import indicator_display_name
 from enares.stage04.repository import (
     IndicatorEstimate,
     IndicatorRepository,
@@ -21,6 +22,11 @@ class AuthorizedRedesignResult:
 
     row: IndicatorEstimate
     state: str
+
+    @property
+    def display_name(self) -> str:
+        """Return the presentation label without mutating release metadata."""
+        return indicator_display_name(self.row.indicator_id, self.row.module_id)
 
 
 STATE_LABELS = {
@@ -89,7 +95,8 @@ def table_record(result: AuthorizedRedesignResult) -> dict[str, object]:
     row = result.row
     show_numeric = result.state not in {"SUPPRESSED", "CONTEXT_ONLY"}
     return {
-        "Indicador": row.indicator_id,
+        "Indicador": result.display_name,
+        "Código": row.indicator_id,
         "Dimensión": row.disaggregation,
         "Categoría": row.category,
         "Estimación (%)": row.estimate if show_numeric else None,

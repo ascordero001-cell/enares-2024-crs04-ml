@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import json
 from pathlib import Path
 
@@ -11,6 +12,7 @@ from app.views.ui_redesign_real import (
     load_authorized_results,
     numeric_card,
 )
+from enares.stage04.indicator_labels import indicator_display_name
 
 ROOT = Path(__file__).resolve().parents[1]
 GOLDEN = ROOT / "tests" / "golden" / "stage04_32_national"
@@ -53,13 +55,8 @@ def test_authorized_redesign_reuses_repository_and_matches_golden_card_exactly()
 def test_redesign_app_displays_the_exact_golden_values_by_default():
     app = _app()
     assert not app.exception
-    assert [tab.label for tab in app.tabs] == [
-        "Panorama",
-        "Tabla",
-        "Forest plot",
-        "Estados",
-    ]
-    assert [selectbox.label for selectbox in app.sidebar.selectbox] == [
+    assert getattr(app.get("button_group")[0], "value", None) == "Resumen nacional"
+    assert [selectbox.label for selectbox in app.selectbox] == [
         "Módulo",
         "Departamento",
         "Área",
@@ -70,19 +67,26 @@ def test_redesign_app_displays_the_exact_golden_values_by_default():
         "Tipo de hogar",
         "Discapacidad",
         "Indicador",
+        "Categoría",
     ]
-    assert [selectbox.value for selectbox in app.sidebar.selectbox] == [
-        "3.2",
-        "Todos",
-        "Todas",
-        "Todos",
+    assert [selectbox.value for selectbox in app.selectbox] == [
         "Todos",
         "Todos",
         "Todas",
         "Todos",
+        "Todos",
+        "Todos",
         "Todas",
-        "VF_HOGAR",
+        "Todos",
+        "Todas",
+        "Todos",
+        "Todas",
     ]
+    app.selectbox[0].set_value("3.2").run(timeout=30)
+    indicator = next(box for box in app.selectbox if box.label == "Indicador")
+    indicator.set_value("VF_HOGAR").run(timeout=30)
+    category = next(box for box in app.selectbox if box.label == "Categoría")
+    category.set_value("Total").run(timeout=30)
     metric_values = {metric.label: metric.value for metric in app.metric}
     assert metric_values["Estimación"] == "16.74 %"
     assert metric_values["Error estándar"] == "EE 0.5115"
@@ -90,6 +94,9 @@ def test_redesign_app_displays_the_exact_golden_values_by_default():
     assert metric_values["N no ponderado"] == "18,807"
     assert len(app.dataframe) == 1
     assert len(app.get("vega_lite_chart")) == 1
+    record = app.dataframe[0].value.to_dict("records")[0]
+    assert record["Indicador"] == "Violencia física en el hogar"
+    assert record["Código"] == "VF_HOGAR"
 
 
 def test_filter_options_are_derived_from_authorized_rows_only():
@@ -113,7 +120,7 @@ def test_filter_options_are_derived_from_authorized_rows_only():
 
 def test_empty_state_filter_never_fabricates_a_value():
     app = _app()
-    app.sidebar.multiselect[0].set_value([]).run(timeout=30)
+    app.multiselect[0].set_value([]).run(timeout=30)
     assert not app.exception
     assert app.metric[0].value == "0"
     assert not app.dataframe
@@ -123,14 +130,14 @@ def test_empty_state_filter_never_fabricates_a_value():
 
 def test_one_visible_dimension_control_filters_an_existing_category_only():
     app = _app()
-    area = next(box for box in app.sidebar.selectbox if box.label == "Área")
+    area = next(box for box in app.selectbox if box.label == "Área")
     area.set_value("1").run(timeout=30)
     assert not app.exception
     assert "Dimensión" not in [box.label for box in app.sidebar.selectbox]
     assert set(app.dataframe[0].value["Categoría"]) == {"1"}
     assert all(
         box.disabled
-        for box in app.sidebar.selectbox
+        for box in app.selectbox
         if box.label
         in {
             "Departamento",
@@ -144,3 +151,30 @@ def test_one_visible_dimension_control_filters_an_existing_category_only():
         }
         and box.label != "Área"
     )
+
+
+def test_every_v0_indicator_has_a_human_primary_label_and_keeps_its_code():
+    fixture = ROOT / "app" / "data" / "v0_authorized_full_indicator_estimates.csv"
+    with fixture.open(encoding="utf-8-sig", newline="") as handle:
+        pairs = {
+            (row["indicator_id"], row["module_id"])
+            for row in csv.DictReader(handle)
+        }
+    assert len(pairs) == 516
+    for indicator_id, module_id in pairs:
+        label = indicator_display_name(indicator_id, module_id)
+        assert label
+        assert label.casefold() != indicator_id.rstrip(",").casefold()
+        assert "_" not in label
+
+
+def test_empty_selection_has_no_unrelated_indicator_sheet():
+    app = _app()
+    app.multiselect[0].set_value([]).run(timeout=30)
+    visible = "\n".join(
+        str(getattr(element, "value", ""))
+        for group in (app.info, app.caption, app.markdown, app.subheader)
+        for element in group
+    )
+    assert "No hay alertas ni indicador activo" in visible
+    assert "Ficha del indicador activo" not in visible
