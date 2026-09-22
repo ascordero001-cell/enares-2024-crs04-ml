@@ -5,6 +5,7 @@ import json
 import re
 from collections import defaultdict
 from pathlib import Path
+from typing import Any, cast
 
 from streamlit.testing.v1 import AppTest
 
@@ -194,18 +195,18 @@ def test_every_v0_indicator_has_a_human_primary_label_and_keeps_its_code():
 
 def test_module_filter_and_view_stay_synchronized_in_both_directions():
     app = _app()
-    view = app.get("button_group")[0]
+    view = cast(Any, app.get("button_group")[0])
     view.set_value("Módulo 3.2").run(timeout=30)
     module = next(box for box in app.selectbox if box.label == "Módulo")
     assert module.value == "3.2"
     assert app.query_params["view"] == ["Módulo 3.2"]
 
     module.set_value("3.4").run(timeout=30)
-    assert app.get("button_group")[0].value == "Módulo 3.4"
+    assert cast(Any, app.get("button_group")[0]).value == "Módulo 3.4"
     assert app.query_params["view"] == ["Módulo 3.4"]
     assert any(heading.value == "Módulo 3.4" for heading in app.subheader)
 
-    app.get("button_group")[0].set_value("Módulo 3.1").run(timeout=30)
+    cast(Any, app.get("button_group")[0]).set_value("Módulo 3.1").run(timeout=30)
     assert next(box for box in app.selectbox if box.label == "Módulo").value == "3.1"
     assert app.query_params["view"] == ["Módulo 3.1"]
 
