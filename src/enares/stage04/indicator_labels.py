@@ -141,6 +141,29 @@ AGGRESSOR_GROUPS = {
     9: "Personal de centro de acogida residencial",
 }
 
+HOUSEHOLD_AGGRESSOR_GROUPS = {
+    1: "Madre",
+    2: "Padre",
+    3: "Madrastra",
+    4: "Padrastro",
+    5: "Hermana, hermano, hermanastra o hermanastro con rol parental",
+    6: "Tía o tío con rol parental",
+    7: "Personal adulto de centro de acogida residencial",
+    8: "Otros familiares o ascendientes con rol parental",
+}
+
+SCHOOL_AGGRESSOR_GROUPS = {
+    1: "Compañera o compañero del salón",
+    2: "Compañera o compañero del salón de mayor edad",
+    3: "Compañera o compañero del salón de la misma edad",
+    4: "Compañera o compañero del salón de menor edad",
+    5: "Estudiante de otra aula del mismo colegio",
+    6: "Estudiante de otra aula del mismo colegio de mayor edad",
+    7: "Estudiante de otra aula del mismo colegio de la misma edad",
+    8: "Estudiante de otra aula del mismo colegio de menor edad",
+    9: "Estudiante de otro colegio",
+}
+
 ICVAC_COMPONENTS = {
     "201": "Agresión física grave",
     "202": "Agresión física leve",
@@ -173,7 +196,9 @@ EXACT_LABELS = {
     "CONS_ALGUNA": "Alguna consecuencia de la violencia",
     "CONS_ATENCION_SALUD": "Atención de salud por consecuencias de la violencia",
     "Componentes": "Corresponsabilidad cotidiana en el hogar",
-    "Hogar__VP_o_VF_HOGAR": "Violencia psicológica o física en el hogar",
+    "Hogar__VP_o_VF_HOGAR": (
+        "Composición entre casos con violencia psicológica o física en el hogar"
+    ),
     "HoraClase_ViolEsc": "Violencia escolar durante la clase",
     "HoraEntrada_ViolEsc": "Violencia escolar a la entrada",
     "HoraRecreo_ViolEsc": "Violencia escolar durante el recreo",
@@ -220,13 +245,17 @@ EXACT_LABELS = {
     "VP_VF_E": "Violencia psicológica y física en la escuela",
     "VP_VF_HOGAR": "Violencia psicológica y física en el hogar",
     "VP_VF_VS_E": "Violencia psicológica, física o sexual en la escuela",
-    "VP_VF_VS_HOGAR": "Violencia psicológica, física o sexual en el hogar",
+    "VP_VF_VS_HOGAR": (
+        "Concurrencia de violencia psicológica, física y sexual en el hogar"
+    ),
     "VP_o_VF_E": "Violencia psicológica o física en la escuela",
     "VP_o_VF_EJERCIDA": "Violencia psicológica o física ejercida",
     "VP_o_VF_ESCUELA": "Violencia psicológica o física en la escuela",
     "VP_o_VF_HOGAR": "Violencia psicológica o física en el hogar",
-    "VP_o_VF_HOGAR__VP_o_VF_HOGAR": "Violencia psicológica o física en el hogar",
-    "VP_o_VF_o_VS_HOGAR": "Violencia psicológica, física o sexual en el hogar",
+    "VP_o_VF_HOGAR__VP_o_VF_HOGAR": (
+        "Prevalencia de violencia psicológica o física en el hogar"
+    ),
+    "VP_o_VF_o_VS_HOGAR": ("Alguna violencia psicológica, física o sexual en el hogar"),
     "VS": "Alguna situación de violencia sexual",
     "VS_12M": "Violencia sexual en los últimos 12 meses",
     "VS_E": "Violencia sexual en la escuela en los últimos 12 meses",
@@ -259,9 +288,16 @@ EXACT_LABELS = {
     "C3P213": "No recibió ayuda porque no supieron cómo ayudarle",
     "C3P240": "No recibió ayuda ante violencia escolar: motivo reportado",
     "C4P256": "No recibió ayuda ante violencia sexual: motivo reportado",
+    "recibio_ayuda_institucional_vs": (
+        "Recibió ayuda institucional ante violencia sexual"
+    ),
 }
 
-HELP_CONTEXTS = {"hogar": "violencia en el hogar", "escuela": "violencia escolar", "vs": "violencia sexual"}
+HELP_CONTEXTS = {
+    "hogar": "violencia en el hogar",
+    "escuela": "violencia escolar",
+    "vs": "violencia sexual",
+}
 HELP_PEOPLE = {
     "madre": "madre",
     "padre": "padre",
@@ -284,9 +320,17 @@ HELP_PEOPLE = {
 
 def _item_label(indicator_id: str) -> str | None:
     patterns = (
-        (r"C3P201_(\d+)_1$", PSYCHOLOGICAL_HOME_ITEMS, "Violencia psicológica en el hogar"),
+        (
+            r"C3P201_(\d+)_1$",
+            PSYCHOLOGICAL_HOME_ITEMS,
+            "Violencia psicológica en el hogar",
+        ),
         (r"C3P205_(\d+)_1,?$", PHYSICAL_HOME_ITEMS, "Violencia física en el hogar"),
-        (r"C3P223_(\d+)_1$", PSYCHOLOGICAL_SCHOOL_ITEMS, "Violencia psicológica escolar"),
+        (
+            r"C3P223_(\d+)_1$",
+            PSYCHOLOGICAL_SCHOOL_ITEMS,
+            "Violencia psicológica escolar",
+        ),
         (r"C3P227_(\d+)_1$", PHYSICAL_SCHOOL_ITEMS, "Violencia física escolar"),
     )
     for pattern, labels, context in patterns:
@@ -301,7 +345,11 @@ def _institution_label(indicator_id: str) -> str | None:
     if not match:
         return None
     series, number = match.group(1), int(match.group(2))
-    context = {"C3P215": "violencia en el hogar", "C3P242": "violencia escolar", "C4P258": "violencia sexual"}[series]
+    context = {
+        "C3P215": "violencia en el hogar",
+        "C3P242": "violencia escolar",
+        "C4P258": "violencia sexual",
+    }[series]
     labels = INSTITUTIONS_HOME if series == "C3P215" else INSTITUTIONS_SCHOOL_OR_VS
     return f"Institución buscada por {context}: {labels[number]}"
 
@@ -323,36 +371,73 @@ def _sexual_form_label(indicator_id: str) -> str | None:
 
 
 def _grouped_sexual_label(indicator_id: str) -> str | None:
-    match = re.fullmatch(r"(Formas_[A-Za-z0-9_]+)__(?:VS|VSE|VSH)_(CP\d+)", indicator_id)
+    match = re.fullmatch(
+        r"(Formas_[A-Za-z0-9_]+)__(?:VS|VSE|VSH)_(CP\d+)", indicator_id
+    )
     if match:
         scope, code = match.groups()
-        timing = "alguna vez" if scope.endswith("_1") or "VIDA" in scope else "últimos 12 meses"
-        place = "en la escuela" if "VS_E" in scope else "en el hogar" if "VS_H" in scope else ""
-        return f"Violencia sexual {place} ({timing}): {CP_COMPONENTS[int(code[-2:])]}".replace("  ", " ")
+        timing = (
+            "alguna vez"
+            if scope.endswith("_1") or "VIDA" in scope
+            else "últimos 12 meses"
+        )
+        place = (
+            "en la escuela"
+            if "VS_E" in scope
+            else "en el hogar"
+            if "VS_H" in scope
+            else ""
+        )
+        return (
+            f"Violencia sexual {place} ({timing}), componente CP: "
+            f"{CP_COMPONENTS[int(code[-2:])]}"
+        ).replace("  ", " ")
     match = re.fullmatch(r"(Formas_[A-Za-z0-9_]+)__ICVAC_(\d+)", indicator_id)
     if match:
         scope, code = match.groups()
-        timing = "alguna vez" if scope.endswith("_1") or "VIDA" in scope else "últimos 12 meses"
-        place = "en la escuela" if "VS_E" in scope else "en el hogar" if "VS_H" in scope else ""
-        return f"Violencia sexual {place} ({timing}): {ICVAC_COMPONENTS[code]}".replace("  ", " ")
+        timing = (
+            "alguna vez"
+            if scope.endswith("_1") or "VIDA" in scope
+            else "últimos 12 meses"
+        )
+        place = (
+            "en la escuela"
+            if "VS_E" in scope
+            else "en el hogar"
+            if "VS_H" in scope
+            else ""
+        )
+        return (
+            f"Violencia sexual {place} ({timing}), clasificación ICVAC: "
+            f"{ICVAC_COMPONENTS[code]}"
+        ).replace("  ", " ")
     return None
 
 
 def _aggressor_label(indicator_id: str) -> str | None:
-    match = re.fullmatch(r"(?:Agresor|Prev_Agresor)_VS_(12M|VIDA)?_?_*AG_(\d+)", indicator_id)
+    match = re.fullmatch(
+        r"(Agresor|Prev_Agresor)_VS_(12M|VIDA)?_?_*AG_(\d+)", indicator_id
+    )
     if match:
-        period, number = match.group(1), int(match.group(2))
+        family, period, number_text = match.groups()
+        number = int(number_text)
         timing = "últimos 12 meses" if period == "12M" else "alguna vez"
-        return f"Persona agresora de violencia sexual ({timing}): {AGGRESSOR_GROUPS[number]}"
+        if family == "Prev_Agresor":
+            return (
+                f"Prevalencia de violencia sexual según persona agresora "
+                f"({timing}): {AGGRESSOR_GROUPS[number]}"
+            )
+        return (
+            f"Distribución de personas agresoras entre víctimas de violencia "
+            f"sexual ({timing}): {AGGRESSOR_GROUPS[number]}"
+        )
     match = re.fullmatch(r"Agresor_(V[PF])_([EH])__AG_V[PF]_(\d+)", indicator_id)
     if match:
         violence, place, group_number = match.groups()
         kind = "física" if violence == "VF" else "psicológica"
         setting = "escuela" if place == "E" else "hogar"
-        return (
-            f"Violencia {kind} en {setting}: persona agresora "
-            f"(grupo {int(group_number)})"
-        )
+        groups = SCHOOL_AGGRESSOR_GROUPS if place == "E" else HOUSEHOLD_AGGRESSOR_GROUPS
+        return f"Violencia {kind} en {setting}: persona agresora: {groups[int(group_number)]}"
     return None
 
 
@@ -362,16 +447,29 @@ def _help_label(indicator_id: str) -> str | None:
         context, detail = match.groups()
         if detail in HELP_PEOPLE:
             return f"Persona a quien pidió ayuda por {HELP_CONTEXTS[context]}: {HELP_PEOPLE[detail]}"
-        action = detail.replace("_", " ").replace("hablo", "habló").replace("llamo", "llamó")
+        action = (
+            detail.replace("_", " ").replace("hablo", "habló").replace("llamo", "llamó")
+        )
         return f"Ayuda recibida por {HELP_CONTEXTS[context]}: {action}"
     match = re.fullmatch(r"ayuda_inst_vs_(.+)", indicator_id)
     if match:
-        return "Respuesta institucional ante violencia sexual: " + match.group(1).replace("_", " ")
-    match = re.fullmatch(r"(busco|recibio)_ayuda_(hogar|escuela|vs)(?:_victimas)?", indicator_id)
+        return "Respuesta institucional ante violencia sexual: " + match.group(
+            1
+        ).replace("_", " ")
+    match = re.fullmatch(
+        r"(busco|recibio)_ayuda_(hogar|escuela|vs)(?:_victimas)?", indicator_id
+    )
     if match:
         action, context = match.groups()
         verb = "Buscó ayuda" if action == "busco" else "Recibió ayuda"
-        return f"{verb} por {HELP_CONTEXTS[context]}"
+        denominator = (
+            " entre víctimas"
+            if indicator_id.endswith("_victimas")
+            else " entre quienes buscaron ayuda"
+            if action == "recibio"
+            else ""
+        )
+        return f"{verb} por {HELP_CONTEXTS[context]}{denominator}"
     match = re.fullmatch(r"brecha_ayuda_(hogar|escuela|vs)", indicator_id)
     if match:
         return f"Brecha entre búsqueda y recepción de ayuda por {HELP_CONTEXTS[match.group(1)]}"
@@ -393,14 +491,45 @@ def _remaining_structured_label(indicator_id: str) -> str | None:
     if match:
         attended, number = match.groups()
         label = CONSEQUENCE_ITEMS[int(number)]
-        return f"Atención de salud por {label.lower()}" if attended else f"Consecuencia física: {label}"
-    match = re.fullmatch(r"(?:VFE|VF|VPE|VP)_ICVAC_(\d+)_.+", indicator_id)
+        return (
+            f"Atención de salud por {label.lower()}"
+            if attended
+            else f"Consecuencia física: {label}"
+        )
+    match = re.fullmatch(r"(VFE|VF|VPE|VP)_ICVAC_(\d+)_.+", indicator_id)
     if match:
-        return ICVAC_COMPONENTS[match.group(1)]
-    match = re.fullmatch(r"Formas_(?:VS_12M|VS_VIDA|VS_E(?:_1)?|Agresor_VS_H(?:_1)?)__(?:VS|VSE|VSH)_AG(\d+)", indicator_id)
+        prefix, code = match.groups()
+        setting = "escuela" if prefix.endswith("E") else "hogar"
+        return f"{ICVAC_COMPONENTS[code]} en {setting}"
+    match = re.fullmatch(
+        r"Formas_(VS_12M|VS_VIDA|VS_E(?:_1)?|Agresor_VS_H(?:_1)?)__"
+        r"(?:VS|VSE|VSH)_AG(\d+)",
+        indicator_id,
+    )
     if match:
-        return f"Persona agresora de violencia sexual: {AGGRESSOR_GROUPS[int(match.group(1))]}"
+        scope, group_number = match.groups()
+        timing = (
+            "alguna vez"
+            if scope.endswith("_1") or scope == "VS_VIDA"
+            else "últimos 12 meses"
+        )
+        place = (
+            " en el hogar"
+            if "VS_H" in scope
+            else " en la escuela"
+            if "VS_E" in scope
+            else ""
+        )
+        return (
+            f"Persona agresora de violencia sexual{place} ({timing}): "
+            f"{AGGRESSOR_GROUPS[int(group_number)]}"
+        )
     return None
+
+
+def indicator_option_label(indicator_id: str, module_id: str) -> str:
+    """Return the accessible selector text with the immutable code second."""
+    return f"{indicator_display_name(indicator_id, module_id)} — {indicator_id}"
 
 
 def _fallback_label(indicator_id: str, module_id: str) -> str:

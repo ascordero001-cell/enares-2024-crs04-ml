@@ -31,7 +31,7 @@ from app.views.ui_visual_components import (
     render_release_history,
     render_scope_banner,
 )
-from enares.stage04.indicator_labels import MODULE_LABELS
+from enares.stage04.indicator_labels import MODULE_LABELS, indicator_option_label
 from enares.stage04.repository import RepositoryError
 
 DIMENSION_FILTERS = (
@@ -70,9 +70,15 @@ def _sync_view_query() -> None:
     if selected in VIEW_LABELS:
         st.query_params["view"] = selected
         if selected.startswith("Módulo "):
-            st.session_state["real_module_filter"] = selected.removeprefix(
-                "Módulo "
-            )
+            st.session_state["real_module_filter"] = selected.removeprefix("Módulo ")
+
+
+def _sync_module_view() -> None:
+    """Keep the active view, title and URL aligned with the module filter."""
+    selected = st.session_state.get("real_module_filter")
+    view = f"Módulo {selected}" if selected in MODULE_LABELS else "Resumen nacional"
+    st.session_state["stage04_view"] = view
+    st.query_params["view"] = view
 
 
 def _valid_session_value(key: str, options: tuple[str, ...], fallback: str) -> None:
@@ -171,8 +177,7 @@ def _module_summaries(
 
 def _render_state(result: AuthorizedRedesignResult) -> None:
     message = (
-        f"{result.row.module_id} · {result.display_name} — "
-        f"{STATE_LABELS[result.state]}"
+        f"{result.row.module_id} · {result.display_name} — {STATE_LABELS[result.state]}"
     )
     if result.state == "PUBLISHABLE_SHADOW":
         st.success(message)
@@ -210,7 +215,10 @@ def _render_table(rows: list[AuthorizedRedesignResult]) -> None:
         st.info("No hay resultados autorizados para esta combinación de filtros.")
 
 
-def _render_forest(rows: list[AuthorizedRedesignResult]) -> None:
+def _render_forest(rows: list[AuthorizedRedesignResult], *, indicator_id: str) -> None:
+    if indicator_id == "Todos":
+        st.info("Selecciona un indicador para mostrar el forest plot.")
+        return
     forest_rows = [record for result in rows if (record := forest_record(result))]
     if not forest_rows:
         st.info("Esta selección no contiene estadísticas aptas para el forest plot.")
@@ -268,9 +276,7 @@ def _render_detail(result: AuthorizedRedesignResult) -> None:
     estimate.metric("Estimación", str(card["estimate_text"]))
     error.metric("Error estándar", str(card["standard_error_text"]))
     cv.metric("CV", str(card["cv_text"]).replace("CV ", ""))
-    sample.metric(
-        "N no ponderado", str(card["n_text"]).replace("N no ponderado: ", "")
-    )
+    sample.metric("N no ponderado", str(card["n_text"]).replace("N no ponderado: ", ""))
     st.write(card["interval_text"])
     _render_state(result)
     st.caption(card["quality_note"])
@@ -334,10 +340,9 @@ def render() -> None:
                 "Módulo",
                 module_options,
                 key="real_module_filter",
+                on_change=_sync_module_view,
                 format_func=lambda value: (
-                    "Todos"
-                    if value == "Todos"
-                    else f"{value} · {MODULE_LABELS[value]}"
+                    "Todos" if value == "Todos" else f"{value} · {MODULE_LABELS[value]}"
                 ),
             )
             module_rows = [
@@ -367,8 +372,10 @@ def render() -> None:
                 *dict.fromkeys(result.row.indicator_id for result in dimension_rows),
             )
             _valid_session_value("real_indicator_filter", indicator_options, "Todos")
-            label_by_id = {
-                result.row.indicator_id: result.display_name
+            option_by_id = {
+                result.row.indicator_id: indicator_option_label(
+                    result.row.indicator_id, result.row.module_id
+                )
                 for result in dimension_rows
             }
             indicator_id = st.selectbox(
@@ -376,7 +383,7 @@ def render() -> None:
                 indicator_options,
                 key="real_indicator_filter",
                 format_func=lambda value: (
-                    "Todos" if value == "Todos" else label_by_id[value]
+                    "Todos" if value == "Todos" else option_by_id[value]
                 ),
             )
             indicator_rows = [
@@ -425,11 +432,11 @@ def render() -> None:
             if active_view == "Resumen nacional":
                 _render_overview(rows)
                 _render_table(rows)
-                _render_forest(rows)
+                _render_forest(rows, indicator_id=indicator_id)
             elif active_view.startswith("Módulo "):
                 st.subheader(active_view)
                 _render_table(rows)
-                _render_forest(rows)
+                _render_forest(rows, indicator_id=indicator_id)
             elif active_view == "Brechas":
                 st.subheader("Brechas")
                 st.info(

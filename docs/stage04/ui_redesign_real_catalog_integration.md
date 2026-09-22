@@ -25,6 +25,12 @@ La interfaz usa `src/enares/stage04/indicator_labels.py` como capa de presentaci
   de variables CRS04;
 - los nombres de indicadores derivados describen la semántica ya registrada en el
   diccionario Stage 03, sin alterar numeradores, denominadores ni universos.
+- los grupos de personas agresoras se presentan por su significado documentado,
+  nunca como un número de grupo;
+- período, contexto y denominador distinguen indicadores que antes compartían
+  texto;
+- dentro de cada módulo no quedan nombres duplicados y el selector presenta
+  `Nombre comprensible — indicator_id`.
 
 Fuentes verificadas en Drive privado:
 
@@ -56,11 +62,21 @@ Las opciones se derivan de filas verificadas. Una combinación ausente produce u
 estado vacío. CV alto y N reducido continúan visibles con sus alertas; la interfaz
 no transforma esos estados en supresión.
 
+El filtro de módulo y la vista modular se sincronizan en ambos sentidos con el
+título y el parámetro `view` de la URL. El forest plot se habilita solamente al
+seleccionar un indicador y cada punto se identifica como `Indicador — categoría`;
+por tanto, la vista inicial nunca superpone indicadores distintos bajo `Total`.
+
 ## Evidencia automática
 
 - el fixture autorizado contiene exactamente 516 pares indicador-módulo;
-- cada par obtiene un nombre principal no vacío, distinto del código y sin guiones
-  bajos;
+- cada par obtiene un nombre principal no vacío, distinto del código, sin guiones
+  bajos ni grupos numerados;
+- los 516 nombres no tienen duplicados dentro de su módulo y el texto del selector
+  conserva el código;
+- las dos secuencias vista↔filtro mantienen alineados módulo, título y URL;
+- el forest plot permanece oculto sin indicador y usa etiquetas inequívocas al
+  activarse;
 - la tabla muestra por separado `Indicador` y `Código`;
 - una selección vacía no abre una ficha ajena;
 - la tarjeta dorada de 3.2 conserva exactamente sus estadísticas aprobadas.

@@ -65,7 +65,9 @@ def load_authorized_results(
                 raise RepositoryContractError(
                     "UI redesign received an aggregate without verified provenance"
                 )
-            results.append(AuthorizedRedesignResult(row=row, state=authorized_state(row)))
+            results.append(
+                AuthorizedRedesignResult(row=row, state=authorized_state(row))
+            )
     return results
 
 
@@ -115,7 +117,7 @@ def forest_record(result: AuthorizedRedesignResult) -> dict[str, object] | None:
     if row.estimate is None or row.ci95_lower is None or row.ci95_upper is None:
         return None
     return {
-        "label": row.category,
+        "label": f"{result.display_name} — {row.category}",
         "estimate": row.estimate,
         "lower": row.ci95_lower,
         "upper": row.ci95_upper,
