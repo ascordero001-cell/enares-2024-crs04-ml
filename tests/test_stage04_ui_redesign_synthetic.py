@@ -167,7 +167,9 @@ def test_view_query_selects_one_named_view_without_loading_real_data():
 
 def test_module_32_area_uses_one_effective_selection_everywhere():
     app = _app()
-    app.get("button_group")[0].set_value("Módulo 3.2").run(timeout=15)
+    getattr(app.get("button_group")[0], "set_value")("Módulo 3.2").run(
+        timeout=15
+    )
     assert app.selectbox[0].value == "3.2"
     app.selectbox[1].set_value("Área").run(timeout=15)
     records = app.dataframe[0].value.to_dict("records")
@@ -189,7 +191,9 @@ def test_changing_view_preserves_compatible_filters_and_syncs_module():
     app = _app()
     app.selectbox[0].set_value("3.2").run(timeout=15)
     app.selectbox[1].set_value("Área").run(timeout=15)
-    app.get("button_group")[0].set_value("Módulo 3.2").run(timeout=15)
+    getattr(app.get("button_group")[0], "set_value")("Módulo 3.2").run(
+        timeout=15
+    )
     assert app.selectbox[0].value == "3.2"
     assert app.selectbox[1].value == "Área"
     assert app.dataframe[0].value.iloc[0]["Categoría"] == "Rural"
