@@ -13,7 +13,8 @@ for path in (ROOT, SRC):
     if str(path) not in sys.path:
         sys.path.insert(0, str(path))
 
-from app.streamlit_app import configured_repositories
+from app.repositories import configured_repositories
+from app.views.export_controls import render_safe_export
 from app.views.ui_redesign_real import (
     STATE_LABELS,
     AuthorizedRedesignResult,
@@ -44,6 +45,7 @@ DIMENSION_FILTERS = (
     ("Tipo de hogar", "Todos"),
     ("Discapacidad", "Todas"),
 )
+SPECIAL_DIMENSION_DEFAULT = "Ninguna"
 
 VIEW_LABELS = (
     "Resumen nacional",
@@ -89,7 +91,22 @@ def _valid_session_value(key: str, options: tuple[str, ...], fallback: str) -> N
 def _dimension_filter_selection(
     rows: list[AuthorizedRedesignResult],
 ) -> tuple[str, str | None]:
-    """Expose approved dimensions while allowing only one active cut."""
+    """Expose every existing V0 dimension while allowing only one active cut."""
+    standard_dimensions = {dimension for dimension, _ in DIMENSION_FILTERS}
+    special_dimensions = tuple(
+        dict.fromkeys(
+            result.row.disaggregation
+            for result in rows
+            if result.row.disaggregation not in {*standard_dimensions, "Nacional"}
+        )
+    )
+    special_options = (SPECIAL_DIMENSION_DEFAULT, *special_dimensions)
+    _valid_session_value(
+        "real_special_dimension", special_options, SPECIAL_DIMENSION_DEFAULT
+    )
+    selected_special = st.session_state.get(
+        "real_special_dimension", SPECIAL_DIMENSION_DEFAULT
+    )
     options_by_dimension: dict[str, tuple[str, ...]] = {}
     for dimension, default in DIMENSION_FILTERS:
         categories = tuple(
@@ -112,6 +129,8 @@ def _dimension_filter_selection(
         ),
         None,
     )
+    if selected_special != SPECIAL_DIMENSION_DEFAULT:
+        active_dimension = selected_special
     selected_values: dict[str, str] = {}
     for dimension, default in DIMENSION_FILTERS:
         selected_values[dimension] = st.selectbox(
@@ -121,6 +140,17 @@ def _dimension_filter_selection(
             disabled=active_dimension is not None and active_dimension != dimension,
         )
 
+    selected_special = st.selectbox(
+        "Otra desagregación V0",
+        special_options,
+        key="real_special_dimension",
+        disabled=active_dimension in standard_dimensions,
+        help=(
+            "Incluye únicamente cortes ya presentes en V0, como las matrices 2×2/3×3; "
+            "no construye cruces nuevos."
+        ),
+    )
+
     active_dimension = next(
         (
             dimension
@@ -129,6 +159,8 @@ def _dimension_filter_selection(
         ),
         None,
     )
+    if selected_special != SPECIAL_DIMENSION_DEFAULT:
+        return selected_special, None
     if active_dimension is None:
         return "Nacional", None
     return active_dimension, selected_values[active_dimension]
@@ -205,6 +237,31 @@ def _render_overview(rows: list[AuthorizedRedesignResult]) -> None:
 
 
 def _render_table(rows: list[AuthorizedRedesignResult]) -> None:
+    if rows and {result.row.indicator_id for result in rows} == {"Componentes"}:
+        accompaniment = {
+            "Aconsejar y escuchar",
+            "Ayudar con tareas escolares",
+            "Jugar contigo",
+        }
+        household_rows = [
+            result for result in rows if result.row.category not in accompaniment
+        ]
+        accompaniment_rows = [
+            result for result in rows if result.row.category in accompaniment
+        ]
+        st.markdown("#### Quién realiza tareas en el hogar · ítems 1–7")
+        st.dataframe(
+            [table_record(result) for result in household_rows],
+            hide_index=True,
+            width="stretch",
+        )
+        st.markdown("#### Quién acompaña a la adolescente · ítems 8–10")
+        st.dataframe(
+            [table_record(result) for result in accompaniment_rows],
+            hide_index=True,
+            width="stretch",
+        )
+        return
     if rows:
         st.dataframe(
             [table_record(result) for result in rows],
@@ -218,6 +275,12 @@ def _render_table(rows: list[AuthorizedRedesignResult]) -> None:
 def _render_forest(rows: list[AuthorizedRedesignResult], *, indicator_id: str) -> None:
     if indicator_id == "Todos":
         st.info("Selecciona un indicador para mostrar el forest plot.")
+        return
+    if indicator_id == "Componentes":
+        st.info(
+            "Las tareas del hogar y el acompañamiento se presentan en bloques separados; "
+            "no se combinan en una sola figura."
+        )
         return
     forest_rows = [record for result in rows if (record := forest_record(result))]
     if not forest_rows:
@@ -496,8 +559,13 @@ def render() -> None:
             elif rows:
                 st.info("Elige un indicador y una categoría para abrir su ficha.")
             st.subheader("Exportar")
-            st.button("Descargar corte visible", disabled=True)
-            st.caption("La exportación se habilitará solo con el flujo ya autorizado.")
+            if rows:
+                render_safe_export(
+                    (result.row for result in rows),
+                    basename="enares-stage04-corte-visible",
+                )
+            else:
+                st.info("No hay un corte visible para exportar.")
 
     st.divider()
     st.caption(

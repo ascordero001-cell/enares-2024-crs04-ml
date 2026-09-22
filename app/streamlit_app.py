@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import sys
 from collections.abc import Iterable
 from pathlib import Path
@@ -15,8 +14,10 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from app.config import FUTURE_DIMENSIONS, MODULES, NAVIGATION, module_for_page
+from app.repositories import configured_repositories as _configured_repositories
+from app.repositories import local_repositories as _local_repositories
+from app.views.export_controls import render_safe_export
 from app.views.stage04_dashboard import (
-    EXPORT_ENABLED,
     build_d01_task_groups,
     build_numeric_card,
     build_state_cards,
@@ -25,11 +26,7 @@ from app.views.stage04_dashboard import (
     load_validated_estimates,
     precision_category_label,
 )
-from enares.stage04.export import build_export_bundle
 from enares.stage04.repository import (
-    AuthorizedAggregateRepository,
-    BigQueryRepository,
-    DemoRepository,
     IndicatorEstimate,
     IndicatorRepository,
     RepositoryError,
@@ -37,48 +34,13 @@ from enares.stage04.repository import (
 
 
 def local_repositories():
-    """Create only repositories backed by checked-in aggregate or synthetic fixtures."""
-    data = ROOT / "app" / "data"
-    registry = ROOT / "docs" / "stage04" / "v0_drive_hash_manifest.md"
-    authorized = AuthorizedAggregateRepository(
-        data / "v0_authorized_full_indicator_estimates.csv",
-        data / "v0_authorized_full_indicator_estimates.manifest.json",
-        registry,
-    )
-    demo = DemoRepository(data / "demo_indicator_estimates.csv")
-    return authorized, demo
+    """Backward-compatible export of the shared local repository factory."""
+    return _local_repositories()
 
 
-def configured_repositories() -> tuple[IndicatorRepository, DemoRepository | None]:
-    """Select the local or authenticated-shadow source without mixing transports."""
-    mode = os.environ.get("STAGE04_DATA_MODE", "LOCAL_AUTHORIZED")
-    if mode == "LOCAL_AUTHORIZED":
-        return local_repositories()
-    if mode != "AUTHENTICATED_SHADOW":
-        raise ValueError("Unsupported Stage 04 data mode")
-
-    required = {
-        name: os.environ.get(name)
-        for name in (
-            "STAGE04_BQ_TABLE_FQN",
-            "STAGE04_RELEASE_ID",
-            "STAGE04_RUN_ID",
-        )
-    }
-    if not all(required.values()):
-        raise ValueError("Authenticated shadow configuration is incomplete")
-    manifest = ROOT / "app" / "data" / "v0_authorized_full_indicator_estimates.manifest.json"
-    registry = ROOT / "docs" / "stage04" / "v0_drive_hash_manifest.md"
-    return (
-        BigQueryRepository(
-            table_fqn=required["STAGE04_BQ_TABLE_FQN"],
-            release_id=required["STAGE04_RELEASE_ID"],
-            run_id=required["STAGE04_RUN_ID"],
-            manifest_path=manifest,
-            approval_registry_path=registry,
-        ),
-        None,
-    )
+def configured_repositories():
+    """Backward-compatible export of the shared configured repository factory."""
+    return _configured_repositories()
 
 
 def _styles() -> None:
@@ -176,31 +138,7 @@ def _numeric_summary(card: dict, heading: str | None = None) -> None:
 
 def _download_cut(rows: Iterable[IndicatorEstimate], basename: str) -> None:
     """Offer two equivalent formats only after the institutional aggregate gate."""
-    if not EXPORT_ENABLED:
-        return
-    try:
-        bundle = build_export_bundle(rows, basename=basename)
-    except (RepositoryError, ValueError, OSError, KeyError, TypeError):
-        st.error("El corte no superó la validación para exportación.")
-        return
-    csv_column, xlsx_column = st.columns(2)
-    csv_column.download_button(
-        "Descargar CSV",
-        data=bundle.csv_bytes,
-        file_name=f"{bundle.basename}.csv",
-        mime="text/csv",
-        on_click="ignore",
-    )
-    xlsx_column.download_button(
-        "Descargar Excel",
-        data=bundle.xlsx_bytes,
-        file_name=f"{bundle.basename}.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        on_click="ignore",
-    )
-    st.caption(
-        f"Exportación agregada: {bundle.row_count} fila(s) · mismo corte en CSV y Excel"
-    )
+    render_safe_export(rows, basename=basename)
 
 
 def _state_gallery(cards: list[dict]) -> None:
@@ -303,7 +241,7 @@ def _render_vs_matrices(repository: IndicatorRepository) -> None:
     _download_cut(selected, f"enares-stage04-35-{indicator}-{matrix}")
 
 
-def render() -> None:
+def render_legacy() -> None:
     st.set_page_config(page_title="ENARES 2024 · Shadow", page_icon="◉", layout="wide")
     _styles()
     try:
@@ -414,14 +352,17 @@ def render() -> None:
                     "No se fabrican resultados."
                 )
                 return
-            query = st.text_input("Buscar indicador", key=f"real_query_{module.module_id}")
+            query = st.text_input(
+                "Buscar indicador", key=f"real_query_{module.module_id}"
+            )
             if query.strip():
                 terms = query.casefold().split()
                 dimension_rows = [
                     row
                     for row in dimension_rows
                     if all(
-                        term in f"{row.indicator_id} {row.indicator_name} {row.category}".casefold()
+                        term
+                        in f"{row.indicator_id} {row.indicator_name} {row.category}".casefold()
                         for term in terms
                     )
                 ]
@@ -510,6 +451,13 @@ def render() -> None:
         "Exportación limitada al corte agregado V0 visible · "
         "Sin búsqueda individual · Cloud bloqueado"
     )
+
+
+def render() -> None:
+    """Run the approved redesign from the one canonical Streamlit entrypoint."""
+    from app.ui_redesign_app import render as render_redesign
+
+    render_redesign()
 
 
 if __name__ == "__main__":

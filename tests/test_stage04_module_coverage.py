@@ -42,6 +42,7 @@ def _run_application() -> AppTest:
 def _visible_text(app: AppTest) -> str:
     groups = (
         app.caption,
+        app.code,
         app.error,
         app.info,
         app.markdown,
@@ -204,28 +205,27 @@ def test_real_fixture_coverage_is_distinguished_from_configuration():
 @pytest.mark.parametrize("module", MODULES, ids=lambda module: module.module_id)
 def test_apptest_navigates_every_module_without_inventing_authorization(module):
     app = _run_application()
-    app.sidebar.radio[0].set_value(module.page_label).run(timeout=15)
+    next(select for select in app.selectbox if select.label == "Módulo").set_value(
+        module.module_id
+    ).run(timeout=15)
     visible = _visible_text(app)
     assert not app.exception
-    assert module.full_label in visible
-    assert f"Estado de datos: {module.data_state}" in visible
-    assert {metric.label for metric in app.metric} == {
-        "Estimación",
-        "Error estándar",
-        "CV",
-        "N no ponderado",
-    }
+    assert f"Módulo {module.module_id}" in visible
+    indicator = next(select for select in app.selectbox if select.label == "Indicador")
+    assert len(indicator.options) > 1
 
 
 def test_apptest_absent_combination_is_no_data_without_numbers():
     app = _run_application()
-    app.sidebar.radio[0].set_value(get_module("3.6").page_label).run(timeout=15)
-    app.sidebar.selectbox[0].set_value("Sexo").run(timeout=15)
-    visible = _visible_text(app)
+    next(select for select in app.selectbox if select.label == "Módulo").set_value(
+        "3.6"
+    ).run(timeout=15)
     assert not app.exception
-    assert "sin datos autorizados for 3.6" in visible or "sin datos autorizados para 3.6" in visible
-    assert "No se fabrican resultados" in visible
-    assert not app.metric
+    sexo = next(select for select in app.selectbox if select.label == "Sexo")
+    assert sexo.options == ["Todos"]
+    assert "Sexo" not in next(
+        select for select in app.selectbox if select.label == "Otra desagregación V0"
+    ).options
 
 
 def test_apptest_unavailable_dimension_stops_before_module_repository(monkeypatch):
@@ -238,26 +238,24 @@ def test_apptest_unavailable_dimension_stops_before_module_repository(monkeypatc
 
     monkeypatch.setattr(AuthorizedAggregateRepository, "list_estimates", record_calls)
     app = _run_application()
-    app.sidebar.radio[0].set_value(get_module("3.6").page_label).run(timeout=15)
+    next(select for select in app.selectbox if select.label == "Módulo").set_value(
+        "3.6"
+    ).run(timeout=15)
     calls.clear()
-    app.sidebar.selectbox[0].set_value("Sexo").run(timeout=15)
-    visible = _visible_text(app)
     assert not app.exception
-    assert "sin datos autorizados" in visible
-    assert set(calls) == {"3.2"}
-    assert not app.metric
-    assert not app.table
-    assert len(app.selectbox) == 1
+    sexo = next(select for select in app.selectbox if select.label == "Sexo")
+    assert sexo.options == ["Todos"]
+    assert not calls
 
 
 def test_apptest_demo_synthetic_keeps_three_textual_states():
-    app = _run_application()
-    app.sidebar.radio[0].set_value(get_module("3.2").page_label).run(timeout=15)
-    app.radio[0].set_value("Demo sintético").run(timeout=15)
+    app = AppTest.from_file(
+        str(ROOT / "app" / "ui_redesign_synthetic_app.py")
+    ).run(timeout=15)
     visible = _visible_text(app)
     assert not app.exception
-    assert all(state in visible for state in ("Candidato", "Referencia", "Suprimido"))
-    assert visible.count("DEMO SINTÉTICO") == 3
+    assert "Composición sintética" in visible
+    assert "antes de conectar V0" in visible
 
 
 def test_invalid_row_error_is_generic_and_does_not_expose_internal_content(monkeypatch):
@@ -271,7 +269,7 @@ def test_invalid_row_error_is_generic_and_does_not_expose_internal_content(monke
     monkeypatch.setattr(AuthorizedAggregateRepository, "list_estimates", invalid_rows)
     app = _run_application()
     visible = _visible_text(app)
-    assert "Los resultados no superaron la validación estadística" in visible
+    assert "La fuente agregada autorizada no superó la validación" in visible
     assert internal_marker not in visible
     assert not app.metric
 

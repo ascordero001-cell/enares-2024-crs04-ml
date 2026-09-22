@@ -125,6 +125,7 @@ def _run_application() -> AppTest:
 def _visible_text(app: AppTest) -> str:
     element_groups = (
         app.caption,
+        app.code,
         app.error,
         app.info,
         app.markdown,
@@ -142,73 +143,63 @@ def _visible_text(app: AppTest) -> str:
     return "\n".join(values)
 
 
-def test_apptest_summary_shows_local_status_release_and_golden_statistics():
+def test_apptest_summary_shows_controlled_shadow_catalog_without_default_plot():
     app = _run_application()
     visible = _visible_text(app)
     assert not app.exception
-    assert "DEMO/SHADOW" in visible
+    assert "VIGILANCIA POBLACIONAL" in visible
     assert "enares2024-crs04-v0-shadow-001" in visible
-    assert "No es una publicación institucional" in visible
-    assert {metric.label for metric in app.metric} == {
-        "Estimación",
-        "Error estándar",
-        "CV",
-        "N no ponderado",
-    }
-    assert {metric.value for metric in app.metric} == {
-        "16.74 %",
-        "EE 0.5115",
-        "3.06 %",
-        "18,807",
-    }
-    assert "IC95 %: 15.74 %–17.75 %" in visible
+    assert "516 indicadores" in visible
+    assert "3,014 filas" in visible
+    assert "publicación y cutover: NOT_AUTHORIZED" in visible
+    assert not app.get("vega_lite_chart")
+    assert "Selecciona un indicador" in visible
 
 
-def test_apptest_module_32_shows_golden_and_three_demo_states():
+def test_apptest_module_32_shows_the_approved_golden_through_canonical_entrypoint():
     app = _run_application()
-    app.sidebar.radio[0].set_value("Módulo 3.2").run(timeout=15)
-    visible = _visible_text(app)
-    assert "16.74 %" in visible
-    source = next(radio for radio in app.radio if radio.label == "Fuente local")
-    source.set_value("Demo sintético").run(timeout=15)
-    visible = _visible_text(app)
-    assert "Candidato — revisión pendiente" in visible
-    assert "Referencial — precisión limitada" in visible
-    assert "CV superior al 15 %" in visible
-    assert "Suprimido — confidencialidad protegida" in visible
-    assert "no derivado de CV ni N" in visible
-    assert "Los campos protegidos no llegan a la interfaz" in visible
-    assert "weighted_population" not in visible
+    next(box for box in app.selectbox if box.label == "Módulo").set_value(
+        "3.2"
+    ).run(timeout=30)
+    next(box for box in app.selectbox if box.label == "Indicador").set_value(
+        "VF_HOGAR"
+    ).run(timeout=30)
+    next(box for box in app.selectbox if box.label == "Categoría").set_value(
+        "Total"
+    ).run(timeout=30)
+    metrics = {metric.label: metric.value for metric in app.metric}
+    assert metrics["Estimación"] == "16.74 %"
+    assert metrics["Error estándar"] == "EE 0.5115"
+    assert metrics["CV"] == "3.06 %"
+    assert metrics["N no ponderado"] == "18,807"
+    assert len(app.get("vega_lite_chart")) == 1
 
 
-def test_apptest_unsupported_dimension_shows_no_data_without_a_number():
+def test_apptest_unsupported_dimensions_are_not_offered_for_module_36():
     app = _run_application()
-    app.sidebar.selectbox[0].set_value("Sexo").run(timeout=15)
-    visible = _visible_text(app)
-    assert "Sexo: sin datos" in visible
-    assert "No se fabrican resultados" in visible
-    assert not app.metric
-    assert "16.74 %" not in visible
+    next(box for box in app.selectbox if box.label == "Módulo").set_value(
+        "3.6"
+    ).run(timeout=30)
+    for label, default in (("Sexo", "Todos"), ("Área", "Todas")):
+        control = next(box for box in app.selectbox if box.label == label)
+        assert control.options == [default]
+        assert control.value == default
 
 
 def test_apptest_controls_remain_local_and_safe_export_is_available():
     app = _run_application()
     visible = _visible_text(app)
-    assert "Exportación agregada: 1 fila(s)" in visible
+    assert "Exportación agregada: 516 fila(s)" in visible
     assert len(app.get("download_button")) == 2
-    assert "Cloud: NOT_AUTHORIZED" in _visible_text(app)
-    app.sidebar.radio[0].set_value("Estado del release").run(timeout=15)
-    visible = _visible_text(app)
-    assert "PUBLISHED: NOT_AUTHORIZED" in visible
-    assert "búsqueda individual" in visible
+    assert "CONTROLLED_SHADOW" in visible
+    assert "acceso público, publicación y cutover: NOT_AUTHORIZED" in visible
 
 
-def test_apptest_demo_does_not_offer_institutional_export():
+def test_canonical_entrypoint_never_mixes_the_synthetic_demo_source():
     app = _run_application()
-    app.sidebar.radio[0].set_value("Módulo 3.2").run(timeout=15)
-    source = next(radio for radio in app.radio if radio.label == "Fuente local")
-    source.set_value("Demo sintético").run(timeout=15)
-    assert not app.get("download_button")
+    assert not app.radio
+    assert "DEMO SINTÉTICO" not in _visible_text(app)
+    assert len(app.get("download_button")) == 2
 
 
 def test_streamlit_local_hardening_is_versioned():
