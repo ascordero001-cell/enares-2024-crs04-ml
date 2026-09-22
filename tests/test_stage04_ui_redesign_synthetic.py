@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import inspect
 from pathlib import Path
+from typing import Any, cast
 
 from streamlit.testing.v1 import AppTest
 
 from app.views.ui_redesign_synthetic import (
     STATE_LABELS,
     SYNTHETIC_RESULTS,
+    effective_view_results,
     filter_synthetic_results,
     forest_record,
     state_code,
@@ -35,38 +37,59 @@ def _visible_text(app: AppTest) -> str:
         app.warning,
     )
     return "\n".join(
-        str(getattr(element, "value", ""))
-        for group in groups
-        for element in group
+        str(getattr(element, "value", "")) for group in groups for element in group
     )
 
 
 def test_synthetic_redesign_starts_with_native_structure():
     app = _app()
     assert not app.exception
-    assert [tab.label for tab in app.tabs] == [
-        "Panorama",
-        "Tabla",
-        "Forest plot",
-        "Estados",
-    ]
-    assert len(app.sidebar.selectbox) == 2
-    assert len(app.sidebar.multiselect) == 1
+    assert len(app.selectbox) == 4
+    assert len(app.multiselect) == 1
     assert len(app.dataframe) == 1
     assert len(app.get("vega_lite_chart")) == 1
+    assert getattr(app.get("button_group")[0], "value", None) == "Resumen nacional"
     assert "100 % sintética" in _visible_text(app)
 
 
 def test_filters_change_visible_synthetic_rows_without_fabricating_results():
     app = _app()
-    app.sidebar.selectbox[0].set_value("3.2").run(timeout=15)
+    app.selectbox[0].set_value("3.2").run(timeout=15)
     assert not app.exception
-    assert app.metric[0].value == "2"
-    app.sidebar.selectbox[1].set_value("Sexo").run(timeout=15)
-    visible = _visible_text(app)
-    assert "No hay resultados sintéticos" in visible
-    assert not app.dataframe
-    assert not app.get("vega_lite_chart")
+    assert (
+        next(
+            metric for metric in app.metric if metric.label == "Resultados visibles"
+        ).value
+        == "2"
+    )
+    assert app.selectbox[1].options == ["Todas", "Nacional", "Área"]
+    app.selectbox[1].set_value("Área").run(timeout=15)
+    assert (
+        next(
+            metric for metric in app.metric if metric.label == "Resultados visibles"
+        ).value
+        == "1"
+    )
+    assert app.selectbox[2].options == ["Todos", "SYN_32_B"]
+    assert app.selectbox[3].options == ["Todas", "Rural"]
+
+
+def test_indicator_and_category_options_only_come_from_current_fixture_rows():
+    app = _app()
+    app.selectbox[0].set_value("3.5").run(timeout=15)
+    assert app.selectbox[2].options == [
+        "Todos",
+        "SYN_35_CONTEXT",
+        "SYN_35_SUPPRESSED",
+    ]
+    app.selectbox[2].set_value("SYN_35_SUPPRESSED").run(timeout=15)
+    assert app.selectbox[3].options == ["Todas", "Ejercicio"]
+    assert (
+        next(
+            metric for metric in app.metric if metric.label == "Resultados visibles"
+        ).value
+        == "1"
+    )
 
 
 def test_state_labels_are_derived_from_independent_flags():
@@ -97,11 +120,14 @@ def test_filter_options_cannot_escape_the_versioned_synthetic_fixture():
         states=tuple(STATE_LABELS),
     )
     assert [row.indicator for row in rows] == ["SYN_34_A"]
-    assert filter_synthetic_results(
-        module_id="9.9",
-        dimension="Todas",
-        states=tuple(STATE_LABELS),
-    ) == []
+    assert (
+        filter_synthetic_results(
+            module_id="9.9",
+            dimension="Todas",
+            states=tuple(STATE_LABELS),
+        )
+        == []
+    )
 
 
 def test_synthetic_app_does_not_import_or_read_real_repositories():
@@ -118,3 +144,70 @@ def test_synthetic_app_does_not_import_or_read_real_repositories():
         "open(",
     )
     assert all(value not in source for value in forbidden)
+
+
+def test_visual_contract_uses_native_dynamic_content_and_static_css_only():
+    import app.views.ui_visual_components as visual_components
+
+    source = inspect.getsource(visual_components)
+    assert visual_components.VISUAL_TOKENS["paper"] == "#F1F4F9"
+    assert "prefers-reduced-motion" in visual_components.VISUAL_CSS
+    assert "unsafe_allow_html" not in source
+    assert "<script" not in visual_components.VISUAL_CSS.lower()
+
+
+def test_view_query_selects_one_named_view_without_loading_real_data():
+    app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_synthetic_app.py"))
+    app.query_params["view"] = "Historial"
+    app.run(timeout=15)
+    assert not app.exception
+    assert "Sin release sintético publicado" in _visible_text(app)
+    assert not app.dataframe
+    assert not app.get("vega_lite_chart")
+
+
+def test_module_32_area_uses_one_effective_selection_everywhere():
+    app = _app()
+    cast(Any, app.get("button_group")[0]).set_value("Módulo 3.2").run(timeout=15)
+    assert app.selectbox[0].value == "3.2"
+    app.selectbox[1].set_value("Área").run(timeout=15)
+    records = app.dataframe[0].value.to_dict("records")
+    assert len(records) == 1
+    assert records[0]["Indicador"] == "SYN_32_B"
+    assert records[0]["Categoría"] == "Rural"
+
+
+def test_indicator_and_category_selection_excludes_unrelated_results():
+    app = _app()
+    app.selectbox[0].set_value("3.2").run(timeout=15)
+    app.selectbox[2].set_value("SYN_32_B").run(timeout=15)
+    app.selectbox[3].set_value("Rural").run(timeout=15)
+    records = app.dataframe[0].value.to_dict("records")
+    assert [record["Indicador"] for record in records] == ["SYN_32_B"]
+
+
+def test_changing_view_preserves_compatible_filters_and_syncs_module():
+    app = _app()
+    app.selectbox[0].set_value("3.2").run(timeout=15)
+    app.selectbox[1].set_value("Área").run(timeout=15)
+    cast(Any, app.get("button_group")[0]).set_value("Módulo 3.2").run(timeout=15)
+    assert app.selectbox[0].value == "3.2"
+    assert app.selectbox[1].value == "Área"
+    assert app.dataframe[0].value.iloc[0]["Categoría"] == "Rural"
+
+
+def test_empty_selection_has_no_unrelated_indicator_sheet():
+    app = _app()
+    app.multiselect[0].set_value([]).run(timeout=15)
+    text = _visible_text(app)
+    assert not app.dataframe
+    assert "No hay alertas ni indicador activo" in text
+    assert "Ficha del indicador activo" not in text
+
+
+def test_effective_module_view_never_reintroduces_filtered_rows():
+    filtered = filter_synthetic_results(
+        module_id="3.2", dimension="Área", states=tuple(STATE_LABELS)
+    )
+    assert effective_view_results(filtered, active_view="Módulo 3.2") == filtered
+    assert effective_view_results(filtered, active_view="Módulo 3.1") == []
