@@ -24,6 +24,7 @@ def _run_application() -> AppTest:
 def _visible_text(app: AppTest) -> str:
     groups = (
         app.caption,
+        app.code,
         app.error,
         app.info,
         app.markdown,
@@ -93,20 +94,36 @@ def test_d09_connects_domain_aliases_labels_and_visible_reference_cells():
 
 def test_apptest_renders_d01_as_two_groups_and_d11_one_by_one():
     app = _run_application()
-    app.sidebar.radio[0].set_value("Módulo 3.1").run(timeout=15)
+    next(select for select in app.selectbox if select.label == "Módulo").set_value(
+        "3.1"
+    ).run(timeout=15)
+    next(
+        select
+        for select in app.selectbox
+        if select.label == "Otra desagregación V0"
+    ).set_value("Tareas del hogar").run(timeout=15)
+    next(select for select in app.selectbox if select.label == "Indicador").set_value(
+        "Componentes"
+    ).run(timeout=15)
     visible = _visible_text(app)
     assert not app.exception
     assert "Quién realiza tareas en el hogar · ítems 1–7" in visible
     assert "Quién acompaña a la adolescente · ítems 8–10" in visible
-    assert len(app.table) == 2
-    assert "Download as CSV" not in visible
+    assert len(app.dataframe) == 2
+    assert len(app.download_button) == 2
 
-    for page, indicator in (
-        ("Módulo 3.3", "C3P223_10_1"),
-        ("Módulo 3.4", "Agresor_VS_12M__AG_01"),
-        ("Módulo 3.6", "C3P213"),
+    for module_id, indicator in (
+        ("3.3", "C3P223_10_1"),
+        ("3.4", "Agresor_VS_12M__AG_01"),
+        ("3.6", "C3P213"),
     ):
-        app.sidebar.radio[0].set_value(page).run(timeout=15)
+        app = _run_application()
+        next(select for select in app.selectbox if select.label == "Módulo").set_value(
+            module_id
+        ).run(timeout=15)
+        next(
+            select for select in app.selectbox if select.label == "Indicador"
+        ).set_value(indicator).run(timeout=15)
         assert not app.exception
         assert indicator in _visible_text(app)
         assert len(app.metric) == 4
@@ -116,9 +133,14 @@ def test_apptest_renders_d01_as_two_groups_and_d11_one_by_one():
 
 def test_apptest_d09_shows_approved_domain_and_no_suppression():
     app = _run_application()
-    app.sidebar.radio[0].set_value("Módulo 3.5").run(timeout=15)
+    next(select for select in app.selectbox if select.label == "Módulo").set_value(
+        "3.5"
+    ).run(timeout=15)
+    next(select for select in app.selectbox if select.label == "Indicador").set_value(
+        "CONS_ATENCION_SALUD"
+    ).run(timeout=15)
     visible = _visible_text(app)
     assert not app.exception
     assert "CONS_ALGUNA = 1" in visible
     assert "Los campos protegidos no llegan a la interfaz" not in visible
-    assert len(app.metric) == 8
+    assert len(app.metric) == 4

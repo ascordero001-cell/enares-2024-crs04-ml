@@ -44,6 +44,11 @@ VISUAL_CSS = """
 .stApp { background: var(--s04-paper); color: var(--s04-ink); }
 .block-container { max-width: 1360px; padding-top: 1.15rem; padding-bottom: 2.5rem; }
 h1, h2, h3 { color: var(--s04-brand-strong); font-family: Georgia, serif; }
+[data-testid="stCaptionContainer"],
+[data-testid="stCaptionContainer"] * {
+  color: var(--s04-ink-soft) !important;
+  opacity: 1 !important;
+}
 [data-testid="stMetricValue"] { font-family: Consolas, monospace; color: var(--s04-brand-strong); }
 .st-key-stage04_header,
 .st-key-stage04_scope_banner,

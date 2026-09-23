@@ -137,14 +137,29 @@ def test_d06_d07_extract_rebuilds_byte_for_byte_from_private_parent(tmp_path):
 
 def test_apptest_renders_both_v0_matrix_indicators_without_fabricated_crosses():
     app = AppTest.from_file(str(ROOT / "app" / "streamlit_app.py")).run(timeout=15)
-    app.sidebar.radio[0].set_value("Módulo 3.5").run(timeout=15)
-    assert not app.exception
-    indicator = next(
-        select for select in app.selectbox if select.label == "Indicador matricial"
+    next(select for select in app.selectbox if select.label == "Módulo").set_value(
+        "3.5"
+    ).run(timeout=15)
+    matrix = next(
+        select
+        for select in app.selectbox
+        if select.label == "Otra desagregación V0"
     )
-    assert set(indicator.options) == {"Solap_VS_12M", "Solap_VS_VIDA"}
-    indicator.set_value("Solap_VS_VIDA").run(timeout=15)
+    assert {"2×2", "3×3"}.issubset(set(matrix.options))
+    matrix.set_value("2×2").run(timeout=15)
     assert not app.exception
-    matrix = next(select for select in app.selectbox if select.label == "Matriz")
-    assert set(matrix.options) == {"2×2", "3×3"}
-    assert len(app.metric) == 8
+    indicator = next(select for select in app.selectbox if select.label == "Indicador")
+    assert indicator.options[0] == "Todos"
+    assert {option.rsplit(" — ", 1)[-1] for option in indicator.options[1:]} == {
+        "Solap_VS_12M",
+        "Solap_VS_VIDA",
+    }
+    vida_option = next(
+        option for option in indicator.options if option.endswith("Solap_VS_VIDA")
+    )
+    indicator.set_value(vida_option).run(timeout=15)
+    assert not app.exception
+    category = next(select for select in app.selectbox if select.label == "Categoría")
+    assert len(category.options) == 3
+    category.set_value(category.options[1]).run(timeout=15)
+    assert len(app.metric) == 4

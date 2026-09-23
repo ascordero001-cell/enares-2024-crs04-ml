@@ -71,6 +71,7 @@ def test_redesign_app_displays_the_exact_golden_values_by_default():
         "Etnicidad",
         "Tipo de hogar",
         "Discapacidad",
+        "Otra desagregación V0",
         "Indicador",
         "Categoría",
     ]
@@ -84,6 +85,7 @@ def test_redesign_app_displays_the_exact_golden_values_by_default():
         "Todas",
         "Todos",
         "Todas",
+        "Ninguna",
         "Todos",
         "Todas",
     ]
