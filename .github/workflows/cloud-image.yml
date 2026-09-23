@@ -53,6 +53,7 @@ jobs:
             test ! -e /app/data
             ! find /app -type f \( -name "*.sav" -o -name "*.csv" \) | grep -q .
             python -c "import google.cloud.bigquery, streamlit; assert streamlit.__version__ == \"1.63.0\""
+            python -c "import app.streamlit_app, app.ui_redesign_app; assert callable(app.streamlit_app.render)"
           '
 
       - name: Start cloud image with non-secret placeholder configuration
