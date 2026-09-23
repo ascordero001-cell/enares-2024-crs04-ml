@@ -15,6 +15,7 @@ RUN python -m pip install --no-cache-dir --disable-pip-version-check \
     && adduser --system --ingroup app app
 
 COPY --chown=app:app app/streamlit_app.py ./app/streamlit_app.py
+COPY --chown=app:app app/__init__.py app/repositories.py app/ui_redesign_app.py ./app/
 COPY --chown=app:app app/config ./app/config
 COPY --chown=app:app app/views ./app/views
 COPY --chown=app:app src ./src
