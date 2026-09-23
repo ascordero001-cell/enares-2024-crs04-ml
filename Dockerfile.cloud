@@ -18,6 +18,7 @@ COPY --chown=app:app app/streamlit_app.py ./app/streamlit_app.py
 COPY --chown=app:app app/__init__.py app/repositories.py app/ui_redesign_app.py ./app/
 COPY --chown=app:app app/config ./app/config
 COPY --chown=app:app app/views ./app/views
+COPY --chown=app:app .streamlit/config.toml ./.streamlit/config.toml
 COPY --chown=app:app src ./src
 COPY --chown=app:app scripts/container_healthcheck.py ./scripts/container_healthcheck.py
 COPY --chown=app:app app/data/v0_authorized_full_indicator_estimates.manifest.json ./app/data/v0_authorized_full_indicator_estimates.manifest.json
