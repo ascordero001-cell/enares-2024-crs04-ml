@@ -26,7 +26,7 @@ def test_app_ci_runs_quality_gates_and_builds_without_publishing() -> None:
 def test_quality_tools_are_pinned() -> None:
     requirements = (ROOT / "requirements-dev.txt").read_text(encoding="utf-8")
     assert "mypy==1.18.2" in requirements
-    assert "ruff==0.16.7" in requirements
+    assert "ruff==0.16.8" in requirements
 
 
 def test_mypy_checks_stage04_across_module_boundaries() -> None:
