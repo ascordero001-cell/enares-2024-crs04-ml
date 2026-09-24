@@ -140,7 +140,7 @@ jobs:
             --output-directory (Join-Path $env:RUNNER_TEMP "stage04-safe-evidence")
 
       - name: Upload redacted evidence only
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: stage04-preparation-${{ github.run_id }}
           path: ${{ runner.temp }}/stage04-safe-evidence/
