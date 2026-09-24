@@ -1,2 +1,2 @@
 -r requirements-runtime.txt
-google-cloud-bigquery==3.45.0
+google-cloud-bigquery==3.45.2
