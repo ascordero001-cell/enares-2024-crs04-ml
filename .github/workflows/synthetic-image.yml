@@ -53,7 +53,7 @@ jobs:
       - name: Confirm pinned Streamlit and synthetic diagnostic
         run: |
           docker run --rm enares-stage04-synthetic:${GITHUB_SHA} \
-            python -c "import streamlit; assert streamlit.__version__ == '1.63.0'"
+            python -c "import streamlit; assert streamlit.__version__ == '1.64.0'"
           docker run --rm enares-stage04-synthetic:${GITHUB_SHA} \
             python scripts/synthetic_release_diagnostic.py
 

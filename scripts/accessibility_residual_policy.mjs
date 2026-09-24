@@ -6,7 +6,7 @@ export function assertExpectedStreamlitSidebarResiduals(actual) {
   if (actual !== EXPECTED_STREAMLIT_SIDEBAR_RESIDUALS) {
     throw new Error(
       `Expected exactly ${EXPECTED_STREAMLIT_SIDEBAR_RESIDUALS} known Streamlit ` +
-        `1.63.0 sidebar residuals, observed ${actual}`,
+        `sidebar residuals in the canonical entrypoint, observed ${actual}`,
     );
   }
 }
