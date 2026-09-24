@@ -54,7 +54,7 @@ jobs:
             test ! -e /app/app/data/demo_indicator_estimates.csv
             test ! -e /app/data
             ! find /app -type f \( -name "*.sav" -o -name "*.csv" \) | grep -q .
-            python -c "import google.cloud.bigquery, streamlit; assert streamlit.__version__ == \"1.63.0\""
+            python -c "import google.cloud.bigquery, streamlit; assert streamlit.__version__ == \"1.64.0\""
             python -c "import app.streamlit_app, app.ui_redesign_app; assert callable(app.streamlit_app.render)"
             python -c "from streamlit import config; assert config.get_option(\"theme.primaryColor\") == \"#9B2342\""
           '

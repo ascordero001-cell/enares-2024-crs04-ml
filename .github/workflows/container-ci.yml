@@ -31,7 +31,7 @@ jobs:
       - name: Confirm pinned Streamlit version
         run: |
           docker run --rm enares-stage04:ci python -c \
-            "import streamlit; assert streamlit.__version__ == '1.63.0'; print(streamlit.__version__)"
+            "import streamlit; assert streamlit.__version__ == '1.64.0'; print(streamlit.__version__)"
 
       - name: Start application container
         run: docker run --detach --name enares-stage04-ci --publish 8080:8080 enares-stage04:ci

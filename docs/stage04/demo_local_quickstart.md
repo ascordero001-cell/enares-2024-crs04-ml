@@ -46,7 +46,7 @@ Resultados esperados:
 - el contenedor queda `healthy` y la aplicación responde en `http://localhost:8080`;
 - el health responde `ok`;
 - el diagnóstico devuelve `status=ok` para el release esperado;
-- la imagen contiene `streamlit==1.63.0`;
+- la imagen contiene `streamlit==1.64.0`;
 - el estado cloud continúa `NOT_AUTHORIZED`.
 
 ## Validación automatizada en runner limpio
@@ -58,7 +58,7 @@ hace fallar el PR.
 ```bash quickstart-ci
 python -m pip install --upgrade pip
 python -m pip install -r requirements-dev.txt
-python -c "import streamlit; assert streamlit.__version__ == '1.63.0'"
+python -c "import streamlit; assert streamlit.__version__ == '1.64.0'"
 python -m pytest tests/test_naming.py -q
 python -m pytest -q
 python scripts/release_diagnostic.py --expected-release enares2024-crs04-v0-shadow-001
