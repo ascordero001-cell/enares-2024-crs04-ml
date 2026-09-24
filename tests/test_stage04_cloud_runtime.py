@@ -34,7 +34,7 @@ def test_cloud_image_contains_only_manifest_bound_aggregate_metadata() -> None:
         encoding="utf-8"
     )
 
-    assert "google-cloud-bigquery==3.45.0" in requirements
+    assert "google-cloud-bigquery==3.45.2" in requirements
     assert "COPY --chown=app:app app ./app" not in dockerfile
     assert "v0_authorized_full_indicator_estimates.csv" not in dockerfile
     assert "demo_indicator_estimates.csv" not in dockerfile
