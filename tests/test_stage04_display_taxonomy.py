@@ -101,10 +101,10 @@ def test_department_chart_has_26_complete_labels_and_selected_block(
         topic=topic,
         assignment=catalog.assignments,
     )
-    charts: list[tuple[list[dict[str, object]], dict[str, object]]] = []
+    charts: list[dict[str, object]] = []
     monkeypatch.setattr(st, "caption", lambda _text: None)
     monkeypatch.setattr(st, "html", lambda _text: None)
-    monkeypatch.setattr(st, "vega_lite_chart", lambda data, spec, **_kwargs: charts.append((data, spec)))
+    monkeypatch.setattr(st, "vega_lite_chart", lambda spec, **_kwargs: charts.append(spec))
     _render_topic_chart(
         topic,
         rows,
@@ -113,7 +113,11 @@ def test_department_chart_has_26_complete_labels_and_selected_block(
         active_category="Callao",
     )
     assert len(charts) == 1
-    records, spec = charts[0]
+    spec = charts[0]
+    data = spec["data"]
+    assert isinstance(data, dict)
+    records = data["values"]
+    assert isinstance(records, list)
     assert len(records) == 26
     labels = {str(record["label"]) for record in records}
     assert {"Amazonas", "Callao", "Lima Metropolitana", "Región Lima"} <= labels
