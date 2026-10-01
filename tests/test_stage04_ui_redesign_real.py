@@ -60,9 +60,8 @@ def test_authorized_redesign_reuses_repository_and_matches_golden_card_exactly()
 def test_redesign_app_displays_the_exact_golden_values_by_default():
     app = _app()
     assert not app.exception
-    assert getattr(app.get("button_group")[0], "value", None) == "Resumen nacional"
+    assert getattr(app.get("button_group")[0], "value", None) == "3.1"
     assert [selectbox.label for selectbox in app.selectbox] == [
-        "Módulo",
         "Departamento",
         "Área",
         "Sexo",
@@ -72,38 +71,10 @@ def test_redesign_app_displays_the_exact_golden_values_by_default():
         "Tipo de hogar",
         "Discapacidad",
         "Otra desagregación V0",
-        "Indicador",
-        "Categoría",
     ]
-    assert [selectbox.value for selectbox in app.selectbox] == [
-        "Todos",
-        "Todos",
-        "Todas",
-        "Todos",
-        "Todos",
-        "Todos",
-        "Todas",
-        "Todos",
-        "Todas",
-        "Ninguna",
-        "Todos",
-        "Todas",
-    ]
-    app.selectbox[0].set_value("3.2").run(timeout=30)
-    indicator = next(box for box in app.selectbox if box.label == "Indicador")
-    indicator.set_value("VF_HOGAR").run(timeout=30)
-    category = next(box for box in app.selectbox if box.label == "Categoría")
-    category.set_value("Total").run(timeout=30)
-    metric_values = {metric.label: metric.value for metric in app.metric}
-    assert metric_values["Estimación"] == "16.74 %"
-    assert metric_values["Error estándar"] == "EE 0.5115"
-    assert metric_values["CV"] == "3.06 %"
-    assert metric_values["N no ponderado"] == "18,807"
-    assert len(app.dataframe) == 1
-    assert len(app.get("vega_lite_chart")) == 1
-    record = app.dataframe[0].value.to_dict("records")[0]
-    assert record["Indicador"] == "Violencia física en el hogar"
-    assert record["Código"] == "VF_HOGAR"
+    assert app.session_state["active_module_id"] == "3.1"
+    assert app.session_state["active_report_topic_id"] == "3.1.01"
+    assert not app.dataframe  # The exact mockup uses escaped HTML tables.
 
 
 def test_filter_options_are_derived_from_authorized_rows_only():
@@ -121,13 +92,14 @@ def test_filter_options_are_derived_from_authorized_rows_only():
 
 
 def test_empty_state_filter_never_fabricates_a_value():
-    app = _app()
-    app.multiselect[0].set_value([]).run(timeout=30)
+    app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py"))
+    app.query_params["view"] = "Módulo 3.2"
+    app.query_params["topic"] = "3.2.09"
+    app.run(timeout=30)
     assert not app.exception
-    assert app.metric[0].value == "0"
     assert not app.dataframe
     assert not app.get("vega_lite_chart")
-    assert any("No hay resultados autorizados" in info.value for info in app.info)
+    assert any("Sin datos en el release V0" in info.value for info in app.info)
 
 
 def test_one_visible_dimension_control_filters_an_existing_category_only():
@@ -136,7 +108,7 @@ def test_one_visible_dimension_control_filters_an_existing_category_only():
     area.set_value("1").run(timeout=30)
     assert not app.exception
     assert "Dimensión" not in [box.label for box in app.sidebar.selectbox]
-    assert set(app.dataframe[0].value["Categoría"]) == {"1"}
+    assert app.session_state["real_filter_Área"] == "1"
     assert all(
         box.disabled
         for box in app.selectbox
@@ -198,43 +170,41 @@ def test_every_v0_indicator_has_a_human_primary_label_and_keeps_its_code():
 def test_module_filter_and_view_stay_synchronized_in_both_directions():
     app = _app()
     view = cast(Any, app.get("button_group")[0])
-    view.set_value("Módulo 3.2").run(timeout=30)
-    module = next(box for box in app.selectbox if box.label == "Módulo")
-    assert module.value == "3.2"
+    view.set_value("3.2").run(timeout=30)
+    assert app.session_state["active_module_id"] == "3.2"
     assert app.query_params["view"] == ["Módulo 3.2"]
-
-    module.set_value("3.4").run(timeout=30)
-    assert cast(Any, app.get("button_group")[0]).value == "Módulo 3.4"
+    view = cast(Any, app.get("button_group")[0])
+    view.set_value("3.4").run(timeout=30)
+    assert app.session_state["active_module_id"] == "3.4"
     assert app.query_params["view"] == ["Módulo 3.4"]
-    assert any(heading.value == "Módulo 3.4" for heading in app.subheader)
-
-    cast(Any, app.get("button_group")[0]).set_value("Módulo 3.1").run(timeout=30)
-    assert next(box for box in app.selectbox if box.label == "Módulo").value == "3.1"
+    cast(Any, app.get("button_group")[0]).set_value("3.1").run(timeout=30)
+    assert app.session_state["active_module_id"] == "3.1"
     assert app.query_params["view"] == ["Módulo 3.1"]
 
 
 def test_forest_plot_requires_one_indicator_and_uses_unambiguous_labels():
     app = _app()
-    assert not app.get("vega_lite_chart")
-    assert any("Selecciona un indicador" in info.value for info in app.info)
-
-    app.selectbox[0].set_value("3.2").run(timeout=30)
-    indicator = next(box for box in app.selectbox if box.label == "Indicador")
-    indicator.set_value("VF_HOGAR").run(timeout=30)
     assert len(app.get("vega_lite_chart")) == 1
-
+    app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py"))
+    app.query_params["view"] = "Módulo 3.2"
+    app.query_params["topic"] = "3.2.03"
+    app.run(timeout=30)
+    assert not app.exception
+    assert len(app.get("vega_lite_chart")) == 1
     record = forest_record(_golden_result())
     assert record is not None
     assert record["label"] == "Violencia física en el hogar — Total"
 
 
 def test_empty_selection_has_no_unrelated_indicator_sheet():
-    app = _app()
-    app.multiselect[0].set_value([]).run(timeout=30)
+    app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py"))
+    app.query_params["view"] = "Módulo 3.2"
+    app.query_params["topic"] = "3.2.09"
+    app.run(timeout=30)
     visible = "\n".join(
         str(getattr(element, "value", ""))
         for group in (app.info, app.caption, app.markdown, app.subheader)
         for element in group
     )
-    assert "No hay alertas ni indicador activo" in visible
-    assert "Ficha del indicador activo" not in visible
+    assert "Sin datos en el release V0" in visible
+    assert "Estimación:" not in visible

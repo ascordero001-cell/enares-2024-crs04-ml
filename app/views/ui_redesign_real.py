@@ -2,10 +2,19 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import re
+from collections.abc import Iterable
+from dataclasses import dataclass, replace
 
 from app.views.stage04_dashboard import build_numeric_card, load_validated_estimates
 from enares.stage04.indicator_labels import indicator_display_name
+from enares.stage04.report_topics import (
+    AssignmentIndex,
+    ReportTopic,
+    TopicAssignment,
+    TopicCatalogError,
+    resolve_assignment,
+)
 from enares.stage04.repository import (
     IndicatorEstimate,
     IndicatorRepository,
@@ -14,6 +23,57 @@ from enares.stage04.repository import (
 )
 
 MODULE_IDS = ("3.1", "3.2", "3.3", "3.4", "3.5", "3.6")
+
+
+class ModuleIsolationError(RuntimeError):
+    """A visible module was about to receive another module's aggregate."""
+
+
+def enforce_module_isolation(
+    rows: Iterable[AuthorizedRedesignResult],
+    *,
+    active_module_id: str,
+    assignment: AssignmentIndex,
+) -> list[AuthorizedRedesignResult]:
+    if active_module_id not in MODULE_IDS:
+        raise ModuleIsolationError(f"Invalid active module: {active_module_id}")
+    materialized = list(rows)
+    foreign: set[str] = set()
+    for result in materialized:
+        try:
+            item = resolve_assignment(assignment, result.row)
+        except TopicCatalogError as error:
+            raise ModuleIsolationError(str(error)) from error
+        if item.module_id != active_module_id:
+            foreign.add(item.module_id)
+    if foreign:
+        raise ModuleIsolationError(
+            f"Module {active_module_id} received foreign rows from {sorted(foreign)}"
+        )
+    return materialized
+
+
+def rows_for_topic(
+    results: Iterable[AuthorizedRedesignResult],
+    *,
+    active_module_id: str,
+    topic: ReportTopic,
+    assignment: AssignmentIndex,
+) -> list[AuthorizedRedesignResult]:
+    if topic.module_id != active_module_id:
+        raise ModuleIsolationError(
+            f"Topic {topic.topic_id} does not belong to {active_module_id}"
+        )
+    selected = [
+        result
+        for result in results
+        if resolve_assignment(assignment, result.row).topic_id == topic.topic_id
+    ]
+    return enforce_module_isolation(
+        selected,
+        active_module_id=active_module_id,
+        assignment=assignment,
+    )
 
 
 @dataclass(frozen=True)
@@ -130,3 +190,169 @@ def numeric_card(result: AuthorizedRedesignResult) -> dict[str, object] | None:
     if result.state in {"SUPPRESSED", "CONTEXT_ONLY"}:
         return None
     return build_numeric_card(result.row)
+
+
+def format_percentage(value: float | None) -> str:
+    return "—" if value is None else f"{value:.1f}%"
+
+
+def format_cv(value: float | None) -> str:
+    return "—" if value is None else f"{value * 100:.1f}%"
+
+
+def format_n(value: int | None) -> str:
+    return "—" if value is None else f"{value:,}".replace(",", " ")
+
+
+VISIBLE_TECHNICAL_CODE = re.compile(
+    r"(?:_|\bC\d+P\d+\b|\b(?:AG|CP|D)\s*\d+\b|\bICVAC\s*\d+\b)",
+    re.IGNORECASE,
+)
+
+METADATA_CODE_LABELS = {
+    "CONS_ATENCION_SALUD": "atención de salud por consecuencias físicas",
+    "CONS_ALGUNA": "alguna consecuencia física",
+    "VF_ESCUELA": "violencia física en la escuela",
+    "VF_HOGAR": "violencia física en el hogar",
+    "VP_ESCUELA": "violencia psicológica en la escuela",
+    "VP_HOGAR": "violencia psicológica en el hogar",
+    "VP_o_VF_ESCUELA": "violencia psicológica o física en la escuela",
+    "VP_o_VF_HOGAR": "violencia psicológica o física en el hogar",
+    "VP_o_VF_E": "violencia psicológica o física en la escuela",
+    "VS_12M": "violencia sexual en los últimos 12 meses",
+    "VS_VIDA": "violencia sexual alguna vez en la vida",
+    "VS_E_1": "violencia sexual en la escuela alguna vez en la vida",
+    "VS_H_1": "violencia sexual en el hogar alguna vez en la vida",
+    "VS_E": "violencia sexual en la escuela",
+    "VS_H": "violencia sexual en el hogar",
+    "C3P302": "pregunta correspondiente sobre violencia sexual",
+    "dom_no_recibio_hogar": "quienes no recibieron ayuda por violencia en el hogar",
+    "dom_no_recibio_escuela": "quienes no recibieron ayuda por violencia en la escuela",
+    "dom_no_recibio_vs": "quienes no recibieron ayuda por violencia sexual",
+    "dom_busco_hogar": "quienes buscaron ayuda por violencia en el hogar",
+    "dom_busco_escuela": "quienes buscaron ayuda por violencia en la escuela",
+    "dom_busco_vs": "quienes buscaron ayuda por violencia sexual",
+    "dom_recibio_hogar": "quienes recibieron ayuda por violencia en el hogar",
+    "dom_recibio_escuela": "quienes recibieron ayuda por violencia en la escuela",
+    "dom_recibio_vs": "quienes recibieron ayuda por violencia sexual",
+    "dom_victima_hogar": "víctimas de violencia en el hogar",
+    "dom_victima_escuela": "víctimas de violencia en la escuela",
+    "dom_victima_vs": "víctimas de violencia sexual",
+    "dom_institucion_hogar": "quienes acudieron a una institución por violencia en el hogar",
+    "dom_institucion_escuela": "quienes acudieron a una institución por violencia en la escuela",
+    "dom_institucion_vs": "quienes acudieron a una institución por violencia sexual",
+    "dom_ayuda_inst_vs": "quienes recibieron ayuda institucional por violencia sexual",
+}
+
+
+def safe_metadata_text(value: str) -> str:
+    """Translate known V0 domain variables without mutating their source fields."""
+    visible = value or "—"
+    for code in sorted(METADATA_CODE_LABELS, key=len, reverse=True):
+        visible = re.sub(
+            rf"(?<!\w){re.escape(code)}(?!\w)",
+            METADATA_CODE_LABELS[code],
+            visible,
+        )
+    if "_" in visible or VISIBLE_TECHNICAL_CODE.search(visible):
+        raise ModuleIsolationError("Untranslated technical code in V0 metadata")
+    return visible
+
+
+def safe_indicator_display_name(
+    indicator_id: str,
+    *,
+    presentation_module_id: str,
+    topic_title: str,
+    display_label_override: str = "",
+) -> str:
+    label = (
+        display_label_override.strip()
+        or indicator_display_name(indicator_id, presentation_module_id).strip()
+    )
+    if (
+        not label
+        or label.casefold() == indicator_id.casefold()
+        or indicator_id.casefold() in label.casefold()
+        or VISIBLE_TECHNICAL_CODE.search(label)
+    ):
+        return topic_title
+    return label
+
+
+def visible_indicator_name(
+    result: AuthorizedRedesignResult,
+    *,
+    topic: ReportTopic,
+    topic_assignment: TopicAssignment,
+) -> str:
+    return safe_indicator_display_name(
+        result.row.indicator_id,
+        presentation_module_id=topic.module_id,
+        topic_title=topic.title,
+        display_label_override=topic_assignment.display_label_override,
+    )
+
+
+def numeric_values_are_visible(result: AuthorizedRedesignResult) -> bool:
+    return result.state not in {"SUPPRESSED", "CONTEXT_ONLY"} and not bool(
+        getattr(result.row, "suppress_flag", False)
+    )
+
+
+def protected_percentage(result: AuthorizedRedesignResult, value: float | None) -> str:
+    return format_percentage(value if numeric_values_are_visible(result) else None)
+
+
+def protected_interval(result: AuthorizedRedesignResult) -> str:
+    if not numeric_values_are_visible(result):
+        return "—"
+    return (
+        f"{format_percentage(result.row.ci95_lower)} – "
+        f"{format_percentage(result.row.ci95_upper)}"
+    )
+
+
+def visible_cut(result: AuthorizedRedesignResult) -> str:
+    row = result.row
+    if row.disaggregation == "Nacional":
+        if row.category.casefold() in {"total", "nacional (total)"}:
+            return "Nacional"
+        return f"Nacional · {row.category}"
+    return f"{row.disaggregation} · {row.category}"
+
+
+def visible_table_record(
+    result: AuthorizedRedesignResult,
+    *,
+    topic: ReportTopic,
+    topic_assignment: TopicAssignment,
+) -> dict[str, str]:
+    row = result.row
+    visible = numeric_values_are_visible(result)
+    return {
+        "Indicador": visible_indicator_name(
+            result, topic=topic, topic_assignment=topic_assignment
+        ),
+        "Período": topic_assignment.period_label,
+        "Corte": visible_cut(result),
+        "Estimación": protected_percentage(result, row.estimate),
+        "IC95%": protected_interval(result),
+        "CV": format_cv(row.cv if visible else None),
+        "N": format_n(row.n_unweighted if visible else None),
+        "Estado y notas": STATE_LABELS[result.state],
+    }
+
+
+def protected_export_row(result: AuthorizedRedesignResult) -> IndicatorEstimate:
+    if numeric_values_are_visible(result):
+        return result.row
+    return replace(
+        result.row,
+        estimate=None,
+        standard_error=None,
+        ci95_lower=None,
+        ci95_upper=None,
+        cv=None,
+        n_unweighted=None,
+    )

@@ -7,32 +7,32 @@ const scenarios = [
   {
     id: "S01",
     view: "Resumen nacional",
-    expected: "Resultados visibles",
+    expected: "Resumen nacional",
   },
   {
     id: "S02",
     view: "Módulo 3.1",
-    expected: "Módulo 3.1",
+    expected: "3.1 · Percepciones",
   },
   {
     id: "S03",
     view: "Módulo 3.2",
-    expected: "Módulo 3.2",
+    expected: "3.2 · Violencia en el hogar",
   },
   {
     id: "S04",
     view: "Módulo 3.5",
-    expected: "Módulo 3.5",
+    expected: "3.5 · Acumulación de violencias",
   },
   {
     id: "S05",
     view: "Brechas",
-    expected: "no calcula diferencias nuevas",
+    expected: "Solo cifras V0 existentes",
   },
   {
     id: "S06",
     view: "Estado del gate",
-    expected: "Integración autorizada en shadow",
+    expected: "Release agregado en shadow privado",
   },
 ];
 

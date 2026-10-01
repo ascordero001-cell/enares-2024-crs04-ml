@@ -3,6 +3,8 @@ data/
 *.sav
 *.dta
 *.csv
+# Versioned editorial metadata only; this is not an aggregate or microdata export.
+!src/enares/stage04/report_topic_map.csv
 *.xlsx
 *.xls
 *.zip
@@ -19,6 +21,7 @@ data/
 .venv/
 node_modules/
 playwright-report/
+artifacts/ui-parity/
 
 # Reproducible JavaScript tooling metadata (never application data)
 !package.json

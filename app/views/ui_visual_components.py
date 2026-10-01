@@ -2,9 +2,110 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
+from html import escape
+from pathlib import Path
+from urllib.parse import urlencode
 
 import streamlit as st
+
+from enares.stage04.report_topics import ReportTopic
+
+ASSET_ROOT = Path(__file__).resolve().parents[1] / "assets"
+
+
+def inject_mockup_css() -> None:
+    css = (ASSET_ROOT / "stage04_mockup.css").read_text(encoding="utf-8")
+    st.html(f"<style>{css}</style>")
+
+
+def render_exact_header(
+    *, release_label: str, release_state: str, cloud_state: str
+) -> None:
+    st.html(
+        '<header class="topbar" data-testid="stage04-exact-header">'
+        '<div class="brandmark"><div class="glyph" aria-hidden="true">04</div>'
+        '<div><div class="eyebrow">ENARES 2024 · CRS04 · STAGE 04</div>'
+        "<h1>Vigilancia poblacional de violencia contra adolescentes</h1>"
+        '<div class="sub">Perú · Adolescentes de 12 a 17 años · '
+        "Resultados agregados, no expedientes individuales</div></div></div>"
+        '<div class="release-chip"><div><div class="rc-label">Alcance vigente</div>'
+        f'<div class="rc-id">{escape(release_label)}</div></div><div class="pills">'
+        f'<span class="pill accent"><span class="dot"></span>{escape(release_state)}</span>'
+        f'<span class="pill info"><span class="dot"></span>{escape(cloud_state)}</span>'
+        "</div></div></header>"
+    )
+
+
+def render_exact_scope_banner(message: str) -> None:
+    st.html(
+        '<section class="banner" data-testid="stage04-exact-banner">'
+        '<span class="tag">ACCESO CONTROLADO</span><div>'
+        "<strong>Aplicación privada con resultados agregados.</strong> "
+        f"{escape(message)}</div></section>"
+    )
+
+
+def render_module_cards(
+    modules: Iterable[Mapping[str, str]], *, active_module_id: str
+) -> None:
+    cards: list[str] = []
+    for module in modules:
+        module_id = module["code"]
+        active = " active" if module_id == active_module_id else ""
+        current = ' aria-current="page"' if active else ""
+        href = "?" + urlencode({"view": f"Módulo {module_id}"})
+        cards.append(
+            f'<a class="stripcard{active}" href="{escape(href)}"{current} '
+            f'aria-label="Abrir módulo {escape(module_id)}: {escape(module["label"])}">'
+            '<div class="sc-top">'
+            f'<span class="sc-code">{escape(module_id)}</span>'
+            f'<span class="pill {escape(module["state_class"])}">'
+            f'<span class="dot"></span>{escape(module["state"])}</span></div>'
+            f"<h3>{escape(module['label'])}</h3>"
+            f'<div class="sc-label">{escape(module["indicator"])}</div>'
+            f'<div class="sc-value">{escape(module["value"])}</div></a>'
+        )
+    st.html(
+        '<nav class="strip" data-testid="stage04-module-cards" '
+        'aria-label="Módulos 3.1 a 3.6">' + "".join(cards) + "</nav>"
+    )
+
+
+def render_topic_navigation(
+    topics: Sequence[ReportTopic], *, active_module_id: str, active_topic_id: str
+) -> None:
+    links: list[str] = []
+    for topic in topics:
+        active = " active" if topic.topic_id == active_topic_id else ""
+        current = ' aria-current="page"' if active else ""
+        href = "?" + urlencode(
+            {"view": f"Módulo {active_module_id}", "topic": topic.topic_id}
+        )
+        links.append(
+            f'<a class="topic-link{active}" href="{escape(href)}"{current} '
+            f'aria-label="Abrir {escape(topic.title)}">{escape(topic.title)}</a>'
+        )
+    st.html(
+        '<section class="topic-catalog" data-testid="stage04-topic-catalog">'
+        '<div class="topic-catalog-title">INDICADORES DEL MÓDULO '
+        f'{escape(active_module_id)}</div><nav aria-label="Indicadores del módulo">'
+        + "".join(links)
+        + "</nav></section>"
+    )
+
+
+def render_exact_table(headers: Sequence[str], rows: Sequence[Sequence[str]]) -> None:
+    head = "".join(f"<th>{escape(value)}</th>" for value in headers)
+    body = "".join(
+        "<tr>" + "".join(f"<td>{escape(value)}</td>" for value in row) + "</tr>"
+        for row in rows
+    )
+    st.html(
+        f'<div class="table-wrap"><table class="data"><thead><tr>{head}</tr>'
+        f"</thead><tbody>{body}</tbody></table></div>"
+    )
+
 
 VISUAL_TOKENS = {
     "paper": "#F1F4F9",

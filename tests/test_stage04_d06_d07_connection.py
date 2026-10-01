@@ -136,30 +136,29 @@ def test_d06_d07_extract_rebuilds_byte_for_byte_from_private_parent(tmp_path):
 
 
 def test_apptest_renders_both_v0_matrix_indicators_without_fabricated_crosses():
-    app = AppTest.from_file(str(ROOT / "app" / "streamlit_app.py")).run(timeout=15)
-    next(select for select in app.selectbox if select.label == "Módulo").set_value(
-        "3.5"
-    ).run(timeout=15)
-    matrix = next(
-        select
-        for select in app.selectbox
-        if select.label == "Otra desagregación V0"
+    from enares.stage04.report_topics import load_topic_mapping, resolve_assignment
+
+    authorized, _ = local_repositories()
+    rows = [*authorized.list_estimates("3.5")]
+    mapping = load_topic_mapping(
+        ROOT / "src" / "enares" / "stage04" / "report_topic_map.csv",
+        catalog_rows=[
+            row
+            for module in ("3.1", "3.2", "3.3", "3.4", "3.5", "3.6")
+            for row in authorized.list_estimates(module)
+        ],
     )
-    assert {"2×2", "3×3"}.issubset(set(matrix.options))
-    matrix.set_value("2×2").run(timeout=15)
-    assert not app.exception
-    indicator = next(select for select in app.selectbox if select.label == "Indicador")
-    assert indicator.options[0] == "Todos"
-    assert {option.rsplit(" — ", 1)[-1] for option in indicator.options[1:]} == {
-        "Solap_VS_12M",
-        "Solap_VS_VIDA",
-    }
-    vida_option = next(
-        option for option in indicator.options if option.endswith("Solap_VS_VIDA")
+    matrices = [
+        row for row in rows if row.indicator_id in {"Solap_VS_12M", "Solap_VS_VIDA"}
+    ]
+    assert {row.disaggregation for row in matrices} == {"2×2", "3×3"}
+    assert all(
+        resolve_assignment(mapping.assignments, row).topic_id == "3.4.04"
+        for row in matrices
     )
-    indicator.set_value(vida_option).run(timeout=15)
+    app = AppTest.from_file(str(ROOT / "app" / "streamlit_app.py"))
+    app.query_params["view"] = "Módulo 3.4"
+    app.query_params["topic"] = "3.4.04"
+    app.run(timeout=15)
     assert not app.exception
-    category = next(select for select in app.selectbox if select.label == "Categoría")
-    assert len(category.options) == 3
-    category.set_value(category.options[1]).run(timeout=15)
-    assert len(app.metric) == 4
+    assert app.session_state["active_report_topic_id"] == "3.4.04"
