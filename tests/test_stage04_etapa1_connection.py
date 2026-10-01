@@ -132,4 +132,7 @@ def test_apptest_d09_shows_approved_domain_and_no_suppression():
     app.run(timeout=15)
     assert not app.exception
     assert app.session_state["active_report_topic_id"] == "3.5.11"
-    assert "alguna consecuencia física = 1" in _visible_text(app)
+    html = "\n".join(str(element.proto.body) for element in app.get("html"))
+    assert "alguna consecuencia física" in html
+    assert "CONS_ALGUNA" not in html
+    assert "= 1" not in html

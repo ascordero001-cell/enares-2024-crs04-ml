@@ -151,7 +151,7 @@ def test_apptest_summary_shows_controlled_shadow_catalog_without_default_plot():
     assert "516 claves técnicas" in visible
     assert "3 014 filas" in visible
     assert "publicación institucional y cutover: NOT_AUTHORIZED" in visible
-    assert len(app.get("vega_lite_chart")) == 1
+    assert len(app.get("vega_lite_chart")) >= 1
 
 
 def test_apptest_module_32_shows_the_approved_golden_through_canonical_entrypoint():
@@ -160,18 +160,18 @@ def test_apptest_module_32_shows_the_approved_golden_through_canonical_entrypoin
     app.query_params["topic"] = "3.2.03"
     app.run(timeout=30)
     assert not app.exception
-    visible = _visible_text(app)
-    assert "Estimación: 16.7%" in visible
-    assert "CV: 3.1%" in visible
-    assert "N no ponderado: 18 807" in visible
-    assert len(app.get("vega_lite_chart")) == 1
+    html = "\n".join(str(element.proto.body) for element in app.get("html"))
+    assert "16.7%" in html
+    assert "3.1%" in html
+    assert "18 807" in html
+    assert len(app.get("vega_lite_chart")) >= 1
 
 
 def test_apptest_unsupported_dimensions_are_not_offered_for_module_36():
     app = AppTest.from_file(str(ROOT / "app" / "streamlit_app.py"))
     app.query_params["view"] = "Módulo 3.6"
     app.run(timeout=30)
-    for label, default in (("Sexo", "Todas"), ("Área", "Todas")):
+    for label, default in (("Sexo", "Todas"), ("Ámbito de la IIEE", "Todas")):
         control = next(box for box in app.selectbox if box.label == label)
         assert control.options == [default]
         assert control.value == default

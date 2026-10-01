@@ -5,6 +5,9 @@ from __future__ import annotations
 import os
 import sys
 from dataclasses import replace
+from functools import partial
+from hashlib import sha256
+from html import escape
 from pathlib import Path
 
 import streamlit as st
@@ -31,6 +34,7 @@ from app.views.ui_redesign_real import (
     protected_percentage,
     rows_for_topic,
     safe_metadata_text,
+    visible_cut,
     visible_indicator_name,
     visible_table_record,
 )
@@ -44,6 +48,14 @@ from app.views.ui_visual_components import (
     render_release_history,
     render_topic_navigation,
 )
+from enares.stage04.display_taxonomy import (
+    OTHER_CHARACTERISTICS,
+    STANDARD_DIMENSIONS,
+    assert_standard_category_coverage,
+    category_sort_key,
+    display_category,
+    display_dimension,
+)
 from enares.stage04.report_topics import (
     HEADLINE_INDICATOR_BY_MODULE,
     STANDARD_DISAGGREGATIONS,
@@ -55,7 +67,7 @@ from enares.stage04.report_topics import (
     topic_by_id,
     topics_for_module,
 )
-from enares.stage04.repository import RepositoryError
+from enares.stage04.repository import IndicatorRepository, RepositoryError
 
 PRESENTATION_MODULE_LABELS = {
     "3.1": "Percepciones",
@@ -82,18 +94,49 @@ SECONDARY_VIEWS = (
 )
 VISIBLE_VIEWS = (SECONDARY_VIEWS[0], *MODULE_IDS, *SECONDARY_VIEWS[1:])
 NAVIGATION_WIDGET_ID = "stage04_visible_tab"
-STANDARD_FILTERS = (
-    "Departamento",
-    "Área",
-    "Sexo",
-    "Área × sexo",
-    "Idioma del hogar",
-    "Etnicidad",
-    "Tipo de hogar",
-    "Discapacidad",
-)
+STANDARD_FILTERS = STANDARD_DIMENSIONS
 SPECIAL_FILTER_KEY = "real_special_dimension"
 NO_SELECTION = "Todas"
+
+
+def _source_identity() -> str:
+    """Bind a process snapshot to the approved release, manifests and local fixture."""
+    paths = (
+        ROOT / "app/data/v0_authorized_full_indicator_estimates.manifest.json",
+        ROOT / "docs/stage04/v0_drive_hash_manifest.md",
+        ROOT / "src/enares/stage04/report_topic_map.csv",
+    )
+    identity = [os.getenv("STAGE04_DATA_MODE", "LOCAL_AUTHORIZED")]
+    identity.extend(sha256(path.read_bytes()).hexdigest() for path in paths)
+    if identity[0] == "LOCAL_AUTHORIZED":
+        identity.append(
+            sha256(
+                (ROOT / "app/data/v0_authorized_full_indicator_estimates.csv").read_bytes()
+            ).hexdigest()
+        )
+    else:
+        identity.extend(
+            os.getenv(name, "")
+            for name in (
+                "STAGE04_BQ_TABLE_FQN",
+                "STAGE04_RELEASE_ID",
+                "STAGE04_RUN_ID",
+            )
+        )
+    return ":".join(identity)
+
+
+@st.cache_resource(show_spinner=False)
+def _verified_release_snapshot(
+    identity: str, _repository: IndicatorRepository
+) -> tuple[AuthorizedRedesignResult, ...]:
+    """Validate once per immutable release identity; share only frozen rows."""
+    del identity
+    results = tuple(load_authorized_results(_repository))
+    assert_standard_category_coverage(
+        (result.row.disaggregation, result.row.category) for result in results
+    )
+    return results
 
 
 def _query_state(
@@ -238,11 +281,24 @@ def _reset_invalid(key: str, options: tuple[str, ...]) -> None:
         st.session_state[key] = NO_SELECTION
 
 
+def _clear_disaggregation() -> None:
+    for dimension in STANDARD_FILTERS:
+        st.session_state[f"real_filter_{dimension}"] = NO_SELECTION
+    st.session_state[SPECIAL_FILTER_KEY] = NO_SELECTION
+
+
+def _format_filter_value(value: str, *, source: str, has_national: bool) -> str:
+    if source == "Departamento" and value == NO_SELECTION and has_national:
+        return "Nacional (total)"
+    return display_category(source, value) if value != NO_SELECTION else NO_SELECTION
+
+
 def effective_cut(
     topic: ReportTopic, rows: list[AuthorizedRedesignResult]
 ) -> tuple[str | None, str | None]:
     if topic.national_only:
         st.info("Solo disponible a nivel nacional.")
+    has_national = any(result.row.disaggregation == "Nacional" for result in rows)
     special_options = (
         NO_SELECTION,
         *sorted(
@@ -253,19 +309,17 @@ def effective_cut(
             }
         ),
     )
-    options_by_dimension = {
-        dimension: (
-            NO_SELECTION,
-            *sorted(
-                {
-                    result.row.category
-                    for result in rows
-                    if result.row.disaggregation == dimension
-                }
-            ),
+    options_by_dimension: dict[str, tuple[str, ...]] = {}
+    for dimension in STANDARD_FILTERS:
+        categories = {
+            result.row.category
+            for result in rows
+            if result.row.disaggregation == dimension
+        }
+        ordered = sorted(
+            categories, key=lambda value: category_sort_key(dimension, value)
         )
-        for dimension in STANDARD_FILTERS
-    }
+        options_by_dimension[dimension] = (NO_SELECTION, *ordered)
     for dimension, options in options_by_dimension.items():
         _reset_invalid(f"real_filter_{dimension}", options)
     _reset_invalid(SPECIAL_FILTER_KEY, special_options)
@@ -282,36 +336,45 @@ def effective_cut(
         active is None
         and st.session_state.get(SPECIAL_FILTER_KEY, NO_SELECTION) != NO_SELECTION
     ):
-        active = "Otra desagregación V0"
+        active = OTHER_CHARACTERISTICS
+    st.button(
+        "Volver a Nacional",
+        on_click=_clear_disaggregation,
+        disabled=not has_national or active is None or topic.national_only,
+        width="stretch",
+    )
     for dimension, options in options_by_dimension.items():
         st.selectbox(
-            dimension,
+            display_dimension(dimension),
             options,
             key=f"real_filter_{dimension}",
+            format_func=partial(
+                _format_filter_value, source=dimension, has_national=has_national
+            ),
             disabled=topic.national_only
             or len(options) == 1
             or active not in (None, dimension),
         )
     st.selectbox(
-        "Otra desagregación V0",
+        OTHER_CHARACTERISTICS,
         special_options,
         key=SPECIAL_FILTER_KEY,
         disabled=(
             topic.national_only
             or len(special_options) == 1
-            or active not in (None, "Otra desagregación V0")
+            or active not in (None, OTHER_CHARACTERISTICS)
         ),
         help="Solo cortes presentes en V0 para este tema; no construye cruces nuevos.",
     )
     if topic.national_only:
         return "Nacional", None
-    if active == "Otra desagregación V0":
+    if active == OTHER_CHARACTERISTICS:
         return str(st.session_state[SPECIAL_FILTER_KEY]), None
     if active is not None:
         return active, str(st.session_state[f"real_filter_{active}"])
     return (
         ("Nacional", None)
-        if any(result.row.disaggregation == "Nacional" for result in rows)
+        if has_national
         else (None, None)
     )
 
@@ -320,6 +383,9 @@ def _render_topic_chart(
     topic: ReportTopic,
     results: list[AuthorizedRedesignResult],
     assignment: AssignmentIndex,
+    *,
+    active_dimension: str | None,
+    active_category: str | None,
 ) -> None:
     periods = sorted(
         {resolve_assignment(assignment, result.row).period_label for result in results}
@@ -340,137 +406,221 @@ def _render_topic_chart(
             and result.row.category.casefold() in {"total", "nacional (total)"}
         ]
         national_value = national[0].row.estimate if len(national) == 1 else None
-        use_bars = (
-            topic.national_only
-            or not any(
-                result.row.disaggregation != "Nacional" for result in period_rows
-            )
-            or len(national) > 1
+        use_bars = topic.national_only or not any(
+            result.row.disaggregation != "Nacional" for result in period_rows
         )
-        chart_rows = (
-            [
-                result
-                for result in period_rows
-                if result.row.disaggregation == "Nacional"
-            ]
+        dimensions = (
+            ("Nacional",)
             if use_bars
-            else period_rows
+            else tuple(
+                dimension
+                for dimension in (
+                    *STANDARD_FILTERS,
+                    *sorted(
+                        {
+                            row.row.disaggregation
+                            for row in period_rows
+                            if row.row.disaggregation
+                            not in STANDARD_DISAGGREGATIONS
+                        }
+                    ),
+                )
+                if dimension != "Nacional"
+                and any(row.row.disaggregation == dimension for row in period_rows)
+                and active_dimension in (None, "Nacional", dimension)
+            )
         )
-        records = []
-        for result in chart_rows:
-            item = resolve_assignment(assignment, result.row)
-            label = visible_indicator_name(result, topic=topic, topic_assignment=item)
-            cut = (
-                "Nacional · Total"
-                if result.row.disaggregation == "Nacional"
-                else (f"{result.row.disaggregation} · {result.row.category}")
-            )
-            records.append(
-                {
-                    "label": f"{item.series_label} · {cut}"
-                    if item.series_label
-                    else (f"{label} · {result.row.category}" if use_bars else cut),
-                    "estimate": result.row.estimate,
-                    "lower": result.row.ci95_lower,
-                    "upper": result.row.ci95_upper,
-                    "cv": None if result.row.cv is None else result.row.cv * 100,
-                    "n": result.row.n_unweighted,
-                    "referential": bool(result.row.cv_flag),
-                }
-            )
-        if not records:
+        if not dimensions:
             st.info("Esta selección no contiene valores visibles para el gráfico.")
             continue
-        tooltip = [
-            {"field": "label", "title": "Corte"},
-            {"field": "estimate", "title": "Estimación", "format": ".1f"},
-            {"field": "cv", "title": "CV (%)", "format": ".1f"},
-            {"field": "n", "title": "N"},
-        ]
-        y = {"field": "label", "type": "nominal", "title": None, "sort": None}
-        x = {
-            "field": "estimate",
-            "type": "quantitative",
-            "title": "Porcentaje",
-            "scale": {"domain": [0, 100]},
-        }
-        if use_bars:
-            spec: dict[str, object] = {
-                "mark": {"type": "bar", "cornerRadiusEnd": 4, "color": "#0E7C6B"},
-                "encoding": {
-                    "y": y,
-                    "x": x,
-                    "opacity": {
-                        "condition": {"test": "datum.referential", "value": 0.55},
-                        "value": 1,
-                    },
-                    "tooltip": tooltip,
-                },
-            }
-        else:
-            layers = []
-            if national_value is not None:
-                layers.append(
+        for dimension in dimensions:
+            chart_rows = [
+                row for row in period_rows if row.row.disaggregation == dimension
+            ]
+            category_counts: dict[str, int] = {}
+            for row in chart_rows:
+                category_counts[row.row.category] = category_counts.get(row.row.category, 0) + 1
+            records = []
+            for result in chart_rows:
+                item = resolve_assignment(assignment, result.row)
+                category = display_category(dimension, result.row.category)
+                if use_bars or category_counts[result.row.category] > 1:
+                    indicator = visible_indicator_name(
+                        result, topic=topic, topic_assignment=item
+                    )
+                    label = f"{indicator} · {category}"
+                else:
+                    label = category
+                records.append(
                     {
-                        "mark": {
-                            "type": "rule",
-                            "color": "#0E7C6B",
-                            "strokeDash": [6, 4],
-                        },
-                        "data": {"values": [{"national_value": national_value}]},
-                        "encoding": {
-                            "x": {
-                                "field": "national_value",
-                                "type": "quantitative",
-                                "scale": {"domain": [0, 100]},
-                            }
-                        },
+                        "label": label,
+                        "estimate": result.row.estimate,
+                        "lower": result.row.ci95_lower,
+                        "upper": result.row.ci95_upper,
+                        "cv": None if result.row.cv is None else result.row.cv * 100,
+                        "n": result.row.n_unweighted,
+                        "referential": bool(result.row.cv_flag),
+                        "selected": result.row.category == active_category,
                     }
                 )
-            layers.extend(
-                [
-                    {
-                        "mark": {"type": "rule", "color": "#0E7C6B", "strokeWidth": 2},
-                        "encoding": {
-                            "y": y,
-                            "x": {
-                                "field": "lower",
-                                "type": "quantitative",
-                                "scale": {"domain": [0, 100]},
-                            },
-                            "x2": {"field": "upper"},
-                        },
-                    },
-                    {
-                        "mark": {
-                            "type": "point",
-                            "size": 105,
-                            "stroke": "#0E7C6B",
-                            "strokeWidth": 2,
-                        },
-                        "encoding": {
-                            "y": y,
-                            "x": x,
-                            "fill": {
-                                "condition": {
-                                    "test": "datum.referential",
-                                    "value": "white",
-                                },
-                                "value": "#0E7C6B",
-                            },
-                            "tooltip": tooltip,
-                        },
-                    },
-                ]
+            records.sort(key=lambda row: float(row["estimate"] or 0), reverse=True)
+            st.html(
+                '<div class="chart-group-head">'
+                f"{escape(display_dimension(dimension))}</div>"
             )
-            spec = {"layer": layers}
-        spec["height"] = {"step": 28}
-        spec["config"] = {
-            "background": "#FFFFFF",
-            "axis": {"gridColor": "#DBE3EE", "labelColor": "#4B5A72"},
-            "view": {"stroke": None},
-        }
-        st.vega_lite_chart(records, spec, width="stretch")
+            tooltip = [
+                {"field": "label", "title": "Categoría"},
+                {"field": "estimate", "title": "Estimación", "format": ".1f"},
+                {"field": "cv", "title": "CV (%)", "format": ".1f"},
+                {"field": "n", "title": "N"},
+            ]
+            y = {
+                "field": "label",
+                "type": "nominal",
+                "title": None,
+                "sort": [str(row["label"]) for row in records],
+                "axis": {"labelLimit": 280},
+            }
+            x = {
+                "field": "estimate",
+                "type": "quantitative",
+                "title": "Porcentaje",
+                "scale": {"domain": [0, 100]},
+            }
+            if use_bars:
+                spec: dict[str, object] = {
+                    "mark": {"type": "bar", "cornerRadiusEnd": 4, "color": "#0E7C6B"},
+                    "encoding": {"y": y, "x": x, "tooltip": tooltip},
+                }
+            else:
+                layers = []
+                if national_value is not None:
+                    layers.append(
+                        {
+                            "mark": {
+                                "type": "rule",
+                                "color": "#0E7C6B",
+                                "strokeDash": [6, 4],
+                            },
+                            "data": {"values": [{"national_value": national_value}]},
+                            "encoding": {
+                                "x": {
+                                    "field": "national_value",
+                                    "type": "quantitative",
+                                    "scale": {"domain": [0, 100]},
+                                }
+                            },
+                        }
+                    )
+                layers.extend(
+                    [
+                        {
+                            "mark": {"type": "rule", "color": "#0E7C6B", "strokeWidth": 2},
+                            "encoding": {
+                                "y": y,
+                                "x": {
+                                    "field": "lower",
+                                    "type": "quantitative",
+                                    "scale": {"domain": [0, 100]},
+                                },
+                                "x2": {"field": "upper"},
+                            },
+                        },
+                        {
+                            "mark": {
+                                "type": "point",
+                                "size": 105,
+                                "stroke": "#0E7C6B",
+                                "strokeWidth": 2,
+                            },
+                            "encoding": {
+                                "y": y,
+                                "x": x,
+                                "fill": {
+                                    "condition": [
+                                        {"test": "datum.selected", "value": "#B23A2E"},
+                                        {"test": "datum.referential", "value": "white"},
+                                    ],
+                                    "value": "#0E7C6B",
+                                },
+                                "tooltip": tooltip,
+                            },
+                        },
+                    ]
+                )
+                spec = {"layer": layers}
+            spec["height"] = {"step": 28}
+            spec["config"] = {
+                "background": "#FFFFFF",
+                "axis": {"gridColor": "#DBE3EE", "labelColor": "#4B5A72"},
+                "view": {"stroke": None},
+            }
+            st.vega_lite_chart(records, spec, width="stretch")
+
+
+def _context_name(universe: str) -> str:
+    lower = universe.casefold()
+    if "escuela" in lower or "_e_" in lower:
+        return "Escuela"
+    if "hogar" in lower or "_h_" in lower:
+        return "Hogar"
+    if "_vs" in lower or lower.startswith("vs_"):
+        return "Violencia sexual"
+    return "Población del indicador"
+
+
+def _render_context_universes(rows: list[AuthorizedRedesignResult]) -> None:
+    national = [row for row in rows if row.row.disaggregation == "Nacional"]
+    candidates = national or rows
+    contexts: dict[tuple[str, str, str, int | None], None] = {}
+    for result in candidates:
+        row = result.row
+        contexts[(_context_name(row.universe), row.universe, row.denominator, row.n_unweighted)] = None
+    cards = []
+    for context, universe, denominator, n in contexts:
+        cards.append(
+            "<div>"
+            f"<span>{escape(context)} · UNIVERSO</span>{escape(safe_metadata_text(universe))}"
+            f"<span>DENOMINADOR</span>{escape(safe_metadata_text(denominator))}"
+            f"<span>N SIN PONDERAR</span>{escape(format_n(n))}"
+            "</div>"
+        )
+    st.html('<section class="ficha" data-testid="stage04-context-universes">' + "".join(cards) + "</section>")
+
+
+def _render_detail_ficha(
+    detail: AuthorizedRedesignResult | None,
+    *,
+    module_id: str,
+    topic: ReportTopic,
+    assignment: AssignmentIndex,
+) -> None:
+    items = [
+        ("Módulo", f"{module_id} · {PRESENTATION_MODULE_LABELS[module_id]}"),
+        ("Tema", topic.title),
+    ]
+    if detail is None:
+        items.append(("Estado", "Sin datos en el release V0 vigente"))
+    else:
+        item = resolve_assignment(assignment, detail.row)
+        items.extend(
+            [
+                ("Indicador", visible_indicator_name(detail, topic=topic, topic_assignment=item)),
+                ("Período", item.period_label),
+                ("Universo", safe_metadata_text(detail.row.universe)),
+                ("Denominador", safe_metadata_text(detail.row.denominator)),
+                ("Corte", visible_cut(detail)),
+                ("Estado", STATE_LABELS[detail.state]),
+                ("Estimación", protected_percentage(detail, detail.row.estimate)),
+                ("IC95%", protected_interval(detail)),
+                ("CV", format_cv(detail.row.cv if numeric_values_are_visible(detail) else None)),
+                ("N no ponderado", format_n(detail.row.n_unweighted if numeric_values_are_visible(detail) else None)),
+            ]
+        )
+    html = "".join(
+        f"<div><span>{escape(label)}</span>{escape(value)}</div>" for label, value in items
+    )
+    st.html('<section class="ficha" data-testid="stage04-detail-sheet">' + html + "</section>")
 
 
 def _render_secondary(
@@ -543,7 +693,13 @@ def render() -> None:
     inject_mockup_css()
     try:
         repository, _ = configured_repositories()
-        results = load_authorized_results(repository)
+        if os.getenv("STAGE04_DATA_MODE") == "AUTHENTICATED_SHADOW":
+            results = list(_verified_release_snapshot(_source_identity(), repository))
+        else:
+            results = load_authorized_results(repository)
+            assert_standard_category_coverage(
+                (result.row.disaggregation, result.row.category) for result in results
+            )
         results = _inject_suppressed_ui_test_result(results)
         for result in results:
             safe_metadata_text(result.row.universe)
@@ -603,7 +759,7 @@ def render() -> None:
         "Sin microdatos, identificadores, recálculo ni cruces nuevos."
     )
     with st.container(key="stage04_grid"):
-        left, center, right = st.columns((270, 800, 272), gap="medium")
+        left, center, right = st.columns((210, 1000, 220), gap="medium")
         with left, st.container(key="stage04_left_rail"):
             with st.container(key="stage04_filters_panel"):
                 st.html('<div class="panel-title">DESAGREGACIONES AUTORIZADAS</div>')
@@ -635,31 +791,24 @@ def render() -> None:
                 _activate_module(selected)
                 st.rerun()
             if selected in MODULE_IDS:
-                st.markdown(f"## {module_id} · {PRESENTATION_MODULE_LABELS[module_id]}")
+                st.html(
+                    '<div class="section-head"><h2>'
+                    f"{escape(module_id)} · {escape(PRESENTATION_MODULE_LABELS[module_id])}"
+                    "</h2></div>"
+                )
                 render_topic_navigation(
                     topics_for_module(topics, module_id),
                     active_module_id=module_id,
                     active_topic_id=topic_id,
                 )
-                st.markdown(f"### {topic.title}")
+                st.html(
+                    '<div class="section-head topic"><h2>'
+                    f"{escape(topic.title)}</h2></div>"
+                )
                 if not topic_rows:
                     st.info("Sin datos en el release V0 vigente.")
                 else:
-                    first = next(
-                        (
-                            row
-                            for row in topic_rows
-                            if row.row.disaggregation == "Nacional"
-                        ),
-                        topic_rows[0],
-                    )
-                    source, universe, denominator = st.columns(3)
-                    source.caption("FUENTE")
-                    source.write(PRESENTATION_MODULE_LABELS[module_id])
-                    universe.caption("UNIVERSO")
-                    universe.write(safe_metadata_text(first.row.universe))
-                    denominator.caption("DENOMINADOR")
-                    denominator.write(safe_metadata_text(first.row.denominator))
+                    _render_context_universes(topic_rows)
                     headers = (
                         "Indicador",
                         "Período",
@@ -687,7 +836,13 @@ def render() -> None:
                             for row in visible_rows
                         ),
                     )
-                    _render_topic_chart(topic, topic_rows, assignments)
+                    _render_topic_chart(
+                        topic,
+                        topic_rows,
+                        assignments,
+                        active_dimension=dimension,
+                        active_category=category,
+                    )
             else:
                 _render_secondary(
                     str(selected),
@@ -709,13 +864,19 @@ def render() -> None:
                     or row.state in {"CONTEXT_ONLY", "SUPPRESSED"}
                 ]
                 if not flagged:
-                    st.success("Sin alertas en la selección.")
+                    st.html('<div class="alert-item info"><div class="ai-title">Sin alertas en la selección.</div></div>')
                 for result in flagged:
                     item = resolve_assignment(assignments, result.row)
                     label = visible_indicator_name(
                         result, topic=topic, topic_assignment=item
                     )
-                    st.warning(f"{label} — {STATE_LABELS[result.state]}")
+                    st.html(
+                        '<div class="alert-item warn"><div>'
+                        f'<div class="ai-title">{escape(label)}</div>'
+                        f'<div class="ai-desc">{escape(visible_cut(result))} · '
+                        f'{escape(STATE_LABELS[result.state])}</div>'
+                        "</div></div>"
+                    )
             with st.container(key="stage04_sheet_panel"):
                 st.html('<div class="panel-title">FICHA DEL INDICADOR ACTIVO</div>')
                 detail = next(
@@ -727,47 +888,9 @@ def render() -> None:
                     ),
                     filtered[0] if filtered else None,
                 )
-                if detail is not None:
-                    item = resolve_assignment(assignments, detail.row)
-                    st.write(
-                        visible_indicator_name(
-                            detail, topic=topic, topic_assignment=item
-                        )
-                    )
-                    st.caption(
-                        f"Módulo: {module_id} · {PRESENTATION_MODULE_LABELS[module_id]}"
-                    )
-                    st.caption(f"Tema: {topic.title}")
-                    st.caption(f"Período: {item.period_label}")
-                    st.caption(f"Universo: {safe_metadata_text(detail.row.universe)}")
-                    st.caption(
-                        f"Denominador: {safe_metadata_text(detail.row.denominator)}"
-                    )
-                    st.caption(
-                        f"Corte: {detail.row.disaggregation} · {detail.row.category}"
-                    )
-                    st.caption(f"Estado: {STATE_LABELS[detail.state]}")
-                    st.write(
-                        f"Estimación: {protected_percentage(detail, detail.row.estimate)}"
-                    )
-                    st.write(f"IC95%: {protected_interval(detail)}")
-                    st.write(
-                        f"CV: {format_cv(detail.row.cv if numeric_values_are_visible(detail) else None)}"
-                    )
-                    st.write(
-                        f"N no ponderado: {format_n(detail.row.n_unweighted if numeric_values_are_visible(detail) else None)}"
-                    )
-                    st.caption(STATE_LABELS[detail.state])
-                else:
-                    st.caption(
-                        f"Módulo: {module_id} · {PRESENTATION_MODULE_LABELS[module_id]}"
-                    )
-                    st.caption(f"Tema: {topic.title}")
-                    st.caption("Período: —")
-                    st.caption("Universo: —")
-                    st.caption("Denominador: —")
-                    st.caption("Corte: —")
-                    st.caption("Estado: Sin datos en el release V0 vigente")
+                _render_detail_ficha(
+                    detail, module_id=module_id, topic=topic, assignment=assignments
+                )
             with st.container(key="stage04_export_panel"):
                 st.html('<div class="panel-title">EXPORTAR</div>')
                 if filtered:
