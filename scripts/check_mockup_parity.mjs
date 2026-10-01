@@ -63,6 +63,13 @@ try {
       if (overflow) throw new Error(`${viewport.width}: card ${index + 1} overflows`);
     }
     const tabs = page.locator('.st-key-stage04_visible_tab [role="radio"]');
+    // A remote Streamlit session can render the header and cards before its
+    // segmented control replaces the loading skeleton.
+    await page.waitForFunction(
+      () => document.querySelectorAll('.st-key-stage04_visible_tab [role="radio"]').length === 11,
+      null,
+      { timeout: 30000 },
+    );
     if (await tabs.count() !== 11) throw new Error(`${viewport.width}: expected 11 tabs`);
     const tabOverflow = await page.locator('.st-key-stage04_visible_tab').evaluate(
       (node) => node.scrollWidth > node.clientWidth + 1,
@@ -157,6 +164,11 @@ try {
   const detailPage = await detailContext.newPage();
   await detailPage.goto(`${baseUrl}?view=M%C3%B3dulo+3.2&topic=3.2.01`, { waitUntil: "networkidle" });
   await detailPage.locator(".chart-group-head").first().waitFor();
+  await detailPage.waitForFunction(
+    () => document.querySelector('[data-testid="stVegaLiteChart"] svg')?.querySelectorAll("text").length >= 26,
+    null,
+    { timeout: 30000 },
+  );
   await detailPage.screenshot({ path: `${artifactDir}/stage04-1536-topic-3.2.01.png`, fullPage: true });
   await detailPage.screenshot({ path: `${artifactDir}/stage04-1536-topic-3.2.01-viewport.png` });
   const departments = [

@@ -555,7 +555,11 @@ def _render_topic_chart(
                 "axis": {"gridColor": "#DBE3EE", "labelColor": "#4B5A72"},
                 "view": {"stroke": None},
             }
-            st.vega_lite_chart(records, spec, width="stretch")
+            # Inline the already aggregate-only values in Vega-Lite. Passing
+            # them as a separate dataframe makes Streamlit rebuild Arrow data
+            # for every chart on every navigation, despite the tiny row count.
+            spec["data"] = {"values": records}
+            st.vega_lite_chart(spec, width="stretch")
 
 
 def _context_name(universe: str) -> str:
