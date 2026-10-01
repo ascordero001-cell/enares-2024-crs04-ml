@@ -5,8 +5,8 @@ showErrorDetails = "none"
 
 [theme]
 base = "light"
-primaryColor = "#9B2342"
-backgroundColor = "#F5F7F4"
-secondaryBackgroundColor = "#E3ECE7"
-textColor = "#17251F"
+primaryColor = "#0E7C6B"
+backgroundColor = "#F1F4F9"
+secondaryBackgroundColor = "#EAEFF6"
+textColor = "#16202E"
 font = "sans serif"

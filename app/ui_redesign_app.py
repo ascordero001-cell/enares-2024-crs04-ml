@@ -1,350 +1,536 @@
-"""Authorized-data implementation of the Stage 04 visual contract."""
+"""Private Stage 04 dashboard using the verified V0 topic map."""
 
 from __future__ import annotations
 
+import os
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 import streamlit as st
 
 ROOT = Path(__file__).resolve().parents[1]
-SRC = ROOT / "src"
-for path in (ROOT, SRC):
+for path in (ROOT, ROOT / "src"):
     if str(path) not in sys.path:
         sys.path.insert(0, str(path))
 
 from app.repositories import configured_repositories
 from app.views.export_controls import render_safe_export
 from app.views.ui_redesign_real import (
+    MODULE_IDS,
     STATE_LABELS,
     AuthorizedRedesignResult,
-    forest_record,
+    ModuleIsolationError,
+    enforce_module_isolation,
+    format_cv,
+    format_n,
     load_authorized_results,
-    numeric_card,
-    table_record,
+    numeric_values_are_visible,
+    protected_export_row,
+    protected_interval,
+    protected_percentage,
+    rows_for_topic,
+    safe_metadata_text,
+    visible_indicator_name,
+    visible_table_record,
 )
 from app.views.ui_visual_components import (
-    inject_visual_css,
-    render_header,
-    render_indicator_sheet,
-    render_module_strip,
+    inject_mockup_css,
+    render_exact_header,
+    render_exact_scope_banner,
+    render_exact_table,
+    render_module_cards,
     render_quality_legend,
     render_release_history,
-    render_scope_banner,
+    render_topic_navigation,
 )
-from enares.stage04.indicator_labels import MODULE_LABELS, indicator_option_label
+from enares.stage04.report_topics import (
+    HEADLINE_INDICATOR_BY_MODULE,
+    STANDARD_DISAGGREGATIONS,
+    AssignmentIndex,
+    ReportTopic,
+    TopicCatalogError,
+    load_topic_mapping,
+    resolve_assignment,
+    topic_by_id,
+    topics_for_module,
+)
 from enares.stage04.repository import RepositoryError
 
-DIMENSION_FILTERS = (
-    ("Departamento", "Todos"),
-    ("Área", "Todas"),
-    ("Sexo", "Todos"),
-    ("Área × sexo", "Todos"),
-    ("Idioma del hogar", "Todos"),
-    ("Etnicidad", "Todas"),
-    ("Tipo de hogar", "Todos"),
-    ("Discapacidad", "Todas"),
-)
-SPECIAL_DIMENSION_DEFAULT = "Ninguna"
-
-VIEW_LABELS = (
+PRESENTATION_MODULE_LABELS = {
+    "3.1": "Percepciones",
+    "3.2": "Violencia en el hogar",
+    "3.3": "Violencia en el entorno escolar",
+    "3.4": "Violencia sexual",
+    "3.5": "Acumulación de violencias",
+    "3.6": "Ayuda y respuesta",
+}
+STATE_CLASS = {
+    "PUBLISHABLE_SHADOW": "ok",
+    "REFERENCE_HIGH_CV": "warn",
+    "SMALL_N": "info",
+    "REFERENCE_HIGH_CV_AND_SMALL_N": "warn",
+    "CONTEXT_ONLY": "muted",
+    "SUPPRESSED": "crit",
+}
+SECONDARY_VIEWS = (
     "Resumen nacional",
-    "Módulo 3.1",
-    "Módulo 3.2",
-    "Módulo 3.3",
-    "Módulo 3.4",
-    "Módulo 3.5",
-    "Módulo 3.6",
     "Brechas",
     "Calidad y notas",
     "Estado del gate",
     "Historial",
 )
+VISIBLE_VIEWS = (SECONDARY_VIEWS[0], *MODULE_IDS, *SECONDARY_VIEWS[1:])
+NAVIGATION_WIDGET_ID = "stage04_visible_tab"
+STANDARD_FILTERS = (
+    "Departamento",
+    "Área",
+    "Sexo",
+    "Área × sexo",
+    "Idioma del hogar",
+    "Etnicidad",
+    "Tipo de hogar",
+    "Discapacidad",
+)
+SPECIAL_FILTER_KEY = "real_special_dimension"
+NO_SELECTION = "Todas"
 
 
-def _initial_view() -> str:
-    value = st.query_params.get("view", VIEW_LABELS[0])
-    return value if value in VIEW_LABELS else VIEW_LABELS[0]
+def _query_state(
+    topic_ids_by_module: dict[str, tuple[str, ...]],
+) -> tuple[str, str, str]:
+    raw_view = str(st.query_params.get("view", "Módulo 3.1"))
+    raw_topic = str(st.query_params.get("topic", ""))
+    candidate = raw_view.removeprefix("Módulo ")
+    if candidate in MODULE_IDS:
+        module_id = candidate
+        visible_view = candidate
+    elif raw_view in SECONDARY_VIEWS:
+        module_id = str(st.session_state.get("active_module_id", "3.1"))
+        if module_id not in MODULE_IDS:
+            module_id = "3.1"
+        visible_view = raw_view
+    else:
+        module_id, visible_view = "3.1", "3.1"
+    topics = topic_ids_by_module[module_id]
+    topic_id = raw_topic if raw_topic in topics else topics[0]
+    return module_id, visible_view, topic_id
 
 
-def _sync_view_query() -> None:
-    selected = st.session_state.get("stage04_view")
-    if selected in VIEW_LABELS:
+def _ensure_navigation_state(
+    topic_ids_by_module: dict[str, tuple[str, ...]],
+) -> tuple[str, str]:
+    query_module, visible_view, query_topic = _query_state(topic_ids_by_module)
+    marker = f"{st.query_params.get('view', '')}|{query_topic}"
+    if st.session_state.get("last_view_query") != marker:
+        st.session_state["active_module_id"] = query_module
+        st.session_state["active_report_topic_id"] = query_topic
+        st.session_state["stage04_visible_tab"] = visible_view
+        st.session_state["last_view_query"] = marker
+    module_id = str(st.session_state.get("active_module_id", query_module))
+    if module_id not in MODULE_IDS:
+        module_id = query_module
+    topic_id = str(st.session_state.get("active_report_topic_id", query_topic))
+    if topic_id not in topic_ids_by_module[module_id]:
+        topic_id = topic_ids_by_module[module_id][0]
+        st.session_state["active_report_topic_id"] = topic_id
+    st.query_params["topic"] = topic_id
+    return module_id, topic_id
+
+
+def _activate_module(module_id: str) -> None:
+    if module_id not in MODULE_IDS:
+        raise ValueError(f"Unknown module: {module_id}")
+    topic_id = f"{module_id}.01"
+    st.session_state["active_module_id"] = module_id
+    st.session_state["active_report_topic_id"] = topic_id
+    st.session_state["stage04_visible_tab"] = module_id
+    st.session_state["last_view_query"] = f"Módulo {module_id}|{topic_id}"
+    for key in tuple(st.session_state):
+        if str(key).startswith("real_filter_") or key == SPECIAL_FILTER_KEY:
+            del st.session_state[key]
+    st.query_params["view"] = f"Módulo {module_id}"
+    st.query_params["topic"] = topic_id
+
+
+def _sync_visible_view() -> None:
+    selected = str(st.session_state["stage04_visible_tab"])
+    if selected in MODULE_IDS:
+        _activate_module(selected)
+    elif selected in SECONDARY_VIEWS:
         st.query_params["view"] = selected
-        if selected.startswith("Módulo "):
-            st.session_state["real_module_filter"] = selected.removeprefix("Módulo ")
-
-
-def _sync_module_view() -> None:
-    """Keep the active view, title and URL aligned with the module filter."""
-    selected = st.session_state.get("real_module_filter")
-    view = f"Módulo {selected}" if selected in MODULE_LABELS else "Resumen nacional"
-    st.session_state["stage04_view"] = view
-    st.query_params["view"] = view
-
-
-def _valid_session_value(key: str, options: tuple[str, ...], fallback: str) -> None:
-    if st.session_state.get(key) not in options:
-        st.session_state[key] = fallback
-
-
-def _dimension_filter_selection(
-    rows: list[AuthorizedRedesignResult],
-) -> tuple[str, str | None]:
-    """Expose every existing V0 dimension while allowing only one active cut."""
-    standard_dimensions = {dimension for dimension, _ in DIMENSION_FILTERS}
-    special_dimensions = tuple(
-        dict.fromkeys(
-            result.row.disaggregation
-            for result in rows
-            if result.row.disaggregation not in {*standard_dimensions, "Nacional"}
+        st.session_state["last_view_query"] = (
+            f"{selected}|{st.session_state.get('active_report_topic_id', '')}"
         )
-    )
-    special_options = (SPECIAL_DIMENSION_DEFAULT, *special_dimensions)
-    _valid_session_value(
-        "real_special_dimension", special_options, SPECIAL_DIMENSION_DEFAULT
-    )
-    selected_special = st.session_state.get(
-        "real_special_dimension", SPECIAL_DIMENSION_DEFAULT
-    )
-    options_by_dimension: dict[str, tuple[str, ...]] = {}
-    for dimension, default in DIMENSION_FILTERS:
-        categories = tuple(
-            dict.fromkeys(
-                result.row.category
-                for result in rows
-                if result.row.disaggregation == dimension
-            )
-        )
-        options_by_dimension[dimension] = (default, *categories)
-        _valid_session_value(
-            f"real_filter_{dimension}", options_by_dimension[dimension], default
-        )
-
-    active_dimension = next(
-        (
-            dimension
-            for dimension, default in DIMENSION_FILTERS
-            if st.session_state.get(f"real_filter_{dimension}", default) != default
-        ),
-        None,
-    )
-    if selected_special != SPECIAL_DIMENSION_DEFAULT:
-        active_dimension = selected_special
-    selected_values: dict[str, str] = {}
-    for dimension, default in DIMENSION_FILTERS:
-        selected_values[dimension] = st.selectbox(
-            dimension,
-            options_by_dimension[dimension],
-            key=f"real_filter_{dimension}",
-            disabled=active_dimension is not None and active_dimension != dimension,
-        )
-
-    selected_special = st.selectbox(
-        "Otra desagregación V0",
-        special_options,
-        key="real_special_dimension",
-        disabled=active_dimension in standard_dimensions,
-        help=(
-            "Incluye únicamente cortes ya presentes en V0, como las matrices 2×2/3×3; "
-            "no construye cruces nuevos."
-        ),
-    )
-
-    active_dimension = next(
-        (
-            dimension
-            for dimension, default in DIMENSION_FILTERS
-            if selected_values[dimension] != default
-        ),
-        None,
-    )
-    if selected_special != SPECIAL_DIMENSION_DEFAULT:
-        return selected_special, None
-    if active_dimension is None:
-        return "Nacional", None
-    return active_dimension, selected_values[active_dimension]
-
-
-def _filter_results(
-    results: list[AuthorizedRedesignResult],
-    *,
-    module_id: str,
-    dimension: str,
-    category_filter: str | None,
-    states: tuple[str, ...],
-    indicator_id: str,
-    category: str,
-) -> list[AuthorizedRedesignResult]:
-    """Apply one effective selection without constructing absent combinations."""
-    return [
-        result
-        for result in results
-        if (module_id == "Todos" or result.row.module_id == module_id)
-        and result.row.disaggregation == dimension
-        and (category_filter is None or result.row.category == category_filter)
-        and result.state in states
-        and (indicator_id == "Todos" or result.row.indicator_id == indicator_id)
-        and (category == "Todas" or result.row.category == category)
-    ]
+    else:
+        raise ValueError(f"Unknown visible view: {selected}")
 
 
 def _module_summaries(
-    results: list[AuthorizedRedesignResult],
+    results: list[AuthorizedRedesignResult], topics: tuple[ReportTopic, ...]
 ) -> list[dict[str, str]]:
+    index = topic_by_id(topics)
     summaries: list[dict[str, str]] = []
-    for module_id in MODULE_LABELS:
-        rows = [result for result in results if result.row.module_id == module_id]
+    for module_id in MODULE_IDS:
+        headline = HEADLINE_INDICATOR_BY_MODULE[module_id]
+        candidates = [
+            result
+            for result in results
+            if result.row.indicator_id == headline
+            and result.row.disaggregation == "Nacional"
+            and result.row.category.casefold() in {"total", "nacional (total)"}
+        ]
+        if (
+            len(candidates) != 1
+            or headline not in index[f"{module_id}.01"].technical_indicator_ids
+        ):
+            raise ModuleIsolationError(f"Missing or ambiguous headline for {module_id}")
+        result = candidates[0]
         summaries.append(
             {
                 "code": module_id,
-                "label": MODULE_LABELS[module_id],
-                "indicator": f"{len({result.row.indicator_id for result in rows})} indicadores aprobados",
-                "value": f"{len(rows)} filas",
-                "state": "Release V0 verificado",
+                "label": PRESENTATION_MODULE_LABELS[module_id],
+                "indicator": index[f"{module_id}.01"].title,
+                "value": protected_percentage(result, result.row.estimate),
+                "state": STATE_LABELS[result.state],
+                "state_class": STATE_CLASS[result.state],
             }
         )
     return summaries
 
 
-def _render_state(result: AuthorizedRedesignResult) -> None:
-    message = (
-        f"{result.row.module_id} · {result.display_name} — {STATE_LABELS[result.state]}"
+def _inject_suppressed_ui_test_result(
+    results: list[AuthorizedRedesignResult],
+) -> list[AuthorizedRedesignResult]:
+    """Local-only sentinel for browser verification of protected presentation."""
+    if os.getenv("STAGE04_UI_TEST_INJECT_SUPPRESSED") != "1":
+        return results
+    if os.getenv("STAGE04_DATA_MODE") != "LOCAL_AUTHORIZED":
+        raise RuntimeError(
+            "Suppression UI fixture is permitted only in LOCAL_AUTHORIZED"
+        )
+    target = next(
+        index
+        for index, result in enumerate(results)
+        if result.row.indicator_id == HEADLINE_INDICATOR_BY_MODULE["3.1"]
+        and result.row.disaggregation == "Nacional"
+        and result.row.category.casefold() in {"total", "nacional (total)"}
     )
-    if result.state == "PUBLISHABLE_SHADOW":
-        st.success(message)
-    elif result.state in {
-        "REFERENCE_HIGH_CV",
-        "SMALL_N",
-        "REFERENCE_HIGH_CV_AND_SMALL_N",
-    }:
-        st.warning(message)
-    elif result.state == "SUPPRESSED":
-        st.error(message)
-    else:
-        st.info(message)
-
-
-def _render_overview(rows: list[AuthorizedRedesignResult]) -> None:
-    a, b, c = st.columns(3)
-    a.metric("Resultados visibles", len(rows))
-    b.metric("Indicadores", len({result.row.indicator_id for result in rows}))
-    c.metric(
-        "Alertas de precisión",
-        sum(bool(result.row.cv_flag or result.row.n_flag) for result in rows),
+    original = results[target]
+    suppressed = replace(
+        original.row,
+        estimate=99.9,
+        standard_error=99.9,
+        ci95_lower=99.9,
+        ci95_upper=99.9,
+        cv=0.999,
+        n_unweighted=1,
+        suppress_flag=True,
+        quality_note="Fila sintética suprimida para prueba de interfaz",
     )
-    st.info("Los filtros presentan únicamente combinaciones existentes en V0.")
+    injected = list(results)
+    injected[target] = replace(original, row=suppressed, state="SUPPRESSED")
+    return injected
 
 
-def _render_table(rows: list[AuthorizedRedesignResult]) -> None:
-    if rows and {result.row.indicator_id for result in rows} == {"Componentes"}:
-        accompaniment = {
-            "Aconsejar y escuchar",
-            "Ayudar con tareas escolares",
-            "Jugar contigo",
-        }
-        household_rows = [
-            result for result in rows if result.row.category not in accompaniment
-        ]
-        accompaniment_rows = [
-            result for result in rows if result.row.category in accompaniment
-        ]
-        st.markdown("#### Quién realiza tareas en el hogar · ítems 1–7")
-        st.dataframe(
-            [table_record(result) for result in household_rows],
-            hide_index=True,
-            width="stretch",
-        )
-        st.markdown("#### Quién acompaña a la adolescente · ítems 8–10")
-        st.dataframe(
-            [table_record(result) for result in accompaniment_rows],
-            hide_index=True,
-            width="stretch",
-        )
-        return
-    if rows:
-        st.dataframe(
-            [table_record(result) for result in rows],
-            hide_index=True,
-            width="stretch",
-        )
-    else:
-        st.info("No hay resultados autorizados para esta combinación de filtros.")
+def _reset_invalid(key: str, options: tuple[str, ...]) -> None:
+    if st.session_state.get(key, NO_SELECTION) not in options:
+        st.session_state[key] = NO_SELECTION
 
 
-def _render_forest(rows: list[AuthorizedRedesignResult], *, indicator_id: str) -> None:
-    if indicator_id == "Todos":
-        st.info("Selecciona un indicador para mostrar el forest plot.")
-        return
-    if indicator_id == "Componentes":
-        st.info(
-            "Las tareas del hogar y el acompañamiento se presentan en bloques separados; "
-            "no se combinan en una sola figura."
-        )
-        return
-    forest_rows = [record for result in rows if (record := forest_record(result))]
-    if not forest_rows:
-        st.info("Esta selección no contiene estadísticas aptas para el forest plot.")
-        return
-    st.vega_lite_chart(
-        forest_rows,
-        {
-            "layer": [
+def effective_cut(
+    topic: ReportTopic, rows: list[AuthorizedRedesignResult]
+) -> tuple[str | None, str | None]:
+    if topic.national_only:
+        st.info("Solo disponible a nivel nacional.")
+    special_options = (
+        NO_SELECTION,
+        *sorted(
+            {
+                result.row.disaggregation
+                for result in rows
+                if result.row.disaggregation not in STANDARD_DISAGGREGATIONS
+            }
+        ),
+    )
+    options_by_dimension = {
+        dimension: (
+            NO_SELECTION,
+            *sorted(
                 {
-                    "mark": {"type": "rule", "strokeWidth": 3},
-                    "encoding": {
-                        "y": {"field": "label", "type": "nominal", "title": None},
-                        "x": {
-                            "field": "lower",
-                            "type": "quantitative",
-                            "title": "Porcentaje",
-                            "scale": {"domain": [0, 100]},
-                        },
-                        "x2": {"field": "upper"},
-                        "tooltip": ["label", "estimate", "lower", "upper", "state"],
-                    },
-                },
-                {
-                    "mark": {"type": "point", "filled": True, "size": 90},
-                    "encoding": {
-                        "y": {"field": "label", "type": "nominal", "title": None},
-                        "x": {
-                            "field": "estimate",
-                            "type": "quantitative",
-                            "scale": {"domain": [0, 100]},
-                        },
-                        "color": {
-                            "field": "state",
-                            "type": "nominal",
-                            "title": "Estado",
-                        },
-                        "tooltip": ["label", "estimate", "lower", "upper", "state"],
-                    },
-                },
+                    result.row.category
+                    for result in rows
+                    if result.row.disaggregation == dimension
+                }
+            ),
+        )
+        for dimension in STANDARD_FILTERS
+    }
+    for dimension, options in options_by_dimension.items():
+        _reset_invalid(f"real_filter_{dimension}", options)
+    _reset_invalid(SPECIAL_FILTER_KEY, special_options)
+    active = next(
+        (
+            dimension
+            for dimension in STANDARD_FILTERS
+            if st.session_state.get(f"real_filter_{dimension}", NO_SELECTION)
+            != NO_SELECTION
+        ),
+        None,
+    )
+    if (
+        active is None
+        and st.session_state.get(SPECIAL_FILTER_KEY, NO_SELECTION) != NO_SELECTION
+    ):
+        active = "Otra desagregación V0"
+    for dimension, options in options_by_dimension.items():
+        st.selectbox(
+            dimension,
+            options,
+            key=f"real_filter_{dimension}",
+            disabled=topic.national_only
+            or len(options) == 1
+            or active not in (None, dimension),
+        )
+    st.selectbox(
+        "Otra desagregación V0",
+        special_options,
+        key=SPECIAL_FILTER_KEY,
+        disabled=(
+            topic.national_only
+            or len(special_options) == 1
+            or active not in (None, "Otra desagregación V0")
+        ),
+        help="Solo cortes presentes en V0 para este tema; no construye cruces nuevos.",
+    )
+    if topic.national_only:
+        return "Nacional", None
+    if active == "Otra desagregación V0":
+        return str(st.session_state[SPECIAL_FILTER_KEY]), None
+    if active is not None:
+        return active, str(st.session_state[f"real_filter_{active}"])
+    return (
+        ("Nacional", None)
+        if any(result.row.disaggregation == "Nacional" for result in rows)
+        else (None, None)
+    )
+
+
+def _render_topic_chart(
+    topic: ReportTopic,
+    results: list[AuthorizedRedesignResult],
+    assignment: AssignmentIndex,
+) -> None:
+    periods = sorted(
+        {resolve_assignment(assignment, result.row).period_label for result in results}
+    )
+    for period in periods:
+        st.caption(f"Período: {period}")
+        period_rows = [
+            result
+            for result in results
+            if resolve_assignment(assignment, result.row).period_label == period
+            and numeric_values_are_visible(result)
+            and result.row.estimate is not None
+        ]
+        national = [
+            result
+            for result in period_rows
+            if result.row.disaggregation == "Nacional"
+            and result.row.category.casefold() in {"total", "nacional (total)"}
+        ]
+        national_value = national[0].row.estimate if len(national) == 1 else None
+        use_bars = (
+            topic.national_only
+            or not any(
+                result.row.disaggregation != "Nacional" for result in period_rows
+            )
+            or len(national) > 1
+        )
+        chart_rows = (
+            [
+                result
+                for result in period_rows
+                if result.row.disaggregation == "Nacional"
             ]
-        },
-        width="stretch",
-    )
+            if use_bars
+            else period_rows
+        )
+        records = []
+        for result in chart_rows:
+            item = resolve_assignment(assignment, result.row)
+            label = visible_indicator_name(result, topic=topic, topic_assignment=item)
+            cut = (
+                "Nacional · Total"
+                if result.row.disaggregation == "Nacional"
+                else (f"{result.row.disaggregation} · {result.row.category}")
+            )
+            records.append(
+                {
+                    "label": f"{item.series_label} · {cut}"
+                    if item.series_label
+                    else (f"{label} · {result.row.category}" if use_bars else cut),
+                    "estimate": result.row.estimate,
+                    "lower": result.row.ci95_lower,
+                    "upper": result.row.ci95_upper,
+                    "cv": None if result.row.cv is None else result.row.cv * 100,
+                    "n": result.row.n_unweighted,
+                    "referential": bool(result.row.cv_flag),
+                }
+            )
+        if not records:
+            st.info("Esta selección no contiene valores visibles para el gráfico.")
+            continue
+        tooltip = [
+            {"field": "label", "title": "Corte"},
+            {"field": "estimate", "title": "Estimación", "format": ".1f"},
+            {"field": "cv", "title": "CV (%)", "format": ".1f"},
+            {"field": "n", "title": "N"},
+        ]
+        y = {"field": "label", "type": "nominal", "title": None, "sort": None}
+        x = {
+            "field": "estimate",
+            "type": "quantitative",
+            "title": "Porcentaje",
+            "scale": {"domain": [0, 100]},
+        }
+        if use_bars:
+            spec: dict[str, object] = {
+                "mark": {"type": "bar", "cornerRadiusEnd": 4, "color": "#0E7C6B"},
+                "encoding": {
+                    "y": y,
+                    "x": x,
+                    "opacity": {
+                        "condition": {"test": "datum.referential", "value": 0.55},
+                        "value": 1,
+                    },
+                    "tooltip": tooltip,
+                },
+            }
+        else:
+            layers = []
+            if national_value is not None:
+                layers.append(
+                    {
+                        "mark": {
+                            "type": "rule",
+                            "color": "#0E7C6B",
+                            "strokeDash": [6, 4],
+                        },
+                        "data": {"values": [{"national_value": national_value}]},
+                        "encoding": {
+                            "x": {
+                                "field": "national_value",
+                                "type": "quantitative",
+                                "scale": {"domain": [0, 100]},
+                            }
+                        },
+                    }
+                )
+            layers.extend(
+                [
+                    {
+                        "mark": {"type": "rule", "color": "#0E7C6B", "strokeWidth": 2},
+                        "encoding": {
+                            "y": y,
+                            "x": {
+                                "field": "lower",
+                                "type": "quantitative",
+                                "scale": {"domain": [0, 100]},
+                            },
+                            "x2": {"field": "upper"},
+                        },
+                    },
+                    {
+                        "mark": {
+                            "type": "point",
+                            "size": 105,
+                            "stroke": "#0E7C6B",
+                            "strokeWidth": 2,
+                        },
+                        "encoding": {
+                            "y": y,
+                            "x": x,
+                            "fill": {
+                                "condition": {
+                                    "test": "datum.referential",
+                                    "value": "white",
+                                },
+                                "value": "#0E7C6B",
+                            },
+                            "tooltip": tooltip,
+                        },
+                    },
+                ]
+            )
+            spec = {"layer": layers}
+        spec["height"] = {"step": 28}
+        spec["config"] = {
+            "background": "#FFFFFF",
+            "axis": {"gridColor": "#DBE3EE", "labelColor": "#4B5A72"},
+            "view": {"stroke": None},
+        }
+        st.vega_lite_chart(records, spec, width="stretch")
 
 
-def _render_detail(result: AuthorizedRedesignResult) -> None:
-    card = numeric_card(result)
-    if card is None:
-        _render_state(result)
-        st.caption(result.row.quality_note)
-        return
-    st.subheader(result.display_name)
-    st.caption(f"Código: {result.row.indicator_id}")
-    estimate, error, cv, sample = st.columns(4)
-    estimate.metric("Estimación", str(card["estimate_text"]))
-    error.metric("Error estándar", str(card["standard_error_text"]))
-    cv.metric("CV", str(card["cv_text"]).replace("CV ", ""))
-    sample.metric("N no ponderado", str(card["n_text"]).replace("N no ponderado: ", ""))
-    st.write(card["interval_text"])
-    _render_state(result)
-    st.caption(card["quality_note"])
-    st.text(card["universe_text"])
-    st.caption(card["denominator_text"])
+def _render_secondary(
+    view: str,
+    *,
+    results: list[AuthorizedRedesignResult],
+    summaries: list[dict[str, str]],
+    assignment: AssignmentIndex,
+    topics: dict[str, ReportTopic],
+    release_label: str,
+    run_label: str,
+) -> None:
+    if view == "Resumen nacional":
+        st.markdown("### Resumen nacional")
+        render_exact_table(
+            ("Módulo", "Tema principal", "Estimación", "Estado"),
+            tuple(
+                (
+                    f"{row['code']} · {row['label']}",
+                    row["indicator"],
+                    row["value"],
+                    row["state"],
+                )
+                for row in summaries
+            ),
+        )
+    elif view == "Brechas":
+        st.markdown("### Brechas")
+        st.info("Solo cifras V0 existentes; no se calculan contrastes nuevos.")
+        rows = []
+        for result in results:
+            item = resolve_assignment(assignment, result.row)
+            if "diferencia" in topics[item.topic_id].title.casefold():
+                rows.append(
+                    (
+                        item.module_id,
+                        topics[item.topic_id].title,
+                        item.period_label,
+                        protected_percentage(result, result.row.estimate),
+                        STATE_LABELS[result.state],
+                    )
+                )
+        render_exact_table(("Módulo", "Tema", "Período", "Estimación", "Estado"), rows)
+    elif view == "Calidad y notas":
+        render_quality_legend(synthetic=False)
+        for state, label in STATE_LABELS.items():
+            count = sum(result.state == state for result in results)
+            if count:
+                st.write(f"{label}: {count} fila(s)")
+    elif view == "Estado del gate":
+        st.success(
+            f"Release agregado en shadow privado: {release_label} · run: {run_label}."
+        )
+        st.caption("Sin acceso público, microdatos, recálculo ni cruces nuevos.")
+    elif view == "Historial":
+        render_release_history(
+            message=f"Release vigente: {release_label} · run: {run_label}."
+        )
+    else:
+        raise ValueError(f"Unknown secondary view: {view}")
 
 
 def render() -> None:
@@ -354,222 +540,245 @@ def render() -> None:
         layout="wide",
         initial_sidebar_state="collapsed",
     )
-    inject_visual_css()
-
+    inject_mockup_css()
     try:
         repository, _ = configured_repositories()
         results = load_authorized_results(repository)
-    except (RepositoryError, OSError, TypeError, ValueError):
-        st.error("La fuente agregada autorizada no superó la validación.")
-        return
-
-    release_ids = {result.row.release_id for result in results}
-    run_ids = {result.row.run_id for result in results}
-    release_label = (
-        next(iter(release_ids)) if len(release_ids) == 1 else "RELEASE NO ÚNICO"
-    )
-    render_header(
-        release_label=release_label,
-        subtitle="Catálogo V0 autorizado · acceso autenticado en shadow.",
-    )
-    render_scope_banner(
-        "CONTROLLED_SHADOW: 516 indicadores y 3,014 filas agregadas verificadas. "
-        "Sin microdatos, recálculo, cruces nuevos, publicación ni cutover."
-    )
-    render_module_strip(
-        _module_summaries(results),
-        caption="COBERTURA DEL CATÁLOGO V0 POR MÓDULO",
-        metric_label="Cobertura",
-    )
-
-    module_options = ("Todos", *MODULE_LABELS)
-    state_options = tuple(STATE_LABELS)
-    initial_view = _initial_view()
-    if "stage04_view" not in st.session_state:
-        st.session_state["stage04_view"] = initial_view
-    if "real_module_filter" not in st.session_state:
-        st.session_state["real_module_filter"] = (
-            initial_view.removeprefix("Módulo ")
-            if initial_view.startswith("Módulo ")
-            else "Todos"
+        results = _inject_suppressed_ui_test_result(results)
+        for result in results:
+            safe_metadata_text(result.row.universe)
+            safe_metadata_text(result.row.denominator)
+        catalog = load_topic_mapping(
+            ROOT / "src" / "enares" / "stage04" / "report_topic_map.csv",
+            catalog_rows=[result.row for result in results],
         )
-    _valid_session_value("real_module_filter", module_options, "Todos")
-
-    with st.container(key="stage04_layout"):
-        left, center, right = st.columns((270, 800, 272), gap="medium")
-        with left, st.container(key="stage04_left_rail"):
-            st.subheader("Filtros V0")
-            module_id = st.selectbox(
-                "Módulo",
-                module_options,
-                key="real_module_filter",
-                on_change=_sync_module_view,
-                format_func=lambda value: (
-                    "Todos" if value == "Todos" else f"{value} · {MODULE_LABELS[value]}"
-                ),
+        assignments = catalog.assignments
+        topics = catalog.topics
+        topics_by_id = topic_by_id(topics)
+        topic_ids_by_module = {
+            module_id: tuple(
+                topic.topic_id for topic in topics_for_module(topics, module_id)
             )
-            module_rows = [
+            for module_id in MODULE_IDS
+        }
+        module_id, topic_id = _ensure_navigation_state(topic_ids_by_module)
+        module_rows = enforce_module_isolation(
+            (
                 result
                 for result in results
-                if module_id == "Todos" or result.row.module_id == module_id
-            ]
-            dimension, category_filter = _dimension_filter_selection(module_rows)
-            states = tuple(
-                st.multiselect(
-                    "Estados visibles",
-                    state_options,
-                    default=state_options,
-                    format_func=lambda value: STATE_LABELS[value],
-                    key="real_state_filter",
-                )
-            )
-            dimension_rows = [
-                result
-                for result in module_rows
-                if result.row.disaggregation == dimension
-                and (category_filter is None or result.row.category == category_filter)
-                and result.state in states
-            ]
-            indicator_options = (
-                "Todos",
-                *dict.fromkeys(result.row.indicator_id for result in dimension_rows),
-            )
-            _valid_session_value("real_indicator_filter", indicator_options, "Todos")
-            option_by_id = {
-                result.row.indicator_id: indicator_option_label(
-                    result.row.indicator_id, result.row.module_id
-                )
-                for result in dimension_rows
-            }
-            indicator_id = st.selectbox(
-                "Indicador",
-                indicator_options,
-                key="real_indicator_filter",
-                format_func=lambda value: (
-                    "Todos" if value == "Todos" else option_by_id[value]
-                ),
-            )
-            indicator_rows = [
-                result
-                for result in dimension_rows
-                if indicator_id == "Todos" or result.row.indicator_id == indicator_id
-            ]
-            category_options = (
-                "Todas",
-                *dict.fromkeys(result.row.category for result in indicator_rows),
-            )
-            _valid_session_value("real_category_filter", category_options, "Todas")
-            category = st.selectbox(
-                "Categoría", category_options, key="real_category_filter"
-            )
-            st.caption("Una sola desagregación activa; no se fabrican cruces.")
-            with st.container(border=True):
-                st.caption("COBERTURA DE LA SELECCIÓN")
-                st.write(f"{len(indicator_rows)} fila(s) antes de categoría")
-                st.write(
-                    f"{len({row.row.indicator_id for row in indicator_rows})} indicador(es)"
-                )
-
-        rows = _filter_results(
-            results,
-            module_id=module_id,
-            dimension=dimension,
-            category_filter=category_filter,
-            states=states,
-            indicator_id=indicator_id,
-            category=category,
+                if resolve_assignment(assignments, result.row).module_id == module_id
+            ),
+            active_module_id=module_id,
+            assignment=assignments,
         )
+        topic = topics_by_id[topic_id]
+        topic_rows = rows_for_topic(
+            module_rows, active_module_id=module_id, topic=topic, assignment=assignments
+        )
+        release_ids = {result.row.release_id for result in results}
+        run_ids = {result.row.run_id for result in results}
+        if len(release_ids) != 1 or len(run_ids) != 1:
+            raise ModuleIsolationError("Expected exactly one V0 release and run")
+        release_label, run_label = next(iter(release_ids)), next(iter(run_ids))
+        summaries = _module_summaries(results, topics)
+    except (
+        RepositoryError,
+        OSError,
+        TypeError,
+        ValueError,
+        TopicCatalogError,
+        ModuleIsolationError,
+    ):
+        st.error(
+            "La fuente agregada autorizada o su catálogo de temas no superó la validación."
+        )
+        return
 
+    render_exact_header(
+        release_label=release_label,
+        release_state="RELEASE V0",
+        cloud_state="SHADOW PRIVADO",
+    )
+    render_exact_scope_banner(
+        "Sin microdatos, identificadores, recálculo ni cruces nuevos."
+    )
+    with st.container(key="stage04_grid"):
+        left, center, right = st.columns((270, 800, 272), gap="medium")
+        with left, st.container(key="stage04_left_rail"):
+            with st.container(key="stage04_filters_panel"):
+                st.html('<div class="panel-title">DESAGREGACIONES AUTORIZADAS</div>')
+                dimension, category = effective_cut(topic, topic_rows)
+                filtered = enforce_module_isolation(
+                    (
+                        result
+                        for result in topic_rows
+                        if (dimension is None or result.row.disaggregation == dimension)
+                        and (category is None or result.row.category == category)
+                    ),
+                    active_module_id=module_id,
+                    assignment=assignments,
+                )
+            with st.container(key="stage04_base_panel"):
+                st.caption("BASE V0 VERIFICADA")
+                st.write("516 claves técnicas · 3 014 filas agregadas")
         with center, st.container(key="stage04_center"):
-            selected_view = st.segmented_control(
+            render_module_cards(summaries, active_module_id=module_id)
+            selected = st.segmented_control(
                 "Vista",
-                VIEW_LABELS,
-                selection_mode="single",
-                required=True,
-                key="stage04_view",
-                on_change=_sync_view_query,
+                VISIBLE_VIEWS,
+                key=NAVIGATION_WIDGET_ID,
+                on_change=_sync_visible_view,
                 label_visibility="collapsed",
                 width="stretch",
             )
-            active_view = selected_view or VIEW_LABELS[0]
-            if active_view == "Resumen nacional":
-                _render_overview(rows)
-                _render_table(rows)
-                _render_forest(rows, indicator_id=indicator_id)
-            elif active_view.startswith("Módulo "):
-                st.subheader(active_view)
-                _render_table(rows)
-                _render_forest(rows, indicator_id=indicator_id)
-            elif active_view == "Brechas":
-                st.subheader("Brechas")
-                st.info(
-                    "La vista presenta agregados V0 existentes; no calcula diferencias nuevas."
+            if selected in MODULE_IDS and selected != module_id:
+                _activate_module(selected)
+                st.rerun()
+            if selected in MODULE_IDS:
+                st.markdown(f"## {module_id} · {PRESENTATION_MODULE_LABELS[module_id]}")
+                render_topic_navigation(
+                    topics_for_module(topics, module_id),
+                    active_module_id=module_id,
+                    active_topic_id=topic_id,
                 )
-                _render_table(rows)
-            elif active_view == "Calidad y notas":
-                render_quality_legend(synthetic=False)
-                for result in rows:
-                    _render_state(result)
-            elif active_view == "Estado del gate":
-                st.subheader("Estado del gate")
-                st.warning(
-                    "Integración autorizada en shadow · despliegue y cambio de tráfico "
-                    "requieren aprobación separada."
-                )
-            else:
-                run_label = (
-                    next(iter(run_ids)) if len(run_ids) == 1 else "múltiples runs"
-                )
-                render_release_history(
-                    message=(
-                        f"Release vigente: {release_label} · run: {run_label}. "
-                        "Sin publicación ni cutover."
-                    )
-                )
-
-        with right, st.container(key="stage04_right_rail"):
-            st.subheader("Alertas y hallazgos")
-            flagged = [
-                result
-                for result in rows
-                if result.row.cv_flag or result.row.n_flag or result.row.suppress_flag
-            ]
-            if rows and not flagged:
-                st.success("Sin alertas en la selección.")
-            elif not rows:
-                st.info("No hay alertas ni indicador activo para esta selección.")
-            for result in flagged:
-                _render_state(result)
-            if len(rows) == 1:
-                active = rows[0]
-                _render_detail(active)
-                render_indicator_sheet(
-                    {
-                        "Módulo": (
-                            f"{active.row.module_id} · "
-                            f"{MODULE_LABELS[active.row.module_id]}"
+                st.markdown(f"### {topic.title}")
+                if not topic_rows:
+                    st.info("Sin datos en el release V0 vigente.")
+                else:
+                    first = next(
+                        (
+                            row
+                            for row in topic_rows
+                            if row.row.disaggregation == "Nacional"
                         ),
-                        "Indicador": active.display_name,
-                        "Código": active.row.indicator_id,
-                        "Dimensión": active.row.disaggregation,
-                        "Categoría": active.row.category,
-                        "Estado": STATE_LABELS[active.state],
-                    }
-                )
-            elif rows:
-                st.info("Elige un indicador y una categoría para abrir su ficha.")
-            st.subheader("Exportar")
-            if rows:
-                render_safe_export(
-                    (result.row for result in rows),
-                    basename="enares-stage04-corte-visible",
-                )
+                        topic_rows[0],
+                    )
+                    source, universe, denominator = st.columns(3)
+                    source.caption("FUENTE")
+                    source.write(PRESENTATION_MODULE_LABELS[module_id])
+                    universe.caption("UNIVERSO")
+                    universe.write(safe_metadata_text(first.row.universe))
+                    denominator.caption("DENOMINADOR")
+                    denominator.write(safe_metadata_text(first.row.denominator))
+                    headers = (
+                        "Indicador",
+                        "Período",
+                        "Corte",
+                        "Estimación",
+                        "IC95%",
+                        "CV",
+                        "N",
+                        "Estado y notas",
+                    )
+                    visible_rows = [
+                        visible_table_record(
+                            result,
+                            topic=topic,
+                            topic_assignment=resolve_assignment(
+                                assignments, result.row
+                            ),
+                        )
+                        for result in filtered
+                    ]
+                    render_exact_table(
+                        headers,
+                        tuple(
+                            tuple(row[header] for header in headers)
+                            for row in visible_rows
+                        ),
+                    )
+                    _render_topic_chart(topic, topic_rows, assignments)
             else:
-                st.info("No hay un corte visible para exportar.")
-
-    st.divider()
+                _render_secondary(
+                    str(selected),
+                    results=results,
+                    summaries=summaries,
+                    assignment=assignments,
+                    topics=topics_by_id,
+                    release_label=release_label,
+                    run_label=run_label,
+                )
+        with right, st.container(key="stage04_right_rail"):
+            with st.container(key="stage04_alerts_panel"):
+                st.html('<div class="panel-title">ALERTAS Y HALLAZGOS</div>')
+                flagged = [
+                    row
+                    for row in filtered
+                    if row.row.cv_flag
+                    or row.row.n_flag
+                    or row.state in {"CONTEXT_ONLY", "SUPPRESSED"}
+                ]
+                if not flagged:
+                    st.success("Sin alertas en la selección.")
+                for result in flagged:
+                    item = resolve_assignment(assignments, result.row)
+                    label = visible_indicator_name(
+                        result, topic=topic, topic_assignment=item
+                    )
+                    st.warning(f"{label} — {STATE_LABELS[result.state]}")
+            with st.container(key="stage04_sheet_panel"):
+                st.html('<div class="panel-title">FICHA DEL INDICADOR ACTIVO</div>')
+                detail = next(
+                    (
+                        row
+                        for row in filtered
+                        if row.row.disaggregation == "Nacional"
+                        and row.row.category.casefold() in {"total", "nacional (total)"}
+                    ),
+                    filtered[0] if filtered else None,
+                )
+                if detail is not None:
+                    item = resolve_assignment(assignments, detail.row)
+                    st.write(
+                        visible_indicator_name(
+                            detail, topic=topic, topic_assignment=item
+                        )
+                    )
+                    st.caption(
+                        f"Módulo: {module_id} · {PRESENTATION_MODULE_LABELS[module_id]}"
+                    )
+                    st.caption(f"Tema: {topic.title}")
+                    st.caption(f"Período: {item.period_label}")
+                    st.caption(f"Universo: {safe_metadata_text(detail.row.universe)}")
+                    st.caption(
+                        f"Denominador: {safe_metadata_text(detail.row.denominator)}"
+                    )
+                    st.caption(
+                        f"Corte: {detail.row.disaggregation} · {detail.row.category}"
+                    )
+                    st.caption(f"Estado: {STATE_LABELS[detail.state]}")
+                    st.write(
+                        f"Estimación: {protected_percentage(detail, detail.row.estimate)}"
+                    )
+                    st.write(f"IC95%: {protected_interval(detail)}")
+                    st.write(
+                        f"CV: {format_cv(detail.row.cv if numeric_values_are_visible(detail) else None)}"
+                    )
+                    st.write(
+                        f"N no ponderado: {format_n(detail.row.n_unweighted if numeric_values_are_visible(detail) else None)}"
+                    )
+                    st.caption(STATE_LABELS[detail.state])
+                else:
+                    st.caption(
+                        f"Módulo: {module_id} · {PRESENTATION_MODULE_LABELS[module_id]}"
+                    )
+                    st.caption(f"Tema: {topic.title}")
+                    st.caption("Período: —")
+                    st.caption("Universo: —")
+                    st.caption("Denominador: —")
+                    st.caption("Corte: —")
+                    st.caption("Estado: Sin datos en el release V0 vigente")
+            with st.container(key="stage04_export_panel"):
+                st.html('<div class="panel-title">EXPORTAR</div>')
+                if filtered:
+                    render_safe_export(
+                        [protected_export_row(result) for result in filtered],
+                        basename=f"enares-stage04-{topic_id.replace('.', '-')}",
+                    )
+                else:
+                    st.info("No hay un corte visible para exportar.")
     st.caption(
-        "V0 continúa oficial · acceso público, publicación y cutover: NOT_AUTHORIZED"
+        "V0 continúa oficial · publicación institucional y cutover: NOT_AUTHORIZED"
     )
 
 

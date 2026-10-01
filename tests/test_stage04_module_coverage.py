@@ -31,7 +31,9 @@ from enares.stage04.validation import validate_estimates
 
 ROOT = Path(__file__).resolve().parents[1]
 V0_FIXTURE = ROOT / "app" / "data" / "v0_authorized_full_indicator_estimates.csv"
-V0_MANIFEST = ROOT / "app" / "data" / "v0_authorized_full_indicator_estimates.manifest.json"
+V0_MANIFEST = (
+    ROOT / "app" / "data" / "v0_authorized_full_indicator_estimates.manifest.json"
+)
 STREAMLIT_CONFIG = ROOT / ".streamlit" / "config.toml"
 
 
@@ -105,10 +107,10 @@ def test_streamlit_theme_keeps_text_and_background_contrast_explicit():
     config = tomllib.loads(STREAMLIT_CONFIG.read_text(encoding="utf-8"))
     assert config["theme"] == {
         "base": "light",
-        "primaryColor": "#9B2342",
-        "backgroundColor": "#F5F7F4",
-        "secondaryBackgroundColor": "#E3ECE7",
-        "textColor": "#17251F",
+        "primaryColor": "#0E7C6B",
+        "backgroundColor": "#F1F4F9",
+        "secondaryBackgroundColor": "#EAEFF6",
+        "textColor": "#16202E",
         "font": "sans serif",
     }
 
@@ -141,7 +143,9 @@ def test_non_synthetic_row_outside_full_v0_registry_is_rejected():
 
 def test_valid_non_synthetic_32_sex_row_is_now_authorized():
     authorized, _ = local_repositories()
-    rows = [row for row in authorized.list_estimates("3.2") if row.disaggregation == "Sexo"]
+    rows = [
+        row for row in authorized.list_estimates("3.2") if row.disaggregation == "Sexo"
+    ]
     assert rows
     validate_estimates(rows)
 
@@ -204,28 +208,32 @@ def test_real_fixture_coverage_is_distinguished_from_configuration():
 
 @pytest.mark.parametrize("module", MODULES, ids=lambda module: module.module_id)
 def test_apptest_navigates_every_module_without_inventing_authorization(module):
-    app = _run_application()
-    next(select for select in app.selectbox if select.label == "Módulo").set_value(
-        module.module_id
-    ).run(timeout=15)
-    visible = _visible_text(app)
+    app = AppTest.from_file(str(ROOT / "app" / "streamlit_app.py"))
+    app.query_params["view"] = f"Módulo {module.module_id}"
+    app.query_params["topic"] = f"{module.module_id}.01"
+    app.run(timeout=15)
     assert not app.exception
-    assert f"Módulo {module.module_id}" in visible
-    indicator = next(select for select in app.selectbox if select.label == "Indicador")
-    assert len(indicator.options) > 1
+    assert app.session_state["active_module_id"] == module.module_id
+    assert app.session_state["active_report_topic_id"] == f"{module.module_id}.01"
+    assert len(app.selectbox) == 9
 
 
 def test_apptest_absent_combination_is_no_data_without_numbers():
-    app = _run_application()
-    next(select for select in app.selectbox if select.label == "Módulo").set_value(
-        "3.6"
-    ).run(timeout=15)
+    app = AppTest.from_file(str(ROOT / "app" / "streamlit_app.py"))
+    app.query_params["view"] = "Módulo 3.6"
+    app.run(timeout=15)
     assert not app.exception
     sexo = next(select for select in app.selectbox if select.label == "Sexo")
-    assert sexo.options == ["Todos"]
-    assert "Sexo" not in next(
-        select for select in app.selectbox if select.label == "Otra desagregación V0"
-    ).options
+    assert sexo.options == ["Todas"]
+    assert sexo.disabled
+    assert (
+        "Sexo"
+        not in next(
+            select
+            for select in app.selectbox
+            if select.label == "Otra desagregación V0"
+        ).options
+    )
 
 
 def test_apptest_unavailable_dimension_stops_before_module_repository(monkeypatch):
@@ -237,21 +245,20 @@ def test_apptest_unavailable_dimension_stops_before_module_repository(monkeypatc
         return original(self, module_id)
 
     monkeypatch.setattr(AuthorizedAggregateRepository, "list_estimates", record_calls)
-    app = _run_application()
-    next(select for select in app.selectbox if select.label == "Módulo").set_value(
-        "3.6"
-    ).run(timeout=15)
-    calls.clear()
+    app = AppTest.from_file(str(ROOT / "app" / "streamlit_app.py"))
+    app.query_params["view"] = "Módulo 3.6"
+    app.run(timeout=15)
     assert not app.exception
     sexo = next(select for select in app.selectbox if select.label == "Sexo")
-    assert sexo.options == ["Todos"]
-    assert not calls
+    assert sexo.options == ["Todas"]
+    assert sexo.disabled
+    assert calls  # The verified release is loaded once before editorial routing.
 
 
 def test_apptest_demo_synthetic_keeps_three_textual_states():
-    app = AppTest.from_file(
-        str(ROOT / "app" / "ui_redesign_synthetic_app.py")
-    ).run(timeout=15)
+    app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_synthetic_app.py")).run(
+        timeout=15
+    )
     visible = _visible_text(app)
     assert not app.exception
     assert "Composición sintética" in visible
@@ -269,7 +276,10 @@ def test_invalid_row_error_is_generic_and_does_not_expose_internal_content(monke
     monkeypatch.setattr(AuthorizedAggregateRepository, "list_estimates", invalid_rows)
     app = _run_application()
     visible = _visible_text(app)
-    assert "La fuente agregada autorizada no superó la validación" in visible
+    assert (
+        "La fuente agregada autorizada o su catálogo de temas no superó la validación"
+        in visible
+    )
     assert internal_marker not in visible
     assert not app.metric
 

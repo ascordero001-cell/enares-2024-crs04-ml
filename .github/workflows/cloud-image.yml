@@ -8,6 +8,8 @@ on:
       - requirements-cloud-runtime.txt
       - requirements-runtime.txt
       - app/streamlit_app.py
+      - app/ui_redesign_app.py
+      - app/assets/**
       - app/config/**
       - app/views/**
       - src/enares/stage04/**
@@ -23,6 +25,8 @@ on:
       - requirements-cloud-runtime.txt
       - requirements-runtime.txt
       - app/streamlit_app.py
+      - app/ui_redesign_app.py
+      - app/assets/**
       - app/config/**
       - app/views/**
       - src/enares/stage04/**
@@ -53,10 +57,13 @@ jobs:
             test ! -e /app/app/data/v0_authorized_full_indicator_estimates.csv
             test ! -e /app/app/data/demo_indicator_estimates.csv
             test ! -e /app/data
-            ! find /app -type f \( -name "*.sav" -o -name "*.csv" \) | grep -q .
+            ! find /app -type f \( -name "*.sav" -o -name "*.csv" \) ! -path /app/src/enares/stage04/report_topic_map.csv | grep -q .
+            test -f /app/src/enares/stage04/report_topic_map.csv
+            test -f /app/app/assets/stage04_mockup.css
+            test "${STAGE04_UI_TEST_INJECT_SUPPRESSED:-}" = ""
             python -c "import google.cloud.bigquery, streamlit; assert streamlit.__version__ == \"1.64.0\""
             python -c "import app.streamlit_app, app.ui_redesign_app; assert callable(app.streamlit_app.render)"
-            python -c "from streamlit import config; assert config.get_option(\"theme.primaryColor\") == \"#9B2342\""
+            python -c "from streamlit import config; assert config.get_option(\"theme.primaryColor\") == \"#0E7C6B\"; assert config.get_option(\"theme.backgroundColor\") == \"#F1F4F9\"; assert config.get_option(\"theme.secondaryBackgroundColor\") == \"#EAEFF6\"; assert config.get_option(\"theme.textColor\") == \"#16202E\""
           '
 
       - name: Start cloud image with non-secret placeholder configuration

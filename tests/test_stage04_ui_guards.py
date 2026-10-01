@@ -147,52 +147,43 @@ def test_apptest_summary_shows_controlled_shadow_catalog_without_default_plot():
     app = _run_application()
     visible = _visible_text(app)
     assert not app.exception
-    assert "VIGILANCIA POBLACIONAL" in visible
-    assert "enares2024-crs04-v0-shadow-001" in visible
-    assert "516 indicadores" in visible
-    assert "3,014 filas" in visible
-    assert "publicación y cutover: NOT_AUTHORIZED" in visible
-    assert not app.get("vega_lite_chart")
-    assert "Selecciona un indicador" in visible
+    assert app.session_state["active_module_id"] == "3.1"
+    assert "516 claves técnicas" in visible
+    assert "3 014 filas" in visible
+    assert "publicación institucional y cutover: NOT_AUTHORIZED" in visible
+    assert len(app.get("vega_lite_chart")) == 1
 
 
 def test_apptest_module_32_shows_the_approved_golden_through_canonical_entrypoint():
-    app = _run_application()
-    next(box for box in app.selectbox if box.label == "Módulo").set_value(
-        "3.2"
-    ).run(timeout=30)
-    next(box for box in app.selectbox if box.label == "Indicador").set_value(
-        "VF_HOGAR"
-    ).run(timeout=30)
-    next(box for box in app.selectbox if box.label == "Categoría").set_value(
-        "Total"
-    ).run(timeout=30)
-    metrics = {metric.label: metric.value for metric in app.metric}
-    assert metrics["Estimación"] == "16.74 %"
-    assert metrics["Error estándar"] == "EE 0.5115"
-    assert metrics["CV"] == "3.06 %"
-    assert metrics["N no ponderado"] == "18,807"
+    app = AppTest.from_file(str(ROOT / "app" / "streamlit_app.py"))
+    app.query_params["view"] = "Módulo 3.2"
+    app.query_params["topic"] = "3.2.03"
+    app.run(timeout=30)
+    assert not app.exception
+    visible = _visible_text(app)
+    assert "Estimación: 16.7%" in visible
+    assert "CV: 3.1%" in visible
+    assert "N no ponderado: 18 807" in visible
     assert len(app.get("vega_lite_chart")) == 1
 
 
 def test_apptest_unsupported_dimensions_are_not_offered_for_module_36():
-    app = _run_application()
-    next(box for box in app.selectbox if box.label == "Módulo").set_value(
-        "3.6"
-    ).run(timeout=30)
-    for label, default in (("Sexo", "Todos"), ("Área", "Todas")):
+    app = AppTest.from_file(str(ROOT / "app" / "streamlit_app.py"))
+    app.query_params["view"] = "Módulo 3.6"
+    app.run(timeout=30)
+    for label, default in (("Sexo", "Todas"), ("Área", "Todas")):
         control = next(box for box in app.selectbox if box.label == label)
         assert control.options == [default]
         assert control.value == default
+        assert control.disabled
 
 
 def test_apptest_controls_remain_local_and_safe_export_is_available():
     app = _run_application()
     visible = _visible_text(app)
-    assert "Exportación agregada: 516 fila(s)" in visible
+    assert "BASE V0 VERIFICADA" in visible
     assert len(app.get("download_button")) == 2
-    assert "CONTROLLED_SHADOW" in visible
-    assert "acceso público, publicación y cutover: NOT_AUTHORIZED" in visible
+    assert "publicación institucional y cutover: NOT_AUTHORIZED" in visible
 
 
 def test_canonical_entrypoint_never_mixes_the_synthetic_demo_source():

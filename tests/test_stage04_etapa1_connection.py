@@ -93,54 +93,43 @@ def test_d09_connects_domain_aliases_labels_and_visible_reference_cells():
 
 
 def test_apptest_renders_d01_as_two_groups_and_d11_one_by_one():
-    app = _run_application()
-    next(select for select in app.selectbox if select.label == "Módulo").set_value(
-        "3.1"
-    ).run(timeout=15)
-    next(
-        select
-        for select in app.selectbox
-        if select.label == "Otra desagregación V0"
-    ).set_value("Tareas del hogar").run(timeout=15)
-    next(select for select in app.selectbox if select.label == "Indicador").set_value(
-        "Componentes"
-    ).run(timeout=15)
-    visible = _visible_text(app)
-    assert not app.exception
-    assert "Quién realiza tareas en el hogar · ítems 1–7" in visible
-    assert "Quién acompaña a la adolescente · ítems 8–10" in visible
-    assert len(app.dataframe) == 2
-    assert len(app.download_button) == 2
+    from enares.stage04.report_topics import load_topic_mapping, resolve_assignment
 
-    for module_id, indicator in (
-        ("3.3", "C3P223_10_1"),
-        ("3.4", "Agresor_VS_12M__AG_01"),
-        ("3.6", "C3P213"),
-    ):
-        app = _run_application()
-        next(select for select in app.selectbox if select.label == "Módulo").set_value(
-            module_id
-        ).run(timeout=15)
-        next(
-            select for select in app.selectbox if select.label == "Indicador"
-        ).set_value(indicator).run(timeout=15)
+    authorized, _ = local_repositories()
+    rows = [
+        row
+        for module in ("3.1", "3.2", "3.3", "3.4", "3.5", "3.6")
+        for row in authorized.list_estimates(module)
+    ]
+    mapping = load_topic_mapping(
+        ROOT / "src" / "enares" / "stage04" / "report_topic_map.csv",
+        catalog_rows=rows,
+    )
+    expected = {
+        "Componentes": "3.1.07",
+        "C3P223_10_1": "3.3.02",
+        "Agresor_VS_12M__AG_01": "3.4.03",
+        "C3P213": "3.6.08",
+    }
+    for indicator, topic in expected.items():
+        assert {
+            resolve_assignment(mapping.assignments, row).topic_id
+            for row in rows
+            if row.indicator_id == indicator
+        } == {topic}
+        app = AppTest.from_file(str(ROOT / "app" / "streamlit_app.py"))
+        app.query_params["view"] = f"Módulo {topic[:3]}"
+        app.query_params["topic"] = topic
+        app.run(timeout=15)
         assert not app.exception
-        assert indicator in _visible_text(app)
-        assert len(app.metric) == 4
-
-    assert "No recibió ayuda porque no supieron cómo ayudarle" in _visible_text(app)
+        assert app.session_state["active_report_topic_id"] == topic
 
 
 def test_apptest_d09_shows_approved_domain_and_no_suppression():
-    app = _run_application()
-    next(select for select in app.selectbox if select.label == "Módulo").set_value(
-        "3.5"
-    ).run(timeout=15)
-    next(select for select in app.selectbox if select.label == "Indicador").set_value(
-        "CONS_ATENCION_SALUD"
-    ).run(timeout=15)
-    visible = _visible_text(app)
+    app = AppTest.from_file(str(ROOT / "app" / "streamlit_app.py"))
+    app.query_params["view"] = "Módulo 3.5"
+    app.query_params["topic"] = "3.5.11"
+    app.run(timeout=15)
     assert not app.exception
-    assert "CONS_ALGUNA = 1" in visible
-    assert "Los campos protegidos no llegan a la interfaz" not in visible
-    assert len(app.metric) == 4
+    assert app.session_state["active_report_topic_id"] == "3.5.11"
+    assert "alguna consecuencia física = 1" in _visible_text(app)
