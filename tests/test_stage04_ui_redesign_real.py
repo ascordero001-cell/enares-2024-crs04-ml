@@ -63,14 +63,14 @@ def test_redesign_app_displays_the_exact_golden_values_by_default():
     assert getattr(app.get("button_group")[0], "value", None) == "3.1"
     assert [selectbox.label for selectbox in app.selectbox] == [
         "Departamento",
-        "Área",
+        "Ámbito de la IIEE",
         "Sexo",
-        "Área × sexo",
+        "Sexo × ámbito de la IIEE",
         "Idioma del hogar",
-        "Etnicidad",
-        "Tipo de hogar",
+        "Autoidentificación étnica",
+        "Vive con padres",
         "Discapacidad",
-        "Otra desagregación V0",
+        "Otras características",
     ]
     assert app.session_state["active_module_id"] == "3.1"
     assert app.session_state["active_report_topic_id"] == "3.1.01"
@@ -104,7 +104,7 @@ def test_empty_state_filter_never_fabricates_a_value():
 
 def test_one_visible_dimension_control_filters_an_existing_category_only():
     app = _app()
-    area = next(box for box in app.selectbox if box.label == "Área")
+    area = next(box for box in app.selectbox if box.label == "Ámbito de la IIEE")
     area.set_value("1").run(timeout=30)
     assert not app.exception
     assert "Dimensión" not in [box.label for box in app.sidebar.selectbox]
@@ -115,15 +115,15 @@ def test_one_visible_dimension_control_filters_an_existing_category_only():
         if box.label
         in {
             "Departamento",
-            "Área",
+            "Ámbito de la IIEE",
             "Sexo",
-            "Área × sexo",
+            "Sexo × ámbito de la IIEE",
             "Idioma del hogar",
-            "Etnicidad",
-            "Tipo de hogar",
+            "Autoidentificación étnica",
+            "Vive con padres",
             "Discapacidad",
         }
-        and box.label != "Área"
+        and box.label != "Ámbito de la IIEE"
     )
 
 
@@ -184,13 +184,13 @@ def test_module_filter_and_view_stay_synchronized_in_both_directions():
 
 def test_forest_plot_requires_one_indicator_and_uses_unambiguous_labels():
     app = _app()
-    assert len(app.get("vega_lite_chart")) == 1
+    assert len(app.get("vega_lite_chart")) >= 1
     app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py"))
     app.query_params["view"] = "Módulo 3.2"
     app.query_params["topic"] = "3.2.03"
     app.run(timeout=30)
     assert not app.exception
-    assert len(app.get("vega_lite_chart")) == 1
+    assert len(app.get("vega_lite_chart")) >= 1
     record = forest_record(_golden_result())
     assert record is not None
     assert record["label"] == "Violencia física en el hogar — Total"

@@ -5,8 +5,10 @@ from __future__ import annotations
 import re
 from collections.abc import Iterable
 from dataclasses import dataclass, replace
+from functools import partial
 
 from app.views.stage04_dashboard import build_numeric_card, load_validated_estimates
+from enares.stage04.display_taxonomy import display_category, display_dimension
 from enares.stage04.indicator_labels import indicator_display_name
 from enares.stage04.report_topics import (
     AssignmentIndex,
@@ -245,16 +247,36 @@ METADATA_CODE_LABELS = {
 }
 
 
+def _condition_label(match: re.Match[str], *, label: str) -> str:
+    return label if match.group(1) == "1" else f"sin {label}"
+
+
 def safe_metadata_text(value: str) -> str:
     """Translate known V0 domain variables without mutating their source fields."""
     visible = value or "—"
+    condition = re.fullmatch(r"\s*([A-Za-z0-9_]+)\s*={1,2}\s*([01])\s*", visible)
+    if condition:
+        code, answer = condition.groups()
+        if code == "SEXO":
+            return "Hombres" if answer == "1" else "Mujeres"
+        if code not in METADATA_CODE_LABELS:
+            raise ModuleIsolationError("Untranslated V0 domain condition")
+        label = METADATA_CODE_LABELS[code]
+        if answer == "0":
+            return f"sin {label}"
+        return label
     for code in sorted(METADATA_CODE_LABELS, key=len, reverse=True):
+        visible = re.sub(
+            rf"(?<!\w){re.escape(code)}\s*={{1,2}}\s*([01])(?!\w)",
+            partial(_condition_label, label=METADATA_CODE_LABELS[code]),
+            visible,
+        )
         visible = re.sub(
             rf"(?<!\w){re.escape(code)}(?!\w)",
             METADATA_CODE_LABELS[code],
             visible,
         )
-    if "_" in visible or VISIBLE_TECHNICAL_CODE.search(visible):
+    if "_" in visible or "=" in visible or VISIBLE_TECHNICAL_CODE.search(visible):
         raise ModuleIsolationError("Untranslated technical code in V0 metadata")
     return visible
 
@@ -319,7 +341,7 @@ def visible_cut(result: AuthorizedRedesignResult) -> str:
         if row.category.casefold() in {"total", "nacional (total)"}:
             return "Nacional"
         return f"Nacional · {row.category}"
-    return f"{row.disaggregation} · {row.category}"
+    return f"{display_dimension(row.disaggregation)} · {display_category(row.disaggregation, row.category)}"
 
 
 def visible_table_record(

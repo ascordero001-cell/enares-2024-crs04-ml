@@ -11,7 +11,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from xml.etree.ElementTree import Element, SubElement, tostring
 
-from .authorized_scopes import D09_CATEGORY_LABELS
+from .display_taxonomy import display_category, display_dimension
 from .presentation import DIMENSION_PRESENTATIONS
 from .repository import IndicatorEstimate, is_verified_authorized_estimate
 from .validation import validate_estimates
@@ -68,11 +68,11 @@ def _safe_text(value: object) -> str:
 
 def _display_dimension(source: str) -> str:
     presentation = DIMENSION_PRESENTATIONS.get(source)
-    return presentation.display_name if presentation else source
+    return presentation.display_name if presentation else display_dimension(source)
 
 
 def _display_category(row: IndicatorEstimate) -> str:
-    category = D09_CATEGORY_LABELS.get((row.disaggregation, row.category), row.category)
+    category = display_category(row.disaggregation, row.category)
     clean = category.removesuffix(" [referencial]")
     return f"{clean} [referencial]" if row.cv_flag else clean
 

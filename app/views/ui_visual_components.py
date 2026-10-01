@@ -60,10 +60,12 @@ def render_module_cards(
             f'aria-label="Abrir módulo {escape(module_id)}: {escape(module["label"])}">'
             '<div class="sc-top">'
             f'<span class="sc-code">{escape(module_id)}</span>'
-            f'<span class="pill {escape(module["state_class"])}">'
-            f'<span class="dot"></span>{escape(module["state"])}</span></div>'
+            f'<span class="pill {escape(module["state_class"])}" '
+            f'aria-label="{escape(module["state"])}" title="{escape(module["state"])}">'
+            f'<span class="dot" aria-hidden="true"></span>'
+            f'<span class="state-text" aria-hidden="true">{escape(module["state"])}</span></span></div>'
             f"<h3>{escape(module['label'])}</h3>"
-            f'<div class="sc-label">{escape(module["indicator"])}</div>'
+            f'<div class="sc-label" title="{escape(module["indicator"])}">{escape(module["indicator"])}</div>'
             f'<div class="sc-value">{escape(module["value"])}</div></a>'
         )
     st.html(

@@ -56,8 +56,8 @@ def test_versioned_mockup_css_keeps_verified_source_and_geometry() -> None:
     for token in (
         "--paper:#F1F4F9",
         "--accent:#0E7C6B",
-        "max-width:1360px",
-        "grid-template-columns:270px minmax(0,1fr) 272px",
+        "max-width:1600px!important",
+        "grid-template-columns:minmax(180px,210px) minmax(55%,1fr) minmax(190px,220px)",
         ".stripcard",
         ".banner",
         ".table-wrap",

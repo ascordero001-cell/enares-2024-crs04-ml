@@ -32,6 +32,7 @@ const browser = await chromium.launch({ headless: true });
 try {
   for (const viewport of [
     { width: 1920, height: 1080 },
+    { width: 1536, height: 864 },
     { width: 1366, height: 768 },
   ]) {
     const context = await browser.newContext({ viewport, colorScheme: "light" });
@@ -43,18 +44,45 @@ try {
     const left = await box(page, ".st-key-stage04_left_rail");
     const center = await box(page, ".st-key-stage04_center");
     const right = await box(page, ".st-key-stage04_right_rail");
-    close(container.width, 1360, 4, `${viewport.width}: container`);
-    close(left.width, 270, 4, `${viewport.width}: left rail`);
-    close(right.width, 272, 4, `${viewport.width}: right rail`);
+    if (container.width > 1600) throw new Error(`${viewport.width}: container too wide`);
+    if (left.width > 210 || right.width > 220 || center.width < viewport.width / 2) {
+      throw new Error(`${viewport.width}: rail/center widths ${left.width}/${center.width}/${right.width}`);
+    }
     close(center.x - (left.x + left.width), 18, 4, `${viewport.width}: left gap`);
     close(right.x - (center.x + center.width), 18, 4, `${viewport.width}: right gap`);
     close(left.y, center.y, 4, `${viewport.width}: top alignment`);
     close(right.y, center.y, 4, `${viewport.width}: top alignment`);
     const cards = page.locator('[data-testid="stage04-module-cards"] .stripcard');
     if (await cards.count() !== 6) throw new Error("Expected six module cards");
+    const cardBoxes = await Promise.all(Array.from({ length: 6 }, (_, index) => cards.nth(index).boundingBox()));
+    if (cardBoxes.some((item) => !item || Math.abs(item.y - cardBoxes[0].y) > 2)) {
+      throw new Error(`${viewport.width}: cards are not on one row`);
+    }
+    for (let index = 0; index < 6; index += 1) {
+      const overflow = await cards.nth(index).evaluate((node) => node.scrollWidth > node.clientWidth + 1);
+      if (overflow) throw new Error(`${viewport.width}: card ${index + 1} overflows`);
+    }
+    const tabs = page.locator('.st-key-stage04_visible_tab [role="radio"]');
+    if (await tabs.count() !== 11) throw new Error(`${viewport.width}: expected 11 tabs`);
+    const tabOverflow = await page.locator('.st-key-stage04_visible_tab').evaluate(
+      (node) => node.scrollWidth > node.clientWidth + 1,
+    );
+    if (tabOverflow) throw new Error(`${viewport.width}: tabs overflow`);
     const paper = await page.locator(".stApp").evaluate((node) => getComputedStyle(node).backgroundColor);
     if (paper !== "rgb(241, 244, 249)") throw new Error(`Paper color: ${paper}`);
     await page.screenshot({ path: `${artifactDir}/stage04-${viewport.width}x${viewport.height}.png`, fullPage: true });
+    if (viewport.width === 1536) {
+      await page.screenshot({ path: `${artifactDir}/stage04-1536x864-viewport.png` });
+    }
+    const filters = await page.locator('.st-key-stage04_left_rail [data-testid="stSelectbox"] label').allTextContents();
+    const expectedFilters = [
+      "Departamento", "Ámbito de la IIEE", "Sexo", "Sexo × ámbito de la IIEE",
+      "Idioma del hogar", "Autoidentificación étnica", "Vive con padres",
+      "Discapacidad", "Otras características",
+    ];
+    if (filters.some((value, index) => value.trim() !== expectedFilters[index])) {
+      throw new Error(`${viewport.width}: filter order/labels ${JSON.stringify(filters)}`);
+    }
     await context.close();
   }
 
@@ -63,6 +91,7 @@ try {
     const page = await context.newPage();
     await page.goto(baseUrl, { waitUntil: "networkidle" });
     const card = page.locator(`[data-testid="stage04-module-cards"] .stripcard[aria-label^="Abrir módulo ${moduleId}"]`);
+    const navigationStart = performance.now();
     await card.focus();
     await card.press("Enter");
     await page.waitForLoadState("networkidle");
@@ -70,6 +99,13 @@ try {
       (value) => value.searchParams.get("topic") === `${moduleId}.01`,
       { timeout: 30000 },
     );
+    await page.waitForFunction(
+      (title) => document.querySelector('.section-head.topic h2')?.textContent?.includes(title),
+      boundaryTitles[moduleId][0],
+      { timeout: 30000 },
+    );
+    const navigationMs = Math.round(performance.now() - navigationStart);
+    console.log(`${moduleId}: card-to-topic ${navigationMs} ms`);
     const url = new URL(page.url());
     if (url.searchParams.get("view") !== `Módulo ${moduleId}` || url.searchParams.get("topic") !== `${moduleId}.01`) {
       throw new Error(`${moduleId}: card did not activate its first topic`);
@@ -96,6 +132,11 @@ try {
       (value) => value.searchParams.get("topic") === expectedLast,
       { timeout: 30000 },
     );
+    await page.waitForFunction(
+      (title) => document.querySelector('[data-testid="stage04-detail-sheet"]')?.textContent?.includes(title),
+      boundaryTitles[moduleId][1],
+      { timeout: 30000 },
+    );
     if (new URL(page.url()).searchParams.get("topic") !== expectedLast) {
       throw new Error(`${moduleId}: topic keyboard navigation failed`);
     }
@@ -104,11 +145,87 @@ try {
     if (/Código:/.test(body) || technicalCode.test(body)) throw new Error(`${moduleId}: technical code leaked`);
     if (body.includes("99.9%")) throw new Error(`${moduleId}: suppression sentinel leaked`);
     const sheet = await page.locator(".st-key-stage04_sheet_panel").innerText();
-    for (const field of ["Módulo:", "Tema:", "Período:", "Universo:", "Denominador:", "Corte:", "Estado:"]) {
-      if (!sheet.includes(field)) throw new Error(`${moduleId}: missing sheet field ${field}`);
+    for (const field of ["Módulo", "Tema", "Período", "Universo", "Denominador", "Corte", "Estado"]) {
+      if (!sheet.toLocaleLowerCase("es").includes(field.toLocaleLowerCase("es"))) {
+        throw new Error(`${moduleId}: missing sheet field ${field}`);
+      }
     }
     await context.close();
   }
+
+  const detailContext = await browser.newContext({ viewport: { width: 1536, height: 864 } });
+  const detailPage = await detailContext.newPage();
+  await detailPage.goto(`${baseUrl}?view=M%C3%B3dulo+3.2&topic=3.2.01`, { waitUntil: "networkidle" });
+  await detailPage.locator(".chart-group-head").first().waitFor();
+  await detailPage.screenshot({ path: `${artifactDir}/stage04-1536-topic-3.2.01.png`, fullPage: true });
+  await detailPage.screenshot({ path: `${artifactDir}/stage04-1536-topic-3.2.01-viewport.png` });
+  const departments = [
+    "Amazonas", "Áncash", "Apurímac", "Arequipa", "Ayacucho", "Cajamarca", "Callao",
+    "Cusco", "Huancavelica", "Huánuco", "Ica", "Junín", "La Libertad", "Lambayeque",
+    "Lima Metropolitana", "Loreto", "Madre de Dios", "Moquegua", "Pasco", "Piura",
+    "Puno", "Región Lima", "San Martín", "Tacna", "Tumbes", "Ucayali",
+  ];
+  const chartLabels = await detailPage.locator('[data-testid="stVegaLiteChart"]').first().locator("svg text").allTextContents();
+  for (const department of departments) {
+    if (!chartLabels.includes(department)) throw new Error(`3.2.01: missing complete chart label ${department}`);
+  }
+  if (!await detailPage.getByRole("button", { name: "Volver a Nacional" }).isDisabled()) {
+    throw new Error("3.2.01: reset should be disabled at national default");
+  }
+  if (!(await detailPage.locator(".table-wrap").first().innerText()).includes("Nacional")) {
+    throw new Error("3.2.01: national default missing from table");
+  }
+  for (const [index, required, forbidden] of [
+    [1, ["Urbano", "Rural"], ["1", "2"]],
+    [4, ["Castellano", "Lengua originaria de los Andes: Quechua/Aymara"], ["1", "3", "Idioma extranjero / No sabe"]],
+    [5, ["Blanco/Mestizo", "Otro / No sabe"], ["1", "3", "5", "6", "9"]],
+    [6, ["Ambos", "Uno", "Ninguno"], ["1", "2", "3"]],
+  ]) {
+    const control = detailPage.locator('.st-key-stage04_left_rail [role="combobox"]').nth(index);
+    await control.scrollIntoViewIfNeeded();
+    await control.click();
+    await detailPage.getByRole("option", { name: required[0], exact: true }).waitFor();
+    const options = await detailPage.getByRole("option").allTextContents();
+    for (const label of required) if (!options.includes(label)) throw new Error(`Filter ${index}: missing ${label}`);
+    for (const label of forbidden) if (options.includes(label)) throw new Error(`Filter ${index}: raw code ${label}`);
+    await detailPage.keyboard.press("Escape");
+    await detailPage.getByRole("option").first().waitFor({ state: "hidden" });
+  }
+  for (const [selector, expected] of [
+    [".section-head:not(.topic) h2", 18],
+    [".section-head.topic h2", 15],
+    [".table-wrap table.data", 12.6],
+    [".st-key-stage04_visible_tab [role=radio]", 12.8],
+    [".st-key-stage04_right_rail .ficha", 12.3],
+  ]) {
+    const size = await detailPage.locator(selector).first().evaluate((node) => parseFloat(getComputedStyle(node).fontSize));
+    close(size, expected, 0.5, `3.2.01: font ${selector}`);
+  }
+  const tableFit = await detailPage.locator(".table-wrap").first().evaluate((node) => ({
+    scroll: node.scrollWidth, client: node.clientWidth,
+    nWhiteSpace: getComputedStyle(node.querySelector("td:nth-child(7)")).whiteSpace,
+  }));
+  if (tableFit.scroll > tableFit.client + 1 || tableFit.nWhiteSpace !== "nowrap") {
+    throw new Error(`3.2.01: table overflow or N wraps ${JSON.stringify(tableFit)}`);
+  }
+  const filterPage = await detailContext.newPage();
+  await filterPage.goto(`${baseUrl}?view=M%C3%B3dulo+3.2&topic=3.2.01`, { waitUntil: "networkidle" });
+  const departmentControl = filterPage.locator('.st-key-stage04_left_rail [role="combobox"]').first();
+  await departmentControl.scrollIntoViewIfNeeded();
+  await departmentControl.click();
+  await filterPage.getByRole("option", { name: "Callao" }).click();
+  await filterPage.locator(".chart-group-head").filter({ hasText: "Departamento" }).waitFor();
+  await filterPage.waitForFunction(() => document.querySelectorAll(".chart-group-head").length === 1);
+  await filterPage.waitForFunction(() => document.querySelector(".table-wrap")?.textContent?.includes("Departamento · Callao"));
+  if (!(await filterPage.locator(".table-wrap").first().innerText()).includes("Departamento · Callao")) {
+    throw new Error("3.2.01: selected department missing from table");
+  }
+  await filterPage.getByRole("button", { name: "Volver a Nacional" }).click();
+  await filterPage.waitForFunction(() => document.querySelector(".table-wrap")?.textContent?.includes("Nacional"));
+  if (!await filterPage.getByRole("button", { name: "Volver a Nacional" }).isDisabled()) {
+    throw new Error("3.2.01: reset did not clear active disaggregation");
+  }
+  await detailContext.close();
 
   const context = await browser.newContext({ viewport: { width: 1920, height: 1080 }, colorScheme: "dark" });
   const page = await context.newPage();

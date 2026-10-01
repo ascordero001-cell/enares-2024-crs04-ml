@@ -231,7 +231,7 @@ def test_apptest_absent_combination_is_no_data_without_numbers():
         not in next(
             select
             for select in app.selectbox
-            if select.label == "Otra desagregación V0"
+            if select.label == "Otras características"
         ).options
     )
 
