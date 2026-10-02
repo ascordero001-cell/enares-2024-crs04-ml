@@ -97,11 +97,17 @@ try {
     const context = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
     const page = await context.newPage();
     await page.goto(baseUrl, { waitUntil: "networkidle" });
+    await page.waitForFunction(
+      () => window.__stage04NativeNavigationInstalled === true
+        && document.querySelectorAll('.st-key-stage04_visible_tab [role="radio"]').length === 11,
+      null,
+      { timeout: 30000 },
+    );
     const card = page.locator(`[data-testid="stage04-module-cards"] .stripcard[aria-label^="Abrir módulo ${moduleId}"]`);
+    const documentEpoch = await page.evaluate(() => performance.timeOrigin);
     const navigationStart = performance.now();
     await card.focus();
     await card.press("Enter");
-    await page.waitForLoadState("networkidle");
     await page.waitForURL(
       (value) => value.searchParams.get("topic") === `${moduleId}.01`,
       { timeout: 30000 },
@@ -113,6 +119,9 @@ try {
     );
     const navigationMs = Math.round(performance.now() - navigationStart);
     console.log(`${moduleId}: card-to-topic ${navigationMs} ms`);
+    if (await page.evaluate(() => performance.timeOrigin) !== documentEpoch) {
+      throw new Error(`${moduleId}: card caused a full document reload`);
+    }
     const url = new URL(page.url());
     if (url.searchParams.get("view") !== `Módulo ${moduleId}` || url.searchParams.get("topic") !== `${moduleId}.01`) {
       throw new Error(`${moduleId}: card did not activate its first topic`);
@@ -131,9 +140,10 @@ try {
     }
     const catalogText = await page.locator('[data-testid="stage04-topic-catalog"]').innerText();
     if (technicalCode.test(catalogText)) throw new Error(`${moduleId}: technical code in catalog`);
+    const lastTitle = boundaryTitles[moduleId][1];
+    const topicNavigationStart = performance.now();
     await links.last().focus();
     await links.last().press("Enter");
-    await page.waitForLoadState("networkidle");
     const expectedLast = `${moduleId}.${String(counts[moduleId]).padStart(2, "0")}`;
     await page.waitForURL(
       (value) => value.searchParams.get("topic") === expectedLast,
@@ -141,9 +151,13 @@ try {
     );
     await page.waitForFunction(
       (title) => document.querySelector('[data-testid="stage04-detail-sheet"]')?.textContent?.includes(title),
-      boundaryTitles[moduleId][1],
+      lastTitle,
       { timeout: 30000 },
     );
+    console.log(`${moduleId}: topic-to-detail ${Math.round(performance.now() - topicNavigationStart)} ms`);
+    if (await page.evaluate(() => performance.timeOrigin) !== documentEpoch) {
+      throw new Error(`${moduleId}: topic caused a full document reload`);
+    }
     if (new URL(page.url()).searchParams.get("topic") !== expectedLast) {
       throw new Error(`${moduleId}: topic keyboard navigation failed`);
     }

@@ -247,6 +247,8 @@
   box-shadow:var(--shadow-sm); padding:16px;
 }
 .st-key-stage04_center { min-width:0; }
+[data-testid="stLayoutWrapper"]:has(> .st-key-stage04_navigation_bridge) { display:none!important; }
+.st-key-stage04_topic_fast_nav { display:none!important; }
 
 .st-key-stage04_center .strip { grid-template-columns:repeat(6,minmax(0,1fr))!important; }
 .stripcard { display:flex; flex-direction:column; min-width:0; min-height:182px; color:var(--ink); text-decoration:none; }
