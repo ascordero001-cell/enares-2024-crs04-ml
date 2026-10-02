@@ -16,16 +16,19 @@ async function ready(moduleId, topicId, title) {
     await page.waitForFunction(({ moduleId, topicId, title }) => {
     const url = new URL(window.location.href);
     const selected = document.querySelector('.st-key-stage04_topic_catalog [role="radio"][aria-checked="true"]');
+    const activeCard = document.querySelectorAll('.st-key-stage04_module_cards button')[Number(moduleId.slice(-1)) - 1];
     return url.searchParams.get("view") === `Módulo ${moduleId}`
       && url.searchParams.get("topic") === topicId
       && document.querySelector('.section-head.topic h2')?.textContent?.includes(title)
-      && selected?.textContent?.includes(title);
+      && selected?.textContent?.includes(title)
+      && activeCard?.textContent?.includes('seleccionado');
     }, { moduleId, topicId, title }, { timeout: 30000 });
   } catch (error) {
     const state = await page.evaluate(() => ({
       url: window.location.href,
       heading: document.querySelector('.section-head.topic h2')?.textContent,
       selected: document.querySelector('.st-key-stage04_topic_catalog [role="radio"][aria-checked="true"]')?.textContent,
+      selectedCard: [...document.querySelectorAll('.st-key-stage04_module_cards button')].find((card) => card.textContent?.includes('seleccionado'))?.textContent?.slice(0, 40),
       radios: [...document.querySelectorAll('.st-key-stage04_topic_catalog [role="radio"]')].slice(0, 4).map((radio) => ({
         text: radio.textContent,
         checked: radio.getAttribute('aria-checked'),

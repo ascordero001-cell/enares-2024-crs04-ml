@@ -167,7 +167,10 @@ def _ensure_navigation_state(
     query_module, visible_view, query_topic = _query_state(topic_ids_by_module)
     marker = f"{st.query_params.get('view', '')}|{query_topic}"
     if st.session_state.get("last_view_query") != marker:
-        if st.session_state.get("active_module_id") not in (None, query_module):
+        if st.session_state.get("active_module_id") is not None and (
+            st.session_state.get("active_module_id") != query_module
+            or st.session_state.get("active_report_topic_id") != query_topic
+        ):
             st.session_state["stage04_topic_nav_epoch"] = (
                 int(st.session_state.get("stage04_topic_nav_epoch", 0)) + 1
             )
@@ -226,6 +229,10 @@ def _sync_topic_nav(
         module_id, topic_id, st.session_state.get("active_module_id"), valid_ids
     ):
         return
+    if st.session_state.get("active_report_topic_id") != topic_id:
+        st.session_state["stage04_topic_nav_epoch"] = (
+            int(st.session_state.get("stage04_topic_nav_epoch", 0)) + 1
+        )
     st.session_state["active_report_topic_id"] = topic_id
     st.session_state["last_view_query"] = f"Módulo {module_id}|{topic_id}"
     st.query_params["view"] = f"Módulo {module_id}"
