@@ -66,6 +66,7 @@ def render_module_cards(
             f'<span class="state-text" aria-hidden="true">{escape(module["state"])}</span></span></div>'
             f"<h3>{escape(module['label'])}</h3>"
             f'<div class="sc-label" title="{escape(module["indicator"])}">{escape(module["indicator"])}</div>'
+            f'<div class="sc-period">{escape(module.get("period_suffix", "").strip())}</div>'
             f'<div class="sc-value">{escape(module["value"])}</div></a>'
         )
     st.html(

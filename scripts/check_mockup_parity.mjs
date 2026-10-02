@@ -61,6 +61,10 @@ try {
     for (let index = 0; index < 6; index += 1) {
       const overflow = await cards.nth(index).evaluate((node) => node.scrollWidth > node.clientWidth + 1);
       if (overflow) throw new Error(`${viewport.width}: card ${index + 1} overflows`);
+      const period = (await cards.nth(index).locator('.sc-period').innerText()).trim();
+      if (period !== (index === 0 ? '' : '(últimos 12 meses)')) {
+        throw new Error(`${viewport.width}: card ${index + 1} period ${period}`);
+      }
     }
     const tabs = page.locator('.st-key-stage04_visible_tab [role="radio"]');
     // A remote Streamlit session can render the header and cards before its
@@ -195,6 +199,16 @@ try {
   const detailPage = await detailContext.newPage();
   await detailPage.goto(`${baseUrl}?view=M%C3%B3dulo+3.2&topic=3.2.01`, { waitUntil: "networkidle" });
   await detailPage.locator(".chart-group-head").first().waitFor();
+  if (!(await detailPage.locator('.chart-group-head').first().innerText()).includes('(últimos 12 meses)')) {
+    throw new Error('3.2.01: chart period is missing from heading');
+  }
+  const topicTable = detailPage.locator('.table-wrap table.data').first();
+  if (await topicTable.locator('th', { hasText: 'Período' }).count()) {
+    throw new Error('3.2.01: period must be attached to the indicator, not a separate column');
+  }
+  if (!(await topicTable.locator('tbody td').first().innerText()).includes('(últimos 12 meses)')) {
+    throw new Error('3.2.01: table indicator is missing its period');
+  }
   await detailPage.waitForFunction(
     () => document.querySelector('[data-testid="stVegaLiteChart"] svg')?.querySelectorAll("text").length >= 26,
     null,
@@ -246,7 +260,7 @@ try {
   }
   const tableFit = await detailPage.locator(".table-wrap").first().evaluate((node) => ({
     scroll: node.scrollWidth, client: node.clientWidth,
-    nWhiteSpace: getComputedStyle(node.querySelector("td:nth-child(7)")).whiteSpace,
+    nWhiteSpace: getComputedStyle(node.querySelector("td:nth-child(6)")).whiteSpace,
   }));
   if (tableFit.scroll > tableFit.client + 1 || tableFit.nWhiteSpace !== "nowrap") {
     throw new Error(`3.2.01: table overflow or N wraps ${JSON.stringify(tableFit)}`);

@@ -9,6 +9,7 @@ import pytest
 from streamlit.testing.v1 import AppTest
 
 from app.streamlit_app import local_repositories
+from app.ui_redesign_app import _module_summaries, _period_suffix
 from app.views.ui_redesign_real import (
     AuthorizedRedesignResult,
     load_authorized_results,
@@ -63,6 +64,26 @@ def test_versioned_mockup_css_keeps_verified_source_and_geometry() -> None:
         ".table-wrap",
     ):
         assert token in css
+
+
+def test_period_suffix_is_visible_without_rewriting_catalog_titles() -> None:
+    assert _period_suffix("No aplica") == ""
+    assert _period_suffix("Últimos 12 meses") == " (últimos 12 meses)"
+    assert _period_suffix("Alguna vez en la vida") == " (alguna vez en la vida)"
+    assert _period_suffix("Período no precisado") == " (período no precisado)"
+    repository, _ = local_repositories()
+    results = load_authorized_results(repository)
+    catalog = load_topic_mapping(
+        ROOT / "src/enares/stage04/report_topic_map.csv",
+        catalog_rows=[result.row for result in results],
+    )
+    summaries = _module_summaries(results, catalog.topics, catalog.assignments)
+    assert len(summaries) == 6
+    assert summaries[0]["period_suffix"] == ""
+    assert all(
+        row["period_suffix"] == " (últimos 12 meses)" for row in summaries[1:]
+    )
+    assert all("(" not in row["indicator"] for row in summaries)
 
 
 def test_suppressed_sentinel_cannot_reach_table_or_export() -> None:

@@ -29,6 +29,7 @@ VALID_PERIOD_LABELS = frozenset(
         "Últimos 12 meses",
         "Alguna vez en la vida",
         "Antes de los 12 años",
+        "Período no precisado",
         "No aplica",
     }
 )

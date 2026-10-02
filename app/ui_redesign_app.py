@@ -224,7 +224,9 @@ def _sync_fast_topic(valid_ids: tuple[str, ...]) -> None:
 
 
 def _module_summaries(
-    results: list[AuthorizedRedesignResult], topics: tuple[ReportTopic, ...]
+    results: list[AuthorizedRedesignResult],
+    topics: tuple[ReportTopic, ...],
+    assignment: AssignmentIndex,
 ) -> list[dict[str, str]]:
     index = topic_by_id(topics)
     summaries: list[dict[str, str]] = []
@@ -243,17 +245,25 @@ def _module_summaries(
         ):
             raise ModuleIsolationError(f"Missing or ambiguous headline for {module_id}")
         result = candidates[0]
+        period_suffix = _period_suffix(resolve_assignment(assignment, result.row).period_label)
         summaries.append(
             {
                 "code": module_id,
                 "label": PRESENTATION_MODULE_LABELS[module_id],
                 "indicator": index[f"{module_id}.01"].title,
+                "period_suffix": period_suffix,
                 "value": protected_percentage(result, result.row.estimate),
                 "state": STATE_LABELS[result.state],
                 "state_class": STATE_CLASS[result.state],
             }
         )
     return summaries
+
+
+def _period_suffix(period: str) -> str:
+    if period == "No aplica":
+        return ""
+    return f" ({period.casefold()})"
 
 
 def _inject_suppressed_ui_test_result(
@@ -405,7 +415,6 @@ def _render_topic_chart(
         {resolve_assignment(assignment, result.row).period_label for result in results}
     )
     for period in periods:
-        st.caption(f"Período: {period}")
         period_rows = [
             result
             for result in results
@@ -484,7 +493,7 @@ def _render_topic_chart(
             records.sort(key=lambda row: float(row["estimate"] or 0), reverse=True)
             st.html(
                 '<div class="chart-group-head">'
-                f"{escape(display_dimension(dimension))}</div>"
+                f"{escape(display_dimension(dimension) + _period_suffix(period))}</div>"
             )
             tooltip = [
                 {"field": "full_label", "title": "Categoría"},
@@ -646,6 +655,8 @@ def _render_detail_ficha(
                 ("N no ponderado", format_n(detail.row.n_unweighted if numeric_values_are_visible(detail) else None)),
             ]
         )
+        if item.period_label == "Período no precisado":
+            items.insert(4, ("Nota sobre período", "La fuente no precisa un plazo único para esta serie."))
     html = "".join(
         f"<div><span>{escape(label)}</span>{escape(value)}</div>" for label, value in items
     )
@@ -669,7 +680,7 @@ def _render_secondary(
             tuple(
                 (
                     f"{row['code']} · {row['label']}",
-                    row["indicator"],
+                    row["indicator"] + row["period_suffix"],
                     row["value"],
                     row["state"],
                 )
@@ -765,7 +776,7 @@ def render() -> None:
         if len(release_ids) != 1 or len(run_ids) != 1:
             raise ModuleIsolationError("Expected exactly one V0 release and run")
         release_label, run_label = next(iter(release_ids)), next(iter(run_ids))
-        summaries = _module_summaries(results, topics)
+        summaries = _module_summaries(results, topics, assignments)
     except (
         RepositoryError,
         OSError,
@@ -856,7 +867,6 @@ def render() -> None:
                     _render_context_universes(topic_rows)
                     headers = (
                         "Indicador",
-                        "Período",
                         "Corte",
                         "Estimación",
                         "IC95%",
@@ -864,21 +874,20 @@ def render() -> None:
                         "N",
                         "Estado y notas",
                     )
-                    visible_rows = [
-                        visible_table_record(
-                            result,
-                            topic=topic,
-                            topic_assignment=resolve_assignment(
-                                assignments, result.row
-                            ),
+                    visible_rows = []
+                    for result in filtered:
+                        item = resolve_assignment(assignments, result.row)
+                        row = visible_table_record(
+                            result, topic=topic, topic_assignment=item
                         )
-                        for result in filtered
-                    ]
+                        row["Indicador"] += _period_suffix(item.period_label)
+                        visible_rows.append((item.period_label, row))
+                    visible_rows.sort(key=lambda entry: (entry[0], entry[1]["Indicador"]))
                     render_exact_table(
                         headers,
                         tuple(
                             tuple(row[header] for header in headers)
-                            for row in visible_rows
+                            for _, row in visible_rows
                         ),
                     )
                     _render_topic_chart(
