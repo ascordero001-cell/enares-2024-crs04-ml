@@ -209,7 +209,12 @@ def _activate_module(module_id: str) -> None:
 
 
 def _sync_visible_view() -> None:
-    selected = str(st.session_state["stage04_visible_tab"])
+    value = st.session_state.get(NAVIGATION_WIDGET_ID)
+    if value is None:
+        # A widget remount can deliver a stale deselection callback. Restore
+        # the current view during render instead of treating it as a new view.
+        return
+    selected = str(value)
     if selected in MODULE_IDS:
         _activate_module(selected)
     elif selected in SECONDARY_VIEWS:
@@ -224,7 +229,11 @@ def _sync_visible_view() -> None:
 def _sync_topic_nav(
     module_id: str, valid_ids: tuple[str, ...], widget_key: str
 ) -> None:
-    topic_id = str(st.session_state[widget_key])
+    value = st.session_state.get(widget_key)
+    if value is None:
+        # This widget may already have been replaced by the next generation.
+        return
+    topic_id = str(value)
     if not _topic_selection_is_current(
         module_id, topic_id, st.session_state.get("active_module_id"), valid_ids
     ):
@@ -851,6 +860,11 @@ def render() -> None:
             render_module_cards(
                 summaries, active_module_id=module_id, on_select=_activate_module
             )
+            if st.session_state.get(NAVIGATION_WIDGET_ID) is None:
+                visible_view = str(st.query_params.get("view", ""))
+                st.session_state[NAVIGATION_WIDGET_ID] = (
+                    visible_view if visible_view in SECONDARY_VIEWS else module_id
+                )
             selected = st.segmented_control(
                 "Vista",
                 VISIBLE_VIEWS,
