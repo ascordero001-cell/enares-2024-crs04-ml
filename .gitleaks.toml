@@ -9,10 +9,3 @@ description = "Synthetic CI canary used to prove the secret scan fails closed"
 regex = '''STAGE04_CANARY_[A-Z0-9]{32}'''
 keywords = ["STAGE04_CANARY_"]
 
-[[allowlists]]
-description = "Streamlit topic widget key is a static UI identifier, not a credential"
-targetRules = ["generic-api-key"]
-condition = "AND"
-regexTarget = "line"
-paths = ['''^app/views/ui_visual_components\.py$''']
-regexes = ['''^\s*with st\.container\(key="stage04_topic_catalog"\):\s*$''']
