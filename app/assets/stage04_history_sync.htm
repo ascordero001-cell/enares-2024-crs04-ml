@@ -1,0 +1,9 @@
+<script>
+/* Native Streamlit actions update query parameters without a document reload.
+   A browser history traversal must rehydrate the app from the restored URL. */
+(() => {
+  if (window.__stage04HistorySyncInstalled) return;
+  window.__stage04HistorySyncInstalled = true;
+  window.addEventListener("popstate", () => window.location.reload());
+})();
+</script>

@@ -107,3 +107,25 @@ jobs:
 
       - name: Exercise six concurrent browser sessions
         run: npm run test:six-sessions
+
+      - name: Start redesigned private UI for native navigation checks
+        run: |
+          python -m streamlit run app/ui_redesign_app.py \
+            --server.headless=true \
+            --server.address=127.0.0.1 \
+            --server.port=8502 > /tmp/enares-redesign.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8502/_stcore/health; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/enares-redesign.log
+          exit 1
+
+      - name: Verify native navigation, parity and latency
+        env:
+          APP_URL: http://127.0.0.1:8502
+        run: |
+          npm run test:ui-parity
+          npm run test:native-navigation
