@@ -3,9 +3,6 @@ toolbarMode = "viewer"
 disableDataExport = true
 showErrorDetails = "none"
 
-[server]
-enableWebsocketCompression = true
-
 [theme]
 base = "light"
 primaryColor = "#0E7C6B"
