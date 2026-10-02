@@ -4,6 +4,8 @@ import { chromium } from "playwright";
 import { assertExpectedStreamlitSidebarResiduals } from "./accessibility_residual_policy.mjs";
 
 const baseUrl = process.env.APP_URL ?? "http://127.0.0.1:8501";
+const authToken = process.env.APP_AUTH_TOKEN;
+const authOptions = authToken ? { extraHTTPHeaders: { Authorization: `Bearer ${authToken}` } } : {};
 const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
 const views = [
   { name: "Resumen nacional", selected: "Resumen nacional", content: "Resumen nacional" },
@@ -30,6 +32,7 @@ try {
   for (const view of views) {
     const context = await browser.newContext({
       viewport: { width: 1280, height: 900 },
+      ...authOptions,
     });
     const page = await context.newPage();
     const pageErrors = [];

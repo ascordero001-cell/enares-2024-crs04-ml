@@ -3,7 +3,11 @@ import { chromium } from "playwright";
 const baseUrl = process.env.APP_URL ?? "http://127.0.0.1:8080";
 const repeats = Number(process.env.NAV_REPEATS ?? 5);
 const browser = await chromium.launch({ headless: true });
-const page = await browser.newPage({ viewport: { width: 1536, height: 864 } });
+const authToken = process.env.APP_AUTH_TOKEN;
+const page = await browser.newPage({
+  viewport: { width: 1536, height: 864 },
+  ...(authToken ? { extraHTTPHeaders: { Authorization: `Bearer ${authToken}` } } : {}),
+});
 const metrics = {};
 
 function percentile(values, ratio) {
@@ -42,8 +46,13 @@ async function record(name, action, target) {
   const epoch = await page.evaluate(() => performance.timeOrigin);
   const start = performance.now();
   await action();
+  const actionElapsed = performance.now() - start;
   await ready(...target);
   const elapsed = performance.now() - start;
+  if (process.env.NAV_PROFILE === "1") {
+    const charts = await page.locator('[data-testid="stVegaLiteChart"]').count();
+    console.log(`${name}: action=${Math.round(actionElapsed)}ms settle=${Math.round(elapsed - actionElapsed)}ms charts=${charts}`);
+  }
   if (await page.evaluate(() => performance.timeOrigin) !== epoch) {
     throw new Error(`${name}: full document reload`);
   }
