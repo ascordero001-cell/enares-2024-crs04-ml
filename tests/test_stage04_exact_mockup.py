@@ -64,12 +64,21 @@ def test_native_navigation_has_one_visible_control_per_module_and_topic() -> Non
     module_buttons[1].click().run(timeout=30)
     assert app.session_state["active_module_id"] == "3.2"
     assert app.session_state["active_report_topic_id"] == "3.2.01"
+    assert app.session_state["stage04_topic_nav_epoch"] == 1
     assert app.query_params["view"] == ["Módulo 3.2"]
     assert app.query_params["topic"] == ["3.2.01"]
     assert len(app.get("button_group")) == 2
     cast(Any, app.get("button_group")[1]).set_value("3.2.03").run(timeout=30)
     assert app.session_state["active_report_topic_id"] == "3.2.03"
     assert app.query_params["topic"] == ["3.2.03"]
+    module_buttons = [
+        button for button in app.button if (button.key or "").startswith("stage04_module_")
+    ]
+    module_buttons[0].click().run(timeout=30)
+    assert app.session_state["active_module_id"] == "3.1"
+    assert app.session_state["active_report_topic_id"] == "3.1.01"
+    assert app.session_state["stage04_topic_nav_epoch"] == 2
+    assert app.session_state["stage04_topic_nav_3_1_2"] == "3.1.01"
 
 
 def test_stale_topic_callback_after_module_switch_is_ignored() -> None:

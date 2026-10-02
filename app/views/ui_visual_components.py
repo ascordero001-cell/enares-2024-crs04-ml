@@ -80,11 +80,11 @@ def render_topic_navigation(
     *,
     active_module_id: str,
     active_topic_id: str,
+    widget_key: str,
     on_select: Callable[[], None],
 ) -> None:
     with st.container(key="stage04_topic_catalog"):
         titles = {topic.topic_id: topic.title for topic in topics}
-        widget_key = f"stage04_topic_nav_{active_module_id.replace('.', '_')}"
         if st.session_state.get(widget_key) != active_topic_id:
             st.session_state[widget_key] = active_topic_id
         st.segmented_control(
