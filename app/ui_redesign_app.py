@@ -167,6 +167,10 @@ def _ensure_navigation_state(
     query_module, visible_view, query_topic = _query_state(topic_ids_by_module)
     marker = f"{st.query_params.get('view', '')}|{query_topic}"
     if st.session_state.get("last_view_query") != marker:
+        if st.session_state.get("active_module_id") not in (None, query_module):
+            st.session_state["stage04_topic_nav_epoch"] = (
+                int(st.session_state.get("stage04_topic_nav_epoch", 0)) + 1
+            )
         st.session_state["active_module_id"] = query_module
         st.session_state["active_report_topic_id"] = query_topic
         st.session_state["stage04_visible_tab"] = visible_view
@@ -185,6 +189,10 @@ def _ensure_navigation_state(
 def _activate_module(module_id: str) -> None:
     if module_id not in MODULE_IDS:
         raise ValueError(f"Unknown module: {module_id}")
+    if st.session_state.get("active_module_id") not in (None, module_id):
+        st.session_state["stage04_topic_nav_epoch"] = (
+            int(st.session_state.get("stage04_topic_nav_epoch", 0)) + 1
+        )
     topic_id = f"{module_id}.01"
     st.session_state["active_module_id"] = module_id
     st.session_state["active_report_topic_id"] = topic_id
@@ -210,8 +218,10 @@ def _sync_visible_view() -> None:
         raise ValueError(f"Unknown visible view: {selected}")
 
 
-def _sync_topic_nav(module_id: str, valid_ids: tuple[str, ...]) -> None:
-    topic_id = str(st.session_state[f"stage04_topic_nav_{module_id.replace('.', '_')}"])
+def _sync_topic_nav(
+    module_id: str, valid_ids: tuple[str, ...], widget_key: str
+) -> None:
+    topic_id = str(st.session_state[widget_key])
     if not _topic_selection_is_current(
         module_id, topic_id, st.session_state.get("active_module_id"), valid_ids
     ):
@@ -852,12 +862,20 @@ def render() -> None:
                     "</h2></div>"
                 )
                 module_topics = topics_for_module(topics, module_id)
+                topic_widget_key = (
+                    f"stage04_topic_nav_{module_id.replace('.', '_')}_"
+                    f"{st.session_state.get('stage04_topic_nav_epoch', 0)}"
+                )
                 render_topic_navigation(
                     module_topics,
                     active_module_id=module_id,
                     active_topic_id=topic_id,
+                    widget_key=topic_widget_key,
                     on_select=partial(
-                        _sync_topic_nav, module_id, topic_ids_by_module[module_id]
+                        _sync_topic_nav,
+                        module_id,
+                        topic_ids_by_module[module_id],
+                        topic_widget_key,
                     ),
                 )
                 st.html(

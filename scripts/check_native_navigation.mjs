@@ -12,14 +12,27 @@ function percentile(values, ratio) {
 }
 
 async function ready(moduleId, topicId, title) {
-  await page.waitForFunction(({ moduleId, topicId, title }) => {
+  try {
+    await page.waitForFunction(({ moduleId, topicId, title }) => {
     const url = new URL(window.location.href);
     const selected = document.querySelector('.st-key-stage04_topic_catalog [role="radio"][aria-checked="true"]');
     return url.searchParams.get("view") === `Módulo ${moduleId}`
       && url.searchParams.get("topic") === topicId
       && document.querySelector('.section-head.topic h2')?.textContent?.includes(title)
       && selected?.textContent?.includes(title);
-  }, { moduleId, topicId, title }, { timeout: 30000 });
+    }, { moduleId, topicId, title }, { timeout: 30000 });
+  } catch (error) {
+    const state = await page.evaluate(() => ({
+      url: window.location.href,
+      heading: document.querySelector('.section-head.topic h2')?.textContent,
+      selected: document.querySelector('.st-key-stage04_topic_catalog [role="radio"][aria-checked="true"]')?.textContent,
+      radios: [...document.querySelectorAll('.st-key-stage04_topic_catalog [role="radio"]')].slice(0, 4).map((radio) => ({
+        text: radio.textContent,
+        checked: radio.getAttribute('aria-checked'),
+      })),
+    }));
+    throw new Error(`Navigation did not settle: ${JSON.stringify(state)}`, { cause: error });
+  }
 }
 
 async function record(name, action, target) {
