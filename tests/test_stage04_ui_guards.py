@@ -149,7 +149,7 @@ def test_apptest_summary_shows_controlled_shadow_catalog_without_default_plot():
     assert not app.exception
     assert app.session_state["active_module_id"] == "3.1"
     assert "516 claves técnicas" in visible
-    assert "3 014 filas" in visible
+    assert "3\u00a0014 filas" in visible
     assert "publicación institucional y cutover: NOT_AUTHORIZED" in visible
     assert len(app.get("vega_lite_chart")) >= 1
 
@@ -183,7 +183,27 @@ def test_apptest_controls_remain_local_and_safe_export_is_available():
     visible = _visible_text(app)
     assert "BASE V0 VERIFICADA" in visible
     assert len(app.get("download_button")) == 2
+    assert [getattr(button, "label", "") for button in app.get("download_button")] == [
+        "CSV",
+        "Excel",
+    ]
     assert "publicación institucional y cutover: NOT_AUTHORIZED" in visible
+
+
+def test_characterization_shows_each_universe_once_without_repeated_n():
+    app = AppTest.from_file(str(ROOT / "app" / "streamlit_app.py"))
+    app.query_params["view"] = "Módulo 3.2"
+    app.query_params["topic"] = "3.2.17"
+    app.run(timeout=30)
+    assert not app.exception
+    context = next(
+        element.proto.body
+        for element in app.get("html")
+        if 'data-testid="stage04-context-universes"' in element.proto.body
+    )
+    assert context.count("· UNIVERSO") == 1
+    assert context.count("DENOMINADOR") == 1
+    assert "N SIN PONDERAR" not in context
 
 
 def test_canonical_entrypoint_never_mixes_the_synthetic_demo_source():

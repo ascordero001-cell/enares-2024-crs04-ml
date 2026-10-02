@@ -9,6 +9,7 @@ from functools import partial
 from hashlib import sha256
 from html import escape
 from pathlib import Path
+from textwrap import wrap
 
 import streamlit as st
 
@@ -464,9 +465,13 @@ def _render_topic_chart(
                     label = f"{indicator} · {category}"
                 else:
                     label = category
+                wrapped_label = "\n".join(
+                    wrap(label, width=52, break_long_words=False, break_on_hyphens=False)
+                )
                 records.append(
                     {
-                        "label": label,
+                        "label": wrapped_label,
+                        "full_label": label,
                         "estimate": result.row.estimate,
                         "lower": result.row.ci95_lower,
                         "upper": result.row.ci95_upper,
@@ -482,7 +487,7 @@ def _render_topic_chart(
                 f"{escape(display_dimension(dimension))}</div>"
             )
             tooltip = [
-                {"field": "label", "title": "Categoría"},
+                {"field": "full_label", "title": "Categoría"},
                 {"field": "estimate", "title": "Estimación", "format": ".1f"},
                 {"field": "cv", "title": "CV (%)", "format": ".1f"},
                 {"field": "n", "title": "N"},
@@ -492,7 +497,11 @@ def _render_topic_chart(
                 "type": "nominal",
                 "title": None,
                 "sort": [str(row["label"]) for row in records],
-                "axis": {"labelLimit": 280},
+                "axis": {
+                    "labelLimit": 420,
+                    "labelLineHeight": 13,
+                    "labelExpr": "split(datum.label, '\\n')",
+                },
             }
             x = {
                 "field": "estimate",
@@ -562,7 +571,11 @@ def _render_topic_chart(
                     ]
                 )
                 spec = {"layer": layers}
-            spec["height"] = {"step": 28}
+            max_lines = max(
+                (str(row["label"]).count("\n") + 1 for row in records), default=1
+            )
+            spec["height"] = {"step": max(28, max_lines * 15 + 6)}
+            spec["padding"] = {"left": 12, "right": 12}
             spec["config"] = {
                 "background": "#FFFFFF",
                 "axis": {"gridColor": "#DBE3EE", "labelColor": "#4B5A72"},
@@ -589,17 +602,16 @@ def _context_name(universe: str) -> str:
 def _render_context_universes(rows: list[AuthorizedRedesignResult]) -> None:
     national = [row for row in rows if row.row.disaggregation == "Nacional"]
     candidates = national or rows
-    contexts: dict[tuple[str, str, str, int | None], None] = {}
+    contexts: dict[tuple[str, str, str], None] = {}
     for result in candidates:
         row = result.row
-        contexts[(_context_name(row.universe), row.universe, row.denominator, row.n_unweighted)] = None
+        contexts[(_context_name(row.universe), row.universe, row.denominator)] = None
     cards = []
-    for context, universe, denominator, n in contexts:
+    for context, universe, denominator in contexts:
         cards.append(
             "<div>"
             f"<span>{escape(context)} · UNIVERSO</span>{escape(safe_metadata_text(universe))}"
             f"<span>DENOMINADOR</span>{escape(safe_metadata_text(denominator))}"
-            f"<span>N SIN PONDERAR</span>{escape(format_n(n))}"
             "</div>"
         )
     st.html('<section class="ficha" data-testid="stage04-context-universes">' + "".join(cards) + "</section>")
@@ -651,7 +663,7 @@ def _render_secondary(
     run_label: str,
 ) -> None:
     if view == "Resumen nacional":
-        st.markdown("### Resumen nacional")
+        st.html('<div class="section-head"><h2>Resumen nacional</h2></div>')
         render_exact_table(
             ("Módulo", "Tema principal", "Estimación", "Estado"),
             tuple(
@@ -793,7 +805,7 @@ def render() -> None:
                 )
             with st.container(key="stage04_base_panel"):
                 st.caption("BASE V0 VERIFICADA")
-                st.write("516 claves técnicas · 3 014 filas agregadas")
+                st.write("516 claves técnicas · 3\u00a0014 filas agregadas")
         with center, st.container(key="stage04_center"):
             render_module_cards(summaries, active_module_id=module_id)
             # Static, versioned bridge: the visible links retain their normal

@@ -77,6 +77,23 @@ try {
     if (tabOverflow) throw new Error(`${viewport.width}: tabs overflow`);
     const paper = await page.locator(".stApp").evaluate((node) => getComputedStyle(node).backgroundColor);
     if (paper !== "rgb(241, 244, 249)") throw new Error(`Paper color: ${paper}`);
+    const basePanel = page.locator('.st-key-stage04_base_panel');
+    const baseText = await basePanel.innerText();
+    if (!baseText.includes('3\u00a0014') || /3\s*\/\s*014/.test(baseText)) {
+      throw new Error(`${viewport.width}: V0 base count split or missing`);
+    }
+    const baseOverflow = await basePanel.evaluate((node) => node.scrollWidth > node.clientWidth + 1);
+    if (baseOverflow) throw new Error(`${viewport.width}: V0 base panel overflows`);
+    const downloads = page.locator('.st-key-stage04_export_panel [data-testid="stDownloadButton"] button');
+    await downloads.first().waitFor();
+    const downloadLabels = await downloads.allTextContents();
+    if (downloadLabels.map((value) => value.trim()).join('|') !== 'CSV|Excel') {
+      throw new Error(`${viewport.width}: export labels ${JSON.stringify(downloadLabels)}`);
+    }
+    for (const button of await downloads.all()) {
+      const overflow = await button.evaluate((node) => node.scrollWidth > node.clientWidth + 1);
+      if (overflow) throw new Error(`${viewport.width}: export button overflows`);
+    }
     await page.screenshot({ path: `${artifactDir}/stage04-${viewport.width}x${viewport.height}.png`, fullPage: true });
     if (viewport.width === 1536) {
       await page.screenshot({ path: `${artifactDir}/stage04-1536x864-viewport.png` });

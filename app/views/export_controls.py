@@ -20,20 +20,21 @@ def render_safe_export(rows: Iterable[IndicatorEstimate], *, basename: str) -> N
     except (RepositoryError, ValueError, OSError, KeyError, TypeError):
         st.error("El corte no superó la validación para exportación.")
         return
-    csv_column, xlsx_column = st.columns(2)
-    csv_column.download_button(
-        "Descargar CSV",
+    st.download_button(
+        "CSV",
         data=bundle.csv_bytes,
         file_name=f"{bundle.basename}.csv",
         mime="text/csv",
         on_click="ignore",
+        width="stretch",
     )
-    xlsx_column.download_button(
-        "Descargar Excel",
+    st.download_button(
+        "Excel",
         data=bundle.xlsx_bytes,
         file_name=f"{bundle.basename}.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         on_click="ignore",
+        width="stretch",
     )
     st.caption(
         f"Exportación agregada: {bundle.row_count} fila(s) · mismo corte en CSV y Excel"
