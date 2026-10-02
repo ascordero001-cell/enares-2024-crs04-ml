@@ -255,6 +255,8 @@
 .stripcard .sc-top { min-width:0; flex-wrap:wrap; }
 .stripcard .sc-top .pill { white-space:nowrap; max-width:100%; }
 .stripcard .sc-label { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; overflow:hidden; overflow-wrap:anywhere; }
+.stripcard .sc-period { white-space:normal; overflow:visible; font-size:11px; line-height:1.2; color:var(--ink-soft); }
+.stripcard .sc-period:empty { display:none; }
 .stripcard .sc-value { margin-top:auto; font-size:clamp(16px,1.4vw,21px); }
 .stripcard h3 { overflow-wrap:anywhere; }
 .stripcard .state-text { display:inline; }
@@ -282,10 +284,10 @@
 .st-key-stage04_center .table-wrap table.data { min-width:0; font-size:12.6px; }
 .st-key-stage04_center .table-wrap table.data td,
 .st-key-stage04_center .table-wrap table.data th { padding-left:6px; padding-right:6px; }
+.st-key-stage04_center .table-wrap table.data td:nth-child(3),
 .st-key-stage04_center .table-wrap table.data td:nth-child(4),
 .st-key-stage04_center .table-wrap table.data td:nth-child(5),
-.st-key-stage04_center .table-wrap table.data td:nth-child(6),
-.st-key-stage04_center .table-wrap table.data td:nth-child(7) { white-space:nowrap; font-variant-numeric:tabular-nums; }
+.st-key-stage04_center .table-wrap table.data td:nth-child(6) { white-space:nowrap; font-variant-numeric:tabular-nums; }
 .st-key-stage04_center .chart-group-head { margin:14px 0 5px; font-size:12.3px; font-weight:700; color:var(--brand); }
 .st-key-stage04_right_rail .ficha { display:block; font-size:12.3px; }
 .st-key-stage04_right_rail .ficha div { margin-bottom:7px; overflow-wrap:anywhere; }

@@ -154,3 +154,36 @@ def test_before_age_12_period_is_explicit() -> None:
         if item.topic_id == "3.4.07"
     }
     assert periods == {"Antes de los 12 años"}
+
+
+def test_no_populated_violence_or_help_topic_uses_not_applicable_period() -> None:
+    loaded = catalog()
+    assert all(
+        item.module_id == "3.1"
+        for item in loaded.assignments.values()
+        if item.period_label == "No aplica"
+    )
+    assert "Período no precisado" in VALID_PERIOD_LABELS
+
+
+@pytest.mark.parametrize(
+    ("topic_id", "expected"),
+    (
+        ("3.2.01", {"Últimos 12 meses"}),
+        ("3.2.07", {"Período no precisado"}),
+        ("3.2.08", {"Período no precisado"}),
+        ("3.2.17", {"Últimos 12 meses"}),
+        ("3.3.19", {"Últimos 12 meses"}),
+        ("3.5.09", {"Últimos 12 meses"}),
+        ("3.5.10", {"Período no precisado"}),
+        ("3.6.03", {"Últimos 12 meses"}),
+        ("3.6.10", {"Últimos 12 meses", "Alguna vez en la vida", "Período no precisado"}),
+    ),
+)
+def test_supervised_period_assignments_by_topic(topic_id: str, expected: set[str]) -> None:
+    periods = {
+        item.period_label
+        for item in catalog().assignments.values()
+        if item.topic_id == topic_id
+    }
+    assert periods == expected
