@@ -10,7 +10,11 @@ import pytest
 from streamlit.testing.v1 import AppTest
 
 from app.streamlit_app import local_repositories
-from app.ui_redesign_app import _module_summaries, _period_suffix
+from app.ui_redesign_app import (
+    _module_summaries,
+    _period_suffix,
+    _topic_selection_is_current,
+)
 from app.views.ui_redesign_real import (
     AuthorizedRedesignResult,
     load_authorized_results,
@@ -66,6 +70,14 @@ def test_native_navigation_has_one_visible_control_per_module_and_topic() -> Non
     cast(Any, app.get("button_group")[1]).set_value("3.2.03").run(timeout=30)
     assert app.session_state["active_report_topic_id"] == "3.2.03"
     assert app.query_params["topic"] == ["3.2.03"]
+
+
+def test_stale_topic_callback_after_module_switch_is_ignored() -> None:
+    valid = ("3.2.01", "3.2.03")
+    assert not _topic_selection_is_current("3.2", "3.2.03", "3.1", valid)
+    assert _topic_selection_is_current("3.2", "3.2.03", "3.2", valid)
+    with pytest.raises(ValueError, match="Invalid topic navigation"):
+        _topic_selection_is_current("3.2", "3.1.01", "3.2", valid)
 
 
 def test_versioned_mockup_css_keeps_verified_source_and_geometry() -> None:

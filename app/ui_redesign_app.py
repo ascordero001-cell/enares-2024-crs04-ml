@@ -212,12 +212,27 @@ def _sync_visible_view() -> None:
 
 def _sync_topic_nav(module_id: str, valid_ids: tuple[str, ...]) -> None:
     topic_id = str(st.session_state[f"stage04_topic_nav_{module_id.replace('.', '_')}"])
-    if module_id != st.session_state.get("active_module_id") or topic_id not in valid_ids:
-        raise ValueError("Invalid topic navigation")
+    if not _topic_selection_is_current(
+        module_id, topic_id, st.session_state.get("active_module_id"), valid_ids
+    ):
+        return
     st.session_state["active_report_topic_id"] = topic_id
     st.session_state["last_view_query"] = f"Módulo {module_id}|{topic_id}"
     st.query_params["view"] = f"Módulo {module_id}"
     st.query_params["topic"] = topic_id
+
+
+def _topic_selection_is_current(
+    module_id: str, topic_id: str, active_module_id: object, valid_ids: tuple[str, ...]
+) -> bool:
+    # Streamlit can deliver a prior module's widget callback after the card
+    # callback has already switched modules. That stale event is not a new
+    # selection and must not interrupt the current render.
+    if module_id != active_module_id:
+        return False
+    if topic_id not in valid_ids:
+        raise ValueError("Invalid topic navigation")
+    return True
 
 
 def _module_summaries(
