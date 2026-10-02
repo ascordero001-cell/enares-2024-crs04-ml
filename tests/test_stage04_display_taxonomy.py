@@ -128,3 +128,45 @@ def test_department_chart_has_26_complete_labels_and_selected_block(
     layers = spec["layer"]
     assert isinstance(layers, list)
     assert layers[1]["encoding"]["y"]["axis"]["labelLimit"] >= 260
+
+
+def test_long_ethnicity_chart_labels_wrap_without_losing_full_tooltip(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository, _ = local_repositories()
+    results = load_authorized_results(repository)
+    catalog = load_topic_mapping(
+        ROOT / "src/enares/stage04/report_topic_map.csv",
+        catalog_rows=[result.row for result in results],
+    )
+    topic = topic_by_id(catalog.topics)["3.2.01"]
+    rows = rows_for_topic(
+        results,
+        active_module_id="3.2",
+        topic=topic,
+        assignment=catalog.assignments,
+    )
+    charts: list[dict[str, object]] = []
+    monkeypatch.setattr(st, "caption", lambda _text: None)
+    monkeypatch.setattr(st, "html", lambda _text: None)
+    monkeypatch.setattr(st, "vega_lite_chart", lambda spec, **_kwargs: charts.append(spec))
+    _render_topic_chart(
+        topic,
+        rows,
+        catalog.assignments,
+        active_dimension="Etnicidad",
+        active_category=None,
+    )
+    assert len(charts) == 1
+    spec = charts[0]
+    data = spec["data"]
+    assert isinstance(data, dict)
+    records = data["values"]
+    assert isinstance(records, list)
+    assert any("\n" in str(row["label"]) for row in records)
+    assert all(str(row["label"]).replace("\n", " ") == row["full_label"] for row in records)
+    layers = spec["layer"]
+    assert isinstance(layers, list)
+    assert layers[1]["encoding"]["y"]["axis"]["labelExpr"] == (
+        "split(datum.label, '\\n')"
+    )
