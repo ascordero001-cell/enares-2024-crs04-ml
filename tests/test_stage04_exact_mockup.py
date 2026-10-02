@@ -91,6 +91,16 @@ def test_stale_topic_callback_after_module_switch_is_ignored() -> None:
         _topic_selection_is_current("3.2", "3.1.01", "3.2", valid)
 
 
+def test_stale_tab_deselection_restores_active_module() -> None:
+    app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py")).run(timeout=30)
+    app.session_state["stage04_visible_tab"] = None
+    app.run(timeout=30)
+    assert not app.exception
+    assert app.session_state["stage04_visible_tab"] == "3.1"
+    assert app.session_state["active_module_id"] == "3.1"
+    assert app.session_state["active_report_topic_id"] == "3.1.01"
+
+
 def test_versioned_mockup_css_keeps_verified_source_and_geometry() -> None:
     css = (ROOT / "app/assets/stage04_mockup.css").read_text(encoding="utf-8")
     assert (
