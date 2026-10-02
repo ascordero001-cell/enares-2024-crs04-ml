@@ -2,6 +2,8 @@ import { mkdir } from "node:fs/promises";
 import { chromium } from "playwright";
 
 const baseUrl = process.env.APP_URL ?? "http://127.0.0.1:8080";
+const authToken = process.env.APP_AUTH_TOKEN;
+const authOptions = authToken ? { extraHTTPHeaders: { Authorization: `Bearer ${authToken}` } } : {};
 const artifactDir = process.env.UI_ARTIFACT_DIR ?? "artifacts/ui-parity";
 const modules = ["3.1", "3.2", "3.3", "3.4", "3.5", "3.6"];
 const counts = { "3.1": 11, "3.2": 18, "3.3": 20, "3.4": 9, "3.5": 12, "3.6": 10 };
@@ -35,7 +37,7 @@ try {
     { width: 1536, height: 864 },
     { width: 1366, height: 768 },
   ]) {
-    const context = await browser.newContext({ viewport, colorScheme: "light" });
+    const context = await browser.newContext({ viewport, colorScheme: "light", ...authOptions });
     const page = await context.newPage();
     const response = await page.goto(baseUrl, { waitUntil: "networkidle" });
     if (!response?.ok()) throw new Error(`HTTP ${response?.status()}`);
@@ -116,7 +118,7 @@ try {
   }
 
   for (const moduleId of modules) {
-    const context = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
+    const context = await browser.newContext({ viewport: { width: 1920, height: 1080 }, ...authOptions });
     const page = await context.newPage();
     await page.goto(baseUrl, { waitUntil: "networkidle" });
     await page.waitForFunction(
@@ -197,7 +199,7 @@ try {
     await context.close();
   }
 
-  const detailContext = await browser.newContext({ viewport: { width: 1536, height: 864 } });
+  const detailContext = await browser.newContext({ viewport: { width: 1536, height: 864 }, ...authOptions });
   const detailPage = await detailContext.newPage();
   await detailPage.goto(`${baseUrl}?view=M%C3%B3dulo+3.2&topic=3.2.01`, { waitUntil: "networkidle" });
   await detailPage.locator(".chart-group-head").first().waitFor();
@@ -286,7 +288,7 @@ try {
   }
   await detailContext.close();
 
-  const context = await browser.newContext({ viewport: { width: 1920, height: 1080 }, colorScheme: "dark" });
+  const context = await browser.newContext({ viewport: { width: 1920, height: 1080 }, colorScheme: "dark", ...authOptions });
   const page = await context.newPage();
   await page.goto(`${baseUrl}?view=M%C3%B3dulo+3.6&topic=3.6.01`, { waitUntil: "networkidle" });
   const controls = page.locator(".st-key-stage04_left_rail [role=combobox]");
@@ -304,7 +306,7 @@ try {
     ["3.2.17", ["Conductas de riesgo personales"]],
   ]) {
     const moduleId = topic.slice(0, 3);
-    const checkContext = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
+    const checkContext = await browser.newContext({ viewport: { width: 1920, height: 1080 }, ...authOptions });
     const checkPage = await checkContext.newPage();
     await checkPage.goto(`${baseUrl}?view=M%C3%B3dulo+${moduleId}&topic=${topic}`);
     await checkPage.locator('.st-key-stage04_topic_catalog').waitFor();
