@@ -1,0 +1,43 @@
+<script>
+/* Static bridge for the already-authorized module and topic links. No V0 data
+   enters this script; ordinary href navigation remains the safe fallback. */
+(() => {
+  if (window.__stage04NativeNavigationInstalled) return;
+  window.__stage04NativeNavigationInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+    if (!(event.target instanceof Element)) return;
+    const link = event.target.closest("a.stripcard, a.topic-link");
+    if (!link) return;
+    const url = new URL(link.href, window.location.href);
+    if (url.origin !== window.location.origin) return;
+
+    const isTopic = link.classList.contains("topic-link");
+    const value = isTopic
+      ? url.searchParams.get("topic")
+      : url.searchParams.get("view")?.replace(/^Módulo /, "");
+    if (!value || !(isTopic ? /^3\.[1-6]\.\d{2}$/.test(value) : /^3\.[1-6]$/.test(value))) return;
+    const widget = document.querySelector(
+      isTopic ? ".st-key-stage04_topic_fast_nav" : ".st-key-stage04_visible_tab"
+    );
+    const radio = [...(widget?.querySelectorAll('[role="radio"]') ?? [])]
+      .find((item) => item.textContent.trim() === value);
+    if (!radio) return;
+    event.preventDefault();
+    if (!isTopic && radio.getAttribute("aria-checked") === "true") {
+      const firstTopic = `${value}.01`;
+      const topicWidget = document.querySelector(".st-key-stage04_topic_fast_nav");
+      const topicRadio = [...(topicWidget?.querySelectorAll('[role="radio"]') ?? [])]
+        .find((item) => item.textContent.trim() === firstTopic);
+      if (topicRadio?.getAttribute("aria-checked") !== "true") {
+        topicRadio?.click();
+      } else {
+        window.history.replaceState(window.history.state, "", `?view=${encodeURIComponent(`Módulo ${value}`)}&topic=${firstTopic}`);
+      }
+      return;
+    }
+    radio.click();
+  }, true);
+})();
+</script>
