@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from html import escape
 from pathlib import Path
-from urllib.parse import urlencode
 
 import streamlit as st
 
@@ -47,55 +46,55 @@ def render_exact_scope_banner(message: str) -> None:
 
 
 def render_module_cards(
-    modules: Iterable[Mapping[str, str]], *, active_module_id: str
+    modules: Iterable[Mapping[str, str]],
+    *,
+    active_module_id: str,
+    on_select: Callable[[str], None],
 ) -> None:
-    cards: list[str] = []
-    for module in modules:
-        module_id = module["code"]
-        active = " active" if module_id == active_module_id else ""
-        current = ' aria-current="page"' if active else ""
-        href = "?" + urlencode({"view": f"Módulo {module_id}"})
-        cards.append(
-            f'<a class="stripcard{active}" href="{escape(href)}"{current} '
-            f'aria-label="Abrir módulo {escape(module_id)}: {escape(module["label"])}">'
-            '<div class="sc-top">'
-            f'<span class="sc-code">{escape(module_id)}</span>'
-            f'<span class="pill {escape(module["state_class"])}" '
-            f'aria-label="{escape(module["state"])}" title="{escape(module["state"])}">'
-            f'<span class="dot" aria-hidden="true"></span>'
-            f'<span class="state-text" aria-hidden="true">{escape(module["state"])}</span></span></div>'
-            f"<h3>{escape(module['label'])}</h3>"
-            f'<div class="sc-label" title="{escape(module["indicator"])}">{escape(module["indicator"])}</div>'
-            f'<div class="sc-period">{escape(module.get("period_suffix", "").strip())}</div>'
-            f'<div class="sc-value">{escape(module["value"])}</div></a>'
-        )
-    st.html(
-        '<nav class="strip" data-testid="stage04-module-cards" '
-        'aria-label="Módulos 3.1 a 3.6">' + "".join(cards) + "</nav>"
-    )
+    with st.container(key="stage04_module_cards"):
+        columns = st.columns(6, gap="small")
+        for column, module in zip(columns, modules, strict=True):
+            module_id = module["code"]
+            selected = module_id == active_module_id
+            status = module["state"] + (" · seleccionado" if selected else "")
+            label = (
+                f"**{module_id} · {status}**\n\n"
+                f"**{module['label']}**\n\n"
+                f"{module['indicator']}\n\n"
+                f"{module.get('period_suffix', '').strip() or chr(160)}\n\n"
+                f"**{module['value']}**"
+            )
+            with column:
+                st.button(
+                    label,
+                    key=f"stage04_module_{module_id.replace('.', '_')}",
+                    on_click=on_select,
+                    args=(module_id,),
+                    type="primary" if selected else "secondary",
+                    width="stretch",
+                )
 
 
 def render_topic_navigation(
-    topics: Sequence[ReportTopic], *, active_module_id: str, active_topic_id: str
+    topics: Sequence[ReportTopic],
+    *,
+    active_module_id: str,
+    active_topic_id: str,
+    on_select: Callable[[], None],
 ) -> None:
-    links: list[str] = []
-    for topic in topics:
-        active = " active" if topic.topic_id == active_topic_id else ""
-        current = ' aria-current="page"' if active else ""
-        href = "?" + urlencode(
-            {"view": f"Módulo {active_module_id}", "topic": topic.topic_id}
+    with st.container(key="stage04_topic_catalog"):
+        titles = {topic.topic_id: topic.title for topic in topics}
+        widget_key = f"stage04_topic_nav_{active_module_id.replace('.', '_')}"
+        if st.session_state.get(widget_key) != active_topic_id:
+            st.session_state[widget_key] = active_topic_id
+        st.segmented_control(
+            f"INDICADORES DEL MÓDULO {active_module_id}",
+            tuple(titles),
+            format_func=titles.__getitem__,
+            key=widget_key,
+            on_change=on_select,
+            width="stretch",
         )
-        links.append(
-            f'<a class="topic-link{active}" href="{escape(href)}"{current} '
-            f'aria-label="Abrir {escape(topic.title)}">{escape(topic.title)}</a>'
-        )
-    st.html(
-        '<section class="topic-catalog" data-testid="stage04-topic-catalog">'
-        '<div class="topic-catalog-title">INDICADORES DEL MÓDULO '
-        f'{escape(active_module_id)}</div><nav aria-label="Indicadores del módulo">'
-        + "".join(links)
-        + "</nav></section>"
-    )
 
 
 def render_exact_table(headers: Sequence[str], rows: Sequence[Sequence[str]]) -> None:

@@ -1,0 +1,2 @@
+# Exact false positive: static Streamlit widget key, not a credential.
+3e3ee78b38fca38a6c05828a98bf89bcc5e18fdf:app/views/ui_visual_components.py:generic-api-key:85

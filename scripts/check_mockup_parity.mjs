@@ -52,7 +52,8 @@ try {
     close(right.x - (center.x + center.width), 18, 4, `${viewport.width}: right gap`);
     close(left.y, center.y, 4, `${viewport.width}: top alignment`);
     close(right.y, center.y, 4, `${viewport.width}: top alignment`);
-    const cards = page.locator('[data-testid="stage04-module-cards"] .stripcard');
+    const cards = page.locator('.st-key-stage04_module_cards button');
+    await page.waitForFunction(() => document.querySelectorAll('.st-key-stage04_module_cards button').length === 6);
     if (await cards.count() !== 6) throw new Error("Expected six module cards");
     const cardBoxes = await Promise.all(Array.from({ length: 6 }, (_, index) => cards.nth(index).boundingBox()));
     if (cardBoxes.some((item) => !item || Math.abs(item.y - cardBoxes[0].y) > 2)) {
@@ -61,9 +62,9 @@ try {
     for (let index = 0; index < 6; index += 1) {
       const overflow = await cards.nth(index).evaluate((node) => node.scrollWidth > node.clientWidth + 1);
       if (overflow) throw new Error(`${viewport.width}: card ${index + 1} overflows`);
-      const period = (await cards.nth(index).locator('.sc-period').innerText()).trim();
-      if (period !== (index === 0 ? '' : '(últimos 12 meses)')) {
-        throw new Error(`${viewport.width}: card ${index + 1} period ${period}`);
+      const text = await cards.nth(index).innerText();
+      if ((index === 0 && text.includes('(últimos 12 meses)')) || (index > 0 && !text.includes('(últimos 12 meses)'))) {
+        throw new Error(`${viewport.width}: card ${index + 1} reference period`);
       }
     }
     const tabs = page.locator('.st-key-stage04_visible_tab [role="radio"]');
@@ -119,18 +120,19 @@ try {
     const page = await context.newPage();
     await page.goto(baseUrl, { waitUntil: "networkidle" });
     await page.waitForFunction(
-      () => window.__stage04NativeNavigationInstalled === true
+      () => document.querySelectorAll('.st-key-stage04_module_cards button').length === 6
         && document.querySelectorAll('.st-key-stage04_visible_tab [role="radio"]').length === 11,
       null,
       { timeout: 30000 },
     );
-    const card = page.locator(`[data-testid="stage04-module-cards"] .stripcard[aria-label^="Abrir módulo ${moduleId}"]`);
+    const card = page.locator('.st-key-stage04_module_cards button').nth(modules.indexOf(moduleId));
     const documentEpoch = await page.evaluate(() => performance.timeOrigin);
     const navigationStart = performance.now();
     await card.focus();
     await card.press("Enter");
     await page.waitForURL(
-      (value) => value.searchParams.get("topic") === `${moduleId}.01`,
+      (value) => value.searchParams.get("view") === `Módulo ${moduleId}`
+        && value.searchParams.get("topic") === `${moduleId}.01`,
       { timeout: 30000 },
     );
     await page.waitForFunction(
@@ -147,7 +149,7 @@ try {
     if (url.searchParams.get("view") !== `Módulo ${moduleId}` || url.searchParams.get("topic") !== `${moduleId}.01`) {
       throw new Error(`${moduleId}: card did not activate its first topic`);
     }
-    const links = page.locator('[data-testid="stage04-topic-catalog"] .topic-link');
+    const links = page.locator('.st-key-stage04_topic_catalog [role="radio"]');
     await links.first().waitFor({ timeout: 30000 });
     if (await links.count() !== counts[moduleId]) {
       throw new Error(`${moduleId}: wrong topic count ${await links.count()}, url=${page.url()}`);
@@ -159,7 +161,7 @@ try {
     if (normalize(await links.last().innerText()) !== boundaryTitles[moduleId][1]) {
       throw new Error(`${moduleId}: wrong last topic title`);
     }
-    const catalogText = await page.locator('[data-testid="stage04-topic-catalog"]').innerText();
+    const catalogText = await page.locator('.st-key-stage04_topic_catalog').innerText();
     if (technicalCode.test(catalogText)) throw new Error(`${moduleId}: technical code in catalog`);
     const lastTitle = boundaryTitles[moduleId][1];
     const topicNavigationStart = performance.now();
@@ -305,7 +307,7 @@ try {
     const checkContext = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
     const checkPage = await checkContext.newPage();
     await checkPage.goto(`${baseUrl}?view=M%C3%B3dulo+${moduleId}&topic=${topic}`);
-    await checkPage.locator('[data-testid="stage04-topic-catalog"]').waitFor();
+    await checkPage.locator('.st-key-stage04_topic_catalog').waitFor();
     for (const phrase of required) {
       await checkPage.locator(".st-key-stage04_center").getByText(phrase, { exact: false }).first().waitFor({ timeout: 30000 });
     }
@@ -314,4 +316,4 @@ try {
 } finally {
   await browser.close();
 }
-console.log("PASS: geometry, colors, six cards, 80 topic links, keyboard navigation, precision and disabled filters");
+  console.log("PASS: geometry, colors, six native cards, 80 topic controls, keyboard navigation, precision and disabled filters");

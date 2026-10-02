@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 from pathlib import Path
+from typing import Any, cast
 
 import pytest
 from streamlit.testing.v1 import AppTest
@@ -46,6 +47,25 @@ def test_foreign_topic_in_url_falls_back_within_requested_module() -> None:
     app.run(timeout=30)
     assert not app.exception
     assert app.session_state["active_report_topic_id"] == "3.3.01"
+
+
+def test_native_navigation_has_one_visible_control_per_module_and_topic() -> None:
+    app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py")).run(timeout=30)
+    module_buttons = [
+        button for button in app.button if (button.key or "").startswith("stage04_module_")
+    ]
+    assert len(module_buttons) == 6
+    assert len(app.get("button_group")) == 2  # tabs and the visible topic selector
+    assert "stage04_topic_fast_nav" not in app.session_state
+    module_buttons[1].click().run(timeout=30)
+    assert app.session_state["active_module_id"] == "3.2"
+    assert app.session_state["active_report_topic_id"] == "3.2.01"
+    assert app.query_params["view"] == ["Módulo 3.2"]
+    assert app.query_params["topic"] == ["3.2.01"]
+    assert len(app.get("button_group")) == 2
+    cast(Any, app.get("button_group")[1]).set_value("3.2.03").run(timeout=30)
+    assert app.session_state["active_report_topic_id"] == "3.2.03"
+    assert app.query_params["topic"] == ["3.2.03"]
 
 
 def test_versioned_mockup_css_keeps_verified_source_and_geometry() -> None:

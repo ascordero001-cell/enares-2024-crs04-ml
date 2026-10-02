@@ -169,7 +169,6 @@ def _ensure_navigation_state(
     if st.session_state.get("last_view_query") != marker:
         st.session_state["active_module_id"] = query_module
         st.session_state["active_report_topic_id"] = query_topic
-        st.session_state["stage04_topic_fast_nav"] = query_topic
         st.session_state["stage04_visible_tab"] = visible_view
         st.session_state["last_view_query"] = marker
     module_id = str(st.session_state.get("active_module_id", query_module))
@@ -189,7 +188,6 @@ def _activate_module(module_id: str) -> None:
     topic_id = f"{module_id}.01"
     st.session_state["active_module_id"] = module_id
     st.session_state["active_report_topic_id"] = topic_id
-    st.session_state["stage04_topic_fast_nav"] = topic_id
     st.session_state["stage04_visible_tab"] = module_id
     st.session_state["last_view_query"] = f"Módulo {module_id}|{topic_id}"
     for key in tuple(st.session_state):
@@ -212,10 +210,9 @@ def _sync_visible_view() -> None:
         raise ValueError(f"Unknown visible view: {selected}")
 
 
-def _sync_fast_topic(valid_ids: tuple[str, ...]) -> None:
-    module_id = str(st.session_state["active_module_id"])
-    topic_id = str(st.session_state["stage04_topic_fast_nav"])
-    if module_id not in MODULE_IDS or topic_id not in valid_ids:
+def _sync_topic_nav(module_id: str, valid_ids: tuple[str, ...]) -> None:
+    topic_id = str(st.session_state[f"stage04_topic_nav_{module_id.replace('.', '_')}"])
+    if module_id != st.session_state.get("active_module_id") or topic_id not in valid_ids:
         raise ValueError("Invalid topic navigation")
     st.session_state["active_report_topic_id"] = topic_id
     st.session_state["last_view_query"] = f"Módulo {module_id}|{topic_id}"
@@ -798,6 +795,7 @@ def render() -> None:
     render_exact_scope_banner(
         "Sin microdatos, identificadores, recálculo ni cruces nuevos."
     )
+    st.html(ROOT / "app/assets/stage04_history_sync.htm", unsafe_allow_javascript=True)
     with st.container(key="stage04_grid"):
         left, center, right = st.columns((210, 1000, 220), gap="medium")
         with left, st.container(key="stage04_left_rail"):
@@ -818,14 +816,9 @@ def render() -> None:
                 st.caption("BASE V0 VERIFICADA")
                 st.write("516 claves técnicas · 3\u00a0014 filas agregadas")
         with center, st.container(key="stage04_center"):
-            render_module_cards(summaries, active_module_id=module_id)
-            # Static, versioned bridge: the visible links retain their normal
-            # fallback, while a hydrated session uses native Streamlit widgets.
-            with st.container(key="stage04_navigation_bridge"):
-                st.html(
-                    ROOT / "app/assets/stage04_fast_navigation.htm",
-                    unsafe_allow_javascript=True,
-                )
+            render_module_cards(
+                summaries, active_module_id=module_id, on_select=_activate_module
+            )
             selected = st.segmented_control(
                 "Vista",
                 VISIBLE_VIEWS,
@@ -848,14 +841,9 @@ def render() -> None:
                     module_topics,
                     active_module_id=module_id,
                     active_topic_id=topic_id,
-                )
-                st.segmented_control(
-                    "Selección rápida de tema",
-                    tuple(item.topic_id for item in module_topics),
-                    key="stage04_topic_fast_nav",
-                    on_change=_sync_fast_topic,
-                    args=(topic_ids_by_module[module_id],),
-                    label_visibility="collapsed",
+                    on_select=partial(
+                        _sync_topic_nav, module_id, topic_ids_by_module[module_id]
+                    ),
                 )
                 st.html(
                     '<div class="section-head topic"><h2>'
