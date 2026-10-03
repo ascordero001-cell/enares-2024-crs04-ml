@@ -43,7 +43,6 @@ from app.views.ui_redesign_real import (
 from app.views.ui_visual_components import (
     inject_mockup_css,
     render_exact_header,
-    render_exact_scope_banner,
     render_exact_table,
     render_module_cards,
     render_quality_legend,
@@ -1075,9 +1074,6 @@ def render() -> None:
         release_label=release_label,
         release_state="RELEASE V0",
         cloud_state="SHADOW PRIVADO",
-    )
-    render_exact_scope_banner(
-        "Sin microdatos, identificadores, recálculo ni cruces nuevos."
     )
     st.html(ROOT / "app/assets/stage04_history_sync.htm", unsafe_allow_javascript=True)
     with st.container(key="stage04_grid"):

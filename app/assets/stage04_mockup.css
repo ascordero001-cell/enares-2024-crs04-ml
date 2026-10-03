@@ -66,13 +66,6 @@
   .pill .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
   .pills{display:flex;flex-wrap:wrap;gap:4px;}
 
-  .banner{display:flex;gap:12px;align-items:flex-start;background:var(--warn-soft);
-    border:1px solid color-mix(in srgb,var(--warn) 38%,transparent);border-radius:12px;
-    padding:13px 16px;margin-bottom:18px;font-size:12.8px;color:var(--ink-soft);}
-  .banner strong{color:var(--ink);}
-  .banner .tag{flex:none;background:var(--warn);color:var(--brand-ink);font-size:10.5px;
-    font-weight:800;letter-spacing:.06em;padding:3px 8px;border-radius:6px;text-transform:uppercase;}
-
   .layout{display:grid;grid-template-columns:270px 1fr 272px;gap:18px;align-items:start;}
   @media (max-width:1080px){.layout{grid-template-columns:1fr;}}
 
@@ -294,7 +287,7 @@
 .st-key-stage04_right_rail .ficha div { margin-bottom:7px; overflow-wrap:anywhere; }
 .st-key-stage04_right_rail .alert-item { font-size:12.4px; }
 /* Readability is a floor, not a pixel-for-pixel constraint from the mockup. */
-.banner, .note, .legend-row, .st-key-stage04_right_rail .ficha,
+.note, .legend-row, .st-key-stage04_right_rail .ficha,
 .st-key-stage04_right_rail .alert-item, .st-key-stage04_center .ficha,
 .st-key-stage04_center .qnote { font-size:14px; }
 .st-key-stage04_left_rail [data-testid="stSelectbox"] label { font-size:13px!important; }
