@@ -99,8 +99,11 @@ def test_v0_sex_codes_keep_the_known_report_estimates_and_correct_labels(
         and result.row.disaggregation == "Sexo"
     }
     assert set(by_code) == {"1", "2"}
-    assert round(by_code["1"].row.estimate, 1) == 34.3
-    assert round(by_code["2"].row.estimate, 1) == 22.4
+    female_estimate = by_code["1"].row.estimate
+    male_estimate = by_code["2"].row.estimate
+    assert female_estimate is not None and male_estimate is not None
+    assert round(female_estimate, 1) == 34.3
+    assert round(male_estimate, 1) == 22.4
     assert display_category("Sexo", "1") == "Mujer"
     assert display_category("Sexo", "2") == "Hombre"
     assert visible_cut(by_code["1"]) == "Sexo · Mujer"
@@ -110,7 +113,7 @@ def test_v0_sex_codes_keep_the_known_report_estimates_and_correct_labels(
     assert [(row["source_category"], row["category"]) for row in exported] == [
         ("1", "Mujer"), ("2", "Hombre")
     ]
-    assert [round(row["estimate_percent"], 1) for row in exported] == [34.3, 22.4]
+    assert [round(float(str(row["estimate_percent"])), 1) for row in exported] == [34.3, 22.4]
 
     catalog = load_topic_mapping(
         ROOT / "src/enares/stage04/report_topic_map.csv",
@@ -129,8 +132,11 @@ def test_v0_sex_codes_keep_the_known_report_estimates_and_correct_labels(
         active_dimension="Sexo", active_category=None,
     )
     assert len(charts) == 1
-    records = charts[0]["data"]["values"]
-    assert {(row["full_label"], round(row["estimate"], 1)) for row in records} == {
+    data = charts[0]["data"]
+    assert isinstance(data, dict)
+    records = data["values"]
+    assert isinstance(records, list)
+    assert {(row["full_label"], round(float(str(row["estimate"])), 1)) for row in records} == {
         ("Mujer", 34.3), ("Hombre", 22.4)
     }
 
