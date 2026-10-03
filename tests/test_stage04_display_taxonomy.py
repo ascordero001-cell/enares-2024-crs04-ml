@@ -14,6 +14,7 @@ from app.views.ui_redesign_real import (
     load_authorized_results,
     rows_for_topic,
     safe_metadata_text,
+    visible_cut,
 )
 from enares.stage04.display_taxonomy import (
     CATEGORY_LABELS,
@@ -82,7 +83,73 @@ def test_mixed_universe_conditions_hide_spss_boolean_syntax() -> None:
         "quienes recibieron ayuda por violencia en el hogar"
     )
     assert "==" not in safe_metadata_text("VP_o_VF_HOGAR == 0")
-    assert safe_metadata_text("SEXO == 1") == "Hombres"
+    assert safe_metadata_text("SEXO == 1") == "Mujeres"
+    assert safe_metadata_text("SEXO == 2") == "Hombres"
+
+
+def test_v0_sex_codes_keep_the_known_report_estimates_and_correct_labels(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository, _ = local_repositories()
+    results = load_authorized_results(repository)
+    by_code = {
+        result.row.category: result
+        for result in results
+        if result.row.indicator_id == "VP_HOGAR"
+        and result.row.disaggregation == "Sexo"
+    }
+    assert set(by_code) == {"1", "2"}
+    assert round(by_code["1"].row.estimate, 1) == 34.3
+    assert round(by_code["2"].row.estimate, 1) == 22.4
+    assert display_category("Sexo", "1") == "Mujer"
+    assert display_category("Sexo", "2") == "Hombre"
+    assert visible_cut(by_code["1"]) == "Sexo · Mujer"
+    assert visible_cut(by_code["2"]) == "Sexo · Hombre"
+
+    exported = build_export_records([by_code["1"].row, by_code["2"].row])
+    assert [(row["source_category"], row["category"]) for row in exported] == [
+        ("1", "Mujer"), ("2", "Hombre")
+    ]
+    assert [round(row["estimate_percent"], 1) for row in exported] == [34.3, 22.4]
+
+    catalog = load_topic_mapping(
+        ROOT / "src/enares/stage04/report_topic_map.csv",
+        catalog_rows=[result.row for result in results],
+    )
+    topic = topic_by_id(catalog.topics)["3.2.01"]
+    rows = rows_for_topic(
+        results, active_module_id="3.2", topic=topic,
+        assignment=catalog.assignments,
+    )
+    charts: list[dict[str, object]] = []
+    monkeypatch.setattr(st, "html", lambda _text: None)
+    monkeypatch.setattr(st, "vega_lite_chart", lambda spec, **_kwargs: charts.append(spec))
+    _render_topic_chart(
+        topic, rows, catalog.assignments,
+        active_dimension="Sexo", active_category=None,
+    )
+    assert len(charts) == 1
+    records = charts[0]["data"]["values"]
+    assert {(row["full_label"], round(row["estimate"], 1)) for row in records} == {
+        ("Mujer", 34.3), ("Hombre", 22.4)
+    }
+
+
+def test_area_by_sex_categories_are_literal_v0_labels_not_built_from_sex_codes() -> None:
+    with (ROOT / "app/data/v0_authorized_full_indicator_estimates.csv").open(
+        encoding="utf-8-sig", newline=""
+    ) as handle:
+        source_categories = {
+            row["category"] for row in csv.DictReader(handle)
+            if row["disaggregation"] == "Área × sexo"
+        }
+    assert source_categories == {
+        "Urbano Hombre", "Urbano Mujer", "Rural Hombre", "Rural Mujer"
+    }
+    assert all(
+        display_category("Área × sexo", category) == category
+        for category in source_categories
+    )
 
 
 def test_department_chart_has_26_complete_labels_and_selected_block(

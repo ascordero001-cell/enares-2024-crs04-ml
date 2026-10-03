@@ -254,12 +254,13 @@ def _condition_label(match: re.Match[str], *, label: str) -> str:
 def safe_metadata_text(value: str) -> str:
     """Translate known V0 domain variables without mutating their source fields."""
     visible = value or "—"
-    condition = re.fullmatch(r"\s*([A-Za-z0-9_]+)\s*={1,2}\s*([01])\s*", visible)
+    condition = re.fullmatch(r"\s*([A-Za-z0-9_]+)\s*={1,2}\s*([012])\s*", visible)
     if condition:
         code, answer = condition.groups()
         if code == "SEXO":
-            return "Hombres" if answer == "1" else "Mujeres"
-        if code not in METADATA_CODE_LABELS:
+            sex_label = display_category("Sexo", answer)
+            return {"Mujer": "Mujeres", "Hombre": "Hombres"}[sex_label]
+        if code not in METADATA_CODE_LABELS or answer not in {"0", "1"}:
             raise ModuleIsolationError("Untranslated V0 domain condition")
         label = METADATA_CODE_LABELS[code]
         if answer == "0":
