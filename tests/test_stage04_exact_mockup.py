@@ -117,6 +117,10 @@ def test_versioned_mockup_css_keeps_verified_source_and_geometry() -> None:
     ):
         assert token in css
 
+    assert "grid-template-rows:auto auto minmax(0,1fr) auto auto" in css
+    assert "height:228px" in css
+    assert ".detail-item dt" in css
+
 
 def test_period_suffix_is_visible_without_rewriting_catalog_titles() -> None:
     assert _period_suffix("No aplica") == ""

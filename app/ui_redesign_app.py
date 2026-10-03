@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import os
-import re
 import sys
 from dataclasses import replace
 from functools import partial
@@ -38,6 +37,7 @@ from app.views.ui_redesign_real import (
     safe_metadata_text,
     visible_cut,
     visible_indicator_name,
+    visible_overlap_labels,
     visible_table_record,
 )
 from app.views.ui_visual_components import (
@@ -463,24 +463,20 @@ def effective_cut(
     return _default_topic_cut(rows)
 
 
-_MATRIX_CATEGORY = re.compile(r"^P\((.+) \| (.+)\):")
-
-
 def _matrix_cells(results: list[AuthorizedRedesignResult]) -> list[dict[str, object]]:
     """Preserve the directed V0 conditional pairs; never synthesize cells."""
     cells: list[dict[str, object]] = []
     for result in results:
-        match = _MATRIX_CATEGORY.match(result.row.category)
-        if match is None or result.row.estimate is None:
+        if result.row.estimate is None:
             continue
-        target, given = match.groups()
+        target, given, description = visible_overlap_labels(result.row.category)
         cells.append(
             {
                 "target": target,
                 "given": given,
                 "estimate": result.row.estimate,
                 "label": f"{result.row.estimate:.1f} %",
-                "full_label": result.row.category,
+                "full_label": description,
                 "lower": result.row.ci95_lower,
                 "upper": result.row.ci95_upper,
                 "cv": None if result.row.cv is None else result.row.cv * 100,
@@ -856,19 +852,16 @@ def _render_detail_ficha(
         )
         if item.period_label == "Período no precisado":
             items.insert(4, ("Nota sobre período", "La fuente no precisa un plazo único para esta serie."))
-    numeric_labels = {"Estimación", "IC95%", "CV", "N no ponderado"}
     html = "".join(
-        "<tr>"
-        f"<th scope='row'>{escape(label)}</th>"
-        + ('<td class="num">' if label in numeric_labels else "<td>")
-        + escape(value) + "</td>"
-        "</tr>"
+        '<div class="detail-item">'
+        f"<dt>{escape(label)}</dt>"
+        f"<dd>{escape(value)}</dd>"
+        "</div>"
         for label, value in items
     )
     st.html(
         '<section class="detail-table" data-testid="stage04-detail-sheet">'
-        '<table class="data"><thead><tr><th>Campo</th><th>Valor</th></tr></thead><tbody>'
-        + html + "</tbody></table></section>"
+        '<dl class="detail-list">' + html + "</dl></section>"
     )
 
 
@@ -914,11 +907,11 @@ def _render_secondary(
             y = {
                 "field": "module", "type": "nominal", "title": None,
                 "sort": [record["module"] for record in comparison],
-                "axis": {"labelLimit": 310, "labelFontSize": 12},
+                "axis": {"labelLimit": 420, "labelFontSize": 12},
             }
             x = {
                 "field": "estimate", "type": "quantitative", "title": "Porcentaje",
-                "scale": {"domain": [0, 105]},
+                "scale": {"domain": [0, 100]},
             }
             st.vega_lite_chart(
                 {

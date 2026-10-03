@@ -72,12 +72,21 @@ try {
       }
     }
     if (viewport.width === 1536) {
+      const cardGeometry = await cards.evaluateAll((nodes) => nodes.map((node) => ({
+        height: node.getBoundingClientRect().height,
+        valueBottom: node.querySelector("p:last-child").getBoundingClientRect().bottom,
+        periodClipped: node.querySelector("p:nth-child(4)").scrollHeight > node.querySelector("p:nth-child(4)").clientHeight,
+      })));
+      if (cardGeometry.some((item) => Math.abs(item.height - cardGeometry[0].height) > 1 ||
+          Math.abs(item.valueBottom - cardGeometry[0].valueBottom) > 1 || item.periodClipped)) {
+        throw new Error(`1536: card height, value alignment, or period visibility: ${JSON.stringify(cardGeometry)}`);
+      }
       for (const selector of [
         ".st-key-stage04_module_cards button p",
         ".st-key-stage04_topic_catalog [role=radio]",
         ".st-key-stage04_left_rail [data-testid=stSelectbox] label",
         ".st-key-stage04_center .table-wrap table.data td",
-        ".st-key-stage04_right_rail .detail-table table.data td",
+        ".st-key-stage04_right_rail .detail-item dd",
       ]) {
         const sizes = await page.locator(selector).evaluateAll((nodes) =>
           nodes.map((node) => parseFloat(getComputedStyle(node).fontSize)),
@@ -275,11 +284,19 @@ try {
     [".section-head.topic h2", 17],
     ["div.table-wrap > table.data", 13.5],
     [".st-key-stage04_visible_tab [role=radio]", 12.8],
-    [".st-key-stage04_right_rail .detail-table table.data", 13.5],
+    [".st-key-stage04_right_rail .detail-item dd", 13.5],
   ]) {
     const size = await detailPage.locator(selector).first().evaluate((node) => parseFloat(getComputedStyle(node).fontSize));
     close(size, expected, 0.5, `3.2.01: font ${selector}`);
   }
+  const brokenDetailLabels = await detailPage.locator('[data-testid="stage04-detail-sheet"] dt').evaluateAll((nodes) =>
+    nodes.filter((node) => {
+      const style = getComputedStyle(node);
+      const lineHeight = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.5;
+      return /estimación|denominador|n no ponderado/i.test(node.textContent) &&
+        node.getBoundingClientRect().height > lineHeight * 1.5;
+    }).map((node) => node.textContent));
+  if (brokenDetailLabels.length) throw new Error(`Detail labels wrap: ${brokenDetailLabels.join(", ")}`);
   const tableFit = await detailPage.locator("div.table-wrap").first().evaluate((node) => ({
     scroll: node.scrollWidth, client: node.clientWidth,
     nWhiteSpace: getComputedStyle(node.querySelector("td:nth-child(6)")).whiteSpace,

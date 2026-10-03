@@ -17,7 +17,10 @@ from app.views.ui_redesign_real import (
     forest_record,
     load_authorized_results,
     numeric_card,
+    protected_export_row,
     rows_for_topic,
+    visible_cut,
+    visible_overlap_labels,
 )
 from enares.stage04.indicator_labels import (
     indicator_display_name,
@@ -279,6 +282,47 @@ def test_sexual_overlap_shows_all_approved_rows_in_separate_matrices():
     assert len(app.get("vega_lite_chart")) == 4
 
 
+def test_sexual_overlap_hides_questionnaire_codes_only_in_display():
+    repository, _ = local_repositories()
+    overlap = [
+        result
+        for result in load_authorized_results(repository)
+        if result.row.indicator_id in {"Solap_VS_12M", "Solap_VS_VIDA"}
+    ]
+    assert len(overlap) == 16
+    for result in overlap:
+        target, given, description = visible_overlap_labels(result.row.category)
+        assert target and given
+        assert description.startswith("Entre quienes sufrieron ")
+        assert visible_cut(result).startswith(f"Matriz {result.row.disaggregation} · ")
+        assert all(code not in visible_cut(result) for code in ("301", "302", "303", "P("))
+        assert protected_export_row(result).category == result.row.category
+
+    app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py"))
+    app.query_params["view"] = "Módulo 3.4"
+    app.query_params["topic"] = "3.4.04"
+    app.run(timeout=30)
+    assert not app.exception
+    table = next(
+        element.proto.body
+        for element in app.get("html")
+        if '<div class="table-wrap"><table class="data">' in element.proto.body
+    )
+    assert "Entre quienes sufrieron" in table
+    assert all(code not in table for code in ("301", "302", "303", "P("))
+    for cell in _matrix_cells(overlap):
+        assert all(
+            code not in str(cell[field])
+            for field in ("target", "given", "full_label")
+            for code in ("301", "302", "303", "P(")
+        )
+    for element in app.get("vega_lite_chart"):
+        spec = json.loads(element.proto.spec)
+        assert spec["layer"][0]["encoding"]["x"]["field"] == "target"
+        assert spec["layer"][0]["encoding"]["y"]["field"] == "given"
+        assert spec["layer"][0]["encoding"]["tooltip"][0]["field"] == "full_label"
+
+
 def test_national_bars_derive_reference_style_and_visible_value_from_row():
     app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py"))
     app.query_params["view"] = "Módulo 3.2"
@@ -299,6 +343,8 @@ def test_national_summary_compares_the_six_existing_v0_headlines():
     assert not app.exception
     assert len(app.get("vega_lite_chart")) == 1
     chart = json.loads(app.get("vega_lite_chart")[0].proto.spec)
+    assert chart["layer"][0]["encoding"]["x"]["scale"]["domain"] == [0, 100]
+    assert chart["layer"][0]["encoding"]["y"]["axis"]["labelLimit"] >= 420
     assert chart["layer"][0]["encoding"]["y"]["sort"] == [
         "3.1 · Percepciones",
         "3.2 · Violencia en el hogar",

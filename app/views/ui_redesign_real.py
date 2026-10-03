@@ -335,8 +335,33 @@ def protected_interval(result: AuthorizedRedesignResult) -> str:
     )
 
 
+_OVERLAP_PAIR = re.compile(r"^P\((.+?) \| (.+?)\):")
+_OVERLAP_FORMS = {
+    "con contacto (301 o 302)": ("Con contacto", "violencia sexual con contacto"),
+    "no física (303)": ("Sin contacto físico", "violencia sexual sin contacto físico"),
+    "agresión con contacto (302)": ("Agresión con contacto", "agresión sexual con contacto"),
+    "violación (301)": ("Violación", "violación"),
+}
+
+
+def visible_overlap_labels(category: str) -> tuple[str, str, str]:
+    """Translate an approved V0 directed pair for display, not for export."""
+    match = _OVERLAP_PAIR.match(category)
+    if match is None or any(form not in _OVERLAP_FORMS for form in match.groups()):
+        raise ModuleIsolationError("Unknown V0 sexual-overlap category")
+    target, given = match.groups()
+    target_short, target_name = _OVERLAP_FORMS[target]
+    given_short, given_name = _OVERLAP_FORMS[given]
+    description = (
+        f"Entre quienes sufrieron {given_name}: % que también sufrió {target_name}"
+    )
+    return target_short, given_short, description
+
+
 def visible_cut(result: AuthorizedRedesignResult) -> str:
     row = result.row
+    if row.indicator_id in {"Solap_VS_12M", "Solap_VS_VIDA"}:
+        return f"Matriz {row.disaggregation} · {visible_overlap_labels(row.category)[2]}"
     if row.disaggregation == "Nacional":
         if row.category.casefold() in {"total", "nacional (total)"}:
             return "Nacional"
