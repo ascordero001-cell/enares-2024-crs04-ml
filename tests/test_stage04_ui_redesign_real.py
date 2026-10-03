@@ -10,16 +10,23 @@ from typing import Any, cast
 from streamlit.testing.v1 import AppTest
 
 from app.streamlit_app import local_repositories
+from app.ui_redesign_app import _default_topic_cut, _matrix_cells, _visible_topic_rows
 from app.views.ui_redesign_real import (
+    enforce_module_isolation,
     filter_authorized_results,
     forest_record,
     load_authorized_results,
     numeric_card,
+    protected_export_row,
+    rows_for_topic,
+    visible_cut,
+    visible_overlap_labels,
 )
 from enares.stage04.indicator_labels import (
     indicator_display_name,
     indicator_option_label,
 )
+from enares.stage04.report_topics import load_topic_mapping, resolve_assignment
 
 ROOT = Path(__file__).resolve().parents[1]
 GOLDEN = ROOT / "tests" / "golden" / "stage04_32_national"
@@ -208,3 +215,142 @@ def test_empty_selection_has_no_unrelated_indicator_sheet():
     )
     assert "Sin datos en el release V0" in visible
     assert "Estimación:" not in visible
+
+
+def test_every_topic_with_v0_rows_keeps_at_least_one_default_visible_row():
+    repository, _ = local_repositories()
+    results = load_authorized_results(repository)
+    catalog = load_topic_mapping(
+        ROOT / "src" / "enares" / "stage04" / "report_topic_map.csv",
+        catalog_rows=[result.row for result in results],
+    )
+    for topic in catalog.topics:
+        module_rows = enforce_module_isolation(
+            (
+                result
+                for result in results
+                if resolve_assignment(catalog.assignments, result.row).module_id
+                == topic.module_id
+            ),
+            active_module_id=topic.module_id,
+            assignment=catalog.assignments,
+        )
+        topic_rows = rows_for_topic(
+            module_rows,
+            active_module_id=topic.module_id,
+            topic=topic,
+            assignment=catalog.assignments,
+        )
+        if topic_rows:
+            dimension, category = _default_topic_cut(topic_rows)
+            assert _visible_topic_rows(topic_rows, dimension, category), topic.topic_id
+
+
+def test_sexual_overlap_shows_all_approved_rows_in_separate_matrices():
+    repository, _ = local_repositories()
+    results = load_authorized_results(repository)
+    overlap = [
+        result
+        for result in results
+        if result.row.indicator_id in {"Solap_VS_12M", "Solap_VS_VIDA"}
+    ]
+    assert len(overlap) == 16
+    assert _default_topic_cut(overlap) == (None, None)
+    assert len(_visible_topic_rows(overlap, None, None)) == 16
+    for indicator in ("Solap_VS_12M", "Solap_VS_VIDA"):
+        for matrix_size, expected_count in (("2×2", 2), ("3×3", 6)):
+            subset = [
+                result
+                for result in overlap
+                if result.row.indicator_id == indicator
+                and result.row.disaggregation == matrix_size
+            ]
+            assert len(_matrix_cells(subset)) == expected_count
+
+    app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py"))
+    app.query_params["view"] = "Módulo 3.4"
+    app.query_params["topic"] = "3.4.04"
+    app.run(timeout=30)
+    assert not app.exception
+    tables = [
+        element.proto.body
+        for element in app.get("html")
+        if '<div class="table-wrap"><table class="data">' in element.proto.body
+    ]
+    assert len(tables) == 1
+    assert tables[0].count("<tr>") == 17  # Header and 16 approved V0 rows.
+    assert len(app.get("vega_lite_chart")) == 4
+
+
+def test_sexual_overlap_hides_questionnaire_codes_only_in_display():
+    repository, _ = local_repositories()
+    overlap = [
+        result
+        for result in load_authorized_results(repository)
+        if result.row.indicator_id in {"Solap_VS_12M", "Solap_VS_VIDA"}
+    ]
+    assert len(overlap) == 16
+    for result in overlap:
+        target, given, description = visible_overlap_labels(result.row.category)
+        assert target and given
+        assert description.startswith("Entre quienes sufrieron ")
+        assert visible_cut(result).startswith(f"Matriz {result.row.disaggregation} · ")
+        assert all(code not in visible_cut(result) for code in ("301", "302", "303", "P("))
+        assert protected_export_row(result).category == result.row.category
+
+    app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py"))
+    app.query_params["view"] = "Módulo 3.4"
+    app.query_params["topic"] = "3.4.04"
+    app.run(timeout=30)
+    assert not app.exception
+    table = next(
+        element.proto.body
+        for element in app.get("html")
+        if '<div class="table-wrap"><table class="data">' in element.proto.body
+    )
+    assert "Entre quienes sufrieron" in table
+    assert all(code not in table for code in ("301", "302", "303", "P("))
+    for cell in _matrix_cells(overlap):
+        assert all(
+            code not in str(cell[field])
+            for field in ("target", "given", "full_label")
+            for code in ("301", "302", "303", "P(")
+        )
+    for element in app.get("vega_lite_chart"):
+        spec = json.loads(element.proto.spec)
+        assert spec["layer"][0]["encoding"]["x"]["field"] == "target"
+        assert spec["layer"][0]["encoding"]["y"]["field"] == "given"
+        assert spec["layer"][0]["encoding"]["tooltip"][0]["field"] == "full_label"
+
+
+def test_national_bars_derive_reference_style_and_visible_value_from_row():
+    app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py"))
+    app.query_params["view"] = "Módulo 3.2"
+    app.query_params["topic"] = "3.2.02"
+    app.run(timeout=30)
+    assert not app.exception
+    chart = json.loads(app.get("vega_lite_chart")[0].proto.spec)
+    assert chart["layer"][0]["encoding"]["color"]["condition"]["test"] == (
+        "datum.referential"
+    )
+    assert chart["layer"][1]["encoding"]["text"]["field"] == "value_label"
+
+
+def test_national_summary_compares_the_six_existing_v0_headlines():
+    app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py"))
+    app.query_params["view"] = "Resumen nacional"
+    app.run(timeout=30)
+    assert not app.exception
+    assert len(app.get("vega_lite_chart")) == 1
+    chart = json.loads(app.get("vega_lite_chart")[0].proto.spec)
+    assert chart["layer"][0]["encoding"]["x"]["scale"]["domain"] == [0, 100]
+    assert chart["layer"][0]["encoding"]["y"]["axis"]["labelLimit"] >= 420
+    assert chart["layer"][0]["encoding"]["y"]["sort"] == [
+        "3.1 · Percepciones",
+        "3.2 · Violencia en el hogar",
+        "3.3 · Violencia en el entorno escolar",
+        "3.4 · Violencia sexual",
+        "3.5 · Acumulación de violencias",
+        "3.6 · Ayuda y respuesta",
+    ]
+    assert chart["layer"][1]["encoding"]["text"]["field"] == "value_label"
