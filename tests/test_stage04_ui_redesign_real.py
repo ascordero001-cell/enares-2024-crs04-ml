@@ -290,3 +290,21 @@ def test_national_bars_derive_reference_style_and_visible_value_from_row():
         "datum.referential"
     )
     assert chart["layer"][1]["encoding"]["text"]["field"] == "value_label"
+
+
+def test_national_summary_compares_the_six_existing_v0_headlines():
+    app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py"))
+    app.query_params["view"] = "Resumen nacional"
+    app.run(timeout=30)
+    assert not app.exception
+    assert len(app.get("vega_lite_chart")) == 1
+    chart = json.loads(app.get("vega_lite_chart")[0].proto.spec)
+    assert chart["layer"][0]["encoding"]["y"]["sort"] == [
+        "3.1 · Percepciones",
+        "3.2 · Violencia en el hogar",
+        "3.3 · Violencia en el entorno escolar",
+        "3.4 · Violencia sexual",
+        "3.5 · Acumulación de violencias",
+        "3.6 · Ayuda y respuesta",
+    ]
+    assert chart["layer"][1]["encoding"]["text"]["field"] == "value_label"

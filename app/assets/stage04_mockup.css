@@ -332,7 +332,8 @@
 .detail-table table.data td, .alert-table table.data td { font-size:13.5px; overflow-wrap:anywhere; padding:8px 6px; }
 .detail-table table.data tbody th { width:38%; text-align:left; color:var(--ink-soft); font-weight:600; border-bottom:1px solid var(--border-soft); }
 .detail-table table.data td.num { text-align:right; white-space:normal; }
-.alert-table table.data th:first-child { width:64%; }
+.alert-table table.data th { padding-left:6px; padding-right:6px; }
+.alert-table table.data th:first-child { width:58%; }
 @media (max-width:1080px) {
   .st-key-stage04_grid [data-testid="stHorizontalBlock"]:has(> [data-testid="stColumn"] .st-key-stage04_left_rail) {
     grid-template-columns:1fr!important;

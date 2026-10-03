@@ -885,6 +885,77 @@ def _render_secondary(
 ) -> None:
     if view == "Resumen nacional":
         st.html('<div class="section-head"><h2>Resumen nacional</h2></div>')
+        comparison = []
+        for module_id in MODULE_IDS:
+            headline = HEADLINE_INDICATOR_BY_MODULE[module_id]
+            candidates = [
+                result
+                for result in results
+                if result.row.indicator_id == headline
+                and result.row.disaggregation == "Nacional"
+                and result.row.category.casefold() in {"total", "nacional (total)"}
+            ]
+            if len(candidates) != 1:
+                raise ModuleIsolationError(f"Missing national comparison for {module_id}")
+            result = candidates[0]
+            if numeric_values_are_visible(result) and result.row.estimate is not None:
+                comparison.append(
+                    {
+                        "module": f"{module_id} · {PRESENTATION_MODULE_LABELS[module_id]}",
+                        "estimate": result.row.estimate,
+                        "value_label": f"{result.row.estimate:.1f} %",
+                        "lower": result.row.ci95_lower,
+                        "upper": result.row.ci95_upper,
+                        "cv": None if result.row.cv is None else result.row.cv * 100,
+                        "n": result.row.n_unweighted,
+                        "referential": bool(result.row.cv_flag),
+                    }
+                )
+        if comparison:
+            y = {
+                "field": "module", "type": "nominal", "title": None,
+                "sort": [record["module"] for record in comparison],
+                "axis": {"labelLimit": 310, "labelFontSize": 12},
+            }
+            x = {
+                "field": "estimate", "type": "quantitative", "title": "Porcentaje",
+                "scale": {"domain": [0, 105]},
+            }
+            st.vega_lite_chart(
+                {
+                    "data": {"values": comparison},
+                    "layer": [
+                        {
+                            "mark": {"type": "bar", "cornerRadiusEnd": 4, "stroke": "#0E7C6B"},
+                            "encoding": {
+                                "y": y, "x": x,
+                                "color": {
+                                    "condition": {"test": "datum.referential", "value": "white"},
+                                    "value": "#0E7C6B",
+                                },
+                                "tooltip": [
+                                    {"field": "module", "title": "Módulo"},
+                                    {"field": "estimate", "title": "Estimación (%)", "format": ".1f"},
+                                    {"field": "lower", "title": "IC95 inferior (%)", "format": ".1f"},
+                                    {"field": "upper", "title": "IC95 superior (%)", "format": ".1f"},
+                                    {"field": "cv", "title": "CV (%)", "format": ".1f"},
+                                    {"field": "n", "title": "N"},
+                                ],
+                            },
+                        },
+                        {
+                            "mark": {"type": "text", "align": "left", "dx": 5, "fontSize": 12},
+                            "encoding": {"y": y, "x": x, "text": {"field": "value_label"}},
+                        },
+                    ],
+                    "height": {"step": 32},
+                    "config": {
+                        "view": {"stroke": None},
+                        "axis": {"labelFontSize": 12, "titleFontSize": 13},
+                    },
+                },
+                width="stretch",
+            )
         render_exact_table(
             ("Módulo", "Tema principal", "Estimación", "Estado"),
             tuple(
