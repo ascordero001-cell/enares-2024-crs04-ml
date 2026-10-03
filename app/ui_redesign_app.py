@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 import sys
 from dataclasses import replace
 from functools import partial
@@ -355,6 +356,30 @@ def _format_filter_value(value: str, *, source: str, has_national: bool) -> str:
     return display_category(source, value) if value != NO_SELECTION else NO_SELECTION
 
 
+def _default_topic_cut(
+    rows: list[AuthorizedRedesignResult],
+) -> tuple[str | None, str | None]:
+    """Keep national totals when present, otherwise show the topic's V0 rows."""
+    return (
+        ("Nacional", None)
+        if any(result.row.disaggregation == "Nacional" for result in rows)
+        else (None, None)
+    )
+
+
+def _visible_topic_rows(
+    rows: list[AuthorizedRedesignResult],
+    dimension: str | None,
+    category: str | None,
+) -> list[AuthorizedRedesignResult]:
+    return [
+        result
+        for result in rows
+        if (dimension is None or result.row.disaggregation == dimension)
+        and (category is None or result.row.category == category)
+    ]
+
+
 def effective_cut(
     topic: ReportTopic, rows: list[AuthorizedRedesignResult]
 ) -> tuple[str | None, str | None]:
@@ -429,16 +454,112 @@ def effective_cut(
         help="Solo cortes presentes en V0 para este tema; no construye cruces nuevos.",
     )
     if topic.national_only:
-        return "Nacional", None
+        # Some approved national-only matrices use their matrix size as the
+        # V0 disaggregation instead of the literal "Nacional" cut.
+        return _default_topic_cut(rows)
     if active == OTHER_CHARACTERISTICS:
         return str(st.session_state[SPECIAL_FILTER_KEY]), None
     if active is not None:
         return active, str(st.session_state[f"real_filter_{active}"])
-    return (
-        ("Nacional", None)
-        if has_national
-        else (None, None)
-    )
+    return _default_topic_cut(rows)
+
+
+_MATRIX_CATEGORY = re.compile(r"^P\((.+) \| (.+)\):")
+
+
+def _matrix_cells(results: list[AuthorizedRedesignResult]) -> list[dict[str, object]]:
+    """Preserve the directed V0 conditional pairs; never synthesize cells."""
+    cells: list[dict[str, object]] = []
+    for result in results:
+        match = _MATRIX_CATEGORY.match(result.row.category)
+        if match is None or result.row.estimate is None:
+            continue
+        target, given = match.groups()
+        cells.append(
+            {
+                "target": target,
+                "given": given,
+                "estimate": result.row.estimate,
+                "label": f"{result.row.estimate:.1f} %",
+                "full_label": result.row.category,
+                "lower": result.row.ci95_lower,
+                "upper": result.row.ci95_upper,
+                "cv": None if result.row.cv is None else result.row.cv * 100,
+                "n": result.row.n_unweighted,
+                "referential": bool(result.row.cv_flag),
+            }
+        )
+    return cells
+
+
+def _render_overlap_matrices(
+    results: list[AuthorizedRedesignResult], assignment: AssignmentIndex
+) -> None:
+    """Show 2×2 and 3×3 as separate directed matrices for each V0 period."""
+    for period in ("Últimos 12 meses", "Alguna vez en la vida"):
+        for size in ("2×2", "3×3"):
+            rows = [
+                result
+                for result in results
+                if resolve_assignment(assignment, result.row).period_label == period
+                and result.row.disaggregation == size
+                and numeric_values_are_visible(result)
+            ]
+            cells = _matrix_cells(rows)
+            if not cells:
+                continue
+            st.html(
+                '<div class="chart-group-head">'
+                f"{escape(period)} · matriz {escape(size)}</div>"
+            )
+            st.vega_lite_chart(
+                {
+                    "data": {"values": cells},
+                    "layer": [
+                        {
+                            "mark": {"type": "rect", "stroke": "#FFFFFF", "strokeWidth": 2},
+                            "encoding": {
+                                "x": {
+                                    "field": "target", "type": "nominal", "title": "Forma observada",
+                                    "axis": {"labelAngle": 0, "labelLimit": 300, "labelOverlap": False},
+                                },
+                                "y": {
+                                    "field": "given", "type": "nominal", "title": "Dado que reportó",
+                                    "axis": {"labelLimit": 260},
+                                },
+                                "color": {
+                                    "field": "estimate", "type": "quantitative",
+                                    "title": "Porcentaje", "scale": {"scheme": "tealblues", "domain": [0, 100]},
+                                },
+                                "tooltip": [
+                                    {"field": "full_label", "title": "Cruce V0"},
+                                    {"field": "estimate", "title": "Estimación (%)", "format": ".1f"},
+                                    {"field": "lower", "title": "IC95 inferior (%)", "format": ".1f"},
+                                    {"field": "upper", "title": "IC95 superior (%)", "format": ".1f"},
+                                    {"field": "cv", "title": "CV (%)", "format": ".1f"},
+                                    {"field": "n", "title": "N"},
+                                    {"field": "referential", "title": "Referencial por CV"},
+                                ],
+                            },
+                        },
+                        {
+                            "mark": {"type": "text", "fontSize": 13, "fontWeight": "bold"},
+                            "encoding": {
+                                "x": {"field": "target", "type": "nominal"},
+                                "y": {"field": "given", "type": "nominal"},
+                                "text": {"field": "label"},
+                                "color": {
+                                    "condition": {"test": "datum.estimate >= 50", "value": "white"},
+                                    "value": "#16202E",
+                                },
+                            },
+                        },
+                    ],
+                    "height": {"step": 48},
+                    "config": {"view": {"stroke": None}, "axis": {"labelFontSize": 12, "titleFontSize": 13}},
+                },
+                width="stretch",
+            )
 
 
 def _render_topic_chart(
@@ -449,6 +570,9 @@ def _render_topic_chart(
     active_dimension: str | None,
     active_category: str | None,
 ) -> None:
+    if topic.topic_id == "3.4.04":
+        _render_overlap_matrices(results, assignment)
+        return
     periods = sorted(
         {resolve_assignment(assignment, result.row).period_label for result in results}
     )
@@ -520,6 +644,7 @@ def _render_topic_chart(
                         "label": wrapped_label,
                         "full_label": label,
                         "estimate": result.row.estimate,
+                        "value_label": f"{result.row.estimate:.1f} %",
                         "lower": result.row.ci95_lower,
                         "upper": result.row.ci95_upper,
                         "cv": None if result.row.cv is None else result.row.cv * 100,
@@ -535,9 +660,12 @@ def _render_topic_chart(
             )
             tooltip = [
                 {"field": "full_label", "title": "Categoría"},
-                {"field": "estimate", "title": "Estimación", "format": ".1f"},
+                {"field": "estimate", "title": "Estimación (%)", "format": ".1f"},
+                {"field": "lower", "title": "IC95 inferior (%)", "format": ".1f"},
+                {"field": "upper", "title": "IC95 superior (%)", "format": ".1f"},
                 {"field": "cv", "title": "CV (%)", "format": ".1f"},
                 {"field": "n", "title": "N"},
+                {"field": "referential", "title": "Referencial por CV"},
             ]
             y = {
                 "field": "label",
@@ -558,8 +686,33 @@ def _render_topic_chart(
             }
             if use_bars:
                 spec: dict[str, object] = {
-                    "mark": {"type": "bar", "cornerRadiusEnd": 4, "color": "#0E7C6B"},
-                    "encoding": {"y": y, "x": x, "tooltip": tooltip},
+                    "layer": [
+                        {
+                            "mark": {"type": "bar", "cornerRadiusEnd": 4, "stroke": "#0E7C6B"},
+                            "encoding": {
+                                "y": y,
+                                "x": x,
+                                "color": {
+                                    "condition": {"test": "datum.referential", "value": "white"},
+                                    "value": "#0E7C6B",
+                                },
+                                "strokeDash": {
+                                    "condition": {"test": "datum.referential", "value": [4, 3]},
+                                    "value": [1, 0],
+                                },
+                                "tooltip": tooltip,
+                            },
+                        },
+                        {
+                            "mark": {"type": "text", "align": "left", "dx": 5, "fontSize": 12},
+                            "encoding": {
+                                "y": y,
+                                "x": x,
+                                "text": {"field": "value_label"},
+                                "tooltip": tooltip,
+                            },
+                        },
+                    ],
                 }
             else:
                 layers = []
@@ -625,7 +778,10 @@ def _render_topic_chart(
             spec["padding"] = {"left": 12, "right": 12}
             spec["config"] = {
                 "background": "#FFFFFF",
-                "axis": {"gridColor": "#DBE3EE", "labelColor": "#4B5A72"},
+                "axis": {
+                    "gridColor": "#DBE3EE", "labelColor": "#4B5A72",
+                    "labelFontSize": 12, "titleFontSize": 13,
+                },
                 "view": {"stroke": None},
             }
             # Inline the already aggregate-only values in Vega-Lite. Passing
@@ -844,12 +1000,7 @@ def render() -> None:
                 st.html('<div class="panel-title">DESAGREGACIONES AUTORIZADAS</div>')
                 dimension, category = effective_cut(topic, topic_rows)
                 filtered = enforce_module_isolation(
-                    (
-                        result
-                        for result in topic_rows
-                        if (dimension is None or result.row.disaggregation == dimension)
-                        and (category is None or result.row.category == category)
-                    ),
+                    _visible_topic_rows(topic_rows, dimension, category),
                     active_module_id=module_id,
                     assignment=assignments,
                 )

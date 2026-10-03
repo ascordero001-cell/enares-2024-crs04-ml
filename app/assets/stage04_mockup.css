@@ -250,7 +250,7 @@
 .st-key-stage04_module_cards { margin-bottom:18px; }
 .st-key-stage04_module_cards [data-testid="stHorizontalBlock"] { flex-wrap:nowrap; gap:10px; }
 .st-key-stage04_module_cards [data-testid="stColumn"] { min-width:0; }
-.st-key-stage04_module_cards button { display:block; min-height:182px; width:100%; padding:12px; text-align:left; white-space:normal; color:var(--ink); background:var(--surface); border:1px solid var(--border); border-radius:11px; box-shadow:var(--shadow-sm); transition:transform .12s ease,box-shadow .12s ease; }
+.st-key-stage04_module_cards button { display:block; min-height:214px; width:100%; padding:12px; text-align:left; white-space:normal; color:var(--ink); background:var(--surface); border:1px solid var(--border); border-radius:11px; box-shadow:var(--shadow-sm); transition:transform .12s ease,box-shadow .12s ease; }
 .st-key-stage04_module_cards button > div, .st-key-stage04_module_cards button span { width:100%; max-width:none; overflow:visible; text-overflow:clip; white-space:normal; }
 .st-key-stage04_module_cards button [data-testid="stMarkdownContainer"] { display:flex; flex-direction:column; align-items:stretch; min-height:156px; width:100%; text-align:left; }
 .st-key-stage04_module_cards button:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); }
@@ -293,6 +293,38 @@
 .st-key-stage04_right_rail .ficha { display:block; font-size:12.3px; }
 .st-key-stage04_right_rail .ficha div { margin-bottom:7px; overflow-wrap:anywhere; }
 .st-key-stage04_right_rail .alert-item { font-size:12.4px; }
+/* Readability is a floor, not a pixel-for-pixel constraint from the mockup. */
+.banner, .note, .legend-row, .st-key-stage04_right_rail .ficha,
+.st-key-stage04_right_rail .alert-item, .st-key-stage04_center .ficha,
+.st-key-stage04_center .qnote { font-size:14px; }
+.st-key-stage04_left_rail [data-testid="stSelectbox"] label { font-size:13px!important; }
+.st-key-stage04_left_rail [data-baseweb="select"] > div,
+.st-key-stage04_left_rail [data-baseweb="select"] span { font-size:14px!important; }
+.st-key-stage04_module_cards button p,
+.st-key-stage04_module_cards button p:first-child,
+.st-key-stage04_module_cards button p:nth-child(2),
+.st-key-stage04_module_cards button p:nth-child(3),
+.st-key-stage04_module_cards button p:nth-child(4) { font-size:12px; }
+.st-key-stage04_module_cards button p:nth-child(3) {
+  display:block; overflow:visible; -webkit-line-clamp:unset; line-clamp:unset;
+}
+.st-key-stage04_module_cards button [data-testid="stMarkdownContainer"] { min-height:0; }
+.st-key-stage04_topic_catalog [role="radio"] { font-size:13px; }
+.st-key-stage04_center .section-head h2 { font-size:20px; }
+.st-key-stage04_center .section-head.topic h2 { font-size:17px; }
+.st-key-stage04_center .table-wrap table.data,
+.st-key-stage04_center .table-wrap table.data td { font-size:13.5px; }
+.st-key-stage04_center .table-wrap table.data th { font-size:12px; }
+.st-key-stage04_center .chart-group-head { font-size:14px; }
+.st-key-stage04_right_rail .ficha div span,
+.st-key-stage04_center .ficha div span { font-size:12px; }
+.st-key-stage04_right_rail .alert-item .ai-title,
+.st-key-stage04_right_rail .alert-item .ai-desc { font-size:14px; }
+.st-key-stage04_center .table-wrap table.data td:first-child { overflow-wrap:anywhere; }
+.st-key-stage04_center .table-wrap table.data td:nth-child(3),
+.st-key-stage04_center .table-wrap table.data td:nth-child(4),
+.st-key-stage04_center .table-wrap table.data td:nth-child(5),
+.st-key-stage04_center .table-wrap table.data td:nth-child(6) { text-align:right; }
 @media (max-width:1080px) {
   .st-key-stage04_grid [data-testid="stHorizontalBlock"]:has(> [data-testid="stColumn"] .st-key-stage04_left_rail) {
     grid-template-columns:1fr!important;

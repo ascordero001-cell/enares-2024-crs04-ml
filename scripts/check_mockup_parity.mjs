@@ -62,11 +62,29 @@ try {
       throw new Error(`${viewport.width}: cards are not on one row`);
     }
     for (let index = 0; index < 6; index += 1) {
-      const overflow = await cards.nth(index).evaluate((node) => node.scrollWidth > node.clientWidth + 1);
+      const overflow = await cards.nth(index).evaluate(
+        (node) => node.scrollWidth > node.clientWidth + 1 || node.scrollHeight > node.clientHeight + 1,
+      );
       if (overflow) throw new Error(`${viewport.width}: card ${index + 1} overflows`);
       const text = await cards.nth(index).innerText();
       if ((index === 0 && text.includes('(últimos 12 meses)')) || (index > 0 && !text.includes('(últimos 12 meses)'))) {
         throw new Error(`${viewport.width}: card ${index + 1} reference period`);
+      }
+    }
+    if (viewport.width === 1536) {
+      for (const selector of [
+        ".st-key-stage04_module_cards button p",
+        ".st-key-stage04_topic_catalog [role=radio]",
+        ".st-key-stage04_left_rail [data-testid=stSelectbox] label",
+        ".st-key-stage04_center .table-wrap table.data td",
+        ".st-key-stage04_right_rail .ficha",
+      ]) {
+        const sizes = await page.locator(selector).evaluateAll((nodes) =>
+          nodes.map((node) => parseFloat(getComputedStyle(node).fontSize)),
+        );
+        if (sizes.some((size) => size < 12)) {
+          throw new Error(`1536: data text below 12 px in ${selector}: ${JSON.stringify(sizes)}`);
+        }
       }
     }
     const tabs = page.locator('.st-key-stage04_visible_tab [role="radio"]');
@@ -253,11 +271,11 @@ try {
     await detailPage.getByRole("option").first().waitFor({ state: "hidden" });
   }
   for (const [selector, expected] of [
-    [".section-head:not(.topic) h2", 18],
-    [".section-head.topic h2", 15],
-    [".table-wrap table.data", 12.6],
+    [".section-head:not(.topic) h2", 20],
+    [".section-head.topic h2", 17],
+    [".table-wrap table.data", 13.5],
     [".st-key-stage04_visible_tab [role=radio]", 12.8],
-    [".st-key-stage04_right_rail .ficha", 12.3],
+    [".st-key-stage04_right_rail .ficha", 14],
   ]) {
     const size = await detailPage.locator(selector).first().evaluate((node) => parseFloat(getComputedStyle(node).fontSize));
     close(size, expected, 0.5, `3.2.01: font ${selector}`);
