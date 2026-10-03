@@ -77,7 +77,7 @@ try {
         ".st-key-stage04_topic_catalog [role=radio]",
         ".st-key-stage04_left_rail [data-testid=stSelectbox] label",
         ".st-key-stage04_center .table-wrap table.data td",
-        ".st-key-stage04_right_rail .ficha",
+        ".st-key-stage04_right_rail .detail-table table.data td",
       ]) {
         const sizes = await page.locator(selector).evaluateAll((nodes) =>
           nodes.map((node) => parseFloat(getComputedStyle(node).fontSize)),
@@ -224,7 +224,7 @@ try {
   if (!(await detailPage.locator('.chart-group-head').first().innerText()).includes('(últimos 12 meses)')) {
     throw new Error('3.2.01: chart period is missing from heading');
   }
-  const topicTable = detailPage.locator('.table-wrap table.data').first();
+  const topicTable = detailPage.locator('div.table-wrap > table.data').first();
   if (await topicTable.locator('th', { hasText: 'Período' }).count()) {
     throw new Error('3.2.01: period must be attached to the indicator, not a separate column');
   }
@@ -251,7 +251,7 @@ try {
   if (!await detailPage.getByRole("button", { name: "Volver a Nacional" }).isDisabled()) {
     throw new Error("3.2.01: reset should be disabled at national default");
   }
-  if (!(await detailPage.locator(".table-wrap").first().innerText()).includes("Nacional")) {
+  if (!(await detailPage.locator("div.table-wrap").first().innerText()).includes("Nacional")) {
     throw new Error("3.2.01: national default missing from table");
   }
   for (const [index, required, forbidden] of [
@@ -273,14 +273,14 @@ try {
   for (const [selector, expected] of [
     [".section-head:not(.topic) h2", 20],
     [".section-head.topic h2", 17],
-    [".table-wrap table.data", 13.5],
+    ["div.table-wrap > table.data", 13.5],
     [".st-key-stage04_visible_tab [role=radio]", 12.8],
-    [".st-key-stage04_right_rail .ficha", 14],
+    [".st-key-stage04_right_rail .detail-table table.data", 13.5],
   ]) {
     const size = await detailPage.locator(selector).first().evaluate((node) => parseFloat(getComputedStyle(node).fontSize));
     close(size, expected, 0.5, `3.2.01: font ${selector}`);
   }
-  const tableFit = await detailPage.locator(".table-wrap").first().evaluate((node) => ({
+  const tableFit = await detailPage.locator("div.table-wrap").first().evaluate((node) => ({
     scroll: node.scrollWidth, client: node.clientWidth,
     nWhiteSpace: getComputedStyle(node.querySelector("td:nth-child(6)")).whiteSpace,
   }));
@@ -295,12 +295,12 @@ try {
   await filterPage.getByRole("option", { name: "Callao" }).click();
   await filterPage.locator(".chart-group-head").filter({ hasText: "Departamento" }).waitFor();
   await filterPage.waitForFunction(() => document.querySelectorAll(".chart-group-head").length === 1);
-  await filterPage.waitForFunction(() => document.querySelector(".table-wrap")?.textContent?.includes("Departamento · Callao"));
-  if (!(await filterPage.locator(".table-wrap").first().innerText()).includes("Departamento · Callao")) {
+  await filterPage.waitForFunction(() => document.querySelector("div.table-wrap")?.textContent?.includes("Departamento · Callao"));
+  if (!(await filterPage.locator("div.table-wrap").first().innerText()).includes("Departamento · Callao")) {
     throw new Error("3.2.01: selected department missing from table");
   }
   await filterPage.getByRole("button", { name: "Volver a Nacional" }).click();
-  await filterPage.waitForFunction(() => document.querySelector(".table-wrap")?.textContent?.includes("Nacional"));
+  await filterPage.waitForFunction(() => document.querySelector("div.table-wrap")?.textContent?.includes("Nacional"));
   if (!await filterPage.getByRole("button", { name: "Volver a Nacional" }).isDisabled()) {
     throw new Error("3.2.01: reset did not clear active disaggregation");
   }

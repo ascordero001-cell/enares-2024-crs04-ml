@@ -272,7 +272,7 @@ def test_sexual_overlap_shows_all_approved_rows_in_separate_matrices():
     tables = [
         element.proto.body
         for element in app.get("html")
-        if '<table class="data">' in element.proto.body
+        if '<div class="table-wrap"><table class="data">' in element.proto.body
     ]
     assert len(tables) == 1
     assert tables[0].count("<tr>") == 17  # Header and 16 approved V0 rows.

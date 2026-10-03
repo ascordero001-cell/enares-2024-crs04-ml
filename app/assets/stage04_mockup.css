@@ -325,6 +325,14 @@
 .st-key-stage04_center .table-wrap table.data td:nth-child(4),
 .st-key-stage04_center .table-wrap table.data td:nth-child(5),
 .st-key-stage04_center .table-wrap table.data td:nth-child(6) { text-align:right; }
+.st-key-stage04_center .context-table table.data td { font-size:14px; }
+.detail-table, .alert-table { border:1px solid var(--border); border-radius:9px; overflow:hidden; }
+.detail-table table.data, .alert-table table.data { width:100%; table-layout:fixed; font-size:13.5px; }
+.detail-table table.data th, .alert-table table.data th { font-size:12px; white-space:normal; overflow-wrap:anywhere; }
+.detail-table table.data td, .alert-table table.data td { font-size:13.5px; overflow-wrap:anywhere; padding:8px 6px; }
+.detail-table table.data tbody th { width:38%; text-align:left; color:var(--ink-soft); font-weight:600; border-bottom:1px solid var(--border-soft); }
+.detail-table table.data td.num { text-align:right; white-space:normal; }
+.alert-table table.data th:first-child { width:64%; }
 @media (max-width:1080px) {
   .st-key-stage04_grid [data-testid="stHorizontalBlock"]:has(> [data-testid="stColumn"] .st-key-stage04_left_rail) {
     grid-template-columns:1fr!important;

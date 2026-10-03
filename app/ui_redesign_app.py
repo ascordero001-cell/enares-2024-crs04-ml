@@ -809,15 +809,21 @@ def _render_context_universes(rows: list[AuthorizedRedesignResult]) -> None:
     for result in candidates:
         row = result.row
         contexts[(_context_name(row.universe), row.universe, row.denominator)] = None
-    cards = []
+    cells = []
     for context, universe, denominator in contexts:
-        cards.append(
-            "<div>"
-            f"<span>{escape(context)} · UNIVERSO</span>{escape(safe_metadata_text(universe))}"
-            f"<span>DENOMINADOR</span>{escape(safe_metadata_text(denominator))}"
-            "</div>"
+        cells.append(
+            "<tr>"
+            f"<td>{escape(context)}</td>"
+            f"<td>{escape(safe_metadata_text(universe))}</td>"
+            f"<td>{escape(safe_metadata_text(denominator))}</td>"
+            "</tr>"
         )
-    st.html('<section class="ficha" data-testid="stage04-context-universes">' + "".join(cards) + "</section>")
+    st.html(
+        '<section class="table-wrap context-table" data-testid="stage04-context-universes">'
+        '<table class="data"><thead><tr><th>Ámbito</th><th>Universo</th>'
+        '<th>Denominador</th></tr></thead><tbody>'
+        + "".join(cells) + "</tbody></table></section>"
+    )
 
 
 def _render_detail_ficha(
@@ -851,10 +857,20 @@ def _render_detail_ficha(
         )
         if item.period_label == "Período no precisado":
             items.insert(4, ("Nota sobre período", "La fuente no precisa un plazo único para esta serie."))
+    numeric_labels = {"Estimación", "IC95%", "CV", "N no ponderado"}
     html = "".join(
-        f"<div><span>{escape(label)}</span>{escape(value)}</div>" for label, value in items
+        "<tr>"
+        f"<th scope='row'>{escape(label)}</th>"
+        + ('<td class="num">' if label in numeric_labels else "<td>")
+        + escape(value) + "</td>"
+        "</tr>"
+        for label, value in items
     )
-    st.html('<section class="ficha" data-testid="stage04-detail-sheet">' + html + "</section>")
+    st.html(
+        '<section class="detail-table" data-testid="stage04-detail-sheet">'
+        '<table class="data"><thead><tr><th>Campo</th><th>Valor</th></tr></thead><tbody>'
+        + html + "</tbody></table></section>"
+    )
 
 
 def _render_secondary(
@@ -1110,20 +1126,25 @@ def render() -> None:
                     or row.row.n_flag
                     or row.state in {"CONTEXT_ONLY", "SUPPRESSED"}
                 ]
-                if not flagged:
-                    st.html('<div class="alert-item info"><div class="ai-title">Sin alertas en la selección.</div></div>')
+                alert_rows = []
                 for result in flagged:
                     item = resolve_assignment(assignments, result.row)
                     label = visible_indicator_name(
                         result, topic=topic, topic_assignment=item
                     )
-                    st.html(
-                        '<div class="alert-item warn"><div>'
-                        f'<div class="ai-title">{escape(label)}</div>'
-                        f'<div class="ai-desc">{escape(visible_cut(result))} · '
-                        f'{escape(STATE_LABELS[result.state])}</div>'
-                        "</div></div>"
+                    alert_rows.append(
+                        "<tr>"
+                        f"<td>{escape(label)}<br>{escape(visible_cut(result))}</td>"
+                        f"<td>{escape(STATE_LABELS[result.state])}</td>"
+                        "</tr>"
                     )
+                if not alert_rows:
+                    alert_rows.append('<tr><td colspan="2">Sin alertas en la selección.</td></tr>')
+                st.html(
+                    '<div class="alert-table"><table class="data">'
+                    '<thead><tr><th>Indicador / corte</th><th>Estado</th></tr></thead><tbody>'
+                    + "".join(alert_rows) + "</tbody></table></div>"
+                )
             with st.container(key="stage04_sheet_panel"):
                 st.html('<div class="panel-title">FICHA DEL INDICADOR ACTIVO</div>')
                 detail = next(

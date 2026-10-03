@@ -22,7 +22,7 @@ try {
   if (!response?.ok()) throw new Error(`HTTP ${response?.status()}`);
   await page.getByText("Coincidencia entre formas ICVAC de violencia sexual", { exact: true }).first().waitFor();
   await page.waitForFunction(() => document.querySelectorAll('[data-testid="stVegaLiteChart"]').length === 4);
-  const table = page.locator(".st-key-stage04_center .table-wrap table.data").first();
+  const table = page.locator(".st-key-stage04_center div.table-wrap > table.data").first();
   if (await table.locator("tbody tr").count() !== 16) {
     throw new Error("The V0 overlap table must contain all 16 approved rows");
   }
