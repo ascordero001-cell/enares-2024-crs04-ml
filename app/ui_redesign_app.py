@@ -10,6 +10,7 @@ from hashlib import sha256
 from html import escape
 from pathlib import Path
 from textwrap import wrap
+from time import monotonic
 
 import streamlit as st
 
@@ -20,6 +21,8 @@ for path in (ROOT, ROOT / "src"):
 
 from app.repositories import configured_repositories
 from app.views.export_controls import render_safe_export
+from app.views.idle_access import idle_expired
+from app.views.login_access import verify_credentials
 from app.views.ui_redesign_real import (
     MODULE_IDS,
     STATE_LABELS,
@@ -98,6 +101,90 @@ NAVIGATION_WIDGET_ID = "stage04_visible_tab"
 STANDARD_FILTERS = STANDARD_DIMENSIONS
 SPECIAL_FILTER_KEY = "real_special_dimension"
 NO_SELECTION = "Todas"
+IDLE_LAST_ACTIVITY_KEY = "stage04_last_activity_monotonic"
+IDLE_BLOCKED_KEY = "stage04_idle_blocked"
+LOGIN_OK_KEY = "stage04_private_login_verified"
+
+
+def _block_idle_session() -> None:
+    """Remove every displayed selection before rendering the blocked screen."""
+    st.session_state.clear()
+    st.query_params.clear()
+    st.session_state[IDLE_BLOCKED_KEY] = True
+
+
+@st.fragment(run_every="5s")
+def _idle_watchdog() -> None:
+    """Expire an untouched page even when no widget triggers an app rerun."""
+    last_activity = st.session_state.get(IDLE_LAST_ACTIVITY_KEY)
+    if isinstance(last_activity, (int, float)) and idle_expired(
+        float(last_activity), monotonic()
+    ):
+        _block_idle_session()
+        st.rerun()
+
+
+def _cloud_login_gate(now: float) -> bool:
+    """Require the private form before a remembered Google session sees V0."""
+    if st.session_state.get(LOGIN_OK_KEY) is True:
+        return True
+
+    st.title("Iniciar sesión")
+    if st.session_state.get(IDLE_BLOCKED_KEY):
+        st.info("La sesión terminó tras 300 segundos sin actividad. Ingresa de nuevo.")
+
+    expected_username = os.getenv("STAGE04_LOGIN_USERNAME", "")
+    encoded_hash = os.getenv("STAGE04_LOGIN_PASSWORD_HASH", "")
+    if not expected_username or not encoded_hash:
+        st.error("El acceso privado no está configurado. Contacta a la administración.")
+        return False
+
+    with st.form("stage04_private_login", clear_on_submit=True):
+        username = st.text_input("Usuario", autocomplete="username")
+        password = st.text_input(
+            "Contraseña", type="password", autocomplete="current-password"
+        )
+        submitted = st.form_submit_button("Iniciar sesión")
+
+    if submitted:
+        if verify_credentials(username, password, expected_username, encoded_hash):
+            st.session_state.clear()
+            st.session_state[LOGIN_OK_KEY] = True
+            st.session_state[IDLE_LAST_ACTIVITY_KEY] = now
+            st.rerun()
+        st.error("Usuario o contraseña incorrectos.")
+    return False
+
+
+def _idle_gate() -> bool:
+    """Keep V0 results out of the page until the user explicitly continues."""
+    now = monotonic()
+    last_activity = st.session_state.get(IDLE_LAST_ACTIVITY_KEY)
+    if isinstance(last_activity, (int, float)) and idle_expired(
+        float(last_activity), now
+    ):
+        _block_idle_session()
+
+    if os.getenv("STAGE04_DATA_MODE") == "AUTHENTICATED_SHADOW":
+        if not _cloud_login_gate(now):
+            return False
+        st.session_state[IDLE_LAST_ACTIVITY_KEY] = now
+        _idle_watchdog()
+        return True
+
+    if st.session_state.get(IDLE_BLOCKED_KEY):
+        st.title("Sesión bloqueada por inactividad")
+        st.info("Se borraron los filtros y resultados tras 300 segundos sin actividad.")
+        if st.button("Continuar con Google", type="primary"):
+            st.session_state.clear()
+            st.query_params.clear()
+            st.session_state[IDLE_LAST_ACTIVITY_KEY] = now
+            st.rerun()
+        return False
+
+    st.session_state[IDLE_LAST_ACTIVITY_KEY] = now
+    _idle_watchdog()
+    return True
 
 
 def _source_identity() -> str:
@@ -768,6 +855,8 @@ def render() -> None:
         layout="wide",
         initial_sidebar_state="collapsed",
     )
+    if not _idle_gate():
+        return
     inject_mockup_css()
     try:
         repository, _ = configured_repositories()
