@@ -10,6 +10,7 @@ from hashlib import sha256
 from html import escape
 from pathlib import Path
 from textwrap import wrap
+from time import monotonic
 
 import streamlit as st
 
@@ -20,6 +21,7 @@ for path in (ROOT, ROOT / "src"):
 
 from app.repositories import configured_repositories
 from app.views.export_controls import render_safe_export
+from app.views.idle_access import idle_expired
 from app.views.ui_redesign_real import (
     MODULE_IDS,
     STATE_LABELS,
@@ -98,6 +100,50 @@ NAVIGATION_WIDGET_ID = "stage04_visible_tab"
 STANDARD_FILTERS = STANDARD_DIMENSIONS
 SPECIAL_FILTER_KEY = "real_special_dimension"
 NO_SELECTION = "Todas"
+IDLE_LAST_ACTIVITY_KEY = "stage04_last_activity_monotonic"
+IDLE_BLOCKED_KEY = "stage04_idle_blocked"
+
+
+def _block_idle_session() -> None:
+    """Remove every displayed selection before rendering the blocked screen."""
+    st.session_state.clear()
+    st.query_params.clear()
+    st.session_state[IDLE_BLOCKED_KEY] = True
+
+
+@st.fragment(run_every="5s")
+def _idle_watchdog() -> None:
+    """Expire an untouched page even when no widget triggers an app rerun."""
+    last_activity = st.session_state.get(IDLE_LAST_ACTIVITY_KEY)
+    if isinstance(last_activity, (int, float)) and idle_expired(
+        float(last_activity), monotonic()
+    ):
+        _block_idle_session()
+        st.rerun()
+
+
+def _idle_gate() -> bool:
+    """Keep V0 results out of the page until the user explicitly continues."""
+    now = monotonic()
+    last_activity = st.session_state.get(IDLE_LAST_ACTIVITY_KEY)
+    if isinstance(last_activity, (int, float)) and idle_expired(
+        float(last_activity), now
+    ):
+        _block_idle_session()
+
+    if st.session_state.get(IDLE_BLOCKED_KEY):
+        st.title("Sesión bloqueada por inactividad")
+        st.info("Se borraron los filtros y resultados tras 300 segundos sin actividad.")
+        if st.button("Continuar con Google", type="primary"):
+            st.session_state.clear()
+            st.query_params.clear()
+            st.session_state[IDLE_LAST_ACTIVITY_KEY] = now
+            st.rerun()
+        return False
+
+    st.session_state[IDLE_LAST_ACTIVITY_KEY] = now
+    _idle_watchdog()
+    return True
 
 
 def _source_identity() -> str:
@@ -768,6 +814,8 @@ def render() -> None:
         layout="wide",
         initial_sidebar_state="collapsed",
     )
+    if not _idle_gate():
+        return
     inject_mockup_css()
     try:
         repository, _ = configured_repositories()
