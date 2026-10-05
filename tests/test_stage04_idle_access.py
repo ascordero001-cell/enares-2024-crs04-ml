@@ -1,6 +1,7 @@
 """Inactivity checks for the private Stage 04 dashboard."""
 
 from pathlib import Path
+from time import monotonic
 
 from streamlit.testing.v1 import AppTest
 
@@ -21,7 +22,7 @@ def test_expired_session_clears_state_and_requires_continuation() -> None:
     app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py")).run(timeout=30)
     assert not app.exception
     app.session_state["real_filter_Sexo"] = "1"
-    app.session_state[IDLE_LAST_ACTIVITY_KEY] = -1.0
+    app.session_state[IDLE_LAST_ACTIVITY_KEY] = monotonic() - IDLE_TIMEOUT_SECONDS - 1
     app.run(timeout=30)
 
     assert not app.exception
