@@ -30,7 +30,7 @@ DISPLAY_NAMES = {
 OTHER_CHARACTERISTICS = "Otras características"
 CATEGORY_LABELS = {
     "Área": {"1": "Urbano", "2": "Rural"},
-    "Sexo": {"1": "Hombre", "2": "Mujer"},
+    "Sexo": {"1": "Mujer", "2": "Hombre"},
     "Área × sexo": {
         "Urbano Hombre": "Urbano Hombre",
         "Urbano Mujer": "Urbano Mujer",
