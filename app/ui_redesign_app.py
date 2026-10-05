@@ -37,12 +37,12 @@ from app.views.ui_redesign_real import (
     safe_metadata_text,
     visible_cut,
     visible_indicator_name,
+    visible_overlap_labels,
     visible_table_record,
 )
 from app.views.ui_visual_components import (
     inject_mockup_css,
     render_exact_header,
-    render_exact_scope_banner,
     render_exact_table,
     render_module_cards,
     render_quality_legend,
@@ -355,6 +355,30 @@ def _format_filter_value(value: str, *, source: str, has_national: bool) -> str:
     return display_category(source, value) if value != NO_SELECTION else NO_SELECTION
 
 
+def _default_topic_cut(
+    rows: list[AuthorizedRedesignResult],
+) -> tuple[str | None, str | None]:
+    """Keep national totals when present, otherwise show the topic's V0 rows."""
+    return (
+        ("Nacional", None)
+        if any(result.row.disaggregation == "Nacional" for result in rows)
+        else (None, None)
+    )
+
+
+def _visible_topic_rows(
+    rows: list[AuthorizedRedesignResult],
+    dimension: str | None,
+    category: str | None,
+) -> list[AuthorizedRedesignResult]:
+    return [
+        result
+        for result in rows
+        if (dimension is None or result.row.disaggregation == dimension)
+        and (category is None or result.row.category == category)
+    ]
+
+
 def effective_cut(
     topic: ReportTopic, rows: list[AuthorizedRedesignResult]
 ) -> tuple[str | None, str | None]:
@@ -429,16 +453,108 @@ def effective_cut(
         help="Solo cortes presentes en V0 para este tema; no construye cruces nuevos.",
     )
     if topic.national_only:
-        return "Nacional", None
+        # Some approved national-only matrices use their matrix size as the
+        # V0 disaggregation instead of the literal "Nacional" cut.
+        return _default_topic_cut(rows)
     if active == OTHER_CHARACTERISTICS:
         return str(st.session_state[SPECIAL_FILTER_KEY]), None
     if active is not None:
         return active, str(st.session_state[f"real_filter_{active}"])
-    return (
-        ("Nacional", None)
-        if has_national
-        else (None, None)
-    )
+    return _default_topic_cut(rows)
+
+
+def _matrix_cells(results: list[AuthorizedRedesignResult]) -> list[dict[str, object]]:
+    """Preserve the directed V0 conditional pairs; never synthesize cells."""
+    cells: list[dict[str, object]] = []
+    for result in results:
+        if result.row.estimate is None:
+            continue
+        target, given, description = visible_overlap_labels(result.row.category)
+        cells.append(
+            {
+                "target": target,
+                "given": given,
+                "estimate": result.row.estimate,
+                "label": f"{result.row.estimate:.1f} %",
+                "full_label": description,
+                "lower": result.row.ci95_lower,
+                "upper": result.row.ci95_upper,
+                "cv": None if result.row.cv is None else result.row.cv * 100,
+                "n": result.row.n_unweighted,
+                "referential": bool(result.row.cv_flag),
+            }
+        )
+    return cells
+
+
+def _render_overlap_matrices(
+    results: list[AuthorizedRedesignResult], assignment: AssignmentIndex
+) -> None:
+    """Show 2×2 and 3×3 as separate directed matrices for each V0 period."""
+    for period in ("Últimos 12 meses", "Alguna vez en la vida"):
+        for size in ("2×2", "3×3"):
+            rows = [
+                result
+                for result in results
+                if resolve_assignment(assignment, result.row).period_label == period
+                and result.row.disaggregation == size
+                and numeric_values_are_visible(result)
+            ]
+            cells = _matrix_cells(rows)
+            if not cells:
+                continue
+            st.html(
+                '<div class="chart-group-head">'
+                f"{escape(period)} · matriz {escape(size)}</div>"
+            )
+            st.vega_lite_chart(
+                {
+                    "data": {"values": cells},
+                    "layer": [
+                        {
+                            "mark": {"type": "rect", "stroke": "#FFFFFF", "strokeWidth": 2},
+                            "encoding": {
+                                "x": {
+                                    "field": "target", "type": "nominal", "title": "Forma observada",
+                                    "axis": {"labelAngle": 0, "labelLimit": 300, "labelOverlap": False},
+                                },
+                                "y": {
+                                    "field": "given", "type": "nominal", "title": "Dado que reportó",
+                                    "axis": {"labelLimit": 260},
+                                },
+                                "color": {
+                                    "field": "estimate", "type": "quantitative",
+                                    "title": "Porcentaje", "scale": {"scheme": "tealblues", "domain": [0, 100]},
+                                },
+                                "tooltip": [
+                                    {"field": "full_label", "title": "Cruce V0"},
+                                    {"field": "estimate", "title": "Estimación (%)", "format": ".1f"},
+                                    {"field": "lower", "title": "IC95 inferior (%)", "format": ".1f"},
+                                    {"field": "upper", "title": "IC95 superior (%)", "format": ".1f"},
+                                    {"field": "cv", "title": "CV (%)", "format": ".1f"},
+                                    {"field": "n", "title": "N"},
+                                    {"field": "referential", "title": "Referencial por CV"},
+                                ],
+                            },
+                        },
+                        {
+                            "mark": {"type": "text", "fontSize": 13, "fontWeight": "bold"},
+                            "encoding": {
+                                "x": {"field": "target", "type": "nominal"},
+                                "y": {"field": "given", "type": "nominal"},
+                                "text": {"field": "label"},
+                                "color": {
+                                    "condition": {"test": "datum.estimate >= 50", "value": "white"},
+                                    "value": "#16202E",
+                                },
+                            },
+                        },
+                    ],
+                    "height": {"step": 48},
+                    "config": {"view": {"stroke": None}, "axis": {"labelFontSize": 12, "titleFontSize": 13}},
+                },
+                width="stretch",
+            )
 
 
 def _render_topic_chart(
@@ -449,6 +565,9 @@ def _render_topic_chart(
     active_dimension: str | None,
     active_category: str | None,
 ) -> None:
+    if topic.topic_id == "3.4.04":
+        _render_overlap_matrices(results, assignment)
+        return
     periods = sorted(
         {resolve_assignment(assignment, result.row).period_label for result in results}
     )
@@ -520,6 +639,7 @@ def _render_topic_chart(
                         "label": wrapped_label,
                         "full_label": label,
                         "estimate": result.row.estimate,
+                        "value_label": f"{result.row.estimate:.1f} %",
                         "lower": result.row.ci95_lower,
                         "upper": result.row.ci95_upper,
                         "cv": None if result.row.cv is None else result.row.cv * 100,
@@ -535,9 +655,12 @@ def _render_topic_chart(
             )
             tooltip = [
                 {"field": "full_label", "title": "Categoría"},
-                {"field": "estimate", "title": "Estimación", "format": ".1f"},
+                {"field": "estimate", "title": "Estimación (%)", "format": ".1f"},
+                {"field": "lower", "title": "IC95 inferior (%)", "format": ".1f"},
+                {"field": "upper", "title": "IC95 superior (%)", "format": ".1f"},
                 {"field": "cv", "title": "CV (%)", "format": ".1f"},
                 {"field": "n", "title": "N"},
+                {"field": "referential", "title": "Referencial por CV"},
             ]
             y = {
                 "field": "label",
@@ -558,8 +681,33 @@ def _render_topic_chart(
             }
             if use_bars:
                 spec: dict[str, object] = {
-                    "mark": {"type": "bar", "cornerRadiusEnd": 4, "color": "#0E7C6B"},
-                    "encoding": {"y": y, "x": x, "tooltip": tooltip},
+                    "layer": [
+                        {
+                            "mark": {"type": "bar", "cornerRadiusEnd": 4, "stroke": "#0E7C6B"},
+                            "encoding": {
+                                "y": y,
+                                "x": x,
+                                "color": {
+                                    "condition": {"test": "datum.referential", "value": "white"},
+                                    "value": "#0E7C6B",
+                                },
+                                "strokeDash": {
+                                    "condition": {"test": "datum.referential", "value": [4, 3]},
+                                    "value": [1, 0],
+                                },
+                                "tooltip": tooltip,
+                            },
+                        },
+                        {
+                            "mark": {"type": "text", "align": "left", "dx": 5, "fontSize": 12},
+                            "encoding": {
+                                "y": y,
+                                "x": x,
+                                "text": {"field": "value_label"},
+                                "tooltip": tooltip,
+                            },
+                        },
+                    ],
                 }
             else:
                 layers = []
@@ -625,7 +773,10 @@ def _render_topic_chart(
             spec["padding"] = {"left": 12, "right": 12}
             spec["config"] = {
                 "background": "#FFFFFF",
-                "axis": {"gridColor": "#DBE3EE", "labelColor": "#4B5A72"},
+                "axis": {
+                    "gridColor": "#DBE3EE", "labelColor": "#4B5A72",
+                    "labelFontSize": 12, "titleFontSize": 13,
+                },
                 "view": {"stroke": None},
             }
             # Inline the already aggregate-only values in Vega-Lite. Passing
@@ -653,15 +804,21 @@ def _render_context_universes(rows: list[AuthorizedRedesignResult]) -> None:
     for result in candidates:
         row = result.row
         contexts[(_context_name(row.universe), row.universe, row.denominator)] = None
-    cards = []
+    cells = []
     for context, universe, denominator in contexts:
-        cards.append(
-            "<div>"
-            f"<span>{escape(context)} · UNIVERSO</span>{escape(safe_metadata_text(universe))}"
-            f"<span>DENOMINADOR</span>{escape(safe_metadata_text(denominator))}"
-            "</div>"
+        cells.append(
+            "<tr>"
+            f"<td>{escape(context)}</td>"
+            f"<td>{escape(safe_metadata_text(universe))}</td>"
+            f"<td>{escape(safe_metadata_text(denominator))}</td>"
+            "</tr>"
         )
-    st.html('<section class="ficha" data-testid="stage04-context-universes">' + "".join(cards) + "</section>")
+    st.html(
+        '<section class="table-wrap context-table" data-testid="stage04-context-universes">'
+        '<table class="data"><thead><tr><th>Ámbito</th><th>Universo</th>'
+        '<th>Denominador</th></tr></thead><tbody>'
+        + "".join(cells) + "</tbody></table></section>"
+    )
 
 
 def _render_detail_ficha(
@@ -696,9 +853,16 @@ def _render_detail_ficha(
         if item.period_label == "Período no precisado":
             items.insert(4, ("Nota sobre período", "La fuente no precisa un plazo único para esta serie."))
     html = "".join(
-        f"<div><span>{escape(label)}</span>{escape(value)}</div>" for label, value in items
+        '<div class="detail-item">'
+        f"<dt>{escape(label)}</dt>"
+        f"<dd>{escape(value)}</dd>"
+        "</div>"
+        for label, value in items
     )
-    st.html('<section class="ficha" data-testid="stage04-detail-sheet">' + html + "</section>")
+    st.html(
+        '<section class="detail-table" data-testid="stage04-detail-sheet">'
+        '<dl class="detail-list">' + html + "</dl></section>"
+    )
 
 
 def _render_secondary(
@@ -713,6 +877,77 @@ def _render_secondary(
 ) -> None:
     if view == "Resumen nacional":
         st.html('<div class="section-head"><h2>Resumen nacional</h2></div>')
+        comparison = []
+        for module_id in MODULE_IDS:
+            headline = HEADLINE_INDICATOR_BY_MODULE[module_id]
+            candidates = [
+                result
+                for result in results
+                if result.row.indicator_id == headline
+                and result.row.disaggregation == "Nacional"
+                and result.row.category.casefold() in {"total", "nacional (total)"}
+            ]
+            if len(candidates) != 1:
+                raise ModuleIsolationError(f"Missing national comparison for {module_id}")
+            result = candidates[0]
+            if numeric_values_are_visible(result) and result.row.estimate is not None:
+                comparison.append(
+                    {
+                        "module": f"{module_id} · {PRESENTATION_MODULE_LABELS[module_id]}",
+                        "estimate": result.row.estimate,
+                        "value_label": f"{result.row.estimate:.1f} %",
+                        "lower": result.row.ci95_lower,
+                        "upper": result.row.ci95_upper,
+                        "cv": None if result.row.cv is None else result.row.cv * 100,
+                        "n": result.row.n_unweighted,
+                        "referential": bool(result.row.cv_flag),
+                    }
+                )
+        if comparison:
+            y = {
+                "field": "module", "type": "nominal", "title": None,
+                "sort": [record["module"] for record in comparison],
+                "axis": {"labelLimit": 420, "labelFontSize": 12},
+            }
+            x = {
+                "field": "estimate", "type": "quantitative", "title": "Porcentaje",
+                "scale": {"domain": [0, 100]},
+            }
+            st.vega_lite_chart(
+                {
+                    "data": {"values": comparison},
+                    "layer": [
+                        {
+                            "mark": {"type": "bar", "cornerRadiusEnd": 4, "stroke": "#0E7C6B"},
+                            "encoding": {
+                                "y": y, "x": x,
+                                "color": {
+                                    "condition": {"test": "datum.referential", "value": "white"},
+                                    "value": "#0E7C6B",
+                                },
+                                "tooltip": [
+                                    {"field": "module", "title": "Módulo"},
+                                    {"field": "estimate", "title": "Estimación (%)", "format": ".1f"},
+                                    {"field": "lower", "title": "IC95 inferior (%)", "format": ".1f"},
+                                    {"field": "upper", "title": "IC95 superior (%)", "format": ".1f"},
+                                    {"field": "cv", "title": "CV (%)", "format": ".1f"},
+                                    {"field": "n", "title": "N"},
+                                ],
+                            },
+                        },
+                        {
+                            "mark": {"type": "text", "align": "left", "dx": 5, "fontSize": 12},
+                            "encoding": {"y": y, "x": x, "text": {"field": "value_label"}},
+                        },
+                    ],
+                    "height": {"step": 32},
+                    "config": {
+                        "view": {"stroke": None},
+                        "axis": {"labelFontSize": 12, "titleFontSize": 13},
+                    },
+                },
+                width="stretch",
+            )
         render_exact_table(
             ("Módulo", "Tema principal", "Estimación", "Estado"),
             tuple(
@@ -833,9 +1068,6 @@ def render() -> None:
         release_state="RELEASE V0",
         cloud_state="SHADOW PRIVADO",
     )
-    render_exact_scope_banner(
-        "Sin microdatos, identificadores, recálculo ni cruces nuevos."
-    )
     st.html(ROOT / "app/assets/stage04_history_sync.htm", unsafe_allow_javascript=True)
     with st.container(key="stage04_grid"):
         left, center, right = st.columns((210, 1000, 220), gap="medium")
@@ -844,12 +1076,7 @@ def render() -> None:
                 st.html('<div class="panel-title">DESAGREGACIONES AUTORIZADAS</div>')
                 dimension, category = effective_cut(topic, topic_rows)
                 filtered = enforce_module_isolation(
-                    (
-                        result
-                        for result in topic_rows
-                        if (dimension is None or result.row.disaggregation == dimension)
-                        and (category is None or result.row.category == category)
-                    ),
+                    _visible_topic_rows(topic_rows, dimension, category),
                     active_module_id=module_id,
                     assignment=assignments,
                 )
@@ -959,20 +1186,25 @@ def render() -> None:
                     or row.row.n_flag
                     or row.state in {"CONTEXT_ONLY", "SUPPRESSED"}
                 ]
-                if not flagged:
-                    st.html('<div class="alert-item info"><div class="ai-title">Sin alertas en la selección.</div></div>')
+                alert_rows = []
                 for result in flagged:
                     item = resolve_assignment(assignments, result.row)
                     label = visible_indicator_name(
                         result, topic=topic, topic_assignment=item
                     )
-                    st.html(
-                        '<div class="alert-item warn"><div>'
-                        f'<div class="ai-title">{escape(label)}</div>'
-                        f'<div class="ai-desc">{escape(visible_cut(result))} · '
-                        f'{escape(STATE_LABELS[result.state])}</div>'
-                        "</div></div>"
+                    alert_rows.append(
+                        "<tr>"
+                        f"<td>{escape(label)}<br>{escape(visible_cut(result))}</td>"
+                        f"<td>{escape(STATE_LABELS[result.state])}</td>"
+                        "</tr>"
                     )
+                if not alert_rows:
+                    alert_rows.append('<tr><td colspan="2">Sin alertas en la selección.</td></tr>')
+                st.html(
+                    '<div class="alert-table"><table class="data">'
+                    '<thead><tr><th>Indicador / corte</th><th>Estado</th></tr></thead><tbody>'
+                    + "".join(alert_rows) + "</tbody></table></div>"
+                )
             with st.container(key="stage04_sheet_panel"):
                 st.html('<div class="panel-title">FICHA DEL INDICADOR ACTIVO</div>')
                 detail = next(

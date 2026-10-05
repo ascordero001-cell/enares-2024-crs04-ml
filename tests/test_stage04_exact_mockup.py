@@ -113,10 +113,13 @@ def test_versioned_mockup_css_keeps_verified_source_and_geometry() -> None:
         "max-width:1600px!important",
         "grid-template-columns:minmax(180px,210px) minmax(55%,1fr) minmax(190px,220px)",
         ".stripcard",
-        ".banner",
         ".table-wrap",
     ):
         assert token in css
+
+    assert "grid-template-rows:auto auto minmax(0,1fr) auto auto" in css
+    assert "height:228px" in css
+    assert ".detail-item dt" in css
 
 
 def test_period_suffix_is_visible_without_rewriting_catalog_titles() -> None:
