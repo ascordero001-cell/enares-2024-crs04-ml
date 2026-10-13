@@ -1,4 +1,4 @@
-"""Server-side verification for the IAP-protected dashboard's second login gate."""
+"""Server-side verification for the Stage 04 dashboard login form."""
 
 from __future__ import annotations
 

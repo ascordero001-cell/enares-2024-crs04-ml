@@ -125,7 +125,7 @@ def _idle_watchdog() -> None:
 
 
 def _cloud_login_gate(now: float) -> bool:
-    """Require the private form before a remembered Google session sees V0."""
+    """Require the private form before any cloud session can see V0."""
     if st.session_state.get(LOGIN_OK_KEY) is True:
         return True
 
