@@ -7,10 +7,16 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any, cast
 
+import pytest
 from streamlit.testing.v1 import AppTest
 
 from app.streamlit_app import local_repositories
-from app.ui_redesign_app import _default_topic_cut, _matrix_cells, _visible_topic_rows
+from app.ui_redesign_app import (
+    _default_topic_cut,
+    _matrix_cells,
+    _paired_period_records,
+    _visible_topic_rows,
+)
 from app.views.ui_redesign_real import (
     enforce_module_isolation,
     filter_authorized_results,
@@ -22,6 +28,7 @@ from app.views.ui_redesign_real import (
     visible_cut,
     visible_overlap_labels,
 )
+from enares.stage04.display_taxonomy import STANDARD_DIMENSIONS, display_category
 from enares.stage04.indicator_labels import (
     indicator_display_name,
     indicator_option_label,
@@ -134,6 +141,93 @@ def test_one_visible_dimension_control_filters_an_existing_category_only():
     )
 
 
+@pytest.mark.parametrize("dimension", STANDARD_DIMENSIONS)
+def test_each_standard_filter_selects_a_v0_cut_and_resets_to_national(
+    dimension: str,
+) -> None:
+    app = _app()
+    widget = next(box for box in app.selectbox if box.key == f"real_filter_{dimension}")
+    assert len(widget.options) > 1
+    category = widget.options[1]
+    widget.set_value(category).run(timeout=30)
+    assert not app.exception
+    assert display_category(
+        dimension, app.session_state[f"real_filter_{dimension}"]
+    ) == category
+    assert all(
+        box.disabled
+        for box in app.selectbox
+        if box.key and box.key.startswith("real_filter_") and box.key != f"real_filter_{dimension}"
+    )
+    next(button for button in app.button if button.label == "Volver a Nacional").click().run(timeout=30)
+    assert not app.exception
+    assert app.session_state[f"real_filter_{dimension}"] == "Todas"
+
+
+def test_v0_period_pairs_use_exact_existing_rows_without_new_estimates() -> None:
+    repository, _ = local_repositories()
+    results = load_authorized_results(repository)
+    catalog = load_topic_mapping(
+        ROOT / "src" / "enares" / "stage04" / "report_topic_map.csv",
+        catalog_rows=[result.row for result in results],
+    )
+    topic_rows = [
+        result
+        for result in results
+        if resolve_assignment(catalog.assignments, result.row).topic_id == "3.4.01"
+        and result.row.disaggregation == "Nacional"
+    ]
+    pairs = _paired_period_records(topic_rows, catalog.assignments)
+    assert len(pairs) == 2
+    assert {record["period"] for record in pairs} == {
+        "Últimos 12 meses", "Alguna vez en la vida"
+    }
+    assert {record["estimate"] for record in pairs} == {
+        result.row.estimate for result in topic_rows
+    }
+    assert {record["n"] for record in pairs} == {
+        result.row.n_unweighted for result in topic_rows
+    }
+    app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py"))
+    app.query_params["view"] = "Módulo 3.4"
+    app.query_params["topic"] = "3.4.01"
+    app.run(timeout=30)
+    assert not app.exception
+    assert any(
+        "Comparación de períodos V0" in element.proto.body
+        for element in app.get("html")
+    )
+
+
+@pytest.mark.parametrize(
+    "topic_id",
+    ("3.2.05", "3.2.06", "3.3.05", "3.3.06", "3.4.01", "3.4.02", "3.4.03", "3.4.05"),
+)
+def test_each_eligible_two_period_topic_has_only_verified_v0_pairs(
+    topic_id: str,
+) -> None:
+    repository, _ = local_repositories()
+    results = load_authorized_results(repository)
+    catalog = load_topic_mapping(
+        ROOT / "src" / "enares" / "stage04" / "report_topic_map.csv",
+        catalog_rows=[result.row for result in results],
+    )
+    topic_rows = [
+        result
+        for result in results
+        if resolve_assignment(catalog.assignments, result.row).topic_id == topic_id
+        and result.row.disaggregation == "Nacional"
+    ]
+    records = _paired_period_records(topic_rows, catalog.assignments)
+    assert records, topic_id
+    assert len(records) % 2 == 0
+    source_values = {result.row.estimate for result in topic_rows}
+    assert {record["estimate"] for record in records} <= source_values
+    assert {record["period"] for record in records} == {
+        "Últimos 12 meses", "Alguna vez en la vida"
+    }
+
+
 def test_every_v0_indicator_has_a_human_primary_label_and_keeps_its_code():
     fixture = ROOT / "app" / "data" / "v0_authorized_full_indicator_estimates.csv"
     with fixture.open(encoding="utf-8-sig", newline="") as handle:
@@ -244,6 +338,38 @@ def test_every_topic_with_v0_rows_keeps_at_least_one_default_visible_row():
         if topic_rows:
             dimension, category = _default_topic_cut(topic_rows)
             assert _visible_topic_rows(topic_rows, dimension, category), topic.topic_id
+
+
+def test_all_80_topic_links_render_their_own_v0_rows_or_explicit_empty_state():
+    repository, _ = local_repositories()
+    results = load_authorized_results(repository)
+    catalog = load_topic_mapping(
+        ROOT / "src" / "enares" / "stage04" / "report_topic_map.csv",
+        catalog_rows=[result.row for result in results],
+    )
+    assert len(catalog.topics) == 80
+    populated = {
+        resolve_assignment(catalog.assignments, result.row).topic_id
+        for result in results
+    }
+    for topic in catalog.topics:
+        app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py"))
+        app.query_params["view"] = f"Módulo {topic.module_id}"
+        app.query_params["topic"] = topic.topic_id
+        app.run(timeout=30)
+        assert not app.exception, topic.topic_id
+        assert app.session_state["active_report_topic_id"] == topic.topic_id
+        tables = [
+            element.proto.body
+            for element in app.get("html")
+            if '<div class="table-wrap"><table class="data">' in element.proto.body
+        ]
+        if topic.topic_id in populated:
+            assert tables, topic.topic_id
+        else:
+            assert any(
+                "Sin datos en el release V0" in info.value for info in app.info
+            ), topic.topic_id
 
 
 def test_sexual_overlap_shows_all_approved_rows_in_separate_matrices():

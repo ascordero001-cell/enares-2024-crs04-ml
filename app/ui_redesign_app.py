@@ -557,6 +557,138 @@ def _render_overlap_matrices(
             )
 
 
+def _period_pair_key(indicator_id: str) -> str:
+    """Match only the same V0 measure across its 12-month/lifetime variants."""
+    prefix, separator, suffix = indicator_id.partition("__")
+    # In the approved V0 naming, a trailing _1 on the measure prefix marks
+    # lifetime; never strip a numbered questionnaire item after "__".
+    prefix = prefix.removesuffix("_1")
+    return prefix.replace("12M", "PERIOD").replace("VIDA", "PERIOD") + (
+        separator + suffix if separator else ""
+    )
+
+
+def _paired_period_records(
+    results: list[AuthorizedRedesignResult], assignment: AssignmentIndex
+) -> list[dict[str, object]]:
+    """Pair existing V0 rows without estimating, joining cuts, or inventing values."""
+    periods = ("Últimos 12 meses", "Alguna vez en la vida")
+    grouped: dict[tuple[str, str, str], dict[str, AuthorizedRedesignResult]] = {}
+    ambiguous: set[tuple[str, str, str]] = set()
+    for result in results:
+        if not numeric_values_are_visible(result) or result.row.estimate is None:
+            continue
+        period = resolve_assignment(assignment, result.row).period_label
+        if period not in periods:
+            continue
+        key = (
+            _period_pair_key(result.row.indicator_id),
+            result.row.disaggregation,
+            result.row.category,
+        )
+        pair = grouped.setdefault(key, {})
+        if period in pair:
+            ambiguous.add(key)
+        pair[period] = result
+    records: list[dict[str, object]] = []
+    for key, pair in grouped.items():
+        if key in ambiguous or set(pair) != set(periods):
+            continue
+        for period in periods:
+            result = pair[period]
+            records.append(
+                {
+                    "measure": key[0],
+                    "dimension": key[1],
+                    "cut": display_category(key[1], key[2]),
+                    "period": period,
+                    "estimate": result.row.estimate,
+                    "value_label": f"{result.row.estimate:.1f} %",
+                    "lower": result.row.ci95_lower,
+                    "upper": result.row.ci95_upper,
+                    "cv": None if result.row.cv is None else result.row.cv * 100,
+                    "n": result.row.n_unweighted,
+                    "referential": bool(result.row.cv_flag),
+                }
+            )
+    return records
+
+
+def _render_paired_period_chart(
+    topic: ReportTopic,
+    results: list[AuthorizedRedesignResult],
+    assignment: AssignmentIndex,
+    *,
+    active_dimension: str | None,
+) -> None:
+    """Show both approved periods together only for unambiguous V0 pairs."""
+    records = _paired_period_records(results, assignment)
+    if not records:
+        return
+    visible_dimension = active_dimension or (
+        "Nacional" if any(row.row.disaggregation == "Nacional" for row in results) else None
+    )
+    if visible_dimension is not None:
+        records = [
+            record
+            for record in records
+            if record["dimension"] == visible_dimension
+        ]
+    if not records:
+        return
+    # The paired view is a navigation aid; period-specific charts and the
+    # export retain the original source labels and full V0 precision.
+    labels = {
+        record["measure"]: next(
+            (
+                (
+                    result.display_name.split(": ", 1)[1]
+                    if ": " in result.display_name
+                    else topic.title
+                )
+                for result in results
+                if _period_pair_key(result.row.indicator_id) == record["measure"]
+            ),
+            topic.title,
+        )
+        for record in records
+    }
+    for record in records:
+        full_label = f"{labels[record['measure']]} · {record['cut']}"
+        record["full_label"] = full_label
+        record["label"] = "\n".join(
+            wrap(full_label, width=52, break_long_words=False, break_on_hyphens=False)
+        )
+    st.html('<div class="chart-group-head">Comparación de períodos V0</div>')
+    st.vega_lite_chart(
+        {
+            "data": {"values": records},
+            "mark": {"type": "bar", "cornerRadiusEnd": 3, "stroke": "#0E7C6B"},
+            "encoding": {
+                "y": {"field": "label", "type": "nominal", "title": None, "axis": {"labelLimit": 420}},
+                "yOffset": {"field": "period", "sort": ["Últimos 12 meses", "Alguna vez en la vida"]},
+                "x": {"field": "estimate", "type": "quantitative", "title": "Porcentaje", "scale": {"domain": [0, 100]}},
+                "color": {"field": "period", "type": "nominal", "title": "Período", "scale": {"domain": ["Últimos 12 meses", "Alguna vez en la vida"], "range": ["#0E7C6B", "#375C94"]}},
+                "fillOpacity": {"condition": {"test": "datum.referential", "value": 0.2}, "value": 1},
+                "strokeDash": {"condition": {"test": "datum.referential", "value": [4, 3]}, "value": [1, 0]},
+                "tooltip": [
+                    {"field": "full_label", "title": "Medida y corte"},
+                    {"field": "period", "title": "Período"},
+                    {"field": "estimate", "title": "Estimación (%)", "format": ".1f"},
+                    {"field": "lower", "title": "IC95 inferior (%)", "format": ".1f"},
+                    {"field": "upper", "title": "IC95 superior (%)", "format": ".1f"},
+                    {"field": "cv", "title": "CV (%)", "format": ".1f"},
+                    {"field": "n", "title": "N"},
+                    {"field": "referential", "title": "Referencial por CV"},
+                ],
+            },
+            "height": {"step": 36},
+            "config": {"axis": {"labelFontSize": 12, "titleFontSize": 13}, "view": {"stroke": None}},
+        },
+        width="stretch",
+    )
+
+
 def _render_topic_chart(
     topic: ReportTopic,
     results: list[AuthorizedRedesignResult],
@@ -568,6 +700,9 @@ def _render_topic_chart(
     if topic.topic_id == "3.4.04":
         _render_overlap_matrices(results, assignment)
         return
+    _render_paired_period_chart(
+        topic, results, assignment, active_dimension=active_dimension
+    )
     periods = sorted(
         {resolve_assignment(assignment, result.row).period_label for result in results}
     )
@@ -586,7 +721,7 @@ def _render_topic_chart(
             and result.row.category.casefold() in {"total", "nacional (total)"}
         ]
         national_value = national[0].row.estimate if len(national) == 1 else None
-        use_bars = topic.national_only or not any(
+        use_bars = topic.national_only or active_dimension == "Nacional" or not any(
             result.row.disaggregation != "Nacional" for result in period_rows
         )
         dimensions = (
@@ -607,7 +742,7 @@ def _render_topic_chart(
                 )
                 if dimension != "Nacional"
                 and any(row.row.disaggregation == dimension for row in period_rows)
-                and active_dimension in (None, "Nacional", dimension)
+                and active_dimension in (None, dimension)
             )
         )
         if not dimensions:
