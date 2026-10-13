@@ -721,7 +721,7 @@ def _render_topic_chart(
             and result.row.category.casefold() in {"total", "nacional (total)"}
         ]
         national_value = national[0].row.estimate if len(national) == 1 else None
-        use_bars = topic.national_only or active_dimension == "Nacional" or not any(
+        use_bars = topic.national_only or not any(
             result.row.disaggregation != "Nacional" for result in period_rows
         )
         dimensions = (
@@ -742,7 +742,7 @@ def _render_topic_chart(
                 )
                 if dimension != "Nacional"
                 and any(row.row.disaggregation == dimension for row in period_rows)
-                and active_dimension in (None, dimension)
+                and active_dimension in (None, "Nacional", dimension)
             )
         )
         if not dimensions:
