@@ -1,5 +1,6 @@
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
+import { contentSecurityPolicy, pilotOriginFromUrl } from "./src/security.mjs";
 
 const port = Number(process.env.PORT || "8080");
 const config = {
@@ -11,7 +12,7 @@ const config = {
 
 const headers = {
   "cache-control": "no-store",
-  "content-security-policy": "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://www.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://iap.googleapis.com; frame-src https://*.firebaseapp.com https://*.web.app; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
+  "content-security-policy": contentSecurityPolicy(config.pilotUrl),
   "referrer-policy": "no-referrer",
   "x-content-type-options": "nosniff",
   "x-frame-options": "DENY",
@@ -44,7 +45,7 @@ createServer(async (request, response) => {
   }
   if (
     !config.apiKey || !config.authDomain || !config.identityEmail ||
-    !config.pilotUrl.startsWith("https://")
+    !pilotOriginFromUrl(config.pilotUrl)
   ) {
     response.writeHead(503, headers).end();
     return;
