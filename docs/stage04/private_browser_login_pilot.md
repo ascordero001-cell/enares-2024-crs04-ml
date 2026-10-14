@@ -24,6 +24,8 @@ La ausencia de configuración falla cerrada.
 - Servicio de autenticación: imagen aislada de `auth_ui/`, sin código de V0;
   `STAGE04_FIREBASE_API_KEY`, `STAGE04_FIREBASE_AUTH_DOMAIN` y
   `STAGE04_IDP_EMAIL` son configuración pública del cliente, no contraseñas.
+  `STAGE04_PILOT_URL` apunta al origen privado al que se vuelve tras cerrar
+  la cookie IAP para iniciar un flujo nuevo.
 - Backend: `STAGE04_IAP_PROJECT_NUMBER`, `STAGE04_IAP_REGION`,
   `STAGE04_IAP_SERVICE`, `STAGE04_IAP_EXPECTED_UID` y
   `STAGE04_IAP_SERVICE_URL`. El UID debe proceder de la cuenta creada en

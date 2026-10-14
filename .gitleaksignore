@@ -1,2 +1,5 @@
 # Exact false positive: static Streamlit widget key, not a credential.
 3e3ee78b38fca38a6c05828a98bf89bcc5e18fdf:app/views/ui_visual_components.py:generic-api-key:85
+# Exact false positives: immutable Docker image tag, not a key or credential.
+d2aa26ff19491e70d9f5a59b02951f30d428c96b:auth_ui/cloudbuild.yaml:generic-api-key:8
+d2aa26ff19491e70d9f5a59b02951f30d428c96b:auth_ui/cloudbuild.yaml:generic-api-key:11

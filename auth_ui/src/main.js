@@ -42,7 +42,7 @@ class Stage04AuthHandler {
     form.hidden = false;
     button.disabled = false;
     return new Promise((resolve) => {
-      form.addEventListener("submit", async (event) => {
+      form.onsubmit = async (event) => {
         event.preventDefault();
         if (Date.now() < blockedUntil) {
           showError("Espera un momento antes de volver a intentar.");
@@ -76,7 +76,7 @@ class Stage04AuthHandler {
         } finally {
           button.disabled = false;
         }
-      });
+      };
     });
   }
 
@@ -85,8 +85,9 @@ class Stage04AuthHandler {
   }
 
   completeSignOut() {
-    form.hidden = false;
-    showError("Sesión cerrada. Ingresa nuevamente.");
+    // Sign-out mode cannot reuse its login handler. Return to the protected
+    // origin so IAP starts a fresh password flow with no persisted Firebase user.
+    window.location.replace(config.pilotUrl);
   }
 }
 

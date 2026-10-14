@@ -6,6 +6,7 @@ const config = {
   apiKey: process.env.STAGE04_FIREBASE_API_KEY || "",
   authDomain: process.env.STAGE04_FIREBASE_AUTH_DOMAIN || "",
   identityEmail: process.env.STAGE04_IDP_EMAIL || "",
+  pilotUrl: process.env.STAGE04_PILOT_URL || "",
 };
 
 const headers = {
@@ -41,7 +42,10 @@ createServer(async (request, response) => {
     response.writeHead(200, { ...headers, "content-type": "text/plain" }).end("ok");
     return;
   }
-  if (!config.apiKey || !config.authDomain || !config.identityEmail) {
+  if (
+    !config.apiKey || !config.authDomain || !config.identityEmail ||
+    !config.pilotUrl.startsWith("https://")
+  ) {
     response.writeHead(503, headers).end();
     return;
   }
