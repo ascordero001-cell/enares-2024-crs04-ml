@@ -5,9 +5,9 @@ steps:
       - --file
       - Dockerfile.cloud
       - --tag
-      - us-central1-docker.pkg.dev/enares-2024-crs04/enares-stage04-shadow/enares-stage04-cloud:iap-pilot-20261014b
+      - us-central1-docker.pkg.dev/enares-2024-crs04/enares-stage04-shadow/enares-stage04-cloud:iap-pilot-20261014c-idle
       - .
 images:
-  - us-central1-docker.pkg.dev/enares-2024-crs04/enares-stage04-shadow/enares-stage04-cloud:iap-pilot-20261014b
+  - us-central1-docker.pkg.dev/enares-2024-crs04/enares-stage04-shadow/enares-stage04-cloud:iap-pilot-20261014c-idle
 options:
   logging: CLOUD_LOGGING_ONLY
