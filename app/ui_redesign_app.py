@@ -21,8 +21,8 @@ for path in (ROOT, ROOT / "src"):
 
 from app.repositories import configured_repositories
 from app.views.export_controls import render_safe_export
-from app.views.idle_access import idle_expired
-from app.views.login_access import verify_credentials
+from app.views.iap_identity import cloud_run_iap_audience, verify_external_iap_identity
+from app.views.idle_access import iap_signout_url, idle_expired
 from app.views.ui_redesign_real import (
     MODULE_IDS,
     STATE_LABELS,
@@ -103,7 +103,22 @@ SPECIAL_FILTER_KEY = "real_special_dimension"
 NO_SELECTION = "Todas"
 IDLE_LAST_ACTIVITY_KEY = "stage04_last_activity_monotonic"
 IDLE_BLOCKED_KEY = "stage04_idle_blocked"
-LOGIN_OK_KEY = "stage04_private_login_verified"
+
+
+def _signed_iap_identity_valid() -> bool:
+    """Require a signed token for the one approved external identity."""
+    try:
+        audience = cloud_run_iap_audience(
+            os.getenv("STAGE04_IAP_PROJECT_NUMBER", ""),
+            os.getenv("STAGE04_IAP_REGION", ""),
+            os.getenv("STAGE04_IAP_SERVICE", ""),
+        )
+        assertion = st.context.headers.get("x-goog-iap-jwt-assertion")
+    except (AttributeError, RuntimeError, ValueError):
+        return False
+    return verify_external_iap_identity(
+        assertion, audience, os.getenv("STAGE04_IAP_EXPECTED_UID", "")
+    )
 
 
 def _block_idle_session() -> None:
@@ -124,38 +139,6 @@ def _idle_watchdog() -> None:
         st.rerun()
 
 
-def _cloud_login_gate(now: float) -> bool:
-    """Require the private form before any cloud session can see V0."""
-    if st.session_state.get(LOGIN_OK_KEY) is True:
-        return True
-
-    st.title("Iniciar sesión")
-    if st.session_state.get(IDLE_BLOCKED_KEY):
-        st.info("La sesión terminó tras 300 segundos sin actividad. Ingresa de nuevo.")
-
-    expected_username = os.getenv("STAGE04_LOGIN_USERNAME", "")
-    encoded_hash = os.getenv("STAGE04_LOGIN_PASSWORD_HASH", "")
-    if not expected_username or not encoded_hash:
-        st.error("El acceso privado no está configurado. Contacta a la administración.")
-        return False
-
-    with st.form("stage04_private_login", clear_on_submit=True):
-        username = st.text_input("Usuario", autocomplete="username")
-        password = st.text_input(
-            "Contraseña", type="password", autocomplete="current-password"
-        )
-        submitted = st.form_submit_button("Iniciar sesión")
-
-    if submitted:
-        if verify_credentials(username, password, expected_username, encoded_hash):
-            st.session_state.clear()
-            st.session_state[LOGIN_OK_KEY] = True
-            st.session_state[IDLE_LAST_ACTIVITY_KEY] = now
-            st.rerun()
-        st.error("Usuario o contraseña incorrectos.")
-    return False
-
-
 def _idle_gate() -> bool:
     """Keep V0 results out of the page until the user explicitly continues."""
     now = monotonic()
@@ -166,7 +149,27 @@ def _idle_gate() -> bool:
         _block_idle_session()
 
     if os.getenv("STAGE04_DATA_MODE") == "AUTHENTICATED_SHADOW":
-        if not _cloud_login_gate(now):
+        if not _signed_iap_identity_valid():
+            st.title("Acceso privado")
+            st.error("La identidad de acceso no pudo verificarse.")
+            return False
+        if st.session_state.get(IDLE_BLOCKED_KEY):
+            st.title("Sesión cerrada por inactividad")
+            st.info("Se borraron los resultados. Inicia sesión nuevamente.")
+            signout_url = iap_signout_url(os.getenv("STAGE04_IAP_SERVICE_URL", ""))
+            if signout_url:
+                # A fresh credential prompt requires ending the IAP cookie,
+                # not merely clearing Streamlit's browser-side selections.
+                st.markdown(
+                    '<meta http-equiv="refresh" content="0;url='
+                    f'{escape(signout_url, quote=True)}">',
+                    unsafe_allow_html=True,
+                )
+                st.link_button(
+                    "Iniciar sesión",
+                    signout_url,
+                    type="primary",
+                )
             return False
         st.session_state[IDLE_LAST_ACTIVITY_KEY] = now
         _idle_watchdog()

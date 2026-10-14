@@ -1,0 +1,13 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --file
+      - Dockerfile
+      - --tag
+      - us-central1-docker.pkg.dev/enares-2024-crs04/enares-stage04-shadow/enares-stage04-auth-ui:pilot-20261014c
+      - .
+images:
+  - us-central1-docker.pkg.dev/enares-2024-crs04/enares-stage04-shadow/enares-stage04-auth-ui:pilot-20261014c
+options:
+  logging: CLOUD_LOGGING_ONLY

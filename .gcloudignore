@@ -1,0 +1,44 @@
+# Only the authenticated-shadow runtime enters a remote pilot build.
+# Never upload private V0 parent files, aggregate CSV exports or credentials.
+**
+!Dockerfile.cloud
+!requirements-runtime.txt
+!requirements-cloud-runtime.txt
+!cloudbuild-authenticated-pilot.yaml
+!app/
+!app/streamlit_app.py
+!app/__init__.py
+!app/repositories.py
+!app/ui_redesign_app.py
+!app/config/
+!app/config/**
+!app/views/
+!app/views/**
+!app/assets/
+!app/assets/**
+!app/data/
+!app/data/v0_authorized_full_indicator_estimates.manifest.json
+!.streamlit/
+!.streamlit/config.toml
+!src/
+!src/**
+!scripts/
+!scripts/container_healthcheck.py
+!docs/
+!docs/stage04/
+!docs/stage04/v0_drive_hash_manifest.md
+**/__pycache__/**
+**/*.pyc
+# Fail closed for data/export file types if they appear under src later.
+**/*.sav
+**/*.zsav
+**/*.dta
+**/*.parquet
+**/*.feather
+**/*.xlsx
+**/*.xls
+**/*.csv
+!src/enares/stage04/report_topic_map.csv
+**/.env*
+**/*credentials*.json
+**/*service-account*.json

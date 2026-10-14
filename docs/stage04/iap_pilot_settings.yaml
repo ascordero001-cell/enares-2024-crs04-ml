@@ -1,0 +1,8 @@
+# Pilot service only. Do not apply at project level or to enares-stage04-shadow.
+accessSettings:
+  gcipSettings:
+    tenantIds:
+      - _901917389711
+    # IAP requires apiKey in this URL; substitute the client key from the
+    # Identity Platform project at deployment time. Never commit its value.
+    loginPageUri: https://enares-stage04-auth-pilot-901917389711.us-central1.run.app/?apiKey=REPLACE_WITH_PROJECT_CLIENT_API_KEY
