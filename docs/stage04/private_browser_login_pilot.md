@@ -76,10 +76,16 @@ evaluar antes el costo y la posible retención de datos.
   copia ni comunica aquí. La primera prueba manual de inactividad **falló**:
   después de más de 300 s seguían visibles los resultados. El fragmento
   periódico de Streamlit no se considera suficiente como control de cierre.
-  Una candidata añade un temporizador en el documento que oculta los
-  resultados antes de navegar al cierre de IAP y comprueba también el retorno
-  desde una pestaña en segundo plano. Sus pruebas automatizadas no sustituyen
-  una nueva prueba manual de 300 s; la reapertura también sigue pendiente.
+  La revisión piloto `enares-stage04-iap-pilot-00009-qur` añade un temporizador
+  en el documento que oculta los resultados antes de navegar al cierre de IAP
+  y comprueba también el retorno desde una pestaña en segundo plano. Tras
+  pasar la CI del head `58e4f44dbc173cb351474ff2ed6ace244eaa5772`, se
+  dirigió el 100 % del tráfico **solo del piloto** a esa revisión. Ana repitió
+  en Chrome la prueba de más de 300 s sin actividad y confirmó que los
+  resultados se ocultaron y apareció el login. La prueba anterior fallida se
+  hizo cuando el enlace normal aún servía la revisión previa `00007-fat`.
+  Sigue pendiente comprobar que, después del bloqueo, una nueva visita exige
+  credenciales válidas y no reutiliza silenciosamente la sesión anterior.
 - El formulario piloto usa la revisión `enares-stage04-auth-pilot-00008-fes`
   (digest `sha256:b6af37ddc276c55510b00b545955fe8097b4ac4eb4eed283344e6fa4e490d38e`).
   Pasó por candidata al 0 %, pruebas locales de la política CSP y CI verde
@@ -87,6 +93,11 @@ evaluar antes el costo y la posible retención de datos.
   el 100 % del tráfico **solo del servicio de acceso piloto**. La revisión
   anterior `00006-niq` conserva una URL etiquetada para rollback. El servicio
   principal `enares-stage04-shadow` no cambió.
+- La candidata backend `enares-stage04-iap-pilot-00009-qur` usa la imagen
+  `sha256:118a466e77f4b6a16c44800417d9019ab933622258855919cde2f3c3a29b7488`.
+  La revisión anterior `00007-fat` conserva la etiqueta `idle-b` para rollback;
+  el backend no tiene bindings públicos de invocación. La CI del nuevo head
+  terminó en verde, incluida la auditoría WCAG 2.2 AA.
 - **Estado de publicación: NO PROMOVER.** Este PR continúa en borrador hasta
   comprobar todos los criterios siguientes y recibir la revisión de Rita.
 
