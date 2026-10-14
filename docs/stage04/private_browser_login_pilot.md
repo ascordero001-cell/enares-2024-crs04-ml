@@ -63,13 +63,30 @@ evaluar antes el costo y la posible retención de datos.
 - El formulario separado responde `/`, `/config` y `/bundle.js`; no sirve
   rutas de V0. La primera compilación corrigió su política CSP para permitir
   la llamada de configuración de Identity Platform.
+- La verificación del flujo real detectó dos destinos que faltaban en la
+  autorización del navegador: `iap.googleapis.com` como retorno de IAP en
+  Identity Platform y el origen exacto del backend piloto en `connect-src`
+  para que `gcip-iap` coloque su cookie. Se agregaron sin retirar los dominios
+  existentes ni ampliar la política a otros destinos.
 - La prueba de navegador integrada en Codex no llega a
   `www.googleapis.com` (`ERR_BLOCKED_BY_CLIENT`). Esto **no acredita ni
-  descarta** el funcionamiento en Chrome normal. La prueba real de usuario,
-  contraseña, reapertura y vencimiento a 300 s sigue pendiente.
-- Se envió un enlace de restablecimiento al correo interno de la identidad
-  piloto. La persona titular debe establecer la nueva contraseña fuera de
-  esta conversación; no se copia ni comunica aquí.
+  descarta** el funcionamiento en Chrome normal. La persona titular completó
+  fuera de esta conversación la rotación de contraseña y confirmó que el
+  acceso válido en Chrome llega a «Resumen nacional»; la contraseña no se
+  copia ni comunica aquí. La primera prueba manual de inactividad **falló**:
+  después de más de 300 s seguían visibles los resultados. El fragmento
+  periódico de Streamlit no se considera suficiente como control de cierre.
+  Una candidata añade un temporizador en el documento que oculta los
+  resultados antes de navegar al cierre de IAP y comprueba también el retorno
+  desde una pestaña en segundo plano. Sus pruebas automatizadas no sustituyen
+  una nueva prueba manual de 300 s; la reapertura también sigue pendiente.
+- El formulario piloto usa la revisión `enares-stage04-auth-pilot-00008-fes`
+  (digest `sha256:b6af37ddc276c55510b00b545955fe8097b4ac4eb4eed283344e6fa4e490d38e`).
+  Pasó por candidata al 0 %, pruebas locales de la política CSP y CI verde
+  del commit `253484704270a0cd24cbebadf819c356b6bc0053` antes de recibir
+  el 100 % del tráfico **solo del servicio de acceso piloto**. La revisión
+  anterior `00006-niq` conserva una URL etiquetada para rollback. El servicio
+  principal `enares-stage04-shadow` no cambió.
 - **Estado de publicación: NO PROMOVER.** Este PR continúa en borrador hasta
   comprobar todos los criterios siguientes y recibir la revisión de Rita.
 

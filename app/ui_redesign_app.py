@@ -21,7 +21,7 @@ for path in (ROOT, ROOT / "src"):
 
 from app.repositories import configured_repositories
 from app.views.export_controls import render_safe_export
-from app.views.idle_access import iap_signout_url, idle_expired
+from app.views.idle_access import client_idle_guard_html, iap_signout_url, idle_expired
 from app.views.ui_redesign_real import (
     MODULE_IDS,
     STATE_LABELS,
@@ -158,6 +158,11 @@ def _idle_gate() -> bool:
             st.title("Acceso privado")
             st.error("La identidad de acceso no pudo verificarse.")
             return False
+        guard_html = client_idle_guard_html(os.getenv("STAGE04_IAP_SERVICE_URL", ""))
+        if guard_html is None:
+            st.title("Acceso privado")
+            st.error("No se pudo configurar el cierre de sesión.")
+            return False
         if st.session_state.get(IDLE_BLOCKED_KEY):
             st.title("Sesión cerrada por inactividad")
             st.info("Se borraron los resultados. Inicia sesión nuevamente.")
@@ -176,6 +181,7 @@ def _idle_gate() -> bool:
                     type="primary",
                 )
             return False
+        st.html(guard_html, unsafe_allow_javascript=True)
         st.session_state[IDLE_LAST_ACTIVITY_KEY] = now
         _idle_watchdog()
         return True

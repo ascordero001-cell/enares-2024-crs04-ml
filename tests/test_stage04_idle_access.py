@@ -6,7 +6,12 @@ from time import monotonic
 from streamlit.testing.v1 import AppTest
 
 from app.ui_redesign_app import IDLE_BLOCKED_KEY, IDLE_LAST_ACTIVITY_KEY
-from app.views.idle_access import IDLE_TIMEOUT_SECONDS, iap_signout_url, idle_expired
+from app.views.idle_access import (
+    IDLE_TIMEOUT_SECONDS,
+    client_idle_guard_html,
+    iap_signout_url,
+    idle_expired,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -66,3 +71,14 @@ def test_cloud_idle_ends_iap_cookie_before_a_new_password() -> None:
     )
     assert iap_signout_url("http://pilot.example.test") is None
     assert iap_signout_url('https://pilot.example.test/"bad') is None
+
+
+def test_browser_guard_hides_results_and_signs_out_after_300_seconds() -> None:
+    html = client_idle_guard_html("https://pilot.example.test/")
+    assert html is not None
+    assert 'const timeoutMs = 300_000;' in html
+    assert 'document.documentElement.style.visibility = "hidden";' in html
+    assert 'window.location.replace(signoutUrl);' in html
+    assert '"https://pilot.example.test?gcp-iap-mode=GCIP_SIGNOUT"' in html
+    assert 'document.addEventListener("visibilitychange"' in html
+    assert client_idle_guard_html("http://pilot.example.test") is None

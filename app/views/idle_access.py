@@ -1,5 +1,8 @@
 """Pure inactivity boundary for the private Stage 04 browser session."""
 
+from json import dumps
+from pathlib import Path
+
 IDLE_TIMEOUT_SECONDS = 300
 
 
@@ -15,3 +18,12 @@ def iap_signout_url(service_url: str) -> str | None:
     ):
         return None
     return f"{service_url.rstrip('/')}?gcp-iap-mode=GCIP_SIGNOUT"
+
+
+def client_idle_guard_html(service_url: str) -> str | None:
+    """Return fixed browser-side protection for a trusted IAP service URL."""
+    signout_url = iap_signout_url(service_url)
+    if signout_url is None:
+        return None
+    template = Path(__file__).with_name("idle_guard.js").read_text(encoding="utf-8")
+    return template.replace("__STAGE04_SIGNOUT_URL__", dumps(signout_url))
