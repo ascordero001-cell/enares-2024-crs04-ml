@@ -32,7 +32,7 @@ def _claims(**overrides):
 
 
 def test_valid_external_password_identity_uses_signed_iap_verifier():
-    observed = {}
+    observed: dict[str, str] = {}
 
     def verifier(token, _request, *, audience, certs_url):
         observed.update(token=token, audience=audience, certs_url=certs_url)

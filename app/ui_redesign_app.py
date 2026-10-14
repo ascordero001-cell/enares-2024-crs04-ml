@@ -21,7 +21,6 @@ for path in (ROOT, ROOT / "src"):
 
 from app.repositories import configured_repositories
 from app.views.export_controls import render_safe_export
-from app.views.iap_identity import cloud_run_iap_audience, verify_external_iap_identity
 from app.views.idle_access import iap_signout_url, idle_expired
 from app.views.ui_redesign_real import (
     MODULE_IDS,
@@ -108,13 +107,19 @@ IDLE_BLOCKED_KEY = "stage04_idle_blocked"
 def _signed_iap_identity_valid() -> bool:
     """Require a signed token for the one approved external identity."""
     try:
+        # The local UI intentionally has no cloud-auth dependency installed.
+        from app.views.iap_identity import (
+            cloud_run_iap_audience,
+            verify_external_iap_identity,
+        )
+
         audience = cloud_run_iap_audience(
             os.getenv("STAGE04_IAP_PROJECT_NUMBER", ""),
             os.getenv("STAGE04_IAP_REGION", ""),
             os.getenv("STAGE04_IAP_SERVICE", ""),
         )
         assertion = st.context.headers.get("x-goog-iap-jwt-assertion")
-    except (AttributeError, RuntimeError, ValueError):
+    except (AttributeError, ImportError, RuntimeError, ValueError):
         return False
     return verify_external_iap_identity(
         assertion, audience, os.getenv("STAGE04_IAP_EXPECTED_UID", "")
