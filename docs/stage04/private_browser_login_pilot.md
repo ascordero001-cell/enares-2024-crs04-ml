@@ -90,8 +90,25 @@ evaluar antes el costo y la posible retención de datos.
   después de un logout; el cierre visual no basta para reautenticar. Una nueva
   candidata bloquea en el backend las sesiones de navegador nuevas cuyo
   `gcip.auth_time` firmado por IAP tiene 300 s o más, aunque la cookie IAP
-  todavía sea válida. Aún no se desplegó ni se verificó manualmente esa
-  barrera; el requisito de nueva autenticación sigue **PENDIENTE**.
+  todavía sea válida. La revisión `enares-stage04-iap-pilot-00011-vez` se
+  compiló desde el commit exacto `238c1f63a17b01f80bd8278ffe3d938faf8c9ada`,
+  pasó CI y se llevó al 100 % **solo del piloto**. Ana confirmó que al abrir
+  de nuevo el enlace sin clave vio el formulario y no los resultados; tras
+  introducir credenciales válidas volvió a «Resumen nacional». En una
+  ventana de incógnito, una contraseña incorrecta y un usuario distinto
+  permanecieron fuera de los resultados. Estas pruebas son observaciones
+  manuales de Ana, no una auditoría independiente de Rita.
+- Tras el ingreso, Ana recorrió los seis módulos 3.1–3.6 y confirmó que el
+  selector de temas responde en cada uno. El catálogo de 80 temas (11, 18,
+  20, 9, 12 y 10 por módulo) se fija en `report_topics.py` y sus pruebas de
+  cobertura/aislamiento pasaron 41/41. No se presenta la prueba manual como
+  una revisión visual individual de los 80 temas.
+- El flujo ejecutable de `render()` retorna inmediatamente si `_idle_gate()`
+  falla; solo después se llama a `_verified_release_snapshot()` y se accede
+  al repositorio de agregados. Las pruebas de falta de JWT y falta de
+  configuración IAP verifican que no se renderizan tablas. Esto respalda el
+  gate de «V0 no se consulta antes de autenticar»; no se infiere solo de una
+  etiqueta en la interfaz.
 - El formulario piloto usa la revisión `enares-stage04-auth-pilot-00008-fes`
   (digest `sha256:b6af37ddc276c55510b00b545955fe8097b4ac4eb4eed283344e6fa4e490d38e`).
   Pasó por candidata al 0 %, pruebas locales de la política CSP y CI verde
@@ -104,6 +121,27 @@ evaluar antes el costo y la posible retención de datos.
   La revisión anterior `00007-fat` conserva la etiqueta `idle-b` para rollback;
   el backend no tiene bindings públicos de invocación. La CI del nuevo head
   terminó en verde, incluida la auditoría WCAG 2.2 AA.
+- La revisión actual del backend piloto `00011-vez` usa la imagen
+  `sha256:180bce1f6a0df897797a9c477409192171d1d1218abf5d4b5946793f2c731b1d`.
+  Su prueba anónima recibió 302, IAM sigue sin miembros públicos de
+  invocación y la revisión anterior `00009-qur` conserva la etiqueta
+  `idle-v2` como destino de rollback. El servicio principal continúa en
+  `enares-stage04-shadow-sex182-ff47d4a` al 100 %.
+- Ensayo de rollback **solo del piloto**: se creó el checkpoint `00013-vig`
+  con el mismo digest corregido, sin tráfico inicial. Se dirigió el 100 % a
+  `00013-vig`, se verificó el estado de tráfico y luego se revirtió el 100 % a
+  `00011-vez`. Ambas revisiones quedaron `Ready` y las solicitudes anónimas
+  a sus URLs reciben 302; el servicio principal permaneció intacto. Las
+  revisiones `00007-fat` y `00009-qur` se conservan como evidencia histórica,
+  **no** como destinos recomendados de rollback: preceden al gate de
+  reautenticación firmado.
+- Capacidad observada: backend piloto 2 CPU, 1 GiB, concurrencia 20,
+  `maxScale=2`; servicio de acceso 1 CPU, 256 MiB, concurrencia 20,
+  `maxScale=1`. Ambos tienen `minScale` sin fijar (escala a cero por defecto).
+  La alerta presupuestaria existente sigue vigente; el objetivo operativo es
+  gasto cero y el techo autorizado sigue siendo USD 20/mes total. Estos
+  límites **no garantizan costo cero**; el gasto facturado todavía debe
+  contrastarse en Billing antes de una promoción.
 - **Estado de publicación: NO PROMOVER.** Este PR continúa en borrador hasta
   comprobar todos los criterios siguientes y recibir la revisión de Rita.
 
@@ -117,4 +155,6 @@ piloto y enviar **una sola** solicitud de revisión a Rita.
 
 Referencias oficiales: [identidades externas de IAP](https://docs.cloud.google.com/iap/docs/enable-external-identities),
 [cabeceras firmadas](https://docs.cloud.google.com/iap/docs/signed-headers-howto),
-[sesiones externas](https://docs.cloud.google.com/iap/docs/external-identity-sessions).
+[sesiones externas](https://docs.cloud.google.com/iap/docs/external-identity-sessions),
+[vigencia de sesión IAP](https://docs.cloud.google.com/iap/docs/sessions-howto) y
+[`auth_time` de Identity Platform](https://firebase.google.com/docs/reference/admin/node/firebase-admin.auth.decodedidtoken).
