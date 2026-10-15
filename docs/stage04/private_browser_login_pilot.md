@@ -145,18 +145,23 @@ evaluar antes el costo y la posible retención de datos.
   `maxScale=1`. Ambos tienen `minScale` sin fijar (escala a cero por defecto).
   La alerta presupuestaria existente sigue vigente; el objetivo operativo es
   gasto cero y el techo autorizado sigue siendo USD 20/mes total. Estos
-  límites **no garantizan costo cero**; el gasto facturado todavía debe
-  contrastarse en Billing antes de una promoción.
+  límites **no garantizan costo cero**; el gasto mostrado en Billing y sus
+  eventuales ajustes deben volver a contrastarse antes de una promoción.
 - Se verificó por lectura de Cloud Billing que el proyecto tiene facturación
   vinculada y existe un presupuesto mensual de PEN 67 (aproximación del techo
   USD 20) con avisos de gasto actual al 5 %, 25 %, 50 % y 100 %, además de
   un canal de notificación configurado. El presupuesto se aplica a la cuenta
   de facturación, sin filtro de proyecto; es una **alerta**, no un límite
-  estricto de gasto. Esta comprobación no proporciona el costo real acumulado.
-  Ana informó que el informe de Billing filtrado al proyecto muestra `0`
-  durante esta verificación; no comunicó una moneda. Es una lectura manual
-  puntual y puede tener retraso de contabilización, no una garantía de gasto
-  futuro cero.
+  estricto de gasto. La captura posterior del desglose de costos, para el
+  período de cargos del 2026-09-01 al 2026-10-14 y `All projects (1)`,
+  muestra S/ 6,81 de uso, -S/ 6,47 de descuentos y **S/ 0,34 de total**.
+  Corrige la lectura verbal previa de `0`: el gasto neto mostrado **no es
+  cero**. Una segunda captura del 1 al 14 de octubre muestra PEN 0,34
+  acumulados, una proyección de PEN 0,40 para octubre completo y atribuye
+  aproximadamente PEN 0,33 del incremento a Artifact Registry Storage.
+  La proyección no es gasto facturado; las capturas son puntuales y pueden
+  tener retraso de contabilización. El objetivo operativo de gasto cero
+  **aún no se cumple**.
 - **Estado de publicación: NO PROMOVER.** Este PR continúa en borrador hasta
   comprobar todos los criterios siguientes y recibir la revisión de Rita.
 
