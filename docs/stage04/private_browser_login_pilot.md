@@ -98,6 +98,11 @@ evaluar antes el costo y la posible retención de datos.
   ventana de incógnito, una contraseña incorrecta y un usuario distinto
   permanecieron fuera de los resultados. Estas pruebas son observaciones
   manuales de Ana, no una auditoría independiente de Rita.
+  Como restricción deliberada, una conexión nueva tras 300 s desde el último
+  ingreso con contraseña pide reautenticación incluso si la sesión anterior
+  tuvo actividad; una sesión que continúa abierta conserva el criterio de
+  300 s **de inactividad**. Esto evita que una cookie IAP retenida durante
+  hasta una hora abra una conexión nueva sin contraseña.
 - Tras el ingreso, Ana recorrió los seis módulos 3.1–3.6 y confirmó que el
   selector de temas responde en cada uno. El catálogo de 80 temas (11, 18,
   20, 9, 12 y 10 por módulo) se fija en `report_topics.py` y sus pruebas de
