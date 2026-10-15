@@ -33,7 +33,11 @@ from enares.stage04.indicator_labels import (
     indicator_display_name,
     indicator_option_label,
 )
-from enares.stage04.report_topics import load_topic_mapping, resolve_assignment
+from enares.stage04.report_topics import (
+    STANDARD_DISAGGREGATIONS,
+    load_topic_mapping,
+    resolve_assignment,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 GOLDEN = ROOT / "tests" / "golden" / "stage04_32_national"
@@ -124,7 +128,7 @@ def test_one_visible_dimension_control_filters_an_existing_category_only():
     assert "Dimensión" not in [box.label for box in app.sidebar.selectbox]
     assert app.session_state["real_filter_Área"] == "1"
     assert all(
-        box.disabled
+        not box.disabled
         for box in app.selectbox
         if box.label
         in {
@@ -155,13 +159,62 @@ def test_each_standard_filter_selects_a_v0_cut_and_resets_to_national(
         dimension, app.session_state[f"real_filter_{dimension}"]
     ) == category
     assert all(
-        box.disabled
+        not box.disabled
         for box in app.selectbox
         if box.key and box.key.startswith("real_filter_") and box.key != f"real_filter_{dimension}"
     )
     next(button for button in app.button if button.label == "Volver a Nacional").click().run(timeout=30)
     assert not app.exception
     assert app.session_state[f"real_filter_{dimension}"] == "Todas"
+
+
+def test_switching_standard_filters_replaces_the_cut_without_crossing_them():
+    app = _app()
+    next(box for box in app.selectbox if box.label == "Ámbito de la IIEE").set_value(
+        "1"
+    ).run(timeout=30)
+    assert not app.exception
+    next(box for box in app.selectbox if box.label == "Sexo").set_value("1").run(
+        timeout=30
+    )
+    assert not app.exception
+    assert app.session_state["real_filter_Área"] == "Todas"
+    assert app.session_state["real_filter_Sexo"] == "1"
+    assert sum(
+        app.session_state[f"real_filter_{dimension}"] != "Todas"
+        for dimension in STANDARD_DIMENSIONS
+    ) == 1
+
+
+def test_national_overlap_topic_can_select_each_existing_v0_matrix():
+    app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py"))
+    app.query_params["view"] = "Módulo 3.4"
+    app.query_params["topic"] = "3.4.04"
+    app.run(timeout=30)
+    assert not app.exception
+    matrix = next(box for box in app.selectbox if box.label == "Otras características")
+    assert matrix.options == ["Todas", "2×2", "3×3"]
+    assert not matrix.disabled
+    matrix.set_value("2×2").run(timeout=30)
+    assert not app.exception
+    assert len(app.get("vega_lite_chart")) == 2
+    table = next(
+        element.proto.body
+        for element in app.get("html")
+        if '<div class="table-wrap"><table class="data">' in element.proto.body
+    )
+    assert table.count("<tr>") == 5  # Header plus four approved V0 rows.
+    next(
+        box for box in app.selectbox if box.label == "Otras características"
+    ).set_value("3×3").run(timeout=30)
+    assert not app.exception
+    assert len(app.get("vega_lite_chart")) == 2
+    table = next(
+        element.proto.body
+        for element in app.get("html")
+        if '<div class="table-wrap"><table class="data">' in element.proto.body
+    )
+    assert table.count("<tr>") == 13  # Header plus twelve approved V0 rows.
 
 
 def test_v0_period_pairs_use_exact_existing_rows_without_new_estimates() -> None:
@@ -359,6 +412,27 @@ def test_all_80_topic_links_render_their_own_v0_rows_or_explicit_empty_state():
         app.run(timeout=30)
         assert not app.exception, topic.topic_id
         assert app.session_state["active_report_topic_id"] == topic.topic_id
+        dimensions = {
+            result.row.disaggregation
+            for result in results
+            if resolve_assignment(catalog.assignments, result.row).topic_id
+            == topic.topic_id
+        }
+        if topic.national_only:
+            assert not dimensions.intersection(STANDARD_DIMENSIONS), topic.topic_id
+        for dimension in STANDARD_DIMENSIONS:
+            widget = next(
+                box for box in app.selectbox if box.key == f"real_filter_{dimension}"
+            )
+            assert widget.disabled == (
+                topic.national_only or dimension not in dimensions
+            ), (topic.topic_id, dimension)
+        special = next(
+            box for box in app.selectbox if box.label == "Otras características"
+        )
+        assert special.disabled == (
+            not bool(dimensions - STANDARD_DISAGGREGATIONS)
+        ), topic.topic_id
         tables = [
             element.proto.body
             for element in app.get("html")

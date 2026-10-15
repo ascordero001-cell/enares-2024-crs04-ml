@@ -349,6 +349,18 @@ def _clear_disaggregation() -> None:
     st.session_state[SPECIAL_FILTER_KEY] = NO_SELECTION
 
 
+def _select_disaggregation(dimension: str) -> None:
+    """Switch to one existing V0 cut without combining dimensions."""
+    key = SPECIAL_FILTER_KEY if dimension == OTHER_CHARACTERISTICS else f"real_filter_{dimension}"
+    if st.session_state.get(key, NO_SELECTION) == NO_SELECTION:
+        return
+    for other in STANDARD_FILTERS:
+        if other != dimension:
+            st.session_state[f"real_filter_{other}"] = NO_SELECTION
+    if dimension != OTHER_CHARACTERISTICS:
+        st.session_state[SPECIAL_FILTER_KEY] = NO_SELECTION
+
+
 def _format_filter_value(value: str, *, source: str, has_national: bool) -> str:
     if source == "Departamento" and value == NO_SELECTION and has_national:
         return "Nacional (total)"
@@ -424,9 +436,9 @@ def effective_cut(
     ):
         active = OTHER_CHARACTERISTICS
     st.button(
-        "Volver a Nacional",
+        "Volver a Nacional" if has_national else "Mostrar todos los cortes V0",
         on_click=_clear_disaggregation,
-        disabled=not has_national or active is None or topic.national_only,
+        disabled=active is None,
         width="stretch",
     )
     for dimension, options in options_by_dimension.items():
@@ -437,27 +449,25 @@ def effective_cut(
             format_func=partial(
                 _format_filter_value, source=dimension, has_national=has_national
             ),
-            disabled=topic.national_only
-            or len(options) == 1
-            or active not in (None, dimension),
+            on_change=_select_disaggregation,
+            args=(dimension,),
+            disabled=topic.national_only or len(options) == 1,
         )
     st.selectbox(
         OTHER_CHARACTERISTICS,
         special_options,
         key=SPECIAL_FILTER_KEY,
-        disabled=(
-            topic.national_only
-            or len(special_options) == 1
-            or active not in (None, OTHER_CHARACTERISTICS)
-        ),
+        on_change=_select_disaggregation,
+        args=(OTHER_CHARACTERISTICS,),
+        disabled=len(special_options) == 1,
         help="Solo cortes presentes en V0 para este tema; no construye cruces nuevos.",
     )
+    if active == OTHER_CHARACTERISTICS:
+        return str(st.session_state[SPECIAL_FILTER_KEY]), None
     if topic.national_only:
         # Some approved national-only matrices use their matrix size as the
         # V0 disaggregation instead of the literal "Nacional" cut.
         return _default_topic_cut(rows)
-    if active == OTHER_CHARACTERISTICS:
-        return str(st.session_state[SPECIAL_FILTER_KEY]), None
     if active is not None:
         return active, str(st.session_state[f"real_filter_{active}"])
     return _default_topic_cut(rows)
@@ -698,7 +708,9 @@ def _render_topic_chart(
     active_category: str | None,
 ) -> None:
     if topic.topic_id == "3.4.04":
-        _render_overlap_matrices(results, assignment)
+        _render_overlap_matrices(
+            _visible_topic_rows(results, active_dimension, active_category), assignment
+        )
         return
     _render_paired_period_chart(
         topic, results, assignment, active_dimension=active_dimension

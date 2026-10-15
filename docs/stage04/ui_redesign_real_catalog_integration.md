@@ -62,6 +62,13 @@ Las opciones se derivan de filas verificadas. Una combinación ausente produce u
 estado vacío. CV alto y N reducido continúan visibles con sus alertas; la interfaz
 no transforma esos estados en supresión.
 
+El panel permite cambiar directamente de una desagregación disponible a otra:
+la selección nueva reemplaza la anterior y nunca forma un cruce entre ambas.
+«Otras características» muestra solo las dimensiones especiales existentes en
+el tema; en 3.4.04 permite elegir la matriz V0 2×2 o 3×3 sin modificar sus
+16 filas aprobadas. Los filtros sin filas V0 para el tema permanecen inactivos;
+en particular, 3.6 continúa únicamente a nivel nacional.
+
 El filtro de módulo y la vista modular se sincronizan en ambos sentidos con el
 título y el parámetro `view` de la URL. El forest plot se habilita solamente al
 seleccionar un indicador y cada punto se identifica como `Indicador — categoría`;
