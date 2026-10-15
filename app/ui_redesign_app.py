@@ -10,6 +10,7 @@ from hashlib import sha256
 from html import escape
 from pathlib import Path
 from textwrap import wrap
+from time import monotonic, time
 
 import streamlit as st
 
@@ -20,6 +21,12 @@ for path in (ROOT, ROOT / "src"):
 
 from app.repositories import configured_repositories
 from app.views.export_controls import render_safe_export
+from app.views.idle_access import (
+    browser_session_allowed,
+    client_idle_guard_html,
+    iap_signout_url,
+    idle_expired,
+)
 from app.views.ui_redesign_real import (
     MODULE_IDS,
     STATE_LABELS,
@@ -98,6 +105,122 @@ NAVIGATION_WIDGET_ID = "stage04_visible_tab"
 STANDARD_FILTERS = STANDARD_DIMENSIONS
 SPECIAL_FILTER_KEY = "real_special_dimension"
 NO_SELECTION = "Todas"
+IDLE_LAST_ACTIVITY_KEY = "stage04_last_activity_monotonic"
+IDLE_BLOCKED_KEY = "stage04_idle_blocked"
+IDLE_AUTH_TIME_KEY = "stage04_password_auth_time"
+
+
+def _signed_iap_auth_time() -> int | None:
+    """Require a signed token and its password-authentication timestamp."""
+    try:
+        # The local UI intentionally has no cloud-auth dependency installed.
+        from app.views.iap_identity import (
+            cloud_run_iap_audience,
+            verified_external_iap_auth_time,
+        )
+
+        audience = cloud_run_iap_audience(
+            os.getenv("STAGE04_IAP_PROJECT_NUMBER", ""),
+            os.getenv("STAGE04_IAP_REGION", ""),
+            os.getenv("STAGE04_IAP_SERVICE", ""),
+        )
+        assertion = st.context.headers.get("x-goog-iap-jwt-assertion")
+    except (AttributeError, ImportError, RuntimeError, ValueError):
+        return None
+    return verified_external_iap_auth_time(
+        assertion, audience, os.getenv("STAGE04_IAP_EXPECTED_UID", "")
+    )
+
+
+def _block_idle_session() -> None:
+    """Remove every displayed selection before rendering the blocked screen."""
+    st.session_state.clear()
+    st.query_params.clear()
+    st.session_state[IDLE_BLOCKED_KEY] = True
+
+
+@st.fragment(run_every="5s")
+def _idle_watchdog() -> None:
+    """Expire an untouched page even when no widget triggers an app rerun."""
+    last_activity = st.session_state.get(IDLE_LAST_ACTIVITY_KEY)
+    if isinstance(last_activity, (int, float)) and idle_expired(
+        float(last_activity), monotonic()
+    ):
+        _block_idle_session()
+        st.rerun()
+
+
+def _idle_gate() -> bool:
+    """Keep V0 results out of the page until the user explicitly continues."""
+    now = monotonic()
+    last_activity = st.session_state.get(IDLE_LAST_ACTIVITY_KEY)
+    if isinstance(last_activity, (int, float)) and idle_expired(
+        float(last_activity), now
+    ):
+        _block_idle_session()
+
+    if os.getenv("STAGE04_DATA_MODE") == "AUTHENTICATED_SHADOW":
+        auth_time = _signed_iap_auth_time()
+        if auth_time is None:
+            st.title("Acceso privado")
+            st.error("La identidad de acceso no pudo verificarse.")
+            return False
+        guard_html = client_idle_guard_html(os.getenv("STAGE04_IAP_SERVICE_URL", ""))
+        if guard_html is None:
+            st.title("Acceso privado")
+            st.error("No se pudo configurar el cierre de sesión.")
+            return False
+        bound_auth_time = st.session_state.get(IDLE_AUTH_TIME_KEY)
+        if not browser_session_allowed(auth_time, bound_auth_time, time()):
+            _block_idle_session()
+            st.title("Sesión cerrada por inactividad")
+            st.info("Para volver a consultar resultados, inicia sesión nuevamente.")
+            signout_url = iap_signout_url(os.getenv("STAGE04_IAP_SERVICE_URL", ""))
+            if signout_url:
+                st.link_button("Iniciar sesión", signout_url, type="primary")
+            return False
+        if st.session_state.get(IDLE_BLOCKED_KEY):
+            if bound_auth_time != auth_time:
+                # A new password sign-in is the only way to reset an expired
+                # browser session; the signed auth_time must also be recent.
+                st.session_state.clear()
+            else:
+                st.title("Sesión cerrada por inactividad")
+                st.info("Se borraron los resultados. Inicia sesión nuevamente.")
+                signout_url = iap_signout_url(os.getenv("STAGE04_IAP_SERVICE_URL", ""))
+                if signout_url:
+                    # A fresh credential prompt requires ending the IAP cookie,
+                    # not merely clearing Streamlit's browser-side selections.
+                    st.markdown(
+                        '<meta http-equiv="refresh" content="0;url='
+                        f'{escape(signout_url, quote=True)}">',
+                        unsafe_allow_html=True,
+                    )
+                    st.link_button(
+                        "Iniciar sesión",
+                        signout_url,
+                        type="primary",
+                    )
+                return False
+        st.html(guard_html, unsafe_allow_javascript=True)
+        st.session_state[IDLE_AUTH_TIME_KEY] = auth_time
+        st.session_state[IDLE_LAST_ACTIVITY_KEY] = now
+        _idle_watchdog()
+        return True
+
+    if st.session_state.get(IDLE_BLOCKED_KEY):
+        st.title("Sesión bloqueada por inactividad")
+        st.info("Se borraron los filtros y resultados tras 300 segundos sin actividad.")
+        if st.button("Continuar con Google", type="primary"):
+            st.session_state.clear()
+            st.query_params.clear()
+            st.session_state[IDLE_LAST_ACTIVITY_KEY] = now
+            st.rerun()
+        return False
+
+    st.session_state[IDLE_LAST_ACTIVITY_KEY] = now
+    _idle_watchdog()
+    return True
 
 
 def _source_identity() -> str:
@@ -768,6 +891,8 @@ def render() -> None:
         layout="wide",
         initial_sidebar_state="collapsed",
     )
+    if not _idle_gate():
+        return
     inject_mockup_css()
     try:
         repository, _ = configured_repositories()
