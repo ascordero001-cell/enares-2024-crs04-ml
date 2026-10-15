@@ -62,11 +62,38 @@ try {
       throw new Error(`${viewport.width}: cards are not on one row`);
     }
     for (let index = 0; index < 6; index += 1) {
-      const overflow = await cards.nth(index).evaluate((node) => node.scrollWidth > node.clientWidth + 1);
+      const overflow = await cards.nth(index).evaluate(
+        (node) => node.scrollWidth > node.clientWidth + 1 || node.scrollHeight > node.clientHeight + 1,
+      );
       if (overflow) throw new Error(`${viewport.width}: card ${index + 1} overflows`);
       const text = await cards.nth(index).innerText();
       if ((index === 0 && text.includes('(últimos 12 meses)')) || (index > 0 && !text.includes('(últimos 12 meses)'))) {
         throw new Error(`${viewport.width}: card ${index + 1} reference period`);
+      }
+    }
+    if (viewport.width === 1536) {
+      const cardGeometry = await cards.evaluateAll((nodes) => nodes.map((node) => ({
+        height: node.getBoundingClientRect().height,
+        valueBottom: node.querySelector("p:last-child").getBoundingClientRect().bottom,
+        periodClipped: node.querySelector("p:nth-child(4)").scrollHeight > node.querySelector("p:nth-child(4)").clientHeight,
+      })));
+      if (cardGeometry.some((item) => Math.abs(item.height - cardGeometry[0].height) > 1 ||
+          Math.abs(item.valueBottom - cardGeometry[0].valueBottom) > 1 || item.periodClipped)) {
+        throw new Error(`1536: card height, value alignment, or period visibility: ${JSON.stringify(cardGeometry)}`);
+      }
+      for (const selector of [
+        ".st-key-stage04_module_cards button p",
+        ".st-key-stage04_topic_catalog [role=radio]",
+        ".st-key-stage04_left_rail [data-testid=stSelectbox] label",
+        ".st-key-stage04_center .table-wrap table.data td",
+        ".st-key-stage04_right_rail .detail-item dd",
+      ]) {
+        const sizes = await page.locator(selector).evaluateAll((nodes) =>
+          nodes.map((node) => parseFloat(getComputedStyle(node).fontSize)),
+        );
+        if (sizes.some((size) => size < 12)) {
+          throw new Error(`1536: data text below 12 px in ${selector}: ${JSON.stringify(sizes)}`);
+        }
       }
     }
     const tabs = page.locator('.st-key-stage04_visible_tab [role="radio"]');
@@ -206,7 +233,7 @@ try {
   if (!(await detailPage.locator('.chart-group-head').first().innerText()).includes('(últimos 12 meses)')) {
     throw new Error('3.2.01: chart period is missing from heading');
   }
-  const topicTable = detailPage.locator('.table-wrap table.data').first();
+  const topicTable = detailPage.locator('div.table-wrap > table.data').first();
   if (await topicTable.locator('th', { hasText: 'Período' }).count()) {
     throw new Error('3.2.01: period must be attached to the indicator, not a separate column');
   }
@@ -233,7 +260,7 @@ try {
   if (!await detailPage.getByRole("button", { name: "Volver a Nacional" }).isDisabled()) {
     throw new Error("3.2.01: reset should be disabled at national default");
   }
-  if (!(await detailPage.locator(".table-wrap").first().innerText()).includes("Nacional")) {
+  if (!(await detailPage.locator("div.table-wrap").first().innerText()).includes("Nacional")) {
     throw new Error("3.2.01: national default missing from table");
   }
   for (const [index, required, forbidden] of [
@@ -253,16 +280,24 @@ try {
     await detailPage.getByRole("option").first().waitFor({ state: "hidden" });
   }
   for (const [selector, expected] of [
-    [".section-head:not(.topic) h2", 18],
-    [".section-head.topic h2", 15],
-    [".table-wrap table.data", 12.6],
+    [".section-head:not(.topic) h2", 20],
+    [".section-head.topic h2", 17],
+    ["div.table-wrap > table.data", 13.5],
     [".st-key-stage04_visible_tab [role=radio]", 12.8],
-    [".st-key-stage04_right_rail .ficha", 12.3],
+    [".st-key-stage04_right_rail .detail-item dd", 13.5],
   ]) {
     const size = await detailPage.locator(selector).first().evaluate((node) => parseFloat(getComputedStyle(node).fontSize));
     close(size, expected, 0.5, `3.2.01: font ${selector}`);
   }
-  const tableFit = await detailPage.locator(".table-wrap").first().evaluate((node) => ({
+  const brokenDetailLabels = await detailPage.locator('[data-testid="stage04-detail-sheet"] dt').evaluateAll((nodes) =>
+    nodes.filter((node) => {
+      const style = getComputedStyle(node);
+      const lineHeight = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.5;
+      return /estimación|denominador|n no ponderado/i.test(node.textContent) &&
+        node.getBoundingClientRect().height > lineHeight * 1.5;
+    }).map((node) => node.textContent));
+  if (brokenDetailLabels.length) throw new Error(`Detail labels wrap: ${brokenDetailLabels.join(", ")}`);
+  const tableFit = await detailPage.locator("div.table-wrap").first().evaluate((node) => ({
     scroll: node.scrollWidth, client: node.clientWidth,
     nWhiteSpace: getComputedStyle(node.querySelector("td:nth-child(6)")).whiteSpace,
   }));
@@ -277,12 +312,12 @@ try {
   await filterPage.getByRole("option", { name: "Callao" }).click();
   await filterPage.locator(".chart-group-head").filter({ hasText: "Departamento" }).waitFor();
   await filterPage.waitForFunction(() => document.querySelectorAll(".chart-group-head").length === 1);
-  await filterPage.waitForFunction(() => document.querySelector(".table-wrap")?.textContent?.includes("Departamento · Callao"));
-  if (!(await filterPage.locator(".table-wrap").first().innerText()).includes("Departamento · Callao")) {
+  await filterPage.waitForFunction(() => document.querySelector("div.table-wrap")?.textContent?.includes("Departamento · Callao"));
+  if (!(await filterPage.locator("div.table-wrap").first().innerText()).includes("Departamento · Callao")) {
     throw new Error("3.2.01: selected department missing from table");
   }
   await filterPage.getByRole("button", { name: "Volver a Nacional" }).click();
-  await filterPage.waitForFunction(() => document.querySelector(".table-wrap")?.textContent?.includes("Nacional"));
+  await filterPage.waitForFunction(() => document.querySelector("div.table-wrap")?.textContent?.includes("Nacional"));
   if (!await filterPage.getByRole("button", { name: "Volver a Nacional" }).isDisabled()) {
     throw new Error("3.2.01: reset did not clear active disaggregation");
   }

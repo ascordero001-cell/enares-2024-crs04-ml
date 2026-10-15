@@ -36,15 +36,6 @@ def render_exact_header(
     )
 
 
-def render_exact_scope_banner(message: str) -> None:
-    st.html(
-        '<section class="banner" data-testid="stage04-exact-banner">'
-        '<span class="tag">ACCESO CONTROLADO</span><div>'
-        "<strong>Aplicación privada con resultados agregados.</strong> "
-        f"{escape(message)}</div></section>"
-    )
-
-
 def render_module_cards(
     modules: Iterable[Mapping[str, str]],
     *,

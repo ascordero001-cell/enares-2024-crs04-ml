@@ -201,8 +201,9 @@ def test_characterization_shows_each_universe_once_without_repeated_n():
         for element in app.get("html")
         if 'data-testid="stage04-context-universes"' in element.proto.body
     )
-    assert context.count("· UNIVERSO") == 1
-    assert context.count("DENOMINADOR") == 1
+    assert context.count("<th>Universo</th>") == 1
+    assert context.count("<th>Denominador</th>") == 1
+    assert context.count("<tbody><tr>") == 1
     assert "N SIN PONDERAR" not in context
 
 

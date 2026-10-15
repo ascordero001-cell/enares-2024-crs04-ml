@@ -7,18 +7,36 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any, cast
 
+import pytest
 from streamlit.testing.v1 import AppTest
 
 from app.streamlit_app import local_repositories
+from app.ui_redesign_app import (
+    _default_topic_cut,
+    _matrix_cells,
+    _paired_period_records,
+    _visible_topic_rows,
+)
 from app.views.ui_redesign_real import (
+    enforce_module_isolation,
     filter_authorized_results,
     forest_record,
     load_authorized_results,
     numeric_card,
+    protected_export_row,
+    rows_for_topic,
+    visible_cut,
+    visible_overlap_labels,
 )
+from enares.stage04.display_taxonomy import STANDARD_DIMENSIONS, display_category
 from enares.stage04.indicator_labels import (
     indicator_display_name,
     indicator_option_label,
+)
+from enares.stage04.report_topics import (
+    STANDARD_DISAGGREGATIONS,
+    load_topic_mapping,
+    resolve_assignment,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -110,7 +128,7 @@ def test_one_visible_dimension_control_filters_an_existing_category_only():
     assert "Dimensión" not in [box.label for box in app.sidebar.selectbox]
     assert app.session_state["real_filter_Área"] == "1"
     assert all(
-        box.disabled
+        not box.disabled
         for box in app.selectbox
         if box.label
         in {
@@ -125,6 +143,142 @@ def test_one_visible_dimension_control_filters_an_existing_category_only():
         }
         and box.label != "Ámbito de la IIEE"
     )
+
+
+@pytest.mark.parametrize("dimension", STANDARD_DIMENSIONS)
+def test_each_standard_filter_selects_a_v0_cut_and_resets_to_national(
+    dimension: str,
+) -> None:
+    app = _app()
+    widget = next(box for box in app.selectbox if box.key == f"real_filter_{dimension}")
+    assert len(widget.options) > 1
+    category = widget.options[1]
+    widget.set_value(category).run(timeout=30)
+    assert not app.exception
+    assert display_category(
+        dimension, app.session_state[f"real_filter_{dimension}"]
+    ) == category
+    assert all(
+        not box.disabled
+        for box in app.selectbox
+        if box.key and box.key.startswith("real_filter_") and box.key != f"real_filter_{dimension}"
+    )
+    next(button for button in app.button if button.label == "Volver a Nacional").click().run(timeout=30)
+    assert not app.exception
+    assert app.session_state[f"real_filter_{dimension}"] == "Todas"
+
+
+def test_switching_standard_filters_replaces_the_cut_without_crossing_them():
+    app = _app()
+    next(box for box in app.selectbox if box.label == "Ámbito de la IIEE").set_value(
+        "1"
+    ).run(timeout=30)
+    assert not app.exception
+    next(box for box in app.selectbox if box.label == "Sexo").set_value("1").run(
+        timeout=30
+    )
+    assert not app.exception
+    assert app.session_state["real_filter_Área"] == "Todas"
+    assert app.session_state["real_filter_Sexo"] == "1"
+    assert sum(
+        app.session_state[f"real_filter_{dimension}"] != "Todas"
+        for dimension in STANDARD_DIMENSIONS
+    ) == 1
+
+
+def test_national_overlap_topic_can_select_each_existing_v0_matrix():
+    app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py"))
+    app.query_params["view"] = "Módulo 3.4"
+    app.query_params["topic"] = "3.4.04"
+    app.run(timeout=30)
+    assert not app.exception
+    matrix = next(box for box in app.selectbox if box.label == "Otras características")
+    assert matrix.options == ["Todas", "2×2", "3×3"]
+    assert not matrix.disabled
+    matrix.set_value("2×2").run(timeout=30)
+    assert not app.exception
+    assert len(app.get("vega_lite_chart")) == 2
+    table = next(
+        element.proto.body
+        for element in app.get("html")
+        if '<div class="table-wrap"><table class="data">' in element.proto.body
+    )
+    assert table.count("<tr>") == 5  # Header plus four approved V0 rows.
+    next(
+        box for box in app.selectbox if box.label == "Otras características"
+    ).set_value("3×3").run(timeout=30)
+    assert not app.exception
+    assert len(app.get("vega_lite_chart")) == 2
+    table = next(
+        element.proto.body
+        for element in app.get("html")
+        if '<div class="table-wrap"><table class="data">' in element.proto.body
+    )
+    assert table.count("<tr>") == 13  # Header plus twelve approved V0 rows.
+
+
+def test_v0_period_pairs_use_exact_existing_rows_without_new_estimates() -> None:
+    repository, _ = local_repositories()
+    results = load_authorized_results(repository)
+    catalog = load_topic_mapping(
+        ROOT / "src" / "enares" / "stage04" / "report_topic_map.csv",
+        catalog_rows=[result.row for result in results],
+    )
+    topic_rows = [
+        result
+        for result in results
+        if resolve_assignment(catalog.assignments, result.row).topic_id == "3.4.01"
+        and result.row.disaggregation == "Nacional"
+    ]
+    pairs = _paired_period_records(topic_rows, catalog.assignments)
+    assert len(pairs) == 2
+    assert {record["period"] for record in pairs} == {
+        "Últimos 12 meses", "Alguna vez en la vida"
+    }
+    assert {record["estimate"] for record in pairs} == {
+        result.row.estimate for result in topic_rows
+    }
+    assert {record["n"] for record in pairs} == {
+        result.row.n_unweighted for result in topic_rows
+    }
+    app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py"))
+    app.query_params["view"] = "Módulo 3.4"
+    app.query_params["topic"] = "3.4.01"
+    app.run(timeout=30)
+    assert not app.exception
+    assert any(
+        "Comparación de períodos V0" in element.proto.body
+        for element in app.get("html")
+    )
+
+
+@pytest.mark.parametrize(
+    "topic_id",
+    ("3.2.05", "3.2.06", "3.3.05", "3.3.06", "3.4.01", "3.4.02", "3.4.03", "3.4.05"),
+)
+def test_each_eligible_two_period_topic_has_only_verified_v0_pairs(
+    topic_id: str,
+) -> None:
+    repository, _ = local_repositories()
+    results = load_authorized_results(repository)
+    catalog = load_topic_mapping(
+        ROOT / "src" / "enares" / "stage04" / "report_topic_map.csv",
+        catalog_rows=[result.row for result in results],
+    )
+    topic_rows = [
+        result
+        for result in results
+        if resolve_assignment(catalog.assignments, result.row).topic_id == topic_id
+        and result.row.disaggregation == "Nacional"
+    ]
+    records = _paired_period_records(topic_rows, catalog.assignments)
+    assert records, topic_id
+    assert len(records) % 2 == 0
+    source_values = {result.row.estimate for result in topic_rows}
+    assert {record["estimate"] for record in records} <= source_values
+    assert {record["period"] for record in records} == {
+        "Últimos 12 meses", "Alguna vez en la vida"
+    }
 
 
 def test_every_v0_indicator_has_a_human_primary_label_and_keeps_its_code():
@@ -208,3 +362,195 @@ def test_empty_selection_has_no_unrelated_indicator_sheet():
     )
     assert "Sin datos en el release V0" in visible
     assert "Estimación:" not in visible
+
+
+def test_every_topic_with_v0_rows_keeps_at_least_one_default_visible_row():
+    repository, _ = local_repositories()
+    results = load_authorized_results(repository)
+    catalog = load_topic_mapping(
+        ROOT / "src" / "enares" / "stage04" / "report_topic_map.csv",
+        catalog_rows=[result.row for result in results],
+    )
+    for topic in catalog.topics:
+        module_rows = enforce_module_isolation(
+            (
+                result
+                for result in results
+                if resolve_assignment(catalog.assignments, result.row).module_id
+                == topic.module_id
+            ),
+            active_module_id=topic.module_id,
+            assignment=catalog.assignments,
+        )
+        topic_rows = rows_for_topic(
+            module_rows,
+            active_module_id=topic.module_id,
+            topic=topic,
+            assignment=catalog.assignments,
+        )
+        if topic_rows:
+            dimension, category = _default_topic_cut(topic_rows)
+            assert _visible_topic_rows(topic_rows, dimension, category), topic.topic_id
+
+
+def test_all_80_topic_links_render_their_own_v0_rows_or_explicit_empty_state():
+    repository, _ = local_repositories()
+    results = load_authorized_results(repository)
+    catalog = load_topic_mapping(
+        ROOT / "src" / "enares" / "stage04" / "report_topic_map.csv",
+        catalog_rows=[result.row for result in results],
+    )
+    assert len(catalog.topics) == 80
+    populated = {
+        resolve_assignment(catalog.assignments, result.row).topic_id
+        for result in results
+    }
+    for topic in catalog.topics:
+        app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py"))
+        app.query_params["view"] = f"Módulo {topic.module_id}"
+        app.query_params["topic"] = topic.topic_id
+        app.run(timeout=30)
+        assert not app.exception, topic.topic_id
+        assert app.session_state["active_report_topic_id"] == topic.topic_id
+        dimensions = {
+            result.row.disaggregation
+            for result in results
+            if resolve_assignment(catalog.assignments, result.row).topic_id
+            == topic.topic_id
+        }
+        if topic.national_only:
+            assert not dimensions.intersection(STANDARD_DIMENSIONS), topic.topic_id
+        for dimension in STANDARD_DIMENSIONS:
+            widget = next(
+                box for box in app.selectbox if box.key == f"real_filter_{dimension}"
+            )
+            assert widget.disabled == (
+                topic.national_only or dimension not in dimensions
+            ), (topic.topic_id, dimension)
+        special = next(
+            box for box in app.selectbox if box.label == "Otras características"
+        )
+        assert special.disabled == (
+            not bool(dimensions - STANDARD_DISAGGREGATIONS)
+        ), topic.topic_id
+        tables = [
+            element.proto.body
+            for element in app.get("html")
+            if '<div class="table-wrap"><table class="data">' in element.proto.body
+        ]
+        if topic.topic_id in populated:
+            assert tables, topic.topic_id
+        else:
+            assert any(
+                "Sin datos en el release V0" in info.value for info in app.info
+            ), topic.topic_id
+
+
+def test_sexual_overlap_shows_all_approved_rows_in_separate_matrices():
+    repository, _ = local_repositories()
+    results = load_authorized_results(repository)
+    overlap = [
+        result
+        for result in results
+        if result.row.indicator_id in {"Solap_VS_12M", "Solap_VS_VIDA"}
+    ]
+    assert len(overlap) == 16
+    assert _default_topic_cut(overlap) == (None, None)
+    assert len(_visible_topic_rows(overlap, None, None)) == 16
+    for indicator in ("Solap_VS_12M", "Solap_VS_VIDA"):
+        for matrix_size, expected_count in (("2×2", 2), ("3×3", 6)):
+            subset = [
+                result
+                for result in overlap
+                if result.row.indicator_id == indicator
+                and result.row.disaggregation == matrix_size
+            ]
+            assert len(_matrix_cells(subset)) == expected_count
+
+    app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py"))
+    app.query_params["view"] = "Módulo 3.4"
+    app.query_params["topic"] = "3.4.04"
+    app.run(timeout=30)
+    assert not app.exception
+    tables = [
+        element.proto.body
+        for element in app.get("html")
+        if '<div class="table-wrap"><table class="data">' in element.proto.body
+    ]
+    assert len(tables) == 1
+    assert tables[0].count("<tr>") == 17  # Header and 16 approved V0 rows.
+    assert len(app.get("vega_lite_chart")) == 4
+
+
+def test_sexual_overlap_hides_questionnaire_codes_only_in_display():
+    repository, _ = local_repositories()
+    overlap = [
+        result
+        for result in load_authorized_results(repository)
+        if result.row.indicator_id in {"Solap_VS_12M", "Solap_VS_VIDA"}
+    ]
+    assert len(overlap) == 16
+    for result in overlap:
+        target, given, description = visible_overlap_labels(result.row.category)
+        assert target and given
+        assert description.startswith("Entre quienes sufrieron ")
+        assert visible_cut(result).startswith(f"Matriz {result.row.disaggregation} · ")
+        assert all(code not in visible_cut(result) for code in ("301", "302", "303", "P("))
+        assert protected_export_row(result).category == result.row.category
+
+    app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py"))
+    app.query_params["view"] = "Módulo 3.4"
+    app.query_params["topic"] = "3.4.04"
+    app.run(timeout=30)
+    assert not app.exception
+    table = next(
+        element.proto.body
+        for element in app.get("html")
+        if '<div class="table-wrap"><table class="data">' in element.proto.body
+    )
+    assert "Entre quienes sufrieron" in table
+    assert all(code not in table for code in ("301", "302", "303", "P("))
+    for cell in _matrix_cells(overlap):
+        assert all(
+            code not in str(cell[field])
+            for field in ("target", "given", "full_label")
+            for code in ("301", "302", "303", "P(")
+        )
+    for element in app.get("vega_lite_chart"):
+        spec = json.loads(element.proto.spec)
+        assert spec["layer"][0]["encoding"]["x"]["field"] == "target"
+        assert spec["layer"][0]["encoding"]["y"]["field"] == "given"
+        assert spec["layer"][0]["encoding"]["tooltip"][0]["field"] == "full_label"
+
+
+def test_national_bars_derive_reference_style_and_visible_value_from_row():
+    app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py"))
+    app.query_params["view"] = "Módulo 3.2"
+    app.query_params["topic"] = "3.2.02"
+    app.run(timeout=30)
+    assert not app.exception
+    chart = json.loads(app.get("vega_lite_chart")[0].proto.spec)
+    assert chart["layer"][0]["encoding"]["color"]["condition"]["test"] == (
+        "datum.referential"
+    )
+    assert chart["layer"][1]["encoding"]["text"]["field"] == "value_label"
+
+
+def test_national_summary_compares_the_six_existing_v0_headlines():
+    app = AppTest.from_file(str(ROOT / "app" / "ui_redesign_app.py"))
+    app.query_params["view"] = "Resumen nacional"
+    app.run(timeout=30)
+    assert not app.exception
+    assert len(app.get("vega_lite_chart")) == 1
+    chart = json.loads(app.get("vega_lite_chart")[0].proto.spec)
+    assert chart["layer"][0]["encoding"]["x"]["scale"]["domain"] == [0, 100]
+    assert chart["layer"][0]["encoding"]["y"]["axis"]["labelLimit"] >= 420
+    assert chart["layer"][0]["encoding"]["y"]["sort"] == [
+        "3.1 · Percepciones",
+        "3.2 · Violencia en el hogar",
+        "3.3 · Violencia en el entorno escolar",
+        "3.4 · Violencia sexual",
+        "3.5 · Acumulación de violencias",
+        "3.6 · Ayuda y respuesta",
+    ]
+    assert chart["layer"][1]["encoding"]["text"]["field"] == "value_label"
