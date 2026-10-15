@@ -142,6 +142,12 @@ evaluar antes el costo y la posible retención de datos.
   gasto cero y el techo autorizado sigue siendo USD 20/mes total. Estos
   límites **no garantizan costo cero**; el gasto facturado todavía debe
   contrastarse en Billing antes de una promoción.
+- Se verificó por lectura de Cloud Billing que el proyecto tiene facturación
+  vinculada y existe un presupuesto mensual de PEN 67 (aproximación del techo
+  USD 20) con avisos de gasto actual al 5 %, 25 %, 50 % y 100 %, además de
+  un canal de notificación configurado. El presupuesto se aplica a la cuenta
+  de facturación, sin filtro de proyecto; es una **alerta**, no un límite
+  estricto de gasto. Esta comprobación no proporciona el costo real acumulado.
 - **Estado de publicación: NO PROMOVER.** Este PR continúa en borrador hasta
   comprobar todos los criterios siguientes y recibir la revisión de Rita.
 
