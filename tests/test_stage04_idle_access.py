@@ -8,7 +8,9 @@ from streamlit.testing.v1 import AppTest
 from app.ui_redesign_app import IDLE_BLOCKED_KEY, IDLE_LAST_ACTIVITY_KEY
 from app.views.idle_access import (
     IDLE_TIMEOUT_SECONDS,
+    browser_session_allowed,
     client_idle_guard_html,
+    fresh_password_authentication,
     iap_signout_url,
     idle_expired,
 )
@@ -21,6 +23,18 @@ def test_idle_boundary_is_exactly_300_seconds() -> None:
     assert not idle_expired(None, 300.0)
     assert not idle_expired(1.0, 300.999)
     assert idle_expired(1.0, 301.0)
+
+
+def test_new_browser_session_rejects_stale_password_even_with_valid_iap_cookie() -> None:
+    assert fresh_password_authentication(1000, 1299.999)
+    assert not fresh_password_authentication(1000, 1300)
+    assert not fresh_password_authentication(None, 1300)
+    assert not fresh_password_authentication(0, 1300)
+    assert not fresh_password_authentication(2000, 1900)
+    assert not browser_session_allowed(1000, None, 1300)
+    assert browser_session_allowed(1000, None, 1299)
+    assert browser_session_allowed(1000, 1000, 1600)
+    assert not browser_session_allowed(1000, 999, 1600)
 
 
 def test_expired_session_clears_state_and_requires_continuation() -> None:

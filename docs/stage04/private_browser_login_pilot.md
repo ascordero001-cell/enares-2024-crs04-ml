@@ -84,8 +84,14 @@ evaluar antes el costo y la posible retención de datos.
   en Chrome la prueba de más de 300 s sin actividad y confirmó que los
   resultados se ocultaron y apareció el login. La prueba anterior fallida se
   hizo cuando el enlace normal aún servía la revisión previa `00007-fat`.
-  Sigue pendiente comprobar que, después del bloqueo, una nueva visita exige
-  credenciales válidas y no reutiliza silenciosamente la sesión anterior.
+  La prueba siguiente **falló**: al abrir de nuevo el enlace después de ver
+  el login, el navegador entró directamente a los resultados sin pedir clave.
+  Identity Platform e IAP pueden conservar su sesión durante hasta una hora
+  después de un logout; el cierre visual no basta para reautenticar. Una nueva
+  candidata bloquea en el backend las sesiones de navegador nuevas cuyo
+  `gcip.auth_time` firmado por IAP tiene 300 s o más, aunque la cookie IAP
+  todavía sea válida. Aún no se desplegó ni se verificó manualmente esa
+  barrera; el requisito de nueva autenticación sigue **PENDIENTE**.
 - El formulario piloto usa la revisión `enares-stage04-auth-pilot-00008-fes`
   (digest `sha256:b6af37ddc276c55510b00b545955fe8097b4ac4eb4eed283344e6fa4e490d38e`).
   Pasó por candidata al 0 %, pruebas locales de la política CSP y CI verde

@@ -6,6 +6,7 @@ from app.views.iap_identity import (
     IAP_CERTS_URL,
     IAP_ISSUER,
     cloud_run_iap_audience,
+    verified_external_iap_auth_time,
     verify_external_iap_identity,
 )
 
@@ -23,6 +24,7 @@ def _claims(**overrides):
         "gcip": json.dumps(
             {
                 "sub": UID,
+                "auth_time": 1_800_000_000,
                 "firebase": {"sign_in_provider": "password"},
             }
         ),
@@ -71,3 +73,32 @@ def test_invalid_signature_fails_closed():
     assert not verify_external_iap_identity(
         "forged-token", AUDIENCE, UID, verifier=verifier
     )
+
+
+def test_password_time_must_come_from_signed_iap_gcip_claims():
+    good = lambda *_args, **_kwargs: _claims()
+    assert verified_external_iap_auth_time(
+        "signed-token", AUDIENCE, UID, verifier=good
+    ) == 1_800_000_000
+    for invalid_time in (None, False, "1800000000", 0, -1):
+        claims = _claims(
+            gcip=json.dumps(
+                {
+                    "sub": UID,
+                    "auth_time": invalid_time,
+                    "firebase": {"sign_in_provider": "password"},
+                }
+            )
+        )
+        assert verified_external_iap_auth_time(
+            "signed-token",
+            AUDIENCE,
+            UID,
+            verifier=lambda *_args, item=claims, **_kwargs: item,
+        ) is None
+    assert verified_external_iap_auth_time(
+        "forged-token",
+        AUDIENCE,
+        UID,
+        verifier=lambda *_args, **_kwargs: (_ for _ in ()).throw(ValueError("bad sig")),
+    ) is None

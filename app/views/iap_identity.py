@@ -33,8 +33,39 @@ def verify_external_iap_identity(
     Unsigned identity headers, a Streamlit session flag, and caller-provided
     usernames are never sufficient. A missing configuration fails closed.
     """
+    return _verified_gcip_claims(
+        assertion, expected_audience, expected_uid, verifier=verifier
+    ) is not None
+
+
+def verified_external_iap_auth_time(
+    assertion: str | None,
+    expected_audience: str,
+    expected_uid: str,
+    *,
+    verifier: Callable[..., Mapping[str, Any]] | None = None,
+) -> int | None:
+    """Return the password authentication time only from a signed IAP token."""
+    gcip = _verified_gcip_claims(
+        assertion, expected_audience, expected_uid, verifier=verifier
+    )
+    if gcip is None:
+        return None
+    auth_time = gcip.get("auth_time")
+    if isinstance(auth_time, bool) or not isinstance(auth_time, int) or auth_time <= 0:
+        return None
+    return auth_time
+
+
+def _verified_gcip_claims(
+    assertion: str | None,
+    expected_audience: str,
+    expected_uid: str,
+    *,
+    verifier: Callable[..., Mapping[str, Any]] | None = None,
+) -> dict[str, Any] | None:
     if not assertion or not expected_audience or not expected_uid:
-        return False
+        return None
     if verifier is None:
         verifier = id_token.verify_token
     try:
@@ -45,18 +76,18 @@ def verify_external_iap_identity(
             certs_url=IAP_CERTS_URL,
         )
         if claims.get("iss") != IAP_ISSUER:
-            return False
+            return None
         if claims.get("aud") != expected_audience:
-            return False
+            return None
         gcip_raw = claims.get("gcip")
         gcip = json.loads(gcip_raw) if isinstance(gcip_raw, str) else gcip_raw
         if not isinstance(gcip, dict):
-            return False
+            return None
         firebase = gcip.get("firebase")
         if not isinstance(firebase, dict):
-            return False
+            return None
         if firebase.get("sign_in_provider") != "password":
-            return False
-        return gcip.get("sub") == expected_uid
+            return None
+        return gcip if gcip.get("sub") == expected_uid else None
     except (ValueError, TypeError, KeyError, OSError, GoogleAuthError):
-        return False
+        return None
