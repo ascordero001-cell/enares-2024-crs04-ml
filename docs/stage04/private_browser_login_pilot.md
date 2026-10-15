@@ -153,6 +153,10 @@ evaluar antes el costo y la posible retención de datos.
   un canal de notificación configurado. El presupuesto se aplica a la cuenta
   de facturación, sin filtro de proyecto; es una **alerta**, no un límite
   estricto de gasto. Esta comprobación no proporciona el costo real acumulado.
+  Ana informó que el informe de Billing filtrado al proyecto muestra `0`
+  durante esta verificación; no comunicó una moneda. Es una lectura manual
+  puntual y puede tener retraso de contabilización, no una garantía de gasto
+  futuro cero.
 - **Estado de publicación: NO PROMOVER.** Este PR continúa en borrador hasta
   comprobar todos los criterios siguientes y recibir la revisión de Rita.
 
