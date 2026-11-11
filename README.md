@@ -23,9 +23,11 @@ poblacional basada únicamente en agregados validados.
 > El techo presupuestario es USD 20/mes y el gasto objetivo es USD 0. V0 continúa oficial; no se
 > autoriza acceso público, publicación institucional, cutover ni sustitución de V0.
 
-**URL autenticada del shadow:**
-[enares-stage04-shadow](https://enares-stage04-shadow-bmg5ifoitq-uc.a.run.app).
-Requiere una identidad autorizada; no es una URL pública ni una publicación institucional.
+**Acceso al piloto privado del shadow:**
+[Abrir la aplicación ENARES](https://enares-stage04-iap-pilot-bmg5ifoitq-uc.a.run.app/).
+La entrada redirige al inicio de sesión y requiere una identidad autorizada; no es
+una URL pública ni una publicación institucional. El servicio backend permanece
+protegido y no admite acceso anónimo directo.
 
 ![Demostración sintética de estados candidato, referencia y suprimido](docs/stage04/evidence/sprint042_corte2_states.png)
 
